@@ -1,6 +1,8 @@
 import { Plus_Jakarta_Sans as JakartaSans } from "next/font/google"
 
 import { constructMetadata } from "@/configs/site.config"
+import ApiProvider from "@/providers/api-provider"
+import AuthProvider from "@/providers/auth-provider"
 import { ReactQueryClientProvider } from "@/providers/react-query-provider"
 import { ThemeProvider } from "@/providers/theme-provider"
 import NextTopLoader from "nextjs-toploader"
@@ -37,11 +39,15 @@ export default function RootLayout({
             enableColorScheme
           >
             <NextTopLoader height={4} color="#ea580c" showSpinner={false} />
-            <NuqsAdapter>
-              <div className="relative flex min-h-svh flex-col bg-background">
-                {children}
-              </div>
-            </NuqsAdapter>
+            <ApiProvider>
+              <AuthProvider>
+                <NuqsAdapter>
+                  <div className="relative flex min-h-svh flex-col bg-background">
+                    {children}
+                  </div>
+                </NuqsAdapter>
+              </AuthProvider>
+            </ApiProvider>
             <TailwindIndicator />
           </ThemeProvider>
         </ReactQueryClientProvider>
