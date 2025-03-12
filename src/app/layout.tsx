@@ -7,6 +7,7 @@ import { ReactQueryClientProvider } from "@/providers/react-query-provider"
 import { ThemeProvider } from "@/providers/theme-provider"
 import NextTopLoader from "nextjs-toploader"
 import { NuqsAdapter } from "nuqs/adapters/next/app"
+import { Toaster } from "sonner"
 
 import { cn } from "@/lib/utils"
 
@@ -42,6 +43,7 @@ export default function RootLayout({
             <ApiProvider>
               <AuthProvider>
                 <NuqsAdapter>
+                  <Toaster />
                   <div className="relative flex min-h-svh flex-col bg-background">
                     {children}
                   </div>
