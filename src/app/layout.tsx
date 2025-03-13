@@ -7,6 +7,7 @@ import { ReactQueryClientProvider } from "@/providers/react-query-provider"
 import { ThemeProvider } from "@/providers/theme-provider"
 import NextTopLoader from "nextjs-toploader"
 import { NuqsAdapter } from "nuqs/adapters/next/app"
+import { Toaster } from "sonner"
 
 import { cn } from "@/lib/utils"
 
@@ -38,10 +39,11 @@ export default function RootLayout({
             disableTransitionOnChange
             enableColorScheme
           >
-            <NextTopLoader height={4} color="#ea580c" showSpinner={false} />
+            <NextTopLoader height={4} color="#7c3aed" showSpinner={false} />
             <ApiProvider>
               <AuthProvider>
                 <NuqsAdapter>
+                  <Toaster />
                   <div className="relative flex min-h-svh flex-col bg-background">
                     {children}
                   </div>
