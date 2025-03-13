@@ -1,5 +1,7 @@
 "use client"
 
+import Link from "next/link"
+
 import { useAuth } from "@/providers/auth-provider"
 
 import { cn } from "@/lib/utils"
@@ -38,7 +40,11 @@ export function LoginForm({
               <FormItem>
                 <FormLabel>Email</FormLabel>
                 <FormControl>
-                  <Input type="email" placeholder="m@example.com" {...field} />
+                  <Input
+                    type="email"
+                    placeholder="davidben@gmail.com"
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -51,12 +57,12 @@ export function LoginForm({
               <FormItem>
                 <div className="flex items-center">
                   <FormLabel>Password</FormLabel>
-                  <a
-                    href="#"
+                  <Link
+                    href="/auth/forgot-password"
                     className="ml-auto text-sm underline-offset-4 hover:underline"
                   >
                     Forgot your password?
-                  </a>
+                  </Link>
                 </div>
                 <FormControl>
                   <Input type="password" {...field} />
@@ -91,9 +97,9 @@ export function LoginForm({
       </Form>
       <div className="text-center text-sm">
         Don&apos;t have an account?{" "}
-        <a href="#" className="underline underline-offset-4">
+        <Link href="/auth/signup" className="underline underline-offset-4">
           Sign up
-        </a>
+        </Link>
       </div>
     </div>
   )

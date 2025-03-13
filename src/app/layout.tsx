@@ -39,7 +39,7 @@ export default function RootLayout({
             disableTransitionOnChange
             enableColorScheme
           >
-            <NextTopLoader height={4} color="#ea580c" showSpinner={false} />
+            <NextTopLoader height={4} color="#2dac5c" showSpinner={false} />
             <ApiProvider>
               <AuthProvider>
                 <NuqsAdapter>
