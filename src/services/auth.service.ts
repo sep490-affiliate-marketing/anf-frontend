@@ -1,9 +1,9 @@
+import { ILoginForm } from "@/validations/auth.validation"
+
+import { ILoginRes } from "@/types/auth.type"
 import { IUser } from "@/types/user.type"
 
 import apiClient from "@/lib/api/client"
-import { ILoginForm } from "@/validations/auth.validation"
-import { ILoginRes } from "@/types/auth.type"
-import { toast } from "sonner"
 
 export const AuthService = {
   getUser: async () => {
@@ -11,14 +11,17 @@ export const AuthService = {
       const data = await apiClient.get<IBackendRes<IUser>>("/auth/me")
       return data
     } catch (error) {
+      const errRes = error as IBackendErrorRes
       return {
-        success: false,
-        message:
-          error instanceof Error ? error.message : "Failed to get user data",
+        isSuccess: false,
+        message: errRes.message,
+        value: null,
       }
     }
   },
-  login: async (formData: ILoginForm): Promise<ILoginRes | IBackendErrorRes> => {
+  login: async (
+    formData: ILoginForm
+  ): Promise<ILoginRes | IBackendErrorRes> => {
     try {
       const { data } = await apiClient.post<ILoginRes>(
         "/api/affiliate-network/users/login",
