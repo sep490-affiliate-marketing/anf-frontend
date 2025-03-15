@@ -34,7 +34,7 @@ export default function RootLayout({
         <ReactQueryClientProvider>
           <ThemeProvider
             attribute="class"
-            defaultTheme="system"
+            defaultTheme="light"
             enableSystem
             disableTransitionOnChange
             enableColorScheme

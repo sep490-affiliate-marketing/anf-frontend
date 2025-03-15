@@ -93,11 +93,7 @@ export default function Header() {
   )
 
   return (
-    <motion.header
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="sticky top-0 z-50 w-full border-b border-gray-200 bg-white backdrop-blur-xl"
-    >
+    <header className="sticky top-0 z-50 w-full border-b border-gray-200 bg-white backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <div className="flex items-center">
           <Link href="/" className="flex items-center space-x-2">
@@ -169,6 +165,6 @@ export default function Header() {
           </ul>
         </div>
       </motion.nav>
-    </motion.header>
+    </header>
   )
 }
