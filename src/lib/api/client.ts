@@ -7,7 +7,7 @@ const apiClient = axios.create({
   baseURL: env.NEXT_PUBLIC_BACKEND_URL,
   headers: {
     "Content-Type": "application/json",
-    "Accept": "application/json",
+    Accept: "application/json",
   },
 })
 

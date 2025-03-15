@@ -1,8 +1,9 @@
 "use server"
 
+import { cookies } from "next/headers"
+
 import { env } from "@/env"
 import axios from "axios"
-import { cookies } from "next/headers"
 
 export async function createApiServer() {
   const cookieStore = await cookies()
