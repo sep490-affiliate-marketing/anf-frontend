@@ -100,6 +100,8 @@ const columns: ColumnDef<Campaign>[] = [
     enableSorting: false,
     enableHiding: false,
     size: 40,
+    enablePinning: false,
+    enableResizing: false,
   },
   {
     header: "Campaign Name",
@@ -168,6 +170,9 @@ const columns: ColumnDef<Campaign>[] = [
         </div>
       )
     },
+    enablePinning: false,
+    enableResizing: false,
+    size: 80,
   },
 ]
 
@@ -180,7 +185,7 @@ export default function CampaignDataTable() {
     setData([
       {
         id: "1",
-        name: "1741273608-yMuleaInpSJdGKRX - ĐẶNG KIM MINH TIẾN",
+        name: "1741273608-yMuleaInpSJdGKRX - Samsung Grand Open",
         startDate: "7 tháng 03, 2025",
         endDate: "27 tháng 03, 2025",
         status: "inactive",

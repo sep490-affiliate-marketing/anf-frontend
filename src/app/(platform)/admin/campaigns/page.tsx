@@ -1,11 +1,3 @@
-import React from "react"
-
-import Link from "next/link"
-
-import { PlusIcon } from "lucide-react"
-
-import { buttonVariants } from "@/components/ui/button"
-
 import CampaignDataTable from "@/components/campaigns/data-table"
 import { SearchInput } from "@/components/inputs/search-input"
 
@@ -49,16 +41,18 @@ export default function Page() {
 
       {/* Search Section */}
 
-      <form className="flex w-[500px]">
-        <SearchInput
-          className="w-[500px] transition-all focus-within:ring-2 focus-within:ring-ring"
-          placeholder="Tìm kiếm nhân viên..."
-        />
-      </form>
+      <section className="space-y-4">
+        <form className="flex w-[500px]">
+          <SearchInput
+            className="w-[500px] transition-all focus-within:ring-2 focus-within:ring-ring"
+            placeholder="Tìm kiếm nhân viên..."
+          />
+        </form>
 
-      {/* Table Section */}
+        {/* Table Section */}
 
-      <CampaignDataTable />
+        <CampaignDataTable />
+      </section>
     </div>
   )
 }
