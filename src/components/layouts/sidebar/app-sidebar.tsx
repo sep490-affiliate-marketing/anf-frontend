@@ -4,20 +4,12 @@ import * as React from "react"
 
 import {
   BarChart3,
-  BookOpen,
-  Bot,
-  Command,
-  Frame,
   Globe2,
   LayoutDashboard,
   LifeBuoy,
-  Map,
   Network,
-  PieChart,
   Radio,
   Send,
-  Settings2,
-  SquareTerminal,
   Target,
 } from "lucide-react"
 
@@ -27,8 +19,6 @@ import {
   SidebarFooter,
   SidebarHeader,
   SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
 } from "@/components/ui/sidebar"
 
 import { NavMain } from "@/components/layouts/sidebar/nav-main"
@@ -60,7 +50,7 @@ const data = {
         },
         {
           title: "Campaign Verification",
-          url: "/admin/campaign/verify",
+          url: "/admin/campaigns?status=1",
         },
       ],
     },
