@@ -1,10 +1,5 @@
-import Link from "next/link"
-
-import { PlusIcon } from "lucide-react"
-
-import { buttonVariants } from "@/components/ui/button"
-
 import CountryDataTable from "@/components/countries/data-table"
+import CreateCountryModal from "@/components/countries/modals/create-country-modal"
 import { SearchInput } from "@/components/inputs/search-input"
 
 export default function Page() {
@@ -22,16 +17,7 @@ export default function Page() {
             </p>
           </div>
           <div className="flex flex-shrink-0 gap-3">
-            <Link
-              href="/admin/countries/create"
-              className={buttonVariants({
-                variant: "default",
-                className: "min-w-[140px]",
-              })}
-            >
-              <PlusIcon className="mr-2 h-4 w-4" />
-              Add country
-            </Link>
+            <CreateCountryModal />
           </div>
         </div>
       </div>
