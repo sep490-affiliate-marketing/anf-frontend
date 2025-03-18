@@ -3,16 +3,22 @@
 import * as React from "react"
 
 import {
+  BarChart3,
   BookOpen,
   Bot,
   Command,
   Frame,
+  Globe2,
+  LayoutDashboard,
   LifeBuoy,
   Map,
+  Network,
   PieChart,
+  Radio,
   Send,
   Settings2,
   SquareTerminal,
+  Target,
 } from "lucide-react"
 
 import {
@@ -25,10 +31,10 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 
-import { NavMain } from "@/components/nav-main"
-import { NavProjects } from "@/components/nav-projects"
-import { NavSecondary } from "@/components/nav-secondary"
-import { NavUser } from "@/components/nav-user"
+import { NavMain } from "@/components/layouts/sidebar/nav-main"
+import { NavProjects } from "@/components/layouts/sidebar/nav-projects"
+import { NavSecondary } from "@/components/layouts/sidebar/nav-secondary"
+import { NavUser } from "@/components/layouts/sidebar/nav-user"
 
 const data = {
   user: {
@@ -38,64 +44,53 @@ const data = {
   },
   navMain: [
     {
-      title: "Playground",
-      url: "#",
-      icon: SquareTerminal,
+      title: "Dashboard",
+      url: "/admin",
+      icon: LayoutDashboard,
       isActive: true,
+    },
+    {
+      title: "Campaigns",
+      url: "#",
+      icon: BarChart3,
       items: [
         {
-          title: "History",
-          url: "#",
+          title: "All Campaigns",
+          url: "/admin/campaign",
         },
         {
-          title: "Starred",
-          url: "#",
-        },
-        {
-          title: "Settings",
-          url: "#",
+          title: "Campaign Verification",
+          url: "/admin/campaign/verify",
         },
       ],
     },
     {
-      title: "Models",
+      title: "Countries",
       url: "#",
-      icon: Bot,
+      icon: Globe2,
       items: [
         {
-          title: "Genesis",
-          url: "#",
+          title: "Add Country",
+          url: "/admin/countries/create",
         },
         {
-          title: "Explorer",
-          url: "#",
-        },
-        {
-          title: "Quantum",
-          url: "#",
+          title: "All Countries",
+          url: "/admin/countries",
         },
       ],
     },
     {
-      title: "Documentation",
+      title: "Carriers",
       url: "#",
-      icon: BookOpen,
+      icon: Radio,
       items: [
         {
-          title: "Introduction",
-          url: "#",
+          title: "Add Carrier",
+          url: "/admin/carriers/create",
         },
         {
-          title: "Get Started",
-          url: "#",
-        },
-        {
-          title: "Tutorials",
-          url: "#",
-        },
-        {
-          title: "Changelog",
-          url: "#",
+          title: "All Carriers",
+          url: "/admin/carriers",
         },
       ],
     },
@@ -137,19 +132,19 @@ const data = {
   ],
   projects: [
     {
-      name: "Design Engineering",
-      url: "#",
-      icon: Frame,
+      name: "Affiliate Source",
+      url: "/admin/tracking/affiliate",
+      icon: Target,
     },
     {
-      name: "Sales & Marketing",
-      url: "#",
-      icon: PieChart,
+      name: "Offer Tracking",
+      url: "/admin/tracking/offers",
+      icon: BarChart3,
     },
     {
-      name: "Travel",
-      url: "#",
-      icon: Map,
+      name: "Postbacks",
+      url: "/admin/tracking/postbacks",
+      icon: Network,
     },
   ],
 }
@@ -162,7 +157,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     >
       <SidebarHeader>
         <SidebarMenu>
-          <SidebarMenuItem>
+          {/* <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <a href="#">
                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
@@ -174,7 +169,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 </div>
               </a>
             </SidebarMenuButton>
-          </SidebarMenuItem>
+          </SidebarMenuItem> */}
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
