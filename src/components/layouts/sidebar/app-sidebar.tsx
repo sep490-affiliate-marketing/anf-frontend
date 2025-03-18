@@ -56,7 +56,7 @@ const data = {
       items: [
         {
           title: "All Campaigns",
-          url: "/admin/campaign",
+          url: "/admin/campaigns",
         },
         {
           title: "Campaign Verification",

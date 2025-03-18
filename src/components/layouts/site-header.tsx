@@ -8,13 +8,16 @@ import {
   GridIcon,
   HelpCircleIcon,
   Settings2Icon,
+  SidebarIcon,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import { useSidebar } from "@/components/ui/sidebar"
 
 import { SearchForm } from "@/components/layouts/search-form"
 
 export function SiteHeader() {
+  const { toggleSidebar } = useSidebar()
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="flex h-14 w-full items-center justify-between px-4 2xl:px-6">
@@ -36,7 +39,12 @@ export function SiteHeader() {
           <SearchForm className="w-[500px]" />
 
           <div className="flex items-center gap-1">
-            <Button variant="ghost" size="icon" className="h-9 w-9">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9"
+              onClick={toggleSidebar}
+            >
               <GridIcon className="h-[18px] w-[18px] text-muted-foreground" />
             </Button>
 
