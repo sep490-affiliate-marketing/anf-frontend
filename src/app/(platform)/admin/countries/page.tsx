@@ -1,4 +1,5 @@
-import CampaignDataTable from "@/components/campaigns/data-table"
+import CountryDataTable from "@/components/countries/data-table"
+import CreateCountryModal from "@/components/countries/modals/create-country-modal"
 import { SearchInput } from "@/components/inputs/search-input"
 
 export default function Page() {
@@ -9,11 +10,14 @@ export default function Page() {
         <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
           <div className="space-y-1">
             <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-              Manage Campaigns
+              Manage Countries
             </h1>
             <p className="text-sm text-muted-foreground">
-              Manage your campaigns and their associated data
+              Manage your countries and their associated data
             </p>
+          </div>
+          <div className="flex flex-shrink-0 gap-3">
+            <CreateCountryModal />
           </div>
         </div>
       </div>
@@ -24,13 +28,13 @@ export default function Page() {
         <form className="flex w-[500px]">
           <SearchInput
             className="w-[500px] transition-all focus-within:ring-2 focus-within:ring-ring"
-            placeholder="Find campaign by name..."
+            placeholder="Find country by name..."
           />
         </form>
 
         {/* Table Section */}
 
-        <CampaignDataTable />
+        <CountryDataTable />
       </section>
     </div>
   )
