@@ -3,23 +3,16 @@
 import * as React from "react"
 
 import {
-  AudioWaveform,
-  BarChart3,
   BookOpen,
   Bot,
   Command,
   Frame,
-  GalleryVerticalEnd,
-  Globe2,
-  LayoutDashboard,
+  LifeBuoy,
   Map,
-  Network,
   PieChart,
-  Radio,
+  Send,
   Settings2,
   SquareTerminal,
-  Target,
-  Users,
 } from "lucide-react"
 
 import {
@@ -27,87 +20,82 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
-  SidebarRail,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
 } from "@/components/ui/sidebar"
 
 import { NavMain } from "@/components/nav-main"
 import { NavProjects } from "@/components/nav-projects"
+import { NavSecondary } from "@/components/nav-secondary"
 import { NavUser } from "@/components/nav-user"
-import { TeamSwitcher } from "@/components/team-switcher"
 
-// This is sample data.
 const data = {
   user: {
     name: "shadcn",
     email: "m@example.com",
     avatar: "/avatars/shadcn.jpg",
   },
-  teams: [
-    {
-      name: "Acme Inc",
-      logo: GalleryVerticalEnd,
-      plan: "Enterprise",
-    },
-    {
-      name: "Acme Corp.",
-      logo: AudioWaveform,
-      plan: "Startup",
-    },
-    {
-      name: "Evil Corp.",
-      logo: Command,
-      plan: "Free",
-    },
-  ],
   navMain: [
     {
-      title: "Dashboard",
-      url: "/admin",
-      icon: LayoutDashboard,
+      title: "Playground",
+      url: "#",
+      icon: SquareTerminal,
       isActive: true,
-    },
-    {
-      title: "Campaigns",
-      url: "#",
-      icon: BarChart3,
       items: [
         {
-          title: "All Campaigns",
-          url: "/admin/campaign",
+          title: "History",
+          url: "#",
         },
         {
-          title: "Campaign Verification",
-          url: "/admin/campaign/verify",
+          title: "Starred",
+          url: "#",
+        },
+        {
+          title: "Settings",
+          url: "#",
         },
       ],
     },
     {
-      title: "Countries",
+      title: "Models",
       url: "#",
-      icon: Globe2,
+      icon: Bot,
       items: [
         {
-          title: "Add Country",
-          url: "/admin/countries/create",
+          title: "Genesis",
+          url: "#",
         },
         {
-          title: "All Countries",
-          url: "/admin/countries",
+          title: "Explorer",
+          url: "#",
+        },
+        {
+          title: "Quantum",
+          url: "#",
         },
       ],
     },
     {
-      title: "Carriers",
+      title: "Documentation",
       url: "#",
-      icon: Radio,
+      icon: BookOpen,
       items: [
         {
-          title: "Add Carrier",
-          url: "/admin/carriers/create",
+          title: "Introduction",
+          url: "#",
         },
         {
-          title: "All Carriers",
-          url: "/admin/carriers",
+          title: "Get Started",
+          url: "#",
+        },
+        {
+          title: "Tutorials",
+          url: "#",
+        },
+        {
+          title: "Changelog",
+          url: "#",
         },
       ],
     },
@@ -135,47 +123,68 @@ const data = {
       ],
     },
   ],
-  trackingSystem: [
+  navSecondary: [
     {
-      name: "Affiliate Source",
-      url: "/admin/tracking/affiliate",
-      icon: Target,
+      title: "Support",
+      url: "#",
+      icon: LifeBuoy,
     },
     {
-      name: "Offer Tracking",
-      url: "/admin/tracking/offers",
-      icon: BarChart3,
+      title: "Feedback",
+      url: "#",
+      icon: Send,
+    },
+  ],
+  projects: [
+    {
+      name: "Design Engineering",
+      url: "#",
+      icon: Frame,
     },
     {
-      name: "Postbacks",
-      url: "/admin/tracking/postbacks",
-      icon: Network,
+      name: "Sales & Marketing",
+      url: "#",
+      icon: PieChart,
+    },
+    {
+      name: "Travel",
+      url: "#",
+      icon: Map,
     },
   ],
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar collapsible="icon" {...props}>
+    <Sidebar
+      className="top-[--header-height] !h-[calc(100svh-var(--header-height))]"
+      {...props}
+    >
       <SidebarHeader>
-        <div className="flex items-center gap-2">
-          <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-            <Network className="size-4" />
-          </div>
-          <div className="grid flex-1 text-left text-sm leading-tight">
-            <span className="truncate font-semibold">Affiliate Network</span>
-            <span className="truncate text-xs">Admin</span>
-          </div>
-        </div>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton size="lg" asChild>
+              <a href="#">
+                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                  <Command className="size-4" />
+                </div>
+                <div className="grid flex-1 text-left text-sm leading-tight">
+                  <span className="truncate font-semibold">Acme Inc</span>
+                  <span className="truncate text-xs">Enterprise</span>
+                </div>
+              </a>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <NavProjects projects={data.trackingSystem} />
+        <NavProjects projects={data.projects} />
+        <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />
       </SidebarFooter>
-      <SidebarRail />
     </Sidebar>
   )
 }
