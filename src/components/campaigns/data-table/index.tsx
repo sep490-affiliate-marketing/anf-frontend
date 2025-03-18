@@ -102,7 +102,7 @@ const columns: ColumnDef<Campaign>[] = [
     size: 40,
   },
   {
-    header: "Tên Chiến Dịch",
+    header: "Campaign Name",
     accessorKey: "name",
     cell: ({ row }) => (
       <div className="truncate font-medium">{row.getValue("name")}</div>
@@ -110,21 +110,21 @@ const columns: ColumnDef<Campaign>[] = [
     size: 250,
   },
   {
-    header: "Ngày Bắt Đầu",
+    header: "Start Date",
     accessorKey: "startDate",
     cell: ({ row }) => (
       <div className="truncate">{row.getValue("startDate")}</div>
     ),
   },
   {
-    header: "Ngày Kết Thúc",
+    header: "End Date",
     accessorKey: "endDate",
     cell: ({ row }) => (
       <div className="truncate">{row.getValue("endDate")}</div>
     ),
   },
   {
-    header: "Trạng Thái",
+    header: "Status",
     accessorKey: "status",
     cell: ({ row }) => {
       const status = row.getValue("status") as "active" | "inactive"
@@ -137,7 +137,7 @@ const columns: ColumnDef<Campaign>[] = [
               : "bg-red-50 text-red-700"
           )}
         >
-          {status === "active" ? "Hoạt động" : "Không hoạt động"}
+          {status === "active" ? "Active" : "Inactive"}
         </div>
       )
     },
