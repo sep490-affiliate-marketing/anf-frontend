@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useContext } from "react"
+import React, { useContext, useState } from "react"
 
 import { AuthService } from "@/services/auth.service"
 import { ILoginForm, LoginFormSchema } from "@/validations/auth.validation"
@@ -38,11 +38,13 @@ export default function AuthProvider({ children }: AuthProviderProps) {
     queryKey: ["me"],
     queryFn: async () => {
       const response = await AuthService.getUser()
+
       if ("data" in response) {
         return response.data.value
       }
       return null
     },
+
     enabled: !!cookies.access_token,
   })
 
@@ -72,6 +74,17 @@ export default function AuthProvider({ children }: AuthProviderProps) {
           maxAge: 60 * 60 * 45, // 45min
           sameSite: "lax",
         })
+
+        // Store user data in localStorage only in browser environment
+        if (typeof window !== "undefined") {
+          localStorage.setItem("userData", JSON.stringify(res.value))
+        }
+
+        queryClient.setQueryData(["me"], {
+          ...res.value,
+          userCode: res.value.userCode,
+        })
+
         toast.success("Login successful")
       } else {
         toast.error(res.message)

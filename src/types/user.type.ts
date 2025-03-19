@@ -6,4 +6,5 @@ export type IUser = {
   address: string
   dateOfBirth: string
   accessToken: string
+  userCode: string
 }

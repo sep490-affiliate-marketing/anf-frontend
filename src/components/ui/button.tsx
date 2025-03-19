@@ -1,6 +1,8 @@
 import * as React from "react"
+
 import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
+import { Loader } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
@@ -38,17 +40,38 @@ export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
   asChild?: boolean
+  isLoading?: boolean
+  loadingText?: string
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, ...props }, ref) => {
+  (
+    {
+      className,
+      isLoading,
+      loadingText,
+      variant,
+      children,
+      size,
+      asChild = false,
+      ...props
+    },
+    ref
+  ) => {
     const Comp = asChild ? Slot : "button"
     return (
       <Comp
         className={cn(buttonVariants({ variant, size, className }))}
         ref={ref}
         {...props}
-      />
+      >
+        {isLoading ? (
+          <span className="ml-1.5 flex items-center gap-1">
+            <Loader className="size-4 animate-spin" />
+          </span>
+        ) : null}
+        {isLoading && loadingText ? loadingText : children}
+      </Comp>
     )
   }
 )
