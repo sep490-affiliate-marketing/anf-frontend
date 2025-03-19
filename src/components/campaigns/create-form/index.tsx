@@ -111,58 +111,20 @@ const CampaignForm = () => {
     return null
   }
 
-  const onSubmit = async (formData: ICreateCampaignForm) => {
+  const onSubmit = async (data: ICreateCampaignForm) => {
     try {
       setIsLoading(true)
-      console.log("Form data before processing:", formData)
-
-      // Initialize FormData instance
-      const form = new FormData()
-
-      // Append basic campaign fields as simple key-value pairs
-      form.append("name", formData.name || "")
-      form.append("description", formData.description || "")
-      form.append("startDate", formData.startDate || "")
-      form.append("endDate", formData.endDate || "")
-      form.append("url", formData.url || formData.baseUrl || "")
-      form.append("advertiserCode", userData?.userCode || "")
-
-      // Append tracking params as a simple array
-      if (formData.tracking_param) {
-        form.append("trackingParams", JSON.stringify(formData.tracking_param))
+      console.log("Form data before processing:", data)
+      const campaignData = {
+        ...data,
+        trackingParams: JSON.stringify(data.tracking_param),
+        images: data.images,
+        offers: data.offers,
       }
 
-      // Handle images properly
-      if (formData.images && Array.isArray(formData.images)) {
-        const filePromises = formData.images.map((image) =>
-          convertToFile(image as File | ImagePathObject)
-        )
-        const files = await Promise.all(filePromises)
-        const validFiles = files.filter((f): f is File => f !== null)
+      console.log("Campaign data:", campaignData)
 
-        validFiles.forEach((file) => {
-          form.append("images", file)
-        })
-      }
-
-      // Handle offers properly - each offer should be a separate entry
-      if (formData.offers && formData.offers.length > 0) {
-        formData.offers.forEach((offer, index) => {
-          Object.entries(offer).forEach(([key, value]) => {
-            if (value !== null && value !== undefined) {
-              form.append(`offers[${index}][${key}]`, value.toString())
-            }
-          })
-        })
-      }
-
-      // Log the FormData contents for debugging
-      console.log("FormData entries:")
-      for (const pair of form.entries()) {
-        console.log(pair[0], ":", pair[1])
-      }
-
-      await onCreateCampaign(form)
+      await onCreateCampaign(campaignData)
       toast.success("Campaign created successfully")
     } catch (error) {
       console.error("Error creating campaign:", error)
@@ -247,6 +209,58 @@ const CampaignForm = () => {
                   <Label className="text-lg font-semibold">{"noteLabel"}</Label>
                   <FormControl>
                     <Textarea rows={4} {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="md:col-span-2">
+            <FormField
+              control={control}
+              name="images"
+              render={({ field: { onChange, value, ...field } }) => (
+                <FormItem>
+                  <FormLabel className="text-lg font-semibold">
+                    Campaign Images
+                  </FormLabel>
+                  <FormControl>
+                    <div className="flex flex-col gap-4">
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={(e) => {
+                          const files = Array.from(e.target.files || [])
+                          onChange(files)
+                        }}
+                        {...field}
+                      />
+                      {value && Array.isArray(value) && value.length > 0 && (
+                        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+                          {value.map((file, index) => (
+                            <div
+                              key={index}
+                              className="relative aspect-square w-full overflow-hidden rounded-lg border"
+                            >
+                              {file instanceof File ? (
+                                <Image
+                                  src={URL.createObjectURL(file)}
+                                  alt={`Preview ${index + 1}`}
+                                  fill
+                                  className="object-cover"
+                                />
+                              ) : (
+                                <div className="flex h-full items-center justify-center bg-gray-100">
+                                  <ImageIcon className="h-8 w-8 text-gray-400" />
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>

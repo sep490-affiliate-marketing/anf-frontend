@@ -74,24 +74,7 @@ export function CreateCampaignFormSchema() {
       tracking_param: z.array(TrackingParamSchema()).optional(),
       trackingParams: z.string().optional(),
       offers: z.array(OfferFormSchema()),
-      images: z
-        .union([
-          z.array(
-            z
-              .custom<File>((value) => value instanceof File, {
-                message: "Must be a valid file",
-              })
-              .refine((file) => file.size <= MAX_FILE_SIZE, {
-                message: `Max file size is ${MAX_FILE_SIZE / (1024 * 1024)}MB`,
-              })
-              .refine((file) => ACCEPTED_IMAGE_TYPES.includes(file.type), {
-                message: "Only .jpg, .jpeg, .png and .webp files are accepted",
-              })
-          ),
-          z.array(z.string()),
-        ])
-        .optional()
-        .default([]),
+      images: z.array(z.any()).optional().default([]),
     })
     .refine(
       (data) => {

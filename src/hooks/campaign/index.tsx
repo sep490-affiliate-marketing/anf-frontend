@@ -92,10 +92,39 @@ export const useCreateCampaignForm = () => {
     },
   })
 
-  const onCreateCampaign = async (formData: FormData) => {
+  const onCreateCampaign = async (data: ICreateCampaignForm) => {
     try {
       setErrorMessage("")
       setSuccessMessage("")
+
+      // Initialize FormData instance
+      const formData = new FormData()
+
+      // Append all basic fields except "offers"
+      Object.entries(data).forEach(([key, value]) => {
+        if (key !== "offers") {
+          if (value instanceof Date) {
+            formData.append(key, value.toISOString())
+          } else if (value !== null && value !== undefined) {
+            formData.append(key, String(value))
+          }
+        }
+      })
+
+      // Append offers if present
+      if (Array.isArray(data.offers)) {
+        data.offers.forEach((offer, index) => {
+          Object.entries(offer).forEach(([key, value]) => {
+            if (key === "thumbnail" && value instanceof File) {
+              formData.append(`offers[${index}][${key}]`, value) // Append file
+            } else if (value !== null && value !== undefined) {
+              formData.append(`offers[${index}][${key}]`, String(value))
+            }
+          })
+        })
+      }
+
+      // Execute mutation to create the campaign
       await createCampaignMutation(formData)
     } catch (error) {
       setErrorMessage(
