@@ -2,6 +2,9 @@ import { z } from "zod"
 
 import { OfferFormSchema } from "./offer.validation"
 
+const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
+const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"]
+
 export function TrackingParamSchema() {
   return z.object({
     param_value: z.string().min(1, "validation.paramValue.required"),
@@ -16,13 +19,14 @@ export function TrackingParamSchema() {
 export function CreateCampaignFormSchema() {
   return z
     .object({
+      advertiser_code: z.string().optional(),
       name: z
         .string({ message: "validation.name.required" })
         .min(1, { message: "validation.name.required" }),
       description: z
         .string({ message: "validation.description.required" })
         .min(1, { message: "validation.description.required" }),
-      start_date: z
+      startDate: z
         .string({ message: "validation.startDate.required" })
         .min(1, { message: "validation.startDate.required" })
         .refine(
@@ -35,7 +39,7 @@ export function CreateCampaignFormSchema() {
           },
           { message: "validation.startDate.notInPast" }
         ),
-      end_date: z
+      endDate: z
         .string({ message: "validation.endDate.required" })
         .min(1, { message: "validation.endDate.required" })
         .refine(
@@ -67,18 +71,37 @@ export function CreateCampaignFormSchema() {
         //   message: t("validation.url.noQueryParams"),
         // })
         .optional(),
-      tracking_params: z.array(TrackingParamSchema()).optional(),
+      tracking_param: z.array(TrackingParamSchema()).optional(),
+      trackingParams: z.string().optional(),
       offers: z.array(OfferFormSchema()),
+      images: z
+        .union([
+          z.array(
+            z
+              .custom<File>((value) => value instanceof File, {
+                message: "Must be a valid file",
+              })
+              .refine((file) => file.size <= MAX_FILE_SIZE, {
+                message: `Max file size is ${MAX_FILE_SIZE / (1024 * 1024)}MB`,
+              })
+              .refine((file) => ACCEPTED_IMAGE_TYPES.includes(file.type), {
+                message: "Only .jpg, .jpeg, .png and .webp files are accepted",
+              })
+          ),
+          z.array(z.string()),
+        ])
+        .optional()
+        .default([]),
     })
     .refine(
       (data) => {
-        const startDate = new Date(data.start_date)
-        const endDate = new Date(data.end_date)
+        const startDate = new Date(data.startDate)
+        const endDate = new Date(data.endDate)
         startDate.setHours(0, 0, 0, 0)
         endDate.setHours(0, 0, 0, 0)
         return endDate >= startDate
       },
-      { message: "validation.endDate.afterStartDate", path: ["end_date"] }
+      { message: "validation.endDate.afterStartDate", path: ["endDate"] }
     )
 }
 
@@ -142,6 +165,7 @@ export function UpdateCampaignFormSchema() {
         })
         .optional(),
       tracking_params: z.array(TrackingParamSchema()).optional(),
+      trackingParams: z.string().optional(),
     })
     .refine(
       (data) => {
@@ -161,3 +185,4 @@ export function UpdateCampaignFormSchema() {
 export type IUpdateCampaignForm = z.infer<
   ReturnType<typeof UpdateCampaignFormSchema>
 >
+

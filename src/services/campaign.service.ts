@@ -31,7 +31,7 @@ const CampaignService = {
     try {
       const { data } = await apiClient.post<
         ICreateCampaignSuccessResponse | ICreateCampaignErrorResponse
-      >("/api/store-camp", formData)
+      >("/api/affiliate-network/campaigns", formData)
       return data
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -169,3 +169,4 @@ const CampaignService = {
 }
 
 export default CampaignService
+

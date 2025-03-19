@@ -12,16 +12,19 @@ export function OfferFormSchema() {
   return z
     .object({
       // code: z.coerce.number(),
-      price_modal: z
+      pricingModel: z
         .string()
         .min(1, { message: "validation.priceModal.required" }),
-      payout_money: z
+      description: z
+        .string()
+        .min(1, { message: "validation.description.required" }),
+      bid: z
         .string()
         .min(1, { message: "validation.payoutMoney.required" }) // Ensures the field is not empty
         .regex(/^\d{1,6}(\.\d{1,3})?$/, {
           message: "validation.payoutMoney.invalid",
         }),
-      start_date: z
+      startDate: z
         .string()
         .min(1, { message: "validation.startDate.required" })
         .refine(
@@ -34,7 +37,7 @@ export function OfferFormSchema() {
           },
           { message: "validation.startDate.notInPast" }
         ),
-      end_date: z
+      endDate: z
         .string()
         .min(1, { message: "validation.endDate.required" })
         .refine(
@@ -47,51 +50,61 @@ export function OfferFormSchema() {
           },
           { message: "validation.endDate.notInPast" }
         ),
-      offer_type: z
-        .string({ message: "validation.type.required" })
-        .min(1, { message: "validation.type.required" }),
-      country: z
-        .string({ message: "validation.country.required" })
-        .min(1, { message: "validation.country.required" }),
-      carrier: z
-        .string({ message: "validation.carrier.required" })
-        .min(1, { message: "validation.carrier.required" }),
-      os: z
-        .string({ message: "validation.os.required" })
-        .min(1, { message: "validation.os.required" }),
-      network: z
-        .string({ message: "validation.network.required" })
-        .min(1, { message: "validation.network.required" }),
-      required_traffic_source: z.array(
-        z
-          .string({ message: "validation.requiredTrafficSource.required" })
-          .min(1, { message: "validation.requiredTrafficSource.required" }),
-        { message: "validation.requiredTrafficSource.required" }
-      ),
+      budget: z
+        .string()
+        .min(1, { message: "validation.budget.required" })
+        .regex(/^\d{1,6}(\.\d{1,3})?$/, {
+          message: "validation.budget.invalid",
+        }),
+      stepInfo: z.string().min(1, { message: "validation.stepInfo.required" }),
       thumbnail: z
-        .any()
-        .refine((file) => file !== undefined && file !== null, {
-          message: "validation.thumbnail.required",
-        })
-        .refine(
-          (file) => file?.size <= MAX_FILE_SIZE,
-          "validation.thumbnail.size"
-        )
-        .refine(
-          (file) => ACCEPTED_IMAGE_TYPES.includes(file?.type),
-          "validation.thumbnail.invalidImageType"
-        ),
+        .union([
+          z
+            .custom<File>((value) => value instanceof File, {
+              message: "Must be a valid file",
+            })
+            .refine((file) => file.size <= MAX_FILE_SIZE, {
+              message: `Max file size is ${MAX_FILE_SIZE / (1024 * 1024)}MB`,
+            })
+            .refine((file) => ACCEPTED_IMAGE_TYPES.includes(file.type), {
+              message: "Only .jpg, .jpeg, .png and .webp files are accepted",
+            }),
+          z.string(),
+        ])
+        .optional(),
+      // offer_type: z
+      //   .string({ message: "validation.type.required" })
+      //   .min(1, { message: "validation.type.required" }),
+      // country: z
+      //   .string({ message: "validation.country.required" })
+      //   .min(1, { message: "validation.country.required" }),
+      // carrier: z
+      //   .string({ message: "validation.carrier.required" })
+      //   .min(1, { message: "validation.carrier.required" }),
+      // os: z
+      //   .string({ message: "validation.os.required" })
+      //   .min(1, { message: "validation.os.required" }),
+      // network: z
+      //   .string({ message: "validation.network.required" })
+      //   .min(1, { message: "validation.network.required" }),
+      // required_traffic_source: z.array(
+      //   z
+      //     .string({ message: "validation.requiredTrafficSource.required" })
+      //     .min(1, { message: "validation.requiredTrafficSource.required" }),
+      //   { message: "validation.requiredTrafficSource.required" }
+      // ),
     })
     .refine(
       (data) => {
-        const startDate = new Date(data.start_date)
-        const endDate = new Date(data.end_date)
+        const startDate = new Date(data.startDate)
+        const endDate = new Date(data.endDate)
         startDate.setHours(0, 0, 0, 0)
         endDate.setHours(0, 0, 0, 0)
         return endDate >= startDate
       },
-      { message: "validation.endDate.afterStartDate", path: ["end_date"] }
+      { message: "validation.endDate.afterStartDate", path: ["endDate"] }
     )
 }
 
 export type IOfferForm = z.infer<ReturnType<typeof OfferFormSchema>>
+

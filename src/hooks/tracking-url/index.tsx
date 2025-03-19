@@ -21,13 +21,13 @@ export const useTrackingUrlBuilder = ({ form }: UseTrackingUrlBuilderProps) => {
     }
 
     try {
-      const { baseUrl, tracking_params } = form.watch()
+      const { baseUrl, tracking_param } = form.watch()
       if (!baseUrl) return ""
 
       const url =
         encodeUrlSafely(baseUrl) +
         (baseUrl.includes("?") ? "&" : "?") +
-        tracking_params
+        tracking_param
           ?.map((p) => `${p.param_name}={${p.param_value}}`)
           .join("&")
       return url
@@ -41,7 +41,7 @@ export const useTrackingUrlBuilder = ({ form }: UseTrackingUrlBuilderProps) => {
 
     if (newMode === "simple") {
       form.setValue("baseUrl", undefined)
-      form.setValue("tracking_params", undefined)
+      form.setValue("tracking_param", undefined)
     } else {
       form.setValue("url", undefined)
     }
@@ -58,10 +58,10 @@ export const useTrackingUrlBuilder = ({ form }: UseTrackingUrlBuilderProps) => {
             param_name: "",
           })
         )
-        form.setValue("tracking_params", tracking_params)
+        form.setValue("tracking_param", tracking_params)
       } catch (error) {
         form.setValue("baseUrl", "")
-        form.setValue("tracking_params", [])
+        form.setValue("tracking_param", [])
       }
     } else {
       try {

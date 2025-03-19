@@ -2,11 +2,16 @@
 
 import { useEffect, useState } from "react"
 
-import { COUNTRIES } from "@/constant/campaign"
+import Image from "next/image"
+import { useRouter } from "next/navigation"
+
 import { ICreateCampaignForm } from "@/validations/campaign.validation"
 import { addDays } from "date-fns"
+import { ImageIcon } from "lucide-react"
+import { toast } from "sonner"
 
 import { useCreateCampaignForm } from "@/hooks/campaign"
+import useGetLS from "@/hooks/use-getLS"
 
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
@@ -17,6 +22,7 @@ import {
   FormControl,
   FormField,
   FormItem,
+  FormLabel,
   FormMessage,
 } from "../../ui/form"
 import { Input } from "../../ui/input"
@@ -26,7 +32,12 @@ import OfferList from "./offer-list"
 import TrackingUrlBuilder from "./tracking-url-builder"
 
 const CampaignForm = () => {
+  const router = useRouter()
   const { form, isPending, onCreateCampaign } = useCreateCampaignForm()
+  const [isLoading, setIsLoading] = useState(false)
+
+  const userData = useGetLS("userData")
+
   const {
     control,
     formState: {},
@@ -34,9 +45,8 @@ const CampaignForm = () => {
     watch,
     setValue,
   } = form
-
-  const campaignStartDate = watch("start_date")
-  const campaignEndDate = watch("end_date")
+  const campaignStartDate = watch("startDate")
+  const campaignEndDate = watch("endDate")
   const offers = watch("offers")
 
   const [dateRange, setDateRange] = useState<{
@@ -49,8 +59,8 @@ const CampaignForm = () => {
 
   useEffect(() => {
     if (dateRange) {
-      setValue("start_date", dateRange.from)
-      setValue("end_date", dateRange.to)
+      setValue("startDate", dateRange.from)
+      setValue("endDate", dateRange.to)
     }
   }, [dateRange, setValue])
 
@@ -58,38 +68,109 @@ const CampaignForm = () => {
     if (offers && (campaignStartDate || campaignEndDate)) {
       offers.forEach((_, index) => {
         if (campaignStartDate) {
-          setValue(`offers.${index}.start_date`, "")
+          setValue(`offers.${index}.startDate`, "")
         }
         if (campaignEndDate) {
-          setValue(`offers.${index}.end_date`, "")
+          setValue(`offers.${index}.endDate`, "")
         }
       })
     }
   }, [campaignStartDate, campaignEndDate, offers, setValue])
 
-  const onSubmit = async (data: ICreateCampaignForm) => {
-    try {
-      // const campaignCode = generateCode(data);
-      // const encryptedCode = encryptCode(campaignCode);
-
-      const campaignData = {
-        ...data,
-        // code: encryptedCode,
-        offers: data.offers.map((offer) => ({
-          ...offer,
-          // code: encryptCode(generateOfferCode(offer)),
-          payout_money: offer.payout_money?.replace(/,/g, "") || "0",
-          type: offer.offer_type,
-        })),
-        url: data.url || data.baseUrl,
-      }
-      delete campaignData.baseUrl
-      await onCreateCampaign(campaignData)
-    } catch (error) {
-      console.error("Error creating campaign:", error)
-    }
+  // Add type guard for File array
+  const isFileArray = (value: any): value is File[] => {
+    return Array.isArray(value) && value.every((item) => item instanceof File)
   }
 
+  interface ImagePathObject {
+    path: string
+    relativePath?: string
+  }
+
+  const isImagePathObject = (value: any): value is ImagePathObject => {
+    return typeof value === "object" && value !== null && "path" in value
+  }
+
+  const convertToFile = async (
+    image: File | ImagePathObject
+  ): Promise<File | null> => {
+    if (image instanceof File) return image
+    if (isImagePathObject(image)) {
+      try {
+        // Create a new File object from the image path
+        const response = await fetch(image.relativePath || image.path)
+        const blob = await response.blob()
+        const filename =
+          (image.relativePath || image.path).split("/").pop() || "image.jpg"
+        return new File([blob], filename, { type: blob.type })
+      } catch (error) {
+        console.error("Error converting image path to file:", error)
+        return null
+      }
+    }
+    return null
+  }
+
+  const onSubmit = async (formData: ICreateCampaignForm) => {
+    try {
+      setIsLoading(true)
+      console.log("Form data before processing:", formData)
+
+      // Initialize FormData instance
+      const form = new FormData()
+
+      // Append basic campaign fields as simple key-value pairs
+      form.append("name", formData.name || "")
+      form.append("description", formData.description || "")
+      form.append("startDate", formData.startDate || "")
+      form.append("endDate", formData.endDate || "")
+      form.append("url", formData.url || formData.baseUrl || "")
+      form.append("advertiserCode", userData?.userCode || "")
+
+      // Append tracking params as a simple array
+      if (formData.tracking_param) {
+        form.append("trackingParams", JSON.stringify(formData.tracking_param))
+      }
+
+      // Handle images properly
+      if (formData.images && Array.isArray(formData.images)) {
+        const filePromises = formData.images.map((image) =>
+          convertToFile(image as File | ImagePathObject)
+        )
+        const files = await Promise.all(filePromises)
+        const validFiles = files.filter((f): f is File => f !== null)
+
+        validFiles.forEach((file) => {
+          form.append("images", file)
+        })
+      }
+
+      // Handle offers properly - each offer should be a separate entry
+      if (formData.offers && formData.offers.length > 0) {
+        formData.offers.forEach((offer, index) => {
+          Object.entries(offer).forEach(([key, value]) => {
+            if (value !== null && value !== undefined) {
+              form.append(`offers[${index}][${key}]`, value.toString())
+            }
+          })
+        })
+      }
+
+      // Log the FormData contents for debugging
+      console.log("FormData entries:")
+      for (const pair of form.entries()) {
+        console.log(pair[0], ":", pair[1])
+      }
+
+      await onCreateCampaign(form)
+      toast.success("Campaign created successfully")
+    } catch (error) {
+      console.error("Error creating campaign:", error)
+      toast.error("Failed to create campaign")
+    } finally {
+      setIsLoading(false)
+    }
+  }
   return (
     <Form {...form}>
       <form
@@ -148,11 +229,11 @@ const CampaignForm = () => {
                 to: addDays(new Date(), 21),
               }}
             />
-            {(form.formState.errors.start_date ||
-              form.formState.errors.end_date) && (
+            {(form.formState.errors.startDate ||
+              form.formState.errors.endDate) && (
               <FormMessage>
-                {form.formState.errors.start_date?.message ||
-                  form.formState.errors.end_date?.message}
+                {form.formState.errors.startDate?.message ||
+                  form.formState.errors.endDate?.message}
               </FormMessage>
             )}
           </div>
@@ -207,3 +288,4 @@ const CampaignForm = () => {
 }
 
 export default CampaignForm
+

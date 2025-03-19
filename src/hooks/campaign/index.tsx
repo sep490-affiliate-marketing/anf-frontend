@@ -24,14 +24,16 @@ export const useCreateCampaignForm = () => {
     resolver: zodResolver(CreateCampaignFormSchema()),
     defaultValues: {
       url: "",
+      images: [],
       offers: [
         {
-          price_modal: "",
-          payout_money: "",
-          start_date: "",
-          end_date: "",
-          offer_type: "",
-          required_traffic_source: [],
+          pricingModel: "",
+          description: "",
+          bid: "",
+          stepInfo: "",
+          startDate: "",
+          endDate: "",
+          budget: "",
         },
       ],
     },
@@ -90,53 +92,10 @@ export const useCreateCampaignForm = () => {
     },
   })
 
-  const onCreateCampaign = async (data: ICreateCampaignForm) => {
+  const onCreateCampaign = async (formData: FormData) => {
     try {
       setErrorMessage("")
       setSuccessMessage("")
-
-      // Initialize FormData instance
-      const formData = new FormData()
-
-      // Append all basic fields except "offers"
-      Object.entries(data).forEach(([key, value]) => {
-        if (key !== "offers") {
-          if (value instanceof Date) {
-            formData.append(key, value.toISOString())
-          } else if (value !== null && value !== undefined) {
-            formData.append(key, String(value))
-          }
-        }
-      })
-
-      // Append tracking_params if present
-      if (Array.isArray(data.tracking_params)) {
-        data.tracking_params.forEach((param, index) => {
-          formData.append(
-            `tracking_params[${index}][param_value]`,
-            param.param_value
-          )
-          formData.append(
-            `tracking_params[${index}][param_name]`,
-            param.param_name
-          )
-        })
-      }
-
-      // Append offers if present
-      if (Array.isArray(data.offers)) {
-        data.offers.forEach((offer, index) => {
-          Object.entries(offer).forEach(([key, value]) => {
-            if (key === "thumbnail" && value instanceof File) {
-              formData.append(`offers[${index}][${key}]`, value) // Append file
-            } else if (value !== null && value !== undefined) {
-              formData.append(`offers[${index}][${key}]`, String(value))
-            }
-          })
-        })
-      }
-
-      // Execute mutation to create the campaign
       await createCampaignMutation(formData)
     } catch (error) {
       setErrorMessage(
@@ -160,3 +119,4 @@ export const useCreateCampaignForm = () => {
 //     queryFn: () => CampaignService.getTrackingParams(),
 //   })
 // }
+

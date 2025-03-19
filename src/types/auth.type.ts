@@ -9,5 +9,6 @@ export interface ILoginRes {
     address: string
     dateOfBirth: string
     accessToken: string
+    userCode: string
   }
 }

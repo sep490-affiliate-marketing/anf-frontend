@@ -28,7 +28,7 @@ export default function AdvancedUrlBuilderForm({
 }: AdvancedUrlBuilderProps) {
   const { fields, append, remove } = useFieldArray({
     control: form.control,
-    name: "tracking_params",
+    name: "tracking_param",
   })
   const initialized = useRef(false)
 
@@ -49,7 +49,7 @@ export default function AdvancedUrlBuilderForm({
 
   // if (isLoading) return <AdvancedUrlBuilderFormSkeleton />
 
-  // if (!trackingParams || isError)
+  // if (!tracking_param || isError)
   //   return <p className="text-sm text-gray-500">{"noTrackingParamsFound"}</p>
 
   const formattedTrackingParams = transformTrackingParameters(
@@ -125,7 +125,7 @@ export default function AdvancedUrlBuilderForm({
           <div className="grid grid-cols-[1fr_1fr_40px] gap-4" key={field.id}>
             <FormField
               control={form.control}
-              name={`tracking_params.${index}.param_name`}
+              name={`tracking_param.${index}.param_name`}
               render={({ field }) => (
                 <FormItem>
                   <Label>{"paramName"}</Label>
@@ -138,7 +138,7 @@ export default function AdvancedUrlBuilderForm({
             />
             <FormField
               control={form.control}
-              name={`tracking_params.${index}.param_value`}
+              name={`tracking_param.${index}.param_value`}
               render={({ field }) => (
                 <FormItem>
                   <Label>{"paramValue"}</Label>

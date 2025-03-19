@@ -1,21 +1,40 @@
 import { IOffer } from "./offer.type"
 
+export interface ICreateCampaignRequest {
+  name: string
+  description: string
+  startDate: string
+  endDate: string
+  url?: string
+  baseUrl?: string
+  advertiserCode?: string
+  trackingParams?: string
+  images: File[]
+  offers: Array<{
+    pricingModel: string
+    description: string
+    bid: string
+    startDate: string
+    endDate: string
+    budget: string
+    stepInfo: string
+    thumbnail?: File | string
+  }>
+}
+
 export interface ICreateCampaignSuccessResponse {
   success: true
   message: string
-  type: string
+  data: {
+    campaignCode: string
+  }
 }
 
 export interface ICreateCampaignErrorResponse {
   success: false
   message: string
-  errors: IValidationErrors
-  type:
-    | "error_code_camp"
-    | "error_date_camp"
-    | "error_camp_not_exist"
-    | "error_date_offer"
-    | "validation_error"
+  type: string | null
+  errors: Record<string, string[]> | null
 }
 
 export interface ITrackingParams {
@@ -102,3 +121,4 @@ export interface IUpdateCampaignErrorResponse {
   message: string
   type: "camp_already_active" | "permission_denied" | "update_camp_error"
 }
+
