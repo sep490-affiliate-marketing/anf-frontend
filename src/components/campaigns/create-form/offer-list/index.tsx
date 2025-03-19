@@ -39,7 +39,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
-import ImageDropzone from "@/components/ui/image-dropzone"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
