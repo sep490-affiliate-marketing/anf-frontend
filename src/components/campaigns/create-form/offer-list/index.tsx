@@ -412,7 +412,6 @@ const OfferList = ({
             budget: "",
             stepInfo: "",
             pricingModel: "",
-            thumbnail: undefined,
           })
         }
         className="w-full"

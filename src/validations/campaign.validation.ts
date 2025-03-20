@@ -33,11 +33,16 @@ export function CreateCampaignFormSchema() {
           (startDate) => {
             const today = new Date()
             const start = new Date(startDate)
+            const tomorrow = new Date(today)
+            tomorrow.setDate(today.getDate() + 1)
+
             today.setHours(0, 0, 0, 0)
             start.setHours(0, 0, 0, 0)
-            return start >= today
+            tomorrow.setHours(0, 0, 0, 0)
+
+            return start >= tomorrow
           },
-          { message: "validation.startDate.notInPast" }
+          { message: "Campaign start date must be at least 1 day after today" }
         ),
       endDate: z
         .string({ message: "validation.endDate.required" })

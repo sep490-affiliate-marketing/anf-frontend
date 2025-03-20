@@ -100,9 +100,18 @@ export const useCreateCampaignForm = () => {
       // Initialize FormData instance
       const formData = new FormData()
 
-      // Append all basic fields except "offers"
+      // Handle image files first - they should be appended with name "imgFiles"
+      if (Array.isArray(data.images)) {
+        data.images.forEach((image) => {
+          if (image instanceof File) {
+            formData.append("imgFiles", image)
+          }
+        })
+      }
+
+      // Append all other fields except "images" and "offers"
       Object.entries(data).forEach(([key, value]) => {
-        if (key !== "offers") {
+        if (key !== "offers" && key !== "images") {
           if (value instanceof Date) {
             formData.append(key, value.toISOString())
           } else if (value !== null && value !== undefined) {
@@ -115,9 +124,7 @@ export const useCreateCampaignForm = () => {
       if (Array.isArray(data.offers)) {
         data.offers.forEach((offer, index) => {
           Object.entries(offer).forEach(([key, value]) => {
-            if (key === "thumbnail" && value instanceof File) {
-              formData.append(`offers[${index}][${key}]`, value) // Append file
-            } else if (value !== null && value !== undefined) {
+            if (value !== null && value !== undefined) {
               formData.append(`offers[${index}][${key}]`, String(value))
             }
           })
@@ -148,4 +155,3 @@ export const useCreateCampaignForm = () => {
 //     queryFn: () => CampaignService.getTrackingParams(),
 //   })
 // }
-

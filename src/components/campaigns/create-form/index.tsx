@@ -118,8 +118,10 @@ const CampaignForm = () => {
       const campaignData = {
         ...data,
         trackingParams: JSON.stringify(data.tracking_param),
+        advertiserCode: userData?.userCode,
         images: data.images,
         offers: data.offers,
+        productUrl: data.baseUrl,
       }
 
       console.log("Campaign data:", campaignData)
