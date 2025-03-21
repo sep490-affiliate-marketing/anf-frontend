@@ -71,7 +71,7 @@ const mockOffer = {
   imageUrl:
     "https://images.unsplash.com/photo-1552581234-26160f608093?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
   trackingUrl:
-    "https://baotangtruyentranh.com?aff_id={affiliate_id}&source={source}",
+    "https://backend.affiliate-network.com/tracking?aff_id={affiliate_id}&source={source}",
   targetAudience: "All",
   allowedTrafficSources: ["Search", "Social", "Display", "Email"],
 }
