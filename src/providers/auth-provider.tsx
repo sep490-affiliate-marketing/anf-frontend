@@ -6,7 +6,7 @@ import { AuthService } from "@/services/auth.service"
 import { ILoginForm, LoginFormSchema } from "@/validations/auth.validation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { CookiesProvider, useCookies } from "react-cookie"
+import Cookies from "js-cookie"
 import { useForm, UseFormReturn } from "react-hook-form"
 import { toast } from "sonner"
 
@@ -32,7 +32,6 @@ export const AuthContext = React.createContext<AuthContextType | null>(null)
 
 export default function AuthProvider({ children }: AuthProviderProps) {
   const queryClient = useQueryClient()
-  const [cookies, setCookie] = useCookies(["access_token"])
 
   const { data: userData, isLoading: isLoadingUser } = useQuery({
     queryKey: ["me"],
@@ -45,7 +44,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
       return null
     },
 
-    enabled: !!cookies.access_token,
+    enabled: !!Cookies.get("access_token"),
   })
 
   const { mutateAsync: logout, isPending: isLoggingOut } = useMutation({
@@ -67,23 +66,9 @@ export default function AuthProvider({ children }: AuthProviderProps) {
   const { mutateAsync: login, isPending: isLoggingIn } = useMutation({
     mutationKey: ["login"],
     mutationFn: (data: ILoginForm) => AuthService.login(data),
-    onSuccess: (res) => {
+    onSuccess: async (res) => {
       if (res.isSuccess === true) {
-        setCookie("access_token", res.value.accessToken, {
-          path: "/",
-          maxAge: 60 * 60 * 45, // 45min
-          sameSite: "lax",
-        })
-
-        // Store user data in localStorage only in browser environment
-        if (typeof window !== "undefined") {
-          localStorage.setItem("userData", JSON.stringify(res.value))
-        }
-
-        queryClient.setQueryData(["me"], {
-          ...res.value,
-          userCode: res.value.userCode,
-        })
+        await Cookies.set("access_token", res.value)
 
         toast.success("Login successful")
       } else {
@@ -104,10 +89,8 @@ export default function AuthProvider({ children }: AuthProviderProps) {
         loginForm,
       }}
     >
-      <CookiesProvider defaultSetOptions={{ path: "/" }}>
-        {children}
-        <LogoutDialog isOpen={isLoggingOut} />
-      </CookiesProvider>
+      {children}
+      <LogoutDialog isOpen={isLoggingOut} />
     </AuthContext.Provider>
   )
 }

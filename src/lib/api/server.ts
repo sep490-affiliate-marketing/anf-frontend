@@ -7,7 +7,7 @@ import axios from "axios"
 
 export async function createApiServer() {
   const cookieStore = await cookies()
-  const accessToken = cookieStore.get("accessToken")
+  const accessToken = cookieStore.get("access_token")
 
   return axios.create({
     baseURL: env.NEXT_PUBLIC_BACKEND_URL,
