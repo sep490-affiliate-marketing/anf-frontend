@@ -1,6 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import React, { useState } from "react"
+
+import { useRouter } from "next/navigation"
 
 import { format } from "date-fns"
 import { vi } from "date-fns/locale"
@@ -65,9 +67,9 @@ interface Campaign {
 }
 
 type Props = {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 // Temporary mock data - replace with actual API call
@@ -356,13 +358,22 @@ function CampaignHeader({ campaign }: { campaign: Campaign }) {
   )
 }
 
-export default function CampaignDetailsPage({ params }: Props) {
+export default function CampaignDetailsPage({ params: paramsPromise }: Props) {
   const campaign = mockCampaign
+  const router = useRouter()
+
+  // Unwrap params using React.use() as recommended by Next.js
+  const params = React.use(paramsPromise)
+  const { id } = params
 
   const daysLeft = Math.ceil(
     (new Date(campaign.endDate).getTime() - new Date().getTime()) /
       (1000 * 60 * 60 * 24)
   )
+
+  const handleOfferClick = (offerId: number) => {
+    router.push(`/admin/campaigns/${id}/offers/${offerId}`)
+  }
 
   return (
     <div className="space-y-8">
@@ -701,7 +712,8 @@ export default function CampaignDetailsPage({ params }: Props) {
           {campaign.offers.map((offer) => (
             <div
               key={offer.id}
-              className="group relative flex gap-6 rounded-xl border p-4 transition-all hover:border-purple-100 hover:bg-gray-50/50 hover:shadow-sm"
+              className="group relative flex cursor-pointer gap-6 rounded-xl border p-4 transition-all hover:border-purple-100 hover:bg-gray-50/50 hover:shadow-sm"
+              onClick={() => handleOfferClick(offer.id)}
             >
               <div className="w-48 flex-shrink-0">
                 {offer.imageUrl ? (
