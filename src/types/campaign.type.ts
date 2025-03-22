@@ -44,21 +44,42 @@ export interface ITrackingParams {
 
 export interface ICampaign {
   id: number
+  advertiserCode: string
   name: string
-  code: string
-  start_date: string
-  end_date: string
-  status: number
   description: string
-  created_at: string
-  updated_at: string
-  camp_owner: number
-  url: string
-  tracking_params: string
-  offer: IOffer[]
+  startDate: string
+  endDate: string
+  balance: number
+  productUrl: string
+  trackingParams: string
+  rejectReason: string | null
+  categoryId: number | null
+  status: string
+  category: any | null
+  offers: Array<{
+    id: number
+    campaignId: number
+    pricingModel: string
+    description: string
+    stepInfo: string
+    startDate: string
+    endDate: string
+    bid: number
+    budget: number
+    commissionRate: number | null
+    orderReturnTime: number | null
+    imageUrl: string | null
+  }>
+  images: Array<{
+    imageUrl: string
+  }>
 }
 
-export type IGetCampaignsByAdvertiserResponse = IPaginationResponse<ICampaign>
+export interface IGetCampaignsByAdvertiserResponse {
+  isSuccess: true
+  message: string
+  value: IPaginatedResponse<ICampaign>
+}
 
 export interface IGetCampaignByCampCodeResponse {
   success: true
@@ -87,14 +108,8 @@ export interface IActivateCampaignErrorResponse {
 }
 
 export interface IGetCampaignsByAdvertiserParams {
-  search?: string
-  filter_by?: string
-  filter_value?: string
-  status?: number
-  page?: number
+  pageNumber?: number
   pageSize?: number
-  sort_by?: string
-  sort_order?: string
 }
 
 export interface IGetTrackingParamsResponse {

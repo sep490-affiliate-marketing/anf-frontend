@@ -5,6 +5,7 @@ import { useEffect, useState } from "react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 
+import { useAuth } from "@/providers/auth-provider"
 import { ICreateCampaignForm } from "@/validations/campaign.validation"
 import { addDays } from "date-fns"
 import { ImageIcon } from "lucide-react"
@@ -36,7 +37,7 @@ const CampaignForm = () => {
   const { form, isPending, onCreateCampaign } = useCreateCampaignForm()
   const [isLoading, setIsLoading] = useState(false)
 
-  const userData = useGetLS("userData")
+  const { user } = useAuth()
 
   const {
     control,
@@ -118,8 +119,10 @@ const CampaignForm = () => {
       const campaignData = {
         ...data,
         trackingParams: JSON.stringify(data.tracking_param),
+        advertiserCode: user?.userCode,
         images: data.images,
         offers: data.offers,
+        productUrl: data.baseUrl,
       }
 
       console.log("Campaign data:", campaignData)
@@ -302,4 +305,3 @@ const CampaignForm = () => {
 }
 
 export default CampaignForm
-

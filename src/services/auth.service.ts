@@ -8,7 +8,9 @@ import apiClient from "@/lib/api/client"
 export const AuthService = {
   getUser: async () => {
     try {
-      const data = await apiClient.get<IBackendRes<IUser>>("/auth/me")
+      const data = await apiClient.get<IBackendRes<IUser>>(
+        "/api/affiliate-network/users/me"
+      )
       return data
     } catch (error) {
       const errRes = error as IBackendErrorRes

@@ -2,6 +2,7 @@
 
 import { CSSProperties, useEffect, useState } from "react"
 
+import { useAuth } from "@/providers/auth-provider"
 import {
   Column,
   ColumnDef,
@@ -25,7 +26,11 @@ import {
   PinOffIcon,
 } from "lucide-react"
 
+import { ICampaign } from "@/types/campaign.type"
+
 import { cn } from "@/lib/utils"
+
+import { useGetCampaignsByAdvertiser } from "@/hooks/campaign"
 
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -57,16 +62,8 @@ import {
   TableRow,
 } from "@/components/ui/table"
 
-type Campaign = {
-  id: string
-  name: string
-  startDate: string
-  endDate: string
-  status: "active" | "inactive"
-}
-
 // Helper function to compute pinning styles for columns
-const getPinningStyles = (column: Column<Campaign>): CSSProperties => {
+const getPinningStyles = (column: Column<ICampaign>): CSSProperties => {
   const isPinned = column.getIsPinned()
   return {
     left: isPinned === "left" ? `${column.getStart("left")}px` : undefined,
@@ -78,7 +75,7 @@ const getPinningStyles = (column: Column<Campaign>): CSSProperties => {
   }
 }
 
-const columns: ColumnDef<Campaign>[] = [
+const columns: ColumnDef<ICampaign>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -129,24 +126,36 @@ const columns: ColumnDef<Campaign>[] = [
     header: "Status",
     accessorKey: "status",
     cell: ({ row }) => {
-      const status = row.getValue("status") as "active" | "inactive"
+      const status = row.getValue("status") as string
       return (
         <div
           className={cn(
             "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium",
-            status === "active"
+            status === "Started"
               ? "bg-green-50 text-green-700"
               : "bg-red-50 text-red-700"
           )}
         >
-          {status === "active" ? "Active" : "Inactive"}
+          {status}
         </div>
       )
     },
   },
   {
+    header: "Balance",
+    accessorKey: "balance",
+    cell: ({ row }) => (
+      <div className="truncate">
+        {new Intl.NumberFormat("vi-VN", {
+          style: "currency",
+          currency: "VND",
+        }).format(row.getValue("balance"))}
+      </div>
+    ),
+  },
+  {
     id: "actions",
-    header: "Hành Động",
+    header: "Actions",
     cell: ({ row }) => {
       return (
         <div className="flex justify-end">
@@ -177,52 +186,20 @@ const columns: ColumnDef<Campaign>[] = [
 ]
 
 export default function CampaignDataTable() {
-  const [data, setData] = useState<Campaign[]>([])
+  const [pageSize, setPageSize] = useState(10)
+  const [pageNumber, setPageNumber] = useState(1)
   const [sorting, setSorting] = useState<SortingState>([])
-
-  useEffect(() => {
-    // Sample data matching the image
-    setData([
-      {
-        id: "1",
-        name: "1741273608-yMuleaInpSJdGKRX - Samsung Grand Open",
-        startDate: "7 tháng 03, 2025",
-        endDate: "27 tháng 03, 2025",
-        status: "inactive",
-      },
-      {
-        id: "2",
-        name: "1739334521-Lr2GTO7ifVINoUW - Brand new Iphone 16",
-        startDate: "13 tháng 02, 2025",
-        endDate: "6 tháng 04, 2025",
-        status: "active",
-      },
-      {
-        id: "3",
-        name: "1735804658-fypsqevslGhAYJSD - iPhone 16",
-        startDate: "13 tháng 02, 2025",
-        endDate: "23 tháng 04, 2025",
-        status: "inactive",
-      },
-      {
-        id: "4",
-        name: "1735524335-MpM8QErK0QHu3I8 - Modobom Open Group Camp",
-        startDate: "31 tháng 12, 2024",
-        endDate: "20 tháng 01, 2025",
-        status: "inactive",
-      },
-      {
-        id: "5",
-        name: "1735195686-K0ZE61M6j6CWekCS - Modobom Open Group112121",
-        startDate: "27 tháng 12, 2024",
-        endDate: "16 tháng 01, 2025",
-        status: "inactive",
-      },
-    ])
-  }, [])
+  const { user } = useAuth()
+  const { data, isLoading } = useGetCampaignsByAdvertiser(
+    {
+      pageNumber,
+      pageSize,
+    },
+    user?.userCode || ""
+  )
 
   const table = useReactTable({
-    data,
+    data: data?.value?.data || [],
     columns,
     columnResizeMode: "onChange",
     getCoreRowModel: getCoreRowModel(),
@@ -230,6 +207,22 @@ export default function CampaignDataTable() {
     onSortingChange: setSorting,
     state: {
       sorting,
+      pagination: {
+        pageIndex: (data?.value?.pageNumber || 1) - 1,
+        pageSize: data?.value?.pageSize || 10,
+      },
+    },
+    pageCount: data?.value?.totalPages || 1,
+    manualPagination: true,
+    onPaginationChange: (updater) => {
+      if (typeof updater === "function") {
+        const newState = updater({
+          pageIndex: (data?.value?.pageNumber || 1) - 1,
+          pageSize: data?.value?.pageSize || 10,
+        })
+        setPageNumber(newState.pageIndex + 1)
+        setPageSize(newState.pageSize)
+      }
     },
     enableSortingRemoval: false,
   })
@@ -391,7 +384,16 @@ export default function CampaignDataTable() {
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows?.length ? (
+            {isLoading ? (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center"
+                >
+                  Loading...
+                </TableCell>
+              </TableRow>
+            ) : table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
@@ -452,9 +454,10 @@ export default function CampaignDataTable() {
             Rows per page
           </Label>
           <Select
-            value={table.getState().pagination.pageSize.toString()}
+            value={pageSize.toString()}
             onValueChange={(value) => {
-              table.setPageSize(Number(value))
+              setPageSize(Number(value))
+              setPageNumber(1)
             }}
           >
             <SelectTrigger
@@ -464,9 +467,9 @@ export default function CampaignDataTable() {
               <SelectValue placeholder="Select number of results" />
             </SelectTrigger>
             <SelectContent className="[&_*[role=option]>span]:end-2 [&_*[role=option]>span]:start-auto [&_*[role=option]]:pe-8 [&_*[role=option]]:ps-2">
-              {[5, 10, 25, 50].map((pageSize) => (
-                <SelectItem key={pageSize} value={pageSize.toString()}>
-                  {pageSize}
+              {[5, 10, 25, 50].map((size) => (
+                <SelectItem key={size} value={size.toString()}>
+                  {size}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -479,23 +482,14 @@ export default function CampaignDataTable() {
             aria-live="polite"
           >
             <span className="text-foreground">
-              {table.getState().pagination.pageIndex *
-                table.getState().pagination.pageSize +
-                1}
-              -
-              {Math.min(
-                Math.max(
-                  table.getState().pagination.pageIndex *
-                    table.getState().pagination.pageSize +
-                    table.getState().pagination.pageSize,
-                  0
-                ),
-                table.getRowCount()
-              )}
+              {data?.value ? (pageNumber - 1) * pageSize + 1 : 0}-
+              {data?.value
+                ? Math.min(pageNumber * pageSize, data.value.totalRecords)
+                : 0}
             </span>{" "}
             of{" "}
             <span className="text-foreground">
-              {table.getRowCount().toString()}
+              {data?.value?.totalRecords || 0}
             </span>
           </p>
         </div>
@@ -510,8 +504,8 @@ export default function CampaignDataTable() {
                   size="icon"
                   variant="outline"
                   className="disabled:pointer-events-none disabled:opacity-50"
-                  onClick={() => table.firstPage()}
-                  disabled={!table.getCanPreviousPage()}
+                  onClick={() => setPageNumber(1)}
+                  disabled={pageNumber === 1 || isLoading}
                   aria-label="Go to first page"
                 >
                   <ChevronFirstIcon size={16} aria-hidden="true" />
@@ -523,8 +517,8 @@ export default function CampaignDataTable() {
                   size="icon"
                   variant="outline"
                   className="disabled:pointer-events-none disabled:opacity-50"
-                  onClick={() => table.previousPage()}
-                  disabled={!table.getCanPreviousPage()}
+                  onClick={() => setPageNumber(pageNumber - 1)}
+                  disabled={pageNumber === 1 || isLoading}
                   aria-label="Go to previous page"
                 >
                   <ChevronLeftIcon size={16} aria-hidden="true" />
@@ -536,8 +530,8 @@ export default function CampaignDataTable() {
                   size="icon"
                   variant="outline"
                   className="disabled:pointer-events-none disabled:opacity-50"
-                  onClick={() => table.nextPage()}
-                  disabled={!table.getCanNextPage()}
+                  onClick={() => setPageNumber(pageNumber + 1)}
+                  disabled={!data?.value?.hasNextPage || isLoading}
                   aria-label="Go to next page"
                 >
                   <ChevronRightIcon size={16} aria-hidden="true" />
@@ -549,8 +543,8 @@ export default function CampaignDataTable() {
                   size="icon"
                   variant="outline"
                   className="disabled:pointer-events-none disabled:opacity-50"
-                  onClick={() => table.lastPage()}
-                  disabled={!table.getCanNextPage()}
+                  onClick={() => setPageNumber(data?.value?.totalPages || 1)}
+                  disabled={!data?.value?.hasNextPage || isLoading}
                   aria-label="Go to last page"
                 >
                   <ChevronLastIcon size={16} aria-hidden="true" />
@@ -563,3 +557,4 @@ export default function CampaignDataTable() {
     </>
   )
 }
+
