@@ -13,17 +13,21 @@ export function OfferFormSchema() {
     .object({
       // code: z.coerce.number(),
       pricingModel: z
-        .string()
-        .min(1, { message: "validation.priceModal.required" }),
+        .string({ required_error: "validation.pricingModel.required" })
+        .min(1, "validation.pricingModel.required"),
       description: z
-        .string()
-        .min(1, { message: "validation.description.required" }),
+        .string({ required_error: "validation.description.required" })
+        .min(1, "validation.description.required"),
       bid: z
-        .string()
-        .min(1, { message: "validation.payoutMoney.required" }) // Ensures the field is not empty
-        .regex(/^\d{1,6}(\.\d{1,3})?$/, {
-          message: "validation.payoutMoney.invalid",
-        }),
+        .string({ required_error: "validation.bid.required" })
+        .min(1, "validation.bid.required")
+        .refine(
+          (value) => {
+            const numValue = parseFloat(value)
+            return !isNaN(numValue) && numValue >= 1000
+          },
+          { message: "Bid must be at least 1000" }
+        ),
       startDate: z
         .string()
         .min(1, { message: "validation.startDate.required" })
@@ -51,27 +55,33 @@ export function OfferFormSchema() {
           { message: "validation.endDate.notInPast" }
         ),
       budget: z
-        .string()
-        .min(1, { message: "validation.budget.required" })
-        .regex(/^\d{1,6}(\.\d{1,3})?$/, {
-          message: "validation.budget.invalid",
-        }),
-      stepInfo: z.string().min(1, { message: "validation.stepInfo.required" }),
-      thumbnail: z
-        .union([
-          z
-            .custom<File>((value) => value instanceof File, {
-              message: "Must be a valid file",
-            })
-            .refine((file) => file.size <= MAX_FILE_SIZE, {
-              message: `Max file size is ${MAX_FILE_SIZE / (1024 * 1024)}MB`,
-            })
-            .refine((file) => ACCEPTED_IMAGE_TYPES.includes(file.type), {
-              message: "Only .jpg, .jpeg, .png and .webp files are accepted",
-            }),
-          z.string(),
-        ])
-        .optional(),
+        .string({ required_error: "validation.budget.required" })
+        .min(1, "validation.budget.required")
+        .refine(
+          (value) => {
+            const numValue = parseFloat(value)
+            return !isNaN(numValue) && numValue >= 1000
+          },
+          { message: "Budget must be at least 1000" }
+        ),
+      stepInfo: z
+        .string({ required_error: "validation.stepInfo.required" })
+        .min(1, "validation.stepInfo.required"),
+      // thumbnail: z
+      //   .union([
+      //     z
+      //       .custom<File>((value) => value instanceof File, {
+      //         message: "Must be a valid file",
+      //       })
+      //       .refine((file) => file.size <= MAX_FILE_SIZE, {
+      //         message: `Max file size is ${MAX_FILE_SIZE / (1024 * 1024)}MB`,
+      //       })
+      //       .refine((file) => ACCEPTED_IMAGE_TYPES.includes(file.type), {
+      //         message: "Only .jpg, .jpeg, .png and .webp files are accepted",
+      //       }),
+      //     z.string(),
+      //   ])
+      //   .optional(),
       // offer_type: z
       //   .string({ message: "validation.type.required" })
       //   .min(1, { message: "validation.type.required" }),
@@ -107,4 +117,3 @@ export function OfferFormSchema() {
 }
 
 export type IOfferForm = z.infer<ReturnType<typeof OfferFormSchema>>
-
