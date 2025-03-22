@@ -52,11 +52,14 @@ const CampaignService = {
       }
     }
   },
-  getCampaignsByAdvertiser: async (params: IGetCampaignsByAdvertiserParams) => {
+  getCampaignsByAdvertiser: async (
+    params: IGetCampaignsByAdvertiserParams,
+    code: string
+  ) => {
     const queryString = qs.stringify(params)
     try {
       const { data } = await apiClient.get<IGetCampaignsByAdvertiserResponse>(
-        `/api/my-campaigns?${queryString}`
+        `/api/affiliate-network/campaigns/advertisers/${code}/offers?${queryString}`
       )
       return data
     } catch (error) {

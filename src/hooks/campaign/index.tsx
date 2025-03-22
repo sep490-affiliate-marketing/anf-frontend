@@ -12,6 +12,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 
+import { IGetCampaignsByAdvertiserParams } from "@/types/campaign.type"
+
 export const useCreateCampaignForm = () => {
   const queryClient = useQueryClient()
   const [errorMessage, setErrorMessage] = useState<string>("")
@@ -87,7 +89,7 @@ export const useCreateCampaignForm = () => {
           description: "responseMessage.success.create_campaign.description",
         })
         queryClient.invalidateQueries({ queryKey: ["advertiserCampaigns", 1] })
-        router.push(`/advertiser/my-campaigns`)
+        // router.push(`/advertiser/campaigns`)
       }
     },
   })
@@ -155,3 +157,15 @@ export const useCreateCampaignForm = () => {
 //     queryFn: () => CampaignService.getTrackingParams(),
 //   })
 // }
+
+export const useGetCampaignsByAdvertiser = (
+  params: IGetCampaignsByAdvertiserParams,
+  advertiserCode: string
+) => {
+  return useQuery({
+    queryKey: ["campaignsByAdvertiser", params, advertiserCode],
+    queryFn: () =>
+      CampaignService.getCampaignsByAdvertiser(params, advertiserCode),
+    enabled: !!advertiserCode,
+  })
+}
