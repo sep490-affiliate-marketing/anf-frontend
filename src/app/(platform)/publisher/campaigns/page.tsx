@@ -22,7 +22,11 @@ import {
   Tag,
 } from "lucide-react"
 
+import { ICampaign } from "@/types/campaign.type"
+
 import { cn, formatVNDCurrency } from "@/lib/utils"
+
+import { useGetActiveCampaigns } from "@/hooks/campaign"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -58,151 +62,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-
-// Mock data for campaigns
-const mockCampaigns = [
-  {
-    id: 1,
-    advertiserCode: "2481c765-1f1b-4e9a-8b65-24b8b044d01a",
-    name: "Baotangtruyentranh",
-    description: "Banner at home page of baotangtruyentranh",
-    startDate: "2025-05-01T00:00:00",
-    endDate: "2025-12-31T00:00:00",
-    balance: 15000000,
-    thumbnail:
-      "https://images.unsplash.com/photo-1614332287897-cdc485fa562d?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-    status: "Active",
-    category: "Entertainment",
-    offers: [
-      {
-        id: 1,
-        pricingModel: "CPA",
-        bid: 100000,
-      },
-      {
-        id: 2,
-        pricingModel: "CPC",
-        bid: 5000,
-      },
-    ],
-    joined: false,
-  },
-  {
-    id: 2,
-    advertiserCode: "a4b1c3d2-e5f6-g7h8-i9j0-k1l2m3n4o5p6",
-    name: "Tiki",
-    description: "Promote Tiki products with high commission rates",
-    startDate: "2025-04-15T00:00:00",
-    endDate: "2026-01-15T00:00:00",
-    balance: 50000000,
-    thumbnail:
-      "https://images.unsplash.com/photo-1556740738-b6a63e27c4df?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-    status: "Active",
-    category: "E-commerce",
-    offers: [
-      {
-        id: 3,
-        pricingModel: "CPS",
-        bid: 200000,
-      },
-      {
-        id: 4,
-        pricingModel: "CPL",
-        bid: 15000,
-      },
-    ],
-    joined: true,
-  },
-  {
-    id: 3,
-    advertiserCode: "q7r8s9t0-u1v2-w3x4-y5z6-a7b8c9d0e1f2",
-    name: "Shopee",
-    description: "Promote flash sale products with high conversion rates",
-    startDate: "2025-03-10T00:00:00",
-    endDate: "2025-09-30T00:00:00",
-    balance: 75000000,
-    thumbnail:
-      "https://images.unsplash.com/photo-1607083206869-4c7672e72a8a?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-    status: "Active",
-    category: "E-commerce",
-    offers: [
-      {
-        id: 5,
-        pricingModel: "CPS",
-        bid: 180000,
-      },
-    ],
-    joined: false,
-  },
-  {
-    id: 4,
-    advertiserCode: "g3h4i5j6-k7l8-m9n0-o1p2-q3r4s5t6u7v8",
-    name: "Netflix",
-    description: "Promote Netflix subscription plans to new users",
-    startDate: "2025-06-01T00:00:00",
-    endDate: "2026-06-01T00:00:00",
-    balance: 100000000,
-    thumbnail:
-      "https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-    status: "Pending",
-    category: "Entertainment",
-    offers: [
-      {
-        id: 6,
-        pricingModel: "CPL",
-        bid: 250000,
-      },
-    ],
-    joined: false,
-  },
-  {
-    id: 5,
-    advertiserCode: "w9x0y1z2-a3b4-c5d6-e7f8-g9h0i1j2k3l4",
-    name: "Lazada",
-    description: "Promote electronics products on Lazada platform",
-    startDate: "2025-05-15T00:00:00",
-    endDate: "2025-11-15T00:00:00",
-    balance: 45000000,
-    thumbnail:
-      "https://images.unsplash.com/photo-1563770660941-13978b895966?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-    status: "Active",
-    category: "E-commerce",
-    offers: [
-      {
-        id: 7,
-        pricingModel: "CPA",
-        bid: 120000,
-      },
-      {
-        id: 8,
-        pricingModel: "CPC",
-        bid: 8000,
-      },
-    ],
-    joined: true,
-  },
-  {
-    id: 6,
-    advertiserCode: "m5n6o7p8-q9r0-s1t2-u3v4-w5x6y7z8a9b0",
-    name: "Booking.com",
-    description: "Promote hotel bookings and travel packages",
-    startDate: "2025-07-01T00:00:00",
-    endDate: "2026-07-01T00:00:00",
-    balance: 80000000,
-    thumbnail:
-      "https://images.unsplash.com/photo-1568084680786-a84f91d1153c?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-    status: "Active",
-    category: "Travel",
-    offers: [
-      {
-        id: 9,
-        pricingModel: "CPA",
-        bid: 300000,
-      },
-    ],
-    joined: false,
-  },
-]
 
 // Filter categories for campaigns
 const categories = [
@@ -281,34 +140,28 @@ type Offer = {
   bid: number
 }
 
-type Campaign = {
-  id: number
-  advertiserCode: string
-  name: string
-  description: string
-  startDate: string
-  endDate: string
-  balance: number
-  thumbnail: string
-  status: string
-  category: string
-  offers: Offer[]
-  joined: boolean
+interface CampaignWithJoinStatus extends ICampaign {
+  joined?: boolean
+}
+
+// Component type definitions
+interface CampaignCardProps {
+  campaign: CampaignWithJoinStatus
+  onJoinToggle: (id: number) => void
+}
+
+interface CampaignListItemProps {
+  campaign: CampaignWithJoinStatus
+  onJoinToggle: (id: number) => void
 }
 
 // Component for campaign grid card
-function CampaignCard({
-  campaign,
-  onJoinToggle,
-}: {
-  campaign: Campaign
-  onJoinToggle: (id: number) => void
-}) {
+function CampaignCard({ campaign, onJoinToggle }: CampaignCardProps) {
   return (
     <Card key={campaign.id} className="overflow-hidden">
       <div className="aspect-video w-full">
         <img
-          src={campaign.thumbnail}
+          src={campaign.images[0]?.imageUrl || "/placeholder-image.jpg"}
           alt={campaign.name}
           className="h-full w-full object-cover"
         />
@@ -391,18 +244,12 @@ function CampaignCard({
 }
 
 // Component for campaign list item
-function CampaignListItem({
-  campaign,
-  onJoinToggle,
-}: {
-  campaign: Campaign
-  onJoinToggle: (id: number) => void
-}) {
+function CampaignListItem({ campaign, onJoinToggle }: CampaignListItemProps) {
   return (
     <div className="flex flex-col overflow-hidden rounded-lg border sm:flex-row">
       <div className="h-48 w-full sm:h-auto sm:w-48">
         <img
-          src={campaign.thumbnail}
+          src={campaign.images[0]?.imageUrl || "/placeholder-image.jpg"}
           alt={campaign.name}
           className="h-full w-full object-cover"
         />
@@ -681,34 +528,62 @@ export default function PublisherCampaignsPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("All")
   const [selectedPricingModel, setSelectedPricingModel] = useState("All")
-  const [campaigns, setCampaigns] = useState<Campaign[]>(mockCampaigns)
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
+  const [page, setPage] = useState(1)
+  const [pageSize] = useState(10)
+
+  const { data: campaignsData, isLoading, error } = useGetActiveCampaigns()
+  const campaigns: CampaignWithJoinStatus[] = campaignsData?.value?.data || []
 
   // Filter campaigns based on search query and filters
-  const filteredCampaigns = campaigns.filter((campaign) => {
-    const matchesSearch =
-      campaign.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      campaign.description.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredCampaigns = campaigns.filter(
+    (campaign: CampaignWithJoinStatus) => {
+      const matchesSearch =
+        campaign.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        campaign.description.toLowerCase().includes(searchQuery.toLowerCase())
 
-    const matchesCategory =
-      selectedCategory === "All" || campaign.category === selectedCategory
+      const matchesCategory =
+        selectedCategory === "All" ||
+        campaign.category?.name === selectedCategory
 
-    const matchesPricingModel =
-      selectedPricingModel === "All" ||
-      campaign.offers.some(
-        (offer) => offer.pricingModel === selectedPricingModel
-      )
+      const matchesPricingModel =
+        selectedPricingModel === "All" ||
+        campaign.offers.some(
+          (offer) => offer.pricingModel === selectedPricingModel
+        )
 
-    return matchesSearch && matchesCategory && matchesPricingModel
-  })
+      return matchesSearch && matchesCategory && matchesPricingModel
+    }
+  )
 
   const handleJoinCampaign = (campaignId: number) => {
-    setCampaigns((prevCampaigns) =>
-      prevCampaigns.map((campaign) =>
-        campaign.id === campaignId
-          ? { ...campaign, joined: !campaign.joined }
-          : campaign
-      )
+    // TODO: Implement join campaign functionality with API
+    console.log("Joining campaign:", campaignId)
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex h-[50vh] items-center justify-center">
+        <div className="text-center">
+          <h3 className="text-lg font-medium">Loading campaigns...</h3>
+          <p className="text-sm text-muted-foreground">Please wait</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="flex h-[50vh] items-center justify-center">
+        <div className="text-center">
+          <h3 className="text-lg font-medium text-destructive">
+            Error loading campaigns
+          </h3>
+          <p className="text-sm text-muted-foreground">
+            Please try again later
+          </p>
+        </div>
+      </div>
     )
   }
 

@@ -9,6 +9,7 @@ import {
   ICreateCampaignSuccessResponse,
   IGetAllCampaignsResponse,
   IGetCampaignByCampCodeResponse,
+  IGetCampaignDetailForPublisherResponse,
   IGetCampaignsByAdvertiserParams,
   IGetCampaignsByAdvertiserResponse,
   IGetTrackingParamsErrorResponse,
@@ -95,6 +96,16 @@ const CampaignService = {
       return undefined
     }
   },
+  getActiveCampaigns: async (page: number = 1, pageSize: number = 10) => {
+    try {
+      const { data } = await apiClient.get<IGetAllCampaignsResponse>(
+        `/api/affiliate-network/campaigns?pageNumber=${page}&pageSize=${pageSize}`
+      )
+      return data
+    } catch (error) {
+      return undefined
+    }
+  },
   activateCampaign: async (campaignCode: string) => {
     try {
       const { data } = await apiClient.post<IActivateCampaignResponse>(
@@ -171,5 +182,16 @@ const CampaignService = {
   },
 }
 
-export default CampaignService
+export const getCampaignDetailForPublisher = async (campaignId: number) => {
+  try {
+    const { data } =
+      await apiClient.get<IGetCampaignDetailForPublisherResponse>(
+        `/api/affiliate-network/campaigns/${campaignId}/publishers`
+      )
+    return data
+  } catch (error) {
+    return undefined
+  }
+}
 
+export default CampaignService

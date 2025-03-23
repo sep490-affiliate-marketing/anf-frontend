@@ -137,3 +137,8 @@ export interface IUpdateCampaignErrorResponse {
   type: "camp_already_active" | "permission_denied" | "update_camp_error"
 }
 
+export interface IGetCampaignDetailForPublisherResponse {
+  isSuccess: true
+  message: string
+  value: ICampaign
+}
