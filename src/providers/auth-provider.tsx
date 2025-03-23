@@ -2,6 +2,9 @@
 
 import React, { useContext, useState } from "react"
 
+import { useRouter } from "next/navigation"
+
+import { UserRole } from "@/enums/user-role"
 import { AuthService } from "@/services/auth.service"
 import { ILoginForm, LoginFormSchema } from "@/validations/auth.validation"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -32,6 +35,7 @@ export const AuthContext = React.createContext<AuthContextType | null>(null)
 
 export default function AuthProvider({ children }: AuthProviderProps) {
   const queryClient = useQueryClient()
+  const router = useRouter()
 
   const { data: userData, isLoading: isLoadingUser } = useQuery({
     queryKey: ["me"],
@@ -68,7 +72,18 @@ export default function AuthProvider({ children }: AuthProviderProps) {
     mutationFn: (data: ILoginForm) => AuthService.login(data),
     onSuccess: async (res) => {
       if (res.isSuccess === true) {
-        await Cookies.set("access_token", res.value)
+        const { accessToken, role } = res.value
+        await Cookies.set("access_token", accessToken)
+
+        queryClient.setQueryData(["me"], res.value)
+
+        if (role === UserRole.ADVERTISER) {
+          router.push("/advertiser")
+        } else if (role === UserRole.PUBLISHER) {
+          router.push("/publisher")
+        } else if (role === UserRole.ADMIN) {
+          router.push("/admin")
+        }
 
         toast.success("Login successful")
       } else {
