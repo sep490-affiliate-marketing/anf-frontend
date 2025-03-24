@@ -3,7 +3,6 @@
 import React from "react"
 
 import Link from "next/link"
-import { notFound } from "next/navigation"
 
 import { differenceInDays, format, formatDistanceToNow } from "date-fns"
 import {
@@ -15,11 +14,7 @@ import {
   CreditCard,
   Gem,
   Globe,
-  ImageIcon,
   Info,
-  Link as LinkIcon,
-  Search,
-  Tag,
   Zap,
 } from "lucide-react"
 
@@ -221,7 +216,7 @@ function CampaignStatus({ status }: { status: string }) {
       variant="outline"
       className={`${config.color} flex items-center gap-1.5 px-2.5 py-0.5 font-medium`}
     >
-      <Icon className="h-3.5 w-3.5" />
+      <Icon className="size-3.5" />
       {config.text}
     </Badge>
   )
@@ -301,7 +296,7 @@ function CampaignGallery({
           <img
             src={image}
             alt={`Campaign image ${index + 1}`}
-            className="h-full w-full object-cover"
+            className="size-full object-cover"
           />
         </div>
       ))}
@@ -329,13 +324,13 @@ function CampaignTimeline({ campaign }: { campaign: Campaign }) {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Calendar className="h-4 w-4 text-muted-foreground" />
+          <Calendar className="size-4 text-muted-foreground" />
           <span className="text-sm">
             Started {format(startDate, "MMM d, yyyy")}
           </span>
         </div>
         <div className="flex items-center gap-2">
-          <Calendar className="h-4 w-4 text-muted-foreground" />
+          <Calendar className="size-4 text-muted-foreground" />
           <span className="text-sm">Ends {format(endDate, "MMM d, yyyy")}</span>
         </div>
       </div>
@@ -366,7 +361,7 @@ function JoinCampaignCard({ campaign }: { campaign: Campaign }) {
       <CardContent className="space-y-4">
         <div className="flex items-center gap-3">
           <div className="rounded-full bg-purple-100 p-2">
-            <Zap className="h-5 w-5 text-purple-600" />
+            <Zap className="size-5 text-purple-600" />
           </div>
           <div>
             <p className="text-sm font-medium">Quick Stats</p>
@@ -378,7 +373,7 @@ function JoinCampaignCard({ campaign }: { campaign: Campaign }) {
 
         <div className="flex items-center gap-3">
           <div className="rounded-full bg-green-100 p-2">
-            <Gem className="h-5 w-5 text-green-600" />
+            <Gem className="size-5 text-green-600" />
           </div>
           <div>
             <p className="text-sm font-medium">Avg. Conversion Rate</p>
@@ -426,16 +421,16 @@ function TrackingInfoCard({ campaign }: { campaign: Campaign }) {
         <div>
           <p className="mb-2 text-sm font-medium">Tracking URL</p>
           <div className="flex items-center gap-2 rounded-md border bg-muted/50 p-2">
-            <code className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-xs">
+            <code className="flex-1 truncate text-xs">
               {trackingUrl}
             </code>
             <Button
               variant="ghost"
               size="icon"
-              className="h-6 w-6 shrink-0"
+              className="size-6 shrink-0"
               onClick={() => copyToClipboard(trackingUrl)}
             >
-              <Copy className="h-3.5 w-3.5" />
+              <Copy className="size-3.5" />
             </Button>
           </div>
         </div>
@@ -444,16 +439,16 @@ function TrackingInfoCard({ campaign }: { campaign: Campaign }) {
           <div>
             <p className="mb-2 text-sm font-medium">Tracking Parameters</p>
             <div className="flex items-center gap-2 rounded-md border bg-muted/50 p-2">
-              <code className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-xs">
+              <code className="flex-1 truncate text-xs">
                 {campaign.trackingParams}
               </code>
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-6 w-6 shrink-0"
+                className="size-6 shrink-0"
                 // onClick={() => copyToClipboard(campaign.trackingParams)}
               >
-                <Copy className="h-3.5 w-3.5" />
+                <Copy className="size-3.5" />
               </Button>
             </div>
             <p className="mt-1 text-xs text-muted-foreground">
@@ -513,7 +508,7 @@ function OfferCard({ offer }: { offer: Offer }) {
             <ul className="space-y-1 text-xs text-muted-foreground">
               {offer.requirements.map((req, index) => (
                 <li key={index} className="flex items-start gap-2">
-                  <div className="mt-0.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
+                  <div className="mt-0.5 size-1.5 shrink-0 rounded-full bg-primary" />
                   <span>{req}</span>
                 </li>
               ))}
@@ -544,7 +539,7 @@ export default function CampaignDetailsPage({
           href="/publisher/campaigns"
           className="flex w-fit items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
         >
-          <ChevronLeft className="h-4 w-4" />
+          <ChevronLeft className="size-4" />
           Back to campaigns
         </Link>
 
@@ -562,7 +557,7 @@ export default function CampaignDetailsPage({
           {!campaign.joined && (
             <Button size="lg" className="gap-2">
               Join Campaign
-              <ArrowUpRight className="h-4 w-4" />
+              <ArrowUpRight className="size-4" />
             </Button>
           )}
         </div>
@@ -609,11 +604,11 @@ export default function CampaignDetailsPage({
                 <CardContent className="space-y-6">
                   {/* Advertiser Info */}
                   <div className="flex items-center gap-4">
-                    <div className="h-12 w-12 shrink-0 overflow-hidden rounded-full">
+                    <div className="size-12 shrink-0 overflow-hidden rounded-full">
                       <img
                         src={campaign.advertiserLogo}
                         alt={campaign.advertiserName}
-                        className="h-full w-full object-cover"
+                        className="size-full object-cover"
                       />
                     </div>
                     <div>
@@ -645,7 +640,7 @@ export default function CampaignDetailsPage({
                   <div>
                     <h3 className="mb-3 text-sm font-medium">Product URL</h3>
                     <div className="flex items-center gap-2">
-                      <Globe className="h-4 w-4 text-muted-foreground" />
+                      <Globe className="size-4 text-muted-foreground" />
                       <a
                         href={campaign.productUrl}
                         target="_blank"
@@ -686,7 +681,7 @@ export default function CampaignDetailsPage({
                         {formatVNDCurrency(campaign.balance)}
                       </p>
                     </div>
-                    <CreditCard className="h-10 w-10 text-muted-foreground" />
+                    <CreditCard className="size-10 text-muted-foreground" />
                   </div>
 
                   <Separator />

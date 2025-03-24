@@ -174,7 +174,7 @@ function CampaignStatus({
         variant="outline"
         className={`${config.color} flex items-center gap-1.5 px-2.5 py-0.5 font-medium`}
       >
-        <Icon className="h-3.5 w-3.5" />
+        <Icon className="size-3.5" />
         {config.text}
       </Badge>
     </div>
@@ -200,9 +200,9 @@ function ImagePreview({
       )}
       onClick={onClick}
     >
-      <img src={src} alt={alt} className="h-full w-full object-cover" />
+      <img src={src} alt={alt} className="size-full object-cover" />
       <div className="absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 transition-all group-hover:bg-black/20 group-hover:opacity-100">
-        <ZoomIn className="h-6 w-6 text-white" />
+        <ZoomIn className="size-6 text-white" />
       </div>
     </div>
   )
@@ -216,7 +216,7 @@ function ImagePlaceholder({ className }: { className?: string }) {
         className
       )}
     >
-      <ImageIcon className="h-8 w-8 text-gray-400" />
+      <ImageIcon className="size-8 text-gray-400" />
     </div>
   )
 }
@@ -250,7 +250,7 @@ function CampaignGallery({
         <div className="w-[65%]">
           {mainImage ? (
             <div
-              className="relative h-full w-full overflow-hidden rounded-lg"
+              className="relative size-full overflow-hidden rounded-lg"
               onClick={() => {
                 setPhotoIndex(0)
                 setIsOpen(true)
@@ -259,11 +259,11 @@ function CampaignGallery({
               <img
                 src={mainImage}
                 alt="Campaign main image"
-                className="h-full w-full object-cover"
+                className="size-full object-cover"
               />
             </div>
           ) : (
-            <ImagePlaceholder className="h-full w-full rounded-lg" />
+            <ImagePlaceholder className="size-full rounded-lg" />
           )}
         </div>
 
@@ -282,7 +282,7 @@ function CampaignGallery({
               <img
                 src={sideImages[0]}
                 alt="Campaign additional image"
-                className="h-full w-full object-cover"
+                className="size-full object-cover"
               />
             </div>
           ) : (
@@ -302,7 +302,7 @@ function CampaignGallery({
               <img
                 src={sideImages[1]}
                 alt="Campaign additional image"
-                className="h-full w-full object-cover"
+                className="size-full object-cover"
               />
 
               {/* "+X more" overlay if needed */}
@@ -338,7 +338,7 @@ function CampaignHeader({ campaign }: { campaign: Campaign }) {
           size="sm"
           className="gap-2 text-gray-600 hover:text-gray-900"
         >
-          <ChevronLeft className="h-4 w-4" />
+          <ChevronLeft className="size-4" />
           Back
         </Button>
         <div className="h-4 w-px bg-border" />
@@ -393,7 +393,7 @@ export default function CampaignDetailsPage({ params: paramsPromise }: Props) {
           <div className="mb-8">
             <div className="mb-4 flex items-center gap-2">
               <div className="rounded-lg bg-purple-50 p-1.5">
-                <ImageIcon className="h-4 w-4 text-purple-600" />
+                <ImageIcon className="size-4 text-purple-600" />
               </div>
               <h3 className="font-medium">Campaign Images</h3>
             </div>
@@ -410,7 +410,7 @@ export default function CampaignDetailsPage({ params: paramsPromise }: Props) {
             <div>
               <div className="mb-4 flex items-center gap-2">
                 <div className="rounded-lg bg-purple-50 p-1.5">
-                  <Clock className="h-4 w-4 text-purple-600" />
+                  <Clock className="size-4 text-purple-600" />
                 </div>
                 <h3 className="font-medium">Time & Progress</h3>
               </div>
@@ -463,7 +463,7 @@ export default function CampaignDetailsPage({ params: paramsPromise }: Props) {
             <div>
               <div className="mb-4 flex items-center gap-2">
                 <div className="rounded-lg bg-purple-50 p-1.5">
-                  <Tag className="h-4 w-4 text-purple-600" />
+                  <Tag className="size-4 text-purple-600" />
                 </div>
                 <h3 className="font-medium">Basic Information</h3>
               </div>
@@ -496,7 +496,7 @@ export default function CampaignDetailsPage({ params: paramsPromise }: Props) {
                     className="group/link inline-flex items-center gap-1 text-sm text-purple-600 hover:text-purple-700"
                   >
                     {campaign.productUrl}
-                    <ArrowUpRight className="h-3 w-3 transition-transform group-hover/link:-translate-y-0.5 group-hover/link:translate-x-0.5" />
+                    <ArrowUpRight className="size-3 transition-transform group-hover/link:-translate-y-0.5 group-hover/link:translate-x-0.5" />
                   </a>
                 </div>
               </div>
@@ -520,7 +520,7 @@ export default function CampaignDetailsPage({ params: paramsPromise }: Props) {
               <div>
                 <div className="mb-4 flex items-center gap-2">
                   <div className="rounded-lg bg-purple-50 p-1.5">
-                    <CreditCard className="h-4 w-4 text-purple-600" />
+                    <CreditCard className="size-4 text-purple-600" />
                   </div>
                   <h3 className="font-medium">Campaign Budget</h3>
                 </div>
@@ -583,7 +583,7 @@ export default function CampaignDetailsPage({ params: paramsPromise }: Props) {
             </div>
             <div className="rounded-xl border border-gray-100 bg-gray-50 p-6">
               <div className="flex items-center gap-2">
-                <Tag className="h-5 w-5 text-purple-600" />
+                <Tag className="size-5 text-purple-600" />
                 <h3 className="font-medium">Budget Details</h3>
               </div>
               <div className="mt-4 space-y-3">
@@ -620,7 +620,7 @@ export default function CampaignDetailsPage({ params: paramsPromise }: Props) {
               <div>
                 <div className="mb-4 flex items-center gap-2">
                   <div className="rounded-lg bg-purple-50 p-1.5">
-                    <Tag className="h-4 w-4 text-purple-600" />
+                    <Tag className="size-4 text-purple-600" />
                   </div>
                   <h3 className="font-medium">Offers Overview</h3>
                 </div>
@@ -672,7 +672,7 @@ export default function CampaignDetailsPage({ params: paramsPromise }: Props) {
             </div>
             <div className="rounded-xl border border-gray-100 bg-gray-50 p-6">
               <div className="flex items-center gap-2">
-                <Tag className="h-5 w-5 text-purple-600" />
+                <Tag className="size-5 text-purple-600" />
                 <h3 className="font-medium">Offers Distribution</h3>
               </div>
               <div className="mt-4 space-y-3">
@@ -715,7 +715,7 @@ export default function CampaignDetailsPage({ params: paramsPromise }: Props) {
               className="group relative flex cursor-pointer gap-6 rounded-xl border p-4 transition-all hover:border-purple-100 hover:bg-gray-50/50 hover:shadow-sm"
               onClick={() => handleOfferClick(offer.id)}
             >
-              <div className="w-48 flex-shrink-0">
+              <div className="w-48 shrink-0">
                 {offer.imageUrl ? (
                   <ImagePreview
                     src={offer.imageUrl}

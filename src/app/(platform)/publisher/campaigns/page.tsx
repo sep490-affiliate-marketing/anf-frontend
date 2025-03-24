@@ -11,7 +11,6 @@ import {
   CheckCircle,
   ChevronDown,
   Clock,
-  Filter,
   GridIcon,
   Info,
   Layers,
@@ -19,7 +18,6 @@ import {
   Megaphone,
   Search,
   SlidersHorizontal,
-  Tag,
 } from "lucide-react"
 
 import { cn, formatVNDCurrency } from "@/lib/utils"
@@ -248,7 +246,7 @@ function CampaignStatus({ status }: { status: string }) {
       variant="outline"
       className={`${config.color} flex items-center gap-1.5 px-2.5 py-0.5 font-medium`}
     >
-      <Icon className="h-3.5 w-3.5" />
+      <Icon className="size-3.5" />
       {config.text}
     </Badge>
   )
@@ -310,7 +308,7 @@ function CampaignCard({
         <img
           src={campaign.thumbnail}
           alt={campaign.name}
-          className="h-full w-full object-cover"
+          className="size-full object-cover"
         />
       </div>
       <CardHeader className="p-4 pb-0">
@@ -363,7 +361,7 @@ function CampaignCard({
               className="flex-1"
             >
               <Button className="w-full gap-1">
-                View Details <ArrowRight className="h-4 w-4" />
+                View Details <ArrowRight className="size-4" />
               </Button>
             </Link>
           </div>
@@ -381,7 +379,7 @@ function CampaignCard({
               className="flex-1 gap-1"
               onClick={() => onJoinToggle(campaign.id)}
             >
-              Join Campaign <ArrowRight className="h-4 w-4" />
+              Join Campaign <ArrowRight className="size-4" />
             </Button>
           </div>
         )}
@@ -404,7 +402,7 @@ function CampaignListItem({
         <img
           src={campaign.thumbnail}
           alt={campaign.name}
-          className="h-full w-full object-cover"
+          className="size-full object-cover"
         />
       </div>
       <div className="flex flex-1 flex-col p-4">
@@ -457,7 +455,7 @@ function CampaignListItem({
               </Button>
               <Link href={`/publisher/campaigns/${campaign.id}`}>
                 <Button className="gap-1">
-                  View Offers <ArrowRight className="h-4 w-4" />
+                  View Offers <ArrowRight className="size-4" />
                 </Button>
               </Link>
             </div>
@@ -470,7 +468,7 @@ function CampaignListItem({
                 className="gap-1"
                 onClick={() => onJoinToggle(campaign.id)}
               >
-                Join Campaign <ArrowRight className="h-4 w-4" />
+                Join Campaign <ArrowRight className="size-4" />
               </Button>
             </div>
           )}
@@ -500,7 +498,7 @@ function CampaignFilters({
     <div className="flex flex-col gap-4 sm:flex-row">
       <div className="flex-1">
         <div className="relative">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
           <Input
             type="search"
             placeholder="Search campaigns..."
@@ -543,7 +541,7 @@ function CampaignFilters({
         <Sheet>
           <SheetTrigger asChild>
             <Button variant="outline" size="icon" className="shrink-0">
-              <SlidersHorizontal className="h-4 w-4" />
+              <SlidersHorizontal className="size-4" />
             </Button>
           </SheetTrigger>
           <SheetContent>
@@ -621,7 +619,7 @@ function ViewControls({
                 size="icon"
                 onClick={() => setViewMode("grid")}
               >
-                <GridIcon className="h-4 w-4" />
+                <GridIcon className="size-4" />
               </Button>
             </TooltipTrigger>
             <TooltipContent>Grid view</TooltipContent>
@@ -633,7 +631,7 @@ function ViewControls({
                 size="icon"
                 onClick={() => setViewMode("list")}
               >
-                <Layers className="h-4 w-4" />
+                <Layers className="size-4" />
               </Button>
             </TooltipTrigger>
             <TooltipContent>List view</TooltipContent>
@@ -643,9 +641,9 @@ function ViewControls({
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="sm" className="ml-2 gap-1">
-              <ListFilter className="h-3.5 w-3.5" />
+              <ListFilter className="size-3.5" />
               Sort
-              <ChevronDown className="h-3.5 w-3.5" />
+              <ChevronDown className="size-3.5" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
@@ -667,7 +665,7 @@ function ViewControls({
 function EmptyState() {
   return (
     <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-12">
-      <Megaphone className="mb-4 h-8 w-8 text-muted-foreground" />
+      <Megaphone className="mb-4 size-8 text-muted-foreground" />
       <h3 className="text-lg font-medium">No campaigns found</h3>
       <p className="mt-1 text-sm text-muted-foreground">
         Try adjusting your search or filter criteria

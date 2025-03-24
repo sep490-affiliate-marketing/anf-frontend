@@ -12,7 +12,6 @@ import { ImageIcon } from "lucide-react"
 import { toast } from "sonner"
 
 import { useCreateCampaignForm } from "@/hooks/campaign"
-import useGetLS from "@/hooks/use-getLS"
 
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
@@ -256,7 +255,7 @@ const CampaignForm = () => {
                                 />
                               ) : (
                                 <div className="flex h-full items-center justify-center bg-gray-100">
-                                  <ImageIcon className="h-8 w-8 text-gray-400" />
+                                  <ImageIcon className="size-8 text-gray-400" />
                                 </div>
                               )}
                             </div>

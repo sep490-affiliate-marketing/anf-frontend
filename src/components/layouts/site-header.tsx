@@ -8,7 +8,6 @@ import {
   GridIcon,
   HelpCircleIcon,
   Settings2Icon,
-  SidebarIcon,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -42,22 +41,22 @@ export function SiteHeader() {
             <Button
               variant="ghost"
               size="icon"
-              className="h-9 w-9"
+              className="size-9"
               onClick={toggleSidebar}
             >
-              <GridIcon className="h-[18px] w-[18px] text-muted-foreground" />
+              <GridIcon className="size-[18px] text-muted-foreground" />
             </Button>
 
-            <Button variant="ghost" size="icon" className="h-9 w-9">
-              <HelpCircleIcon className="h-[18px] w-[18px] text-muted-foreground" />
+            <Button variant="ghost" size="icon" className="size-9">
+              <HelpCircleIcon className="size-[18px] text-muted-foreground" />
             </Button>
 
-            <Button variant="ghost" size="icon" className="h-9 w-9">
-              <BellIcon className="h-[18px] w-[18px] text-muted-foreground" />
+            <Button variant="ghost" size="icon" className="size-9">
+              <BellIcon className="size-[18px] text-muted-foreground" />
             </Button>
 
-            <Button variant="ghost" size="icon" className="h-9 w-9">
-              <Settings2Icon className="h-[18px] w-[18px] text-muted-foreground" />
+            <Button variant="ghost" size="icon" className="size-9">
+              <Settings2Icon className="size-[18px] text-muted-foreground" />
             </Button>
           </div>
         </div>

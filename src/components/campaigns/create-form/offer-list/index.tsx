@@ -2,24 +2,17 @@
 
 import { useEffect, useState } from "react"
 
-import Image from "next/image"
 
-import { AFFILIATE_SOURCE, NETWORK, PRICE_MODAL } from "@/constant/campaign"
+import { PRICE_MODAL } from "@/constant/campaign"
 import { ICreateCampaignForm } from "@/validations/campaign.validation"
 import {
   Check,
   ChevronsUpDown,
   DollarSign,
-  ImageIcon,
-  Monitor,
-  Phone,
   Trash2Icon,
-  Users,
-  Wifi,
 } from "lucide-react"
 import { DateRange } from "react-day-picker"
 import { useFieldArray, UseFormReturn } from "react-hook-form"
-import { toast } from "sonner"
 
 import { cn } from "@/lib/utils"
 
@@ -36,7 +29,6 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
