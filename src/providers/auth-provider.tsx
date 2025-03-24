@@ -56,6 +56,8 @@ export default function AuthProvider({ children }: AuthProviderProps) {
     mutationFn: () => AuthService.logout(),
     onSuccess: () => {
       queryClient.clear()
+      Cookies.remove("access_token")
+      router.push("/auth/login")
     },
   })
 
