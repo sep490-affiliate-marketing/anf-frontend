@@ -43,4 +43,10 @@ declare global {
     message: string
     value: IPaginatedResponse<T>
   }
+
+  interface IErrorPaginationResponse<T = any> {
+    isSuccess: false
+    message: string
+    value: IPaginatedResponse<T>
+  }
 }

@@ -1,10 +1,9 @@
 "use client"
 
-import { CSSProperties, useState } from "react"
+import { useState } from "react"
 
 import { useAuth } from "@/providers/auth-provider"
 import {
-  Column,
   ColumnDef,
   flexRender,
   getCoreRowModel,
@@ -62,18 +61,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 
-// Helper function to compute pinning styles for columns
-const getPinningStyles = (column: Column<ICampaign>): CSSProperties => {
-  const isPinned = column.getIsPinned()
-  return {
-    left: isPinned === "left" ? `${column.getStart("left")}px` : undefined,
-    right: isPinned === "right" ? `${column.getAfter("right")}px` : undefined,
-    position: isPinned ? "sticky" : "relative",
-    width: column.getSize(),
-    zIndex: isPinned ? 1 : 0,
-    backgroundColor: isPinned ? "#fff" : "transparent",
-  }
-}
+import { getPinningStyles } from "@/components/data-table/pinning-style"
 
 const columns: ColumnDef<ICampaign>[] = [
   {
@@ -557,4 +545,3 @@ export default function CampaignDataTable() {
     </>
   )
 }
-
