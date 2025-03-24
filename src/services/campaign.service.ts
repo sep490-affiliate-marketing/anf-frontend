@@ -194,4 +194,15 @@ export const getCampaignDetailForPublisher = async (campaignId: number) => {
   }
 }
 
+export const joinOffer = async (offerId: number) => {
+  try {
+    const { data } = await apiClient.post(
+      `/api/affiliate-network/offers/publisher?offerId=${offerId}`
+    )
+    return data
+  } catch (error) {
+    return undefined
+  }
+}
+
 export default CampaignService

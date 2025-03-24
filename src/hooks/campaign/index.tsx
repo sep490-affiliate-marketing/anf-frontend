@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation"
 
 import CampaignService, {
   getCampaignDetailForPublisher,
+  joinOffer,
 } from "@/services/campaign.service"
 import {
   CreateCampaignFormSchema,
@@ -183,5 +184,11 @@ export const useGetCampaignDetailForPublisher = (campaignId: number) => {
   return useQuery({
     queryKey: ["campaignDetailForPublisher", campaignId],
     queryFn: () => getCampaignDetailForPublisher(campaignId),
+  })
+}
+
+export const useJoinOffer = () => {
+  return useMutation({
+    mutationFn: (offerId: number) => joinOffer(offerId),
   })
 }

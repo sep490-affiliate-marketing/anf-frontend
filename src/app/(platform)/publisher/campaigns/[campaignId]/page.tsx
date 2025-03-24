@@ -22,12 +22,16 @@ import {
   Tag,
   Zap,
 } from "lucide-react"
+import { toast } from "sonner"
 
 import { ICampaign } from "@/types/campaign.type"
 
 import { cn } from "@/lib/utils"
 
-import { useGetCampaignDetailForPublisher } from "@/hooks/campaign"
+import {
+  useGetCampaignDetailForPublisher,
+  useJoinOffer,
+} from "@/hooks/campaign"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -277,96 +281,20 @@ function CampaignTimeline({ campaign }: { campaign: ExtendedCampaign }) {
   )
 }
 
-function JoinCampaignCard({ campaign }: { campaign: ExtendedCampaign }) {
-  const [isJoined, setIsJoined] = React.useState(campaign.joined)
+function OfferCard({ offer }: { offer: Offer }) {
+  const { mutate: joinOffer, isPending } = useJoinOffer()
 
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Join This Campaign</CardTitle>
-        <CardDescription>
-          Promote this campaign to your audience and earn commissions
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex items-center gap-3">
-          <div className="rounded-full bg-purple-100 p-2">
-            <Zap className="h-5 w-5 text-purple-600" />
-          </div>
-          <div>
-            <p className="text-sm font-medium">Quick Stats</p>
-            <p className="text-xs text-muted-foreground">
-              {campaign.publisherCount} publishers joined
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <div className="rounded-full bg-green-100 p-2">
-            <Gem className="h-5 w-5 text-green-600" />
-          </div>
-          <div>
-            <p className="text-sm font-medium">Avg. Conversion Rate</p>
-            <p className="text-xs text-muted-foreground">
-              {campaign.conversionRate}% across all publishers
-            </p>
-          </div>
-        </div>
-      </CardContent>
-      <CardFooter>
-        <Button
-          className={isJoined ? "w-full bg-red-600 hover:bg-red-700" : "w-full"}
-          onClick={() => setIsJoined(!isJoined)}
-        >
-          {isJoined ? "Leave Campaign" : "Join Campaign"}
-        </Button>
-      </CardFooter>
-    </Card>
-  )
-}
-
-function TrackingInfoCard({ campaign }: { campaign: ExtendedCampaign }) {
-  const trackingUrl = `https://backend.affiliate-network.com/tracking${
-    campaign.trackingParams
-      ? (campaign.productUrl.includes("?") ? "&" : "?") +
-        campaign.trackingParams
-      : ""
-  }`
-
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text)
+  const handleJoinOffer = () => {
+    joinOffer(offer.id, {
+      onSuccess: () => {
+        toast.success("Successfully joined the offer")
+      },
+      onError: () => {
+        toast.error("Failed to join the offer. Please try again.")
+      },
+    })
   }
 
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Tracking Information</CardTitle>
-        <CardDescription>
-          Use these parameters to track your promotions
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div>
-          <div className="mb-2 flex items-center justify-between">
-            <h4 className="font-medium">Tracking URL</h4>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => copyToClipboard(trackingUrl)}
-            >
-              <Copy className="h-4 w-4" />
-            </Button>
-          </div>
-          <p className="break-all rounded-md bg-muted p-3 text-sm">
-            {trackingUrl}
-          </p>
-        </div>
-      </CardContent>
-    </Card>
-  )
-}
-
-function OfferCard({ offer }: { offer: Offer }) {
   return (
     <Card>
       <CardHeader className="pb-3">
@@ -406,7 +334,7 @@ function OfferCard({ offer }: { offer: Offer }) {
           </div>
         )}
       </CardContent>
-      <CardFooter className="flex flex-col items-start">
+      <CardFooter className="flex flex-col gap-4">
         {offer.requirements && offer.requirements.length > 0 && (
           <div className="w-full">
             <p className="mb-2 text-sm font-medium">Requirements</p>
@@ -420,6 +348,13 @@ function OfferCard({ offer }: { offer: Offer }) {
             </ul>
           </div>
         )}
+        <Button
+          className="w-full"
+          onClick={handleJoinOffer}
+          disabled={isPending}
+        >
+          {isPending ? "Joining..." : "Join Offer"}
+        </Button>
       </CardFooter>
     </Card>
   )
@@ -461,8 +396,8 @@ export default function CampaignDetailsPage({
             Error loading campaign details
           </h3>
           <p className="text-sm text-muted-foreground">
-            The campaign you're looking for might not exist or you don't have
-            permission to view it.
+            The campaign you&apos;re looking for might not exist or you
+            don&apos;t have permission to view it.
           </p>
           <Link href="/publisher/campaigns" className="mt-4 inline-block">
             <Button variant="outline" className="gap-2">
@@ -508,9 +443,6 @@ export default function CampaignDetailsPage({
               </span>
             </div>
           </div>
-        </div>
-        <div className="flex justify-end">
-          <JoinCampaignCard campaign={campaign} />
         </div>
       </div>
 
@@ -574,7 +506,6 @@ export default function CampaignDetailsPage({
           </Tabs>
         </div>
         <div className="space-y-6">
-          <TrackingInfoCard campaign={campaign} />
           <CampaignTimeline campaign={campaign} />
         </div>
       </div>
