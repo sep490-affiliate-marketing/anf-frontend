@@ -1,16 +1,15 @@
 "use client"
 
-import Link from "next/link"
-
 import {
   BellIcon,
-  Command,
   GridIcon,
   HelpCircleIcon,
   Settings2Icon,
+  SidebarIcon,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import { Separator } from "@/components/ui/separator"
 import { useSidebar } from "@/components/ui/sidebar"
 
 import { SearchForm } from "@/components/layouts/search-form"
@@ -21,29 +20,24 @@ export function SiteHeader() {
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="flex h-14 w-full items-center justify-between px-4 2xl:px-6">
         {/* Left section with search */}
-        <div className="flex items-center gap-4">
-          <Link href="#" className="flex items-center gap-2">
-            <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-              <Command className="size-4" />
-            </div>
-            <div className="grid flex-1 text-left text-sm leading-tight">
-              <span className="truncate font-semibold">Affiliate Network</span>
-              <span className="truncate text-xs">Enterprise</span>
-            </div>
-          </Link>
+        <div className="flex items-center gap-3">
+          <Button
+            className="size-8"
+            variant="ghost"
+            size="icon"
+            onClick={toggleSidebar}
+          >
+            <SidebarIcon />
+          </Button>
+          <Separator orientation="vertical" className="mr-2 h-4" />
         </div>
 
         {/* Right section with actions */}
         <div className="flex items-center gap-3">
-          <SearchForm className="w-[500px]" />
+          <SearchForm className="hidden w-[500px] lg:block" />
 
           <div className="flex items-center gap-1">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-9"
-              onClick={toggleSidebar}
-            >
+            <Button variant="ghost" size="icon" className="size-9">
               <GridIcon className="size-[18px] text-muted-foreground" />
             </Button>
 

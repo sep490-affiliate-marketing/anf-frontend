@@ -12,7 +12,7 @@ export default async function PlatformLayout({
   children: React.ReactNode
 }) {
   const cookieStore = await cookies()
-  const defaultOpen = cookieStore.get("sidebar:state")?.value === "true"
+  const defaultOpen = cookieStore.get("sidebar_state")?.value === "true"
   return (
     <div className="[--header-height:calc(theme(spacing.14))]">
       <SidebarProvider className="flex flex-col" defaultOpen={defaultOpen}>

@@ -2,8 +2,11 @@
 
 import * as React from "react"
 
+import Link from "next/link"
+
 import {
   BarChart3,
+  Command,
   Globe2,
   LayoutDashboard,
   LifeBuoy,
@@ -19,6 +22,8 @@ import {
   SidebarFooter,
   SidebarHeader,
   SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
 } from "@/components/ui/sidebar"
 
 import { NavMain } from "@/components/layouts/sidebar/nav-main"
@@ -124,19 +129,21 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     >
       <SidebarHeader>
         <SidebarMenu>
-          {/* <SidebarMenuItem>
+          <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <a href="#">
+              <Link href="/admin">
                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                   <Command className="size-4" />
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">Acme Inc</span>
+                  <span className="truncate font-semibold">
+                    Affiliate Network
+                  </span>
                   <span className="truncate text-xs">Enterprise</span>
                 </div>
-              </a>
+              </Link>
             </SidebarMenuButton>
-          </SidebarMenuItem> */}
+          </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
