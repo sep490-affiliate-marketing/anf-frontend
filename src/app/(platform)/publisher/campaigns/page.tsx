@@ -161,7 +161,11 @@ function CampaignCard({ campaign, onJoinToggle }: CampaignCardProps) {
     <Card key={campaign.id} className="overflow-hidden">
       <div className="aspect-video w-full">
         <img
-          src={campaign.images[0]?.imageUrl || "/placeholder-image.jpg"}
+          src={
+            (campaign.campImages && campaign.campImages.length > 0
+              ? campaign.campImages[0]
+              : null) || "/placeholder-image.jpg"
+          }
           alt={campaign.name}
           className="h-full w-full object-cover"
         />
@@ -249,7 +253,11 @@ function CampaignListItem({ campaign, onJoinToggle }: CampaignListItemProps) {
     <div className="flex flex-col overflow-hidden rounded-lg border sm:flex-row">
       <div className="h-48 w-full sm:h-auto sm:w-48">
         <img
-          src={campaign.images[0]?.imageUrl || "/placeholder-image.jpg"}
+          src={
+            (campaign.campImages && campaign.campImages.length > 0
+              ? campaign.campImages[0]
+              : null) || "/placeholder-image.jpg"
+          }
           alt={campaign.name}
           className="h-full w-full object-cover"
         />

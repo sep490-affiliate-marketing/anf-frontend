@@ -69,10 +69,9 @@ export interface ICampaign {
     commissionRate: number | null
     orderReturnTime: number | null
     imageUrl: string | null
+    pubOfferStatus: number | null
   }>
-  images: Array<{
-    imageUrl: string
-  }>
+  campImages: Array<string>
 }
 
 export interface IGetCampaignsByAdvertiserResponse {

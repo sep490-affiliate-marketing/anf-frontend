@@ -76,6 +76,7 @@ interface Offer {
   conversionGoal?: string
   requirements?: string[]
   approvalRate?: number
+  pubOfferStatus: number | null
 }
 
 interface ExtendedCampaign extends ICampaign {
@@ -295,14 +296,78 @@ function OfferCard({ offer }: { offer: Offer }) {
     })
   }
 
+  const getButtonConfig = () => {
+    // pubOfferStatus:
+    // 0: Not joined
+    // 1: Pending approval
+    // 2: Joined
+    // 3: Rejected
+    switch (offer.pubOfferStatus) {
+      case 2:
+        return {
+          text: "Joined",
+          disabled: true,
+          variant: "outline" as const,
+        }
+      case 1:
+        return {
+          text: "Pending Approval",
+          disabled: true,
+          variant: "outline" as const,
+        }
+      case 3:
+        return {
+          text: "Rejected",
+          disabled: true,
+          variant: "destructive" as const,
+        }
+      case 0:
+      default:
+        return {
+          text: isPending ? "Joining..." : "Join Offer",
+          disabled: isPending,
+          variant: "default" as const,
+          onClick: handleJoinOffer,
+        }
+    }
+  }
+
+  const buttonConfig = getButtonConfig()
+
   return (
     <Card>
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <OfferBadge model={offer.pricingModel} />
-          <Badge variant="outline" className="text-xs">
-            {offer.approvalRate}% approval rate
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Badge variant="outline" className="text-xs">
+              {offer.approvalRate}% approval rate
+            </Badge>
+            {offer.pubOfferStatus === 2 && (
+              <Badge
+                variant="secondary"
+                className="border-green-200 bg-green-100 text-xs text-green-700"
+              >
+                Joined
+              </Badge>
+            )}
+            {offer.pubOfferStatus === 1 && (
+              <Badge
+                variant="secondary"
+                className="border-yellow-200 bg-yellow-100 text-xs text-yellow-700"
+              >
+                Pending
+              </Badge>
+            )}
+            {offer.pubOfferStatus === 3 && (
+              <Badge
+                variant="secondary"
+                className="border-red-200 bg-red-100 text-xs text-red-700"
+              >
+                Rejected
+              </Badge>
+            )}
+          </div>
         </div>
         <CardTitle className="mt-2 text-lg">{offer.description}</CardTitle>
       </CardHeader>
@@ -350,10 +415,11 @@ function OfferCard({ offer }: { offer: Offer }) {
         )}
         <Button
           className="w-full"
-          onClick={handleJoinOffer}
-          disabled={isPending}
+          variant={buttonConfig.variant}
+          disabled={buttonConfig.disabled}
+          onClick={buttonConfig.onClick}
         >
-          {isPending ? "Joining..." : "Join Offer"}
+          {buttonConfig.text}
         </Button>
       </CardFooter>
     </Card>
@@ -495,9 +561,9 @@ export default function CampaignDetailsPage({
                 </CardHeader>
                 <CardContent>
                   <CampaignGallery
-                    thumbnail={campaign.images?.[0]?.imageUrl || null}
-                    images={(campaign.images || [])
-                      .map((img) => img?.imageUrl || "")
+                    thumbnail={campaign.campImages?.[0] || null}
+                    images={(campaign.campImages || [])
+                      .map((img) => img || "")
                       .filter(Boolean)}
                   />
                 </CardContent>
