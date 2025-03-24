@@ -206,6 +206,41 @@ const CampaignService = {
   },
 
   /**
+   * Updates a campaign status
+   *
+   * @access Admin
+   * @param {number} id - Campaign ID
+   * @param {string} campaignStatus - New status for the campaign ("Started", "Paused", "Rejected", etc.)
+   * @param {string} [rejectReason] - Reason for rejection (required if status is "Rejected")
+   * @returns {Promise<{isSuccess: boolean, message: string}>} Response with update status result
+   */
+  updateCampaignStatus: async (
+    id: number,
+    campaignStatus: string,
+    rejectReason?: string
+  ) => {
+    try {
+      const { data } = await apiClient.patch(
+        `/api/affiliate-network/campaigns/admin/${id}/status`,
+        {
+          campaignStatus,
+          rejectReason
+        }
+      )
+      return data
+    } catch (error) {
+      const errorRes =
+        error instanceof AxiosError
+          ? (error.response?.data as IUpdateCampaignErrorResponse)
+          : null
+      return {
+        isSuccess: false,
+        message: errorRes?.message ?? "Something went wrong while updating campaign status",
+      }
+    }
+  },
+
+  /**
    * Updates a campaign by its campaign code
    *
    * @access Admin, Advertiser

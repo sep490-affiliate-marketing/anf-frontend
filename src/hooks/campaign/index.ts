@@ -169,3 +169,39 @@ export const useGetCampaignsByAdvertiser = (
     enabled: !!advertiserCode,
   })
 }
+
+/**
+ * Hook for updating a campaign status
+ * @returns Mutation function and status for updating campaign status
+ */
+export const useUpdateCampaignStatus = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({
+      id,
+      campaignStatus,
+      rejectReason
+    }: {
+      id: number;
+      campaignStatus: string;
+      rejectReason?: string
+    }) => {
+      return CampaignService.updateCampaignStatus(id, campaignStatus, rejectReason)
+    },
+    onSuccess: (data) => {
+      if (data.isSuccess) {
+        toast.success("Campaign status updated successfully")
+        // Invalidate relevant queries to refetch data
+        queryClient.invalidateQueries({
+          queryKey: ["campaignsByAdvertiser"]
+        })
+      } else {
+        toast.error(data.message || "Failed to update campaign status")
+      }
+    },
+    onError: () => {
+      toast.error("An error occurred while updating campaign status")
+    }
+  })
+}
