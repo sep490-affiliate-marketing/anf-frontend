@@ -1,43 +1,40 @@
-name: Deploy
+name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ dev ]
-
+    branches:
+      - dev
+      - product
+  
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-    # services:
-    #   mongodb:
-    #     image: mongo
-    #     ports:
-    #       - 27017:27017
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-  
+      
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 23.8.0
-  
+      
       - name: Install pnpm
         uses: pnpm/action-setup@v2
-  
+      
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-  
+      
       - name: Build
         run: pnpm build
         env:
           NEXT_PUBLIC_BACKEND_URL: 'http://localhost:5272'
-          JWT_SECRET: "0yWqXf87FN3E26134S1575irUOmihSLZ"
-
+          JWT_SECRET: '123123123123123123'
+      
       # - name: Test
       #   run: pnpm test
       #   env:
       #     MONGODB_URI: mongodb://localhost:27017/testdb
-
+  
   deploy:
     needs: build-and-test
     runs-on: ubuntu-latest
@@ -52,9 +49,18 @@ jobs:
           script: |
             export NVM_DIR=~/.nvm
             source ~/.nvm/nvm.sh
-            cd /home/dkmtech/dev-anf-fe/anf-frontend
-            git pull origin dev
-            git status
-            pnpm install --frozen-lockfile
-            pnpm build
-            pm2 restart dev-anf
+            if [ "${{ github.ref_name }}" == "dev" ]; then
+              cd /home/dkmtech/dev-anf-fe/anf-frontend
+              git pull origin dev
+              git status
+              pnpm install --frozen-lockfile
+              pnpm build
+              pm2 restart dev-anf
+            elif [ "${{ github.ref_name }}" == "product" ]; then
+              cd /home/dkmtech/anf-frontend
+              git pull origin product
+              git status
+              pnpm install --frozen-lockfile
+              pnpm build
+              pm2 restart anf
+            fi
