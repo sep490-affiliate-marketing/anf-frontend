@@ -1,10 +1,11 @@
 "use client"
 
-import { CSSProperties, useState } from "react"
+import { useState } from "react"
+
+import Link from "next/link"
 
 import { useAuth } from "@/providers/auth-provider"
 import {
-  Column,
   ColumnDef,
   flexRender,
   getCoreRowModel,
@@ -23,21 +24,38 @@ import {
   ChevronUpIcon,
   EllipsisIcon,
   MoreHorizontalIcon,
+  PauseCircleIcon,
   PinOffIcon,
+  PlayCircleIcon,
+  XCircleIcon,
 } from "lucide-react"
 
 import { ICampaign } from "@/types/campaign.type"
 
 import { cn } from "@/lib/utils"
 
-import { useGetCampaignsByAdvertiser } from "@/hooks/campaign"
+import {
+  useGetAdminCampaigns,
+  useGetCampaignsByAdvertiser,
+  useUpdateCampaignStatus,
+} from "@/hooks/campaign"
 
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Label } from "@/components/ui/label"
@@ -61,18 +79,114 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { Textarea } from "@/components/ui/textarea"
 
-// Helper function to compute pinning styles for columns
-const getPinningStyles = (column: Column<ICampaign>): CSSProperties => {
-  const isPinned = column.getIsPinned()
-  return {
-    left: isPinned === "left" ? `${column.getStart("left")}px` : undefined,
-    right: isPinned === "right" ? `${column.getAfter("right")}px` : undefined,
-    position: isPinned ? "sticky" : "relative",
-    width: column.getSize(),
-    zIndex: isPinned ? 1 : 0,
-    backgroundColor: isPinned ? "#fff" : "transparent",
+import { getPinningStyles } from "@/components/data-table/pinning-style"
+
+// CampaignActionCell component for the Actions column
+const CampaignActionCell = ({ campaign }: { campaign: ICampaign }) => {
+  const { mutate: updateStatus, isPending } = useUpdateCampaignStatus()
+  const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false)
+  const [rejectReason, setRejectReason] = useState("")
+
+  const handleUpdateStatus = (status: string) => {
+    updateStatus({
+      id: campaign.id,
+      campaignStatus: status,
+    })
   }
+
+  const handleRejectSubmit = () => {
+    if (!rejectReason.trim()) return
+
+    updateStatus({
+      id: campaign.id,
+      campaignStatus: "Rejected",
+      rejectReason,
+    })
+
+    setIsRejectDialogOpen(false)
+    setRejectReason("")
+  }
+
+  return (
+    <div className="flex justify-end">
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="ghost"
+            className="flex size-8 p-0 data-[state=open]:bg-muted"
+            disabled={isPending}
+          >
+            <MoreHorizontalIcon className="size-4" />
+            <span className="sr-only">Open menu</span>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-[160px]">
+          <DropdownMenuItem onSelect={() => handleUpdateStatus("Started")}>
+            <PlayCircleIcon className="mr-2 size-4 text-green-600" />
+            Start
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => handleUpdateStatus("Paused")}>
+            <PauseCircleIcon className="mr-2 size-4 text-amber-600" />
+            Pause
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <Dialog
+            open={isRejectDialogOpen}
+            onOpenChange={setIsRejectDialogOpen}
+          >
+            <DialogTrigger asChild>
+              <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                <XCircleIcon className="mr-2 size-4 text-red-600" />
+                Reject
+              </DropdownMenuItem>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Reject Campaign</DialogTitle>
+                <DialogDescription>
+                  Please provide a reason for rejecting this campaign.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="reject-reason">Rejection reason</Label>
+                  <Textarea
+                    id="reject-reason"
+                    value={rejectReason}
+                    onChange={(e) => setRejectReason(e.target.value)}
+                    placeholder="Enter the reason for rejection"
+                    className="min-h-[100px]"
+                  />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button
+                  variant="outline"
+                  onClick={() => setIsRejectDialogOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={handleRejectSubmit}
+                  disabled={!rejectReason.trim() || isPending}
+                >
+                  Reject Campaign
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem>Edit</DropdownMenuItem>
+          <DropdownMenuItem className="text-destructive focus:text-destructive">
+            Delete
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
+  )
 }
 
 const columns: ColumnDef<ICampaign>[] = [
@@ -104,7 +218,9 @@ const columns: ColumnDef<ICampaign>[] = [
     header: "Campaign Name",
     accessorKey: "name",
     cell: ({ row }) => (
-      <div className="truncate font-medium">{row.getValue("name")}</div>
+      <Link href={`/admin/campaigns/${row.original.id}`}>
+        <div className="truncate font-medium">{row.getValue("name")}</div>
+      </Link>
     ),
     size: 250,
   },
@@ -156,29 +272,7 @@ const columns: ColumnDef<ICampaign>[] = [
   {
     id: "actions",
     header: "Actions",
-    cell: ({ row }) => {
-      return (
-        <div className="flex justify-end">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                className="flex size-8 p-0 data-[state=open]:bg-muted"
-              >
-                <MoreHorizontalIcon className="size-4" />
-                <span className="sr-only">Open menu</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-[160px]">
-              <DropdownMenuItem>Edit</DropdownMenuItem>
-              <DropdownMenuItem className="text-destructive focus:text-destructive">
-                Delete
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      )
-    },
+    cell: ({ row }) => <CampaignActionCell campaign={row.original} />,
     enablePinning: false,
     enableResizing: false,
     size: 80,
@@ -189,14 +283,7 @@ export default function CampaignDataTable() {
   const [pageSize, setPageSize] = useState(10)
   const [pageNumber, setPageNumber] = useState(1)
   const [sorting, setSorting] = useState<SortingState>([])
-  const { user } = useAuth()
-  const { data, isLoading } = useGetCampaignsByAdvertiser(
-    {
-      pageNumber,
-      pageSize,
-    },
-    user?.userCode || ""
-  )
+  const { data, isLoading } = useGetAdminCampaigns()
 
   const table = useReactTable({
     data: data?.value?.data || [],
@@ -557,4 +644,3 @@ export default function CampaignDataTable() {
     </>
   )
 }
-
