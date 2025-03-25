@@ -54,7 +54,6 @@ export interface ICampaign {
   categoryId: number | null
   categoryName: string | null
   status: string
-  campImages: string[]
   offers: Array<{
     id: number
     campaignId: number
@@ -68,8 +67,9 @@ export interface ICampaign {
     commissionRate: number | null
     orderReturnTime: number | null
     imageUrl: string | null
-    pubOfferStatus: number
+    pubOfferStatus: number | null
   }>
+  campImages: Array<string>
 }
 
 export interface IGetCampaignsByAdvertiserResponse {
@@ -131,4 +131,9 @@ export interface IUpdateCampaignErrorResponse {
   success: false
   message: string
   type: "camp_already_active" | "permission_denied" | "update_camp_error"
+}
+export interface IGetCampaignDetailForPublisherResponse {
+  isSuccess: true
+  message: string
+  value: ICampaign
 }

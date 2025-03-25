@@ -10,6 +10,7 @@ import {
   ICreateCampaignSuccessResponse,
   IGetAllCampaignsResponse,
   IGetCampaignByCampIdResponse,
+  IGetCampaignDetailForPublisherResponse,
   IGetCampaignsByAdvertiserParams,
   IGetCampaignsByAdvertiserResponse,
   IGetTrackingParamsErrorResponse,
@@ -136,6 +137,16 @@ const CampaignService = {
     try {
       const { data } = await apiClient.get<IGetAllCampaignsResponse>(
         `/api/campaign?page=${page}`
+      )
+      return data
+    } catch (error) {
+      return undefined
+    }
+  },
+  getActiveCampaigns: async (page: number = 1, pageSize: number = 10) => {
+    try {
+      const { data } = await apiClient.get<IGetAllCampaignsResponse>(
+        `/api/affiliate-network/campaigns?pageNumber=${page}&pageSize=${pageSize}`
       )
       return data
     } catch (error) {
@@ -279,8 +290,30 @@ const CampaignService = {
   },
 }
 
-export default CampaignService
+export const getCampaignDetailForPublisher = async (campaignId: number) => {
+  try {
+    const { data } =
+      await apiClient.get<IGetCampaignDetailForPublisherResponse>(
+        `/api/affiliate-network/campaigns/${campaignId}/publishers`
+      )
+    return data
+  } catch (error) {
+    return undefined
+  }
+}
 
+export const joinOffer = async (offerId: number) => {
+  try {
+    const { data } = await apiClient.post(
+      `/api/affiliate-network/offers/publisher?offerId=${offerId}`
+    )
+    return data
+  } catch (error) {
+    return undefined
+  }
+}
+
+export default CampaignService
 /**
  * Get all campaigns for admin
  *

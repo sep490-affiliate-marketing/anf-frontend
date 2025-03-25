@@ -4,6 +4,8 @@ import React from "react"
 
 import Link from "next/link"
 
+import { env } from "@/env"
+import { useAuth } from "@/providers/auth-provider"
 import { differenceInDays, format, formatDistanceToNow } from "date-fns"
 import {
   ArrowUpRight,
@@ -14,9 +16,20 @@ import {
   CreditCard,
   Gem,
   Globe,
+  ImageIcon,
   Info,
   Zap,
 } from "lucide-react"
+import { toast } from "sonner"
+
+import { ICampaign } from "@/types/campaign.type"
+
+import { cn } from "@/lib/utils"
+
+import {
+  useGetCampaignDetailForPublisher,
+  useJoinOffer,
+} from "@/hooks/campaign"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -31,6 +44,7 @@ import {
 import { Progress } from "@/components/ui/progress"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { CopyToClipboardTextarea } from "@/components/ui/textarea/copy-to-clipboard-textarea"
 import {
   Tooltip,
   TooltipContent,
@@ -61,119 +75,26 @@ interface Offer {
   conversionGoal?: string
   requirements?: string[]
   approvalRate?: number
+  pubOfferStatus: number | null
 }
 
-interface Campaign {
-  id: number
-  advertiserCode: string
-  name: string
-  description: string
-  startDate: string
-  endDate: string
-  balance: number
-  productUrl: string
-  trackingParams: string | null
-  rejectReason: string | null
-  categoryId: number | null
-  status: string
-  category: any | null
-  offers: Offer[]
-  images: string[]
-  thumbnail: string | null
-  joined: boolean
-  advertiserName: string
-  advertiserLogo: string
-  createdAt: string
-  conversionRate?: number
+interface ExtendedCampaign extends ICampaign {
+  joined?: boolean
   publisherCount?: number
+  conversionRate?: number
   terms?: string
 }
 
-// Mock campaign data for demonstration
-const mockCampaign: Campaign = {
-  id: 1,
-  advertiserCode: "2481c765-1f1b-4e9a-8b65-24b8b044d01a",
-  name: "Tiki Flash Sale Promotion",
-  description:
-    "Promote Tiki Flash Sale products to increase sales and conversions. High commission rates for publishers.",
-  startDate: "2025-02-01T00:00:00",
-  endDate: "2025-06-31T00:00:00",
-  balance: 75000000,
-  productUrl: "https://tiki.vn/flash-sale",
-  trackingParams:
-    "utm_source={publisher_id}&utm_medium=affiliate&utm_campaign=tiki_flash",
-  rejectReason: null,
-  categoryId: 1,
-  status: "Active",
-  category: "E-commerce",
-  joined: false,
-  advertiserName: "Tiki Corporation",
-  advertiserLogo:
-    "https://salt.tikicdn.com/ts/upload/c2/69/d8/5quyeJOhgrWoJE4WR7jBYXWYmqb.png",
-  createdAt: "2025-05-15T10:30:00",
-  conversionRate: 3.8,
-  publisherCount: 128,
-  terms:
-    "All publishers must adhere to Tiki brand guidelines. No misleading content or spam tactics allowed.",
-  offers: [
-    {
-      id: 1,
-      pricingModel: "CPS",
-      description: "Earn 5% commission on each successful sale",
-      bid: 0,
-      budget: 40000000,
-      startDate: "2025-06-01T00:00:00",
-      endDate: "2025-12-31T00:00:00",
-      conversionGoal: "Successfully completed purchase",
-      requirements: [
-        "Traffic must be from Vietnam only",
-        "No incentivized traffic allowed",
-        "Publisher website must be related to e-commerce or shopping",
-      ],
-      approvalRate: 85,
-    },
-    {
-      id: 2,
-      pricingModel: "CPA",
-      description: "Earn commission for each customer registration",
-      bid: 15000,
-      budget: 20000000,
-      startDate: "2025-06-01T00:00:00",
-      endDate: "2025-12-31T00:00:00",
-      conversionGoal: "Completed user registration",
-      requirements: [
-        "Traffic must be from Vietnam only",
-        "User must complete verification process",
-      ],
-      approvalRate: 92,
-    },
-    {
-      id: 3,
-      pricingModel: "CPC",
-      description: "Earn for each click on flash sale products",
-      bid: 2000,
-      budget: 15000000,
-      startDate: "2025-06-01T00:00:00",
-      endDate: "2025-12-31T00:00:00",
-      conversionGoal: "Valid click on product page",
-      requirements: [
-        "No bot traffic allowed",
-        "Click must last minimum 5 seconds on landing page",
-      ],
-      approvalRate: 78,
-    },
-  ],
-  images: [
-    "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-    "https://images.unsplash.com/photo-1607082349566-187342175e2f?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-    "https://images.unsplash.com/photo-1556741533-6e6a62bd8b49?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-  ],
-  thumbnail:
-    "https://images.unsplash.com/photo-1607082349566-187342175e2f?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-}
+function CampaignStatus({ status }: { status: string | undefined | null }) {
+  const getStatusConfig = (status: string | undefined | null) => {
+    if (!status) {
+      return {
+        color: "bg-gray-50 text-gray-700 border-gray-200",
+        icon: Info,
+        text: "Unknown",
+      }
+    }
 
-function CampaignStatus({ status }: { status: string }) {
-  const getStatusConfig = (status: string) => {
     switch (status.toLowerCase()) {
       case "active":
         return {
@@ -283,8 +204,21 @@ function CampaignGallery({
 }) {
   const allImages = [
     ...(thumbnail ? [thumbnail] : []),
-    ...images.filter((img) => img !== thumbnail),
+    ...(images || []).filter((img) => img !== thumbnail),
   ]
+
+  if (allImages.length === 0) {
+    return (
+      <div className="flex h-40 items-center justify-center rounded-lg border">
+        <div className="text-center">
+          <ImageIcon className="mx-auto h-8 w-8 text-muted-foreground" />
+          <p className="mt-2 text-sm text-muted-foreground">
+            No images available
+          </p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
@@ -304,7 +238,7 @@ function CampaignGallery({
   )
 }
 
-function CampaignTimeline({ campaign }: { campaign: Campaign }) {
+function CampaignTimeline({ campaign }: { campaign: ExtendedCampaign }) {
   const startDate = new Date(campaign.startDate)
   const endDate = new Date(campaign.endDate)
   const now = new Date()
@@ -347,129 +281,99 @@ function CampaignTimeline({ campaign }: { campaign: Campaign }) {
   )
 }
 
-function JoinCampaignCard({ campaign }: { campaign: Campaign }) {
-  const [isJoined, setIsJoined] = React.useState(campaign.joined)
+function OfferCard({ offer }: { offer: Offer }) {
+  const { mutate: joinOffer, isPending } = useJoinOffer()
+  const { user } = useAuth()
+  const trackingUrl =
+    env.NEXT_PUBLIC_BACKEND_URL +
+    "/api/tracking?offerId=" +
+    offer.id +
+    "&publisherCode=" +
+    user?.userCode
 
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Join This Campaign</CardTitle>
-        <CardDescription>
-          Promote this campaign to your audience and earn commissions
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex items-center gap-3">
-          <div className="rounded-full bg-purple-100 p-2">
-            <Zap className="size-5 text-purple-600" />
-          </div>
-          <div>
-            <p className="text-sm font-medium">Quick Stats</p>
-            <p className="text-xs text-muted-foreground">
-              {campaign.publisherCount} publishers joined
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <div className="rounded-full bg-green-100 p-2">
-            <Gem className="size-5 text-green-600" />
-          </div>
-          <div>
-            <p className="text-sm font-medium">Avg. Conversion Rate</p>
-            <p className="text-xs text-muted-foreground">
-              {campaign.conversionRate}% across all publishers
-            </p>
-          </div>
-        </div>
-      </CardContent>
-      <CardFooter>
-        <Button
-          className={isJoined ? "w-full bg-red-600 hover:bg-red-700" : "w-full"}
-          onClick={() => setIsJoined(!isJoined)}
-        >
-          {isJoined ? "Leave Campaign" : "Join Campaign"}
-        </Button>
-      </CardFooter>
-    </Card>
-  )
-}
-
-function TrackingInfoCard({ campaign }: { campaign: Campaign }) {
-  const trackingUrl = `https://backend.affiliate-network.com/tracking${campaign.trackingParams ? (campaign.productUrl.includes("?") ? "&" : "?") + campaign.trackingParams : ""}`
-
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard
-      .writeText(text)
-      .then(() => {
-        alert("Copied to clipboard")
-      })
-      .catch((err) => {
-        console.error("Error copying text: ", err)
-      })
+  const handleJoinOffer = () => {
+    joinOffer(offer.id, {
+      onSuccess: () => {
+        toast.success("Successfully joined the offer")
+      },
+      onError: () => {
+        toast.error("Failed to join the offer. Please try again.")
+      },
+    })
   }
 
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Tracking Information</CardTitle>
-        <CardDescription>
-          Use these tracking details to earn commissions
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div>
-          <p className="mb-2 text-sm font-medium">Tracking URL</p>
-          <div className="flex items-center gap-2 rounded-md border bg-muted/50 p-2">
-            <code className="flex-1 truncate text-xs">
-              {trackingUrl}
-            </code>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-6 shrink-0"
-              onClick={() => copyToClipboard(trackingUrl)}
-            >
-              <Copy className="size-3.5" />
-            </Button>
-          </div>
-        </div>
+  const getButtonConfig = () => {
+    // pubOfferStatus:
+    // 0: Not joined
+    // 1: Pending approval
+    // 2: Joined
+    // 3: Rejected
+    switch (offer.pubOfferStatus) {
+      case 2:
+        return {
+          text: "Joined",
+          disabled: true,
+          variant: "outline" as const,
+        }
+      case 1:
+        return {
+          text: "Pending Approval",
+          disabled: true,
+          variant: "outline" as const,
+        }
+      case 3:
+        return {
+          text: "Rejected",
+          disabled: true,
+          variant: "destructive" as const,
+        }
+      case 0:
+      default:
+        return {
+          text: isPending ? "Joining..." : "Join Offer",
+          disabled: isPending,
+          variant: "default" as const,
+          onClick: handleJoinOffer,
+        }
+    }
+  }
 
-        {campaign.trackingParams && (
-          <div>
-            <p className="mb-2 text-sm font-medium">Tracking Parameters</p>
-            <div className="flex items-center gap-2 rounded-md border bg-muted/50 p-2">
-              <code className="flex-1 truncate text-xs">
-                {campaign.trackingParams}
-              </code>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="size-6 shrink-0"
-                // onClick={() => copyToClipboard(campaign.trackingParams)}
-              >
-                <Copy className="size-3.5" />
-              </Button>
-            </div>
-            <p className="mt-1 text-xs text-muted-foreground">
-              Replace {"{publisher_id}"} with your unique publisher ID
-            </p>
-          </div>
-        )}
-      </CardContent>
-    </Card>
-  )
-}
+  const buttonConfig = getButtonConfig()
 
-function OfferCard({ offer }: { offer: Offer }) {
   return (
     <Card>
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <OfferBadge model={offer.pricingModel} />
-          <Badge variant="outline" className="text-xs">
-            {offer.approvalRate}% approval rate
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Badge variant="outline" className="text-xs">
+              {offer.approvalRate}% approval rate
+            </Badge>
+            {offer.pubOfferStatus === 2 && (
+              <Badge
+                variant="secondary"
+                className="border-green-200 bg-green-100 text-xs text-green-700"
+              >
+                Joined
+              </Badge>
+            )}
+            {offer.pubOfferStatus === 1 && (
+              <Badge
+                variant="secondary"
+                className="border-yellow-200 bg-yellow-100 text-xs text-yellow-700"
+              >
+                Pending
+              </Badge>
+            )}
+            {offer.pubOfferStatus === 3 && (
+              <Badge
+                variant="secondary"
+                className="border-red-200 bg-red-100 text-xs text-red-700"
+              >
+                Rejected
+              </Badge>
+            )}
+          </div>
         </div>
         <CardTitle className="mt-2 text-lg">{offer.description}</CardTitle>
       </CardHeader>
@@ -500,8 +404,29 @@ function OfferCard({ offer }: { offer: Offer }) {
             <p className="text-sm">{offer.conversionGoal}</p>
           </div>
         )}
+        {offer.pubOfferStatus === 1 && (
+          <>
+            <Separator className="my-4" />
+            <div>
+              <h3 className="text-base font-medium text-accent-foreground">
+                Tracking URL
+              </h3>
+              <p className="text-xs text-muted-foreground">
+                Copy the tracking URL to your app
+              </p>
+
+              <div className="mt-3 w-full">
+                <CopyToClipboardTextarea
+                  rows={3}
+                  value={trackingUrl}
+                  className="mt-2"
+                />
+              </div>
+            </div>
+          </>
+        )}
       </CardContent>
-      <CardFooter className="flex flex-col items-start">
+      <CardFooter className="flex flex-col gap-4">
         {offer.requirements && offer.requirements.length > 0 && (
           <div className="w-full">
             <p className="mb-2 text-sm font-medium">Requirements</p>
@@ -515,6 +440,15 @@ function OfferCard({ offer }: { offer: Offer }) {
             </ul>
           </div>
         )}
+
+        <Button
+          className="w-full"
+          variant={buttonConfig.variant}
+          disabled={buttonConfig.disabled}
+          onClick={buttonConfig.onClick}
+        >
+          {buttonConfig.text}
+        </Button>
       </CardFooter>
     </Card>
   )
@@ -523,86 +457,113 @@ function OfferCard({ offer }: { offer: Offer }) {
 export default function CampaignDetailsPage({
   params,
 }: {
-  params: { campaignId: string }
+  params: Promise<{ campaignId: string }> | { campaignId: string }
 }) {
-  // In a real implementation, we would fetch the campaign data based on the campaignId
-  // const campaign = await getCampaignData(params.campaignId);
-  // if (!campaign) return notFound();
+  // Unwrap params using React.use()
+  const unwrappedParams = React.use(params as Promise<{ campaignId: string }>)
+  const campaignId = parseInt(unwrappedParams.campaignId)
 
-  const campaign = mockCampaign
+  const {
+    data: campaignData,
+    isLoading,
+    error,
+  } = useGetCampaignDetailForPublisher(campaignId)
+
+  const campaign = campaignData?.value as ExtendedCampaign | undefined
+
+  if (isLoading) {
+    return (
+      <div className="flex h-[50vh] items-center justify-center">
+        <div className="text-center">
+          <h3 className="text-lg font-medium">Loading campaign details...</h3>
+          <p className="text-sm text-muted-foreground">Please wait</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error || !campaign) {
+    return (
+      <div className="flex h-[50vh] items-center justify-center">
+        <div className="text-center">
+          <h3 className="text-lg font-medium text-destructive">
+            Error loading campaign details
+          </h3>
+          <p className="text-sm text-muted-foreground">
+            The campaign you&apos;re looking for might not exist or you
+            don&apos;t have permission to view it.
+          </p>
+          <Link href="/publisher/campaigns" className="mt-4 inline-block">
+            <Button variant="outline" className="gap-2">
+              <ChevronLeft className="h-4 w-4" />
+              Back to Campaigns
+            </Button>
+          </Link>
+        </div>
+      </div>
+    )
+  }
 
   return (
-    <div className="space-y-8 px-4 py-8 sm:px-6 lg:px-8">
-      {/* Back button and Header */}
-      <div className="flex flex-col space-y-4">
-        <Link
-          href="/publisher/campaigns"
-          className="flex w-fit items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
-        >
-          <ChevronLeft className="size-4" />
-          Back to campaigns
+    <div className="space-y-6 p-6">
+      {/* Breadcrumb */}
+      <div className="flex items-center gap-2">
+        <Link href="/publisher/campaigns">
+          <Button variant="outline" size="sm" className="gap-2">
+            <ChevronLeft className="h-4 w-4" />
+            Back to Campaigns
+          </Button>
         </Link>
+        <CampaignStatus status={campaign.status} />
+      </div>
 
-        <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
-          <div className="flex-1 space-y-1">
-            <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold tracking-tight">
-                {campaign.name}
-              </h1>
-              <CampaignStatus status={campaign.status} />
+      {/* Campaign Header */}
+      <div className="grid gap-6 md:grid-cols-2">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">{campaign.name}</h1>
+          <p className="mt-2 text-muted-foreground">{campaign.description}</p>
+          <div className="mt-4 flex flex-wrap items-center gap-4">
+            <div className="flex items-center gap-2">
+              <Globe className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground">
+                {campaign.productUrl}
+              </span>
             </div>
-            <p className="text-muted-foreground">{campaign.description}</p>
+            <div className="flex items-center gap-2">
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground">
+                {format(new Date(campaign.startDate), "dd MMM yyyy")} -{" "}
+                {format(new Date(campaign.endDate), "dd MMM yyyy")}
+              </span>
+            </div>
           </div>
-
-          {!campaign.joined && (
-            <Button size="lg" className="gap-2">
-              Join Campaign
-              <ArrowUpRight className="size-4" />
-            </Button>
-          )}
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-        {/* Left column: Campaign details */}
-        <div className="space-y-8 lg:col-span-2">
-          <Tabs defaultValue="details" className="w-full">
-            <TabsList className="flex h-10 w-full items-center justify-start space-x-6 border-b bg-transparent p-0">
-              <TabsTrigger
-                value="details"
-                className="h-10 rounded-none border-b-2 border-transparent px-0 pb-3 pt-2 font-medium data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none"
-              >
-                Details
-              </TabsTrigger>
-              <TabsTrigger
-                value="offers"
-                className="h-10 rounded-none border-b-2 border-transparent px-0 pb-3 pt-2 font-medium data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none"
-              >
-                Offers
-              </TabsTrigger>
-              <TabsTrigger
-                value="creatives"
-                className="h-10 rounded-none border-b-2 border-transparent px-0 pb-3 pt-2 font-medium data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none"
-              >
-                Creatives
-              </TabsTrigger>
-              <TabsTrigger
-                value="terms"
-                className="h-10 rounded-none border-b-2 border-transparent px-0 pb-3 pt-2 font-medium data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none"
-              >
-                Terms
-              </TabsTrigger>
+      {/* Campaign Content */}
+      <div className="grid gap-6 lg:grid-cols-3">
+        <div className="lg:col-span-2">
+          <Tabs defaultValue="offers" className="w-full">
+            <TabsList>
+              <TabsTrigger value="offers">Offers</TabsTrigger>
+              <TabsTrigger value="details">Campaign Details</TabsTrigger>
+              <TabsTrigger value="creatives">Creatives</TabsTrigger>
             </TabsList>
-
-            <TabsContent value="details" className="mt-6 space-y-8">
-              {/* Campaign Info */}
+            <TabsContent value="offers" className="space-y-4">
+              {campaign.offers.map((offer) => (
+                <OfferCard key={offer.id} offer={offer} />
+              ))}
+            </TabsContent>
+            <TabsContent value="details">
               <Card>
                 <CardHeader>
                   <CardTitle>Campaign Information</CardTitle>
+                  <CardDescription>
+                    Detailed information about the campaign
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  {/* Advertiser Info */}
+                  {/* Advertiser Info
                   <div className="flex items-center gap-4">
                     <div className="size-12 shrink-0 overflow-hidden rounded-full">
                       <img
@@ -624,19 +585,16 @@ export default function CampaignDetailsPage({
                     </div>
                   </div>
 
-                  <Separator />
+                  <Separator /> */}
 
                   {/* Campaign Timeline */}
                   <div>
-                    <h3 className="mb-3 text-sm font-medium">
-                      Campaign Timeline
-                    </h3>
-                    <CampaignTimeline campaign={campaign} />
+                    <h4 className="font-medium">Description</h4>
+                    <p className="text-sm text-muted-foreground">
+                      {campaign.description}
+                    </p>
                   </div>
-
                   <Separator />
-
-                  {/* Campaign URL */}
                   <div>
                     <h3 className="mb-3 text-sm font-medium">Product URL</h3>
                     <div className="flex items-center gap-2">
@@ -652,17 +610,17 @@ export default function CampaignDetailsPage({
                     </div>
                   </div>
 
-                  <Separator />
+                  {/* <Separator /> */}
 
                   {/* Category */}
-                  <div className="flex items-center gap-2">
+                  {/* <div className="flex items-center gap-2">
                     <div>
                       <h3 className="text-sm font-medium">Category</h3>
                       <p className="text-sm text-muted-foreground">
                         {campaign.category}
                       </p>
                     </div>
-                  </div>
+                  </div> */}
                 </CardContent>
               </Card>
 
@@ -708,76 +666,28 @@ export default function CampaignDetailsPage({
                 </CardContent>
               </Card>
             </TabsContent>
-
-            <TabsContent value="offers" className="mt-6">
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-                {campaign.offers.map((offer) => (
-                  <OfferCard key={offer.id} offer={offer} />
-                ))}
-              </div>
-            </TabsContent>
-
-            <TabsContent value="creatives" className="mt-6">
+            <TabsContent value="creatives">
               <Card>
                 <CardHeader>
                   <CardTitle>Campaign Creatives</CardTitle>
                   <CardDescription>
-                    Use these images for your promotional materials
+                    Images and creative materials for the campaign
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <CampaignGallery
-                    thumbnail={campaign.thumbnail}
-                    images={campaign.images}
+                    thumbnail={campaign.campImages?.[0] || null}
+                    images={(campaign.campImages || [])
+                      .map((img) => img || "")
+                      .filter(Boolean)}
                   />
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="terms" className="mt-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Terms & Conditions</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="prose prose-sm max-w-none">
-                    <p>{campaign.terms}</p>
-                    <h3>General Guidelines</h3>
-                    <ul>
-                      <li>
-                        All promotional content must comply with local
-                        advertising laws and regulations.
-                      </li>
-                      <li>
-                        Publishers must not use any deceptive or misleading
-                        tactics in promotion.
-                      </li>
-                      <li>
-                        The advertiser reserves the right to reject any
-                        publisher or traffic source.
-                      </li>
-                      <li>
-                        Payment terms: Net 30 days after the end of each month.
-                      </li>
-                    </ul>
-                    <h3>Prohibited Activities</h3>
-                    <ul>
-                      <li>Incentivized traffic without prior approval</li>
-                      <li>Spam or unsolicited communications</li>
-                      <li>Fraudulent clicks or conversions</li>
-                      <li>Misleading creatives or landing pages</li>
-                    </ul>
-                  </div>
                 </CardContent>
               </Card>
             </TabsContent>
           </Tabs>
         </div>
-
-        {/* Right column: Join campaign and tracking info */}
         <div className="space-y-6">
-          <JoinCampaignCard campaign={campaign} />
-          <TrackingInfoCard campaign={campaign} />
+          <CampaignTimeline campaign={campaign} />
         </div>
       </div>
     </div>

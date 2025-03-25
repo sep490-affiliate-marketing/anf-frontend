@@ -2,7 +2,10 @@ import { useState } from "react"
 
 import { useRouter } from "next/navigation"
 
-import CampaignService, { getAdminCampaigns } from "@/services/campaign.service"
+import CampaignService, {
+  getCampaignDetailForPublisher,
+  joinOffer,
+}, { getAdminCampaigns } from "@/services/campaign.service"
 import {
   CreateCampaignFormSchema,
   ICreateCampaignForm,
@@ -180,6 +183,26 @@ export const useGetCampaignsByAdvertiser = (
     queryFn: () =>
       CampaignService.getCampaignsByAdvertiser(params, advertiserCode),
     enabled: !!advertiserCode,
+  })
+}
+
+export const useGetActiveCampaigns = () => {
+  return useQuery({
+    queryKey: ["activeCampaigns"],
+    queryFn: () => CampaignService.getActiveCampaigns(),
+  })
+}
+
+export const useGetCampaignDetailForPublisher = (campaignId: number) => {
+  return useQuery({
+    queryKey: ["campaignDetailForPublisher", campaignId],
+    queryFn: () => getCampaignDetailForPublisher(campaignId),
+  })
+}
+
+export const useJoinOffer = () => {
+  return useMutation({
+    mutationFn: (offerId: number) => joinOffer(offerId),
   })
 }
 
