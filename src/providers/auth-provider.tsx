@@ -4,7 +4,7 @@ import React, { useContext } from "react"
 
 import { useRouter } from "next/navigation"
 
-import { UserRole } from "@/enums/user-role"
+import { UserRoleEnum } from "@/enums/user-role"
 import { AuthService } from "@/services/auth.service"
 import { ILoginForm, LoginFormSchema } from "@/validations/auth.validation"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -79,11 +79,11 @@ export default function AuthProvider({ children }: AuthProviderProps) {
 
         queryClient.setQueryData(["me"], res.value)
 
-        if (role === UserRole.ADVERTISER) {
+        if (role === UserRoleEnum.ADVERTISER) {
           router.push("/advertiser")
-        } else if (role === UserRole.PUBLISHER) {
+        } else if (role === UserRoleEnum.PUBLISHER) {
           router.push("/publisher")
-        } else if (role === UserRole.ADMIN) {
+        } else if (role === UserRoleEnum.ADMIN) {
           router.push("/admin")
         }
 
