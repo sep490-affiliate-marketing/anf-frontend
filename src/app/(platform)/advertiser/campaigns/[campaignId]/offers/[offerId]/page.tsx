@@ -11,6 +11,7 @@ import {
   ArrowLeft,
   BarChart3,
   Calendar,
+  Check,
   CheckCircle,
   Clock,
   Copy,
@@ -24,10 +25,14 @@ import {
   Megaphone,
   PieChart,
   Settings,
+  User,
+  Users,
+  X,
 } from "lucide-react"
 
 import { formatVNDCurrency } from "@/lib/utils"
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -37,7 +42,21 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 interface OfferDetailParams {
   params: Promise<{
@@ -75,6 +94,43 @@ const mockOffer = {
   targetAudience: "All",
   allowedTrafficSources: ["Search", "Social", "Display", "Email"],
 }
+
+// Mock data for publishers requesting to join
+const mockPublisherRequests = [
+  {
+    id: "pub-001",
+    name: "TechBlog Vietnam",
+    requestDate: "2023-11-15T10:30:00",
+    email: "contact@techblogvn.com",
+    website: "https://techblogvn.com",
+    status: "pending",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=TechBlog",
+    description: "Technology blog with 50k monthly visitors",
+    trafficSources: ["Organic", "Social Media"],
+  },
+  {
+    id: "pub-002",
+    name: "Saigon Digital",
+    requestDate: "2023-11-14T15:45:00",
+    email: "partnerships@saigondigital.vn",
+    website: "https://saigondigital.vn",
+    status: "pending",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Saigon",
+    description: "Digital marketing platform focused on e-commerce",
+    trafficSources: ["Email", "Social Media", "Paid Ads"],
+  },
+  {
+    id: "pub-003",
+    name: "VN Gaming Hub",
+    requestDate: "2023-11-12T09:15:00",
+    email: "admin@vngaminghub.com",
+    website: "https://vngaminghub.com",
+    status: "pending",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Gaming",
+    description: "Gaming community with 100k monthly active users",
+    trafficSources: ["Organic", "Forums", "YouTube"],
+  },
+]
 
 function OfferStatusBadge({ status }: { status: string }) {
   const getStatusConfig = (status: string) => {
@@ -161,6 +217,9 @@ export default function OfferDetailPage({
   params: paramsPromise,
 }: OfferDetailParams) {
   const [activeTab, setActiveTab] = useState("overview")
+  const [publisherRequests, setPublisherRequests] = useState(
+    mockPublisherRequests
+  )
 
   // Unwrap params using React.use() as recommended by Next.js
   const params = React.use(paramsPromise)
@@ -168,6 +227,20 @@ export default function OfferDetailPage({
 
   // In a real implementation, you would fetch the offer data
   const offer = mockOffer
+
+  // Handle publisher request status change
+  const handlePublisherStatusChange = (
+    publisherId: string,
+    newStatus: "approved" | "rejected"
+  ) => {
+    setPublisherRequests(
+      publisherRequests.map((publisher) =>
+        publisher.id === publisherId
+          ? { ...publisher, status: newStatus }
+          : publisher
+      )
+    )
+  }
 
   return (
     <div className="space-y-6">
@@ -231,6 +304,13 @@ export default function OfferDetailPage({
                 Statistics
               </TabsTrigger>
               <TabsTrigger
+                value="publishers"
+                className="relative gap-2 rounded-none py-2 after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none data-[state=active]:after:bg-primary"
+              >
+                <Users className="size-4" />
+                Publishers
+              </TabsTrigger>
+              <TabsTrigger
                 value="details"
                 className="relative gap-2 rounded-none py-2 after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none data-[state=active]:after:bg-primary"
               >
@@ -277,7 +357,7 @@ export default function OfferDetailPage({
             {/* Main Content */}
             <div className="grid gap-6 md:grid-cols-3">
               {/* Offer Details Card */}
-              <Card className="md:col-span-2">
+              <Card className="md:col-span-3">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Info className="size-5 text-purple-600" />
@@ -285,100 +365,109 @@ export default function OfferDetailPage({
                   </CardTitle>
                   <CardDescription>Details about this offer</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  {/* Offer Description */}
-                  <div className="space-y-2">
-                    <h3 className="font-medium text-gray-900">Description</h3>
-                    <p className="text-sm text-gray-600">{offer.description}</p>
-                  </div>
+                <CardContent>
+                  <div className="grid gap-6 lg:grid-cols-3">
+                    {/* Left side - Offer details */}
+                    <div className="space-y-6 lg:col-span-2">
+                      {/* Offer Description */}
+                      <div className="space-y-2">
+                        <h3 className="font-medium text-gray-900">
+                          Description
+                        </h3>
+                        <p className="text-sm text-gray-600">
+                          {offer.description}
+                        </p>
+                      </div>
 
-                  {/* Steps Information */}
-                  <div className="space-y-2">
-                    <h3 className="font-medium text-gray-900">
-                      Conversion Steps
-                    </h3>
-                    <div className="rounded-lg bg-gray-50 p-3 text-sm text-gray-600">
-                      {offer.stepInfo}
-                    </div>
-                  </div>
+                      {/* Steps Information */}
+                      <div className="space-y-2">
+                        <h3 className="font-medium text-gray-900">
+                          Conversion Steps
+                        </h3>
+                        <div className="rounded-lg bg-gray-50 p-3 text-sm text-gray-600">
+                          {offer.stepInfo}
+                        </div>
+                      </div>
 
-                  {/* Additional Details */}
-                  <div className="grid gap-4 pt-4 sm:grid-cols-2">
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-500">
-                        Date Range
-                      </h4>
-                      <div className="mt-1 flex items-center gap-2 text-sm">
-                        <Calendar className="size-4 text-gray-400" />
-                        <span>
-                          {format(new Date(offer.startDate), "dd/MM/yyyy", {
-                            locale: vi,
-                          })}{" "}
-                          -{" "}
-                          {format(new Date(offer.endDate), "dd/MM/yyyy", {
-                            locale: vi,
-                          })}
-                        </span>
+                      {/* Additional Details */}
+                      <div className="grid gap-4 pt-4 sm:grid-cols-2">
+                        <div>
+                          <h4 className="text-sm font-medium text-gray-500">
+                            Date Range
+                          </h4>
+                          <div className="mt-1 flex items-center gap-2 text-sm">
+                            <Calendar className="size-4 text-gray-400" />
+                            <span>
+                              {format(new Date(offer.startDate), "dd/MM/yyyy", {
+                                locale: vi,
+                              })}{" "}
+                              -{" "}
+                              {format(new Date(offer.endDate), "dd/MM/yyyy", {
+                                locale: vi,
+                              })}
+                            </span>
+                          </div>
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-medium text-gray-500">
+                            Pricing Model
+                          </h4>
+                          <div className="mt-1 flex items-center gap-2 text-sm">
+                            <DollarSign className="size-4 text-gray-400" />
+                            <Badge variant="outline" className="text-gray-700">
+                              {offer.pricingModel}
+                            </Badge>
+                          </div>
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-medium text-gray-500">
+                            Payout
+                          </h4>
+                          <div className="mt-1 flex items-center gap-2 text-sm font-medium">
+                            <span>{formatVNDCurrency(offer.bid)}</span>
+                            <span className="text-gray-400">
+                              per conversion
+                            </span>
+                          </div>
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-medium text-gray-500">
+                            Return Time
+                          </h4>
+                          <div className="mt-1 flex items-center gap-2 text-sm">
+                            <Clock className="size-4 text-gray-400" />
+                            <span>{offer.orderReturnTime}</span>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-500">
-                        Pricing Model
-                      </h4>
-                      <div className="mt-1 flex items-center gap-2 text-sm">
-                        <DollarSign className="size-4 text-gray-400" />
-                        <Badge variant="outline" className="text-gray-700">
-                          {offer.pricingModel}
-                        </Badge>
-                      </div>
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-500">
-                        Payout
-                      </h4>
-                      <div className="mt-1 flex items-center gap-2 text-sm font-medium">
-                        <span>{formatVNDCurrency(offer.bid)}</span>
-                        <span className="text-gray-400">per conversion</span>
-                      </div>
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-500">
-                        Return Time
-                      </h4>
-                      <div className="mt-1 flex items-center gap-2 text-sm">
-                        <Clock className="size-4 text-gray-400" />
-                        <span>{offer.orderReturnTime}</span>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
 
-              {/* Offer Image Card */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <ImageIcon className="size-5 text-purple-600" />
-                    Offer Media
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="overflow-hidden rounded-lg">
-                    <img
-                      src={offer.imageUrl}
-                      alt={offer.description}
-                      className="h-auto w-full object-cover transition-transform hover:scale-105"
-                    />
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="w-full gap-2"
-                    >
-                      <Copy className="size-4" />
-                      Download Assets
-                    </Button>
+                    {/* Right side - Offer image */}
+                    <div className="space-y-4">
+                      <div>
+                        <h3 className="font-medium text-gray-900">
+                          Offer Media
+                        </h3>
+                        <p className="mb-3 text-sm text-gray-500">
+                          Preview of offer creative
+                        </p>
+                      </div>
+                      <div className="overflow-hidden rounded-lg border bg-white">
+                        <img
+                          src={offer.imageUrl}
+                          alt={offer.description}
+                          className="h-auto w-full object-cover transition-transform hover:scale-105"
+                        />
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full gap-2"
+                      >
+                        <Copy className="size-4" />
+                        Download Assets
+                      </Button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -426,6 +515,172 @@ export default function OfferDetailPage({
                 <p className="py-10 text-center text-gray-500">
                   Statistics charts would be displayed here
                 </p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Publishers Tab */}
+          <TabsContent value="publishers" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Users className="size-5 text-purple-600" />
+                  Publisher Requests
+                </CardTitle>
+                <CardDescription>
+                  Approve or reject publishers who want to join this campaign
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {publisherRequests.length === 0 ? (
+                  <div className="flex h-40 flex-col items-center justify-center space-y-3 rounded-lg border border-dashed">
+                    <div className="bg-primary-50 rounded-full p-3">
+                      <User className="size-6 text-primary" />
+                    </div>
+                    <div className="text-center">
+                      <p className="text-sm font-medium text-gray-900">
+                        No requests
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        There are no pending publisher requests for this
+                        campaign.
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="relative overflow-hidden rounded-lg border">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Publisher</TableHead>
+                          <TableHead>Request Date</TableHead>
+                          <TableHead>Traffic Sources</TableHead>
+                          <TableHead>Description</TableHead>
+                          <TableHead className="w-[100px] text-right">
+                            Actions
+                          </TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {publisherRequests.map((publisher) => (
+                          <TableRow key={publisher.id}>
+                            <TableCell>
+                              <div className="flex items-center gap-3">
+                                <Avatar className="size-8">
+                                  <AvatarImage
+                                    src={publisher.avatar}
+                                    alt={publisher.name}
+                                  />
+                                  <AvatarFallback>
+                                    {publisher.name.slice(0, 2)}
+                                  </AvatarFallback>
+                                </Avatar>
+                                <div>
+                                  <p className="font-medium">
+                                    {publisher.name}
+                                  </p>
+                                  <p className="text-xs text-muted-foreground">
+                                    {publisher.email}
+                                  </p>
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              {format(
+                                new Date(publisher.requestDate),
+                                "dd/MM/yyyy",
+                                {
+                                  locale: vi,
+                                }
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex flex-wrap gap-1">
+                                {publisher.trafficSources.map((source) => (
+                                  <Badge
+                                    key={source}
+                                    variant="secondary"
+                                    className="text-xs"
+                                  >
+                                    {source}
+                                  </Badge>
+                                ))}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <span className="line-clamp-1">
+                                {publisher.description}
+                              </span>
+                            </TableCell>
+                            <TableCell className="text-right">
+                              {publisher.status === "pending" ? (
+                                <div className="flex justify-end gap-2">
+                                  <TooltipProvider>
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <Button
+                                          size="sm"
+                                          variant="outline"
+                                          className="size-8 p-0 text-red-600 hover:bg-red-50 hover:text-red-700"
+                                          onClick={() =>
+                                            handlePublisherStatusChange(
+                                              publisher.id,
+                                              "rejected"
+                                            )
+                                          }
+                                        >
+                                          <X className="size-4" />
+                                        </Button>
+                                      </TooltipTrigger>
+                                      <TooltipContent>
+                                        <p>Reject request</p>
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  </TooltipProvider>
+                                  <TooltipProvider>
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <Button
+                                          size="sm"
+                                          variant="outline"
+                                          className="size-8 p-0 text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700"
+                                          onClick={() =>
+                                            handlePublisherStatusChange(
+                                              publisher.id,
+                                              "approved"
+                                            )
+                                          }
+                                        >
+                                          <Check className="size-4" />
+                                        </Button>
+                                      </TooltipTrigger>
+                                      <TooltipContent>
+                                        <p>Approve request</p>
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  </TooltipProvider>
+                                </div>
+                              ) : (
+                                <Badge
+                                  variant="outline"
+                                  className={
+                                    publisher.status === "approved"
+                                      ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                                      : "border-red-200 bg-red-50 text-red-700"
+                                  }
+                                >
+                                  {publisher.status === "approved"
+                                    ? "Approved"
+                                    : "Rejected"}
+                                </Badge>
+                              )}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
