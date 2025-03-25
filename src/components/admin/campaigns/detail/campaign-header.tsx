@@ -16,7 +16,7 @@ import {
 } from "lucide-react"
 import "yet-another-react-lightbox/styles.css"
 
-import { cn, formatVNDCurrency } from "@/lib/utils"
+import { formatVNDCurrency } from "@/lib/utils"
 
 import { useUpdateCampaignStatus } from "@/hooks/campaign"
 
@@ -42,8 +42,20 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 import { CampaignStatus } from "@/components/admin/campaigns/detail/campaign-status"
+
+// Utility function to truncate text
+const truncateText = (text: string, maxLength: number) => {
+  if (text.length <= maxLength) return text
+  return text.slice(0, maxLength) + "..."
+}
 
 type VerificationAction = "approve" | "reject"
 interface Offer {
@@ -85,7 +97,6 @@ function CampaignVerificationUI({ campaign }: { campaign: Campaign }) {
     useState<VerificationAction | null>(null)
   const [rejectReason, setRejectReason] = useState("")
   const [rejectCategory, setRejectCategory] = useState<string>("content")
-  const [notifyAdvertiser, setNotifyAdvertiser] = useState(true)
   const [reviewTabValue, setReviewTabValue] = useState<string>("overview")
 
   const { mutate: updateStatus, isPending: isUpdating } =
@@ -146,50 +157,56 @@ function CampaignVerificationUI({ campaign }: { campaign: Campaign }) {
     )
   }
 
-  const getButtonLabel = () => {
-    if (isUpdating) return "Processing..."
-    return verificationAction === "approve"
-      ? "Approve Campaign"
-      : "Reject Campaign"
-  }
-
   return (
     <>
       {/* Campaign Action Bar - Persistent at top of page */}
-      <div className="sticky top-0 z-10 flex w-full items-center justify-between border-b bg-gradient-to-r from-white to-white/90 px-6 py-3 backdrop-blur-sm">
-        <div className="flex items-center gap-4">
+      <div className="sticky top-0 z-10 flex w-full flex-col border-b bg-gradient-to-r from-white to-white/90 px-4 py-3 backdrop-blur-sm sm:flex-row sm:items-center sm:justify-between sm:px-6">
+        <div className="flex items-center gap-4 overflow-hidden">
           <Button
             variant="ghost"
             size="sm"
-            className="gap-2 text-gray-600 hover:text-gray-900"
+            className="shrink-0 gap-2 text-gray-600 hover:text-gray-900"
           >
             <ChevronLeft className="size-4" />
             Back
           </Button>
-          <div className="h-5 w-px bg-gray-200"></div>
-          <div>
+          <div className="h-5 w-px shrink-0 bg-gray-200"></div>
+          <div className="min-w-0 flex-1 overflow-hidden">
             <div className="flex items-center gap-3">
-              <h1 className="text-xl font-semibold tracking-tight">
-                {campaign.name}
-              </h1>
-              <CampaignStatus status={campaign.status} className="ml-2" />
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <h1 className="truncate text-xl font-semibold tracking-tight">
+                      {campaign.name}
+                    </h1>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{campaign.name}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              <CampaignStatus
+                status={campaign.status}
+                className="ml-2 shrink-0"
+              />
             </div>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {campaign.description}
+            <p className="mt-1 truncate text-sm text-muted-foreground">
+              {truncateText(campaign.description, 120)}
             </p>
           </div>
         </div>
 
         {/* Verification Action Buttons - Enhanced Design */}
         {campaign.status.toLowerCase() === "pending" && (
-          <div className="flex items-center gap-3">
+          <div className="mt-3 flex shrink-0 items-center gap-3 sm:mt-0">
             <Button
-              className="gap-2 bg-gradient-to-r from-purple-600 to-purple-500 text-white shadow-sm hover:from-purple-700 hover:to-purple-600"
+              className="w-full gap-2 bg-purple-600 text-white shadow-sm hover:bg-purple-700 sm:w-auto"
               onClick={() => handleVerificationClick("approve")}
               disabled={isUpdating}
             >
               <ShieldCheck className="size-4" />
-              <span>Review Campaign</span>
+              <span className="sm:hidden">Approve</span>
+              <span className="hidden sm:inline">Approve Campaign</span>
             </Button>
           </div>
         )}
@@ -202,15 +219,36 @@ function CampaignVerificationUI({ campaign }: { campaign: Campaign }) {
           if (!isUpdating) setIsVerifying(open)
         }}
       >
-        <DialogContent className="sm:max-w-[600px]">
+        <DialogContent className="max-h-[90vh] overflow-hidden sm:max-w-3xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-xl">
               {verificationAction === "approve" ? (
-                <>Campaign Approval</>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="flex w-full items-center gap-2 overflow-hidden">
+                        <ShieldCheck className="size-5 text-purple-500" />
+                        <span className="truncate">Approve Campaign</span>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>{campaign.name}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               ) : (
                 <>
                   <BadgeX className="size-5 text-red-500" />
-                  Campaign Rejection
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className="truncate">Reject Campaign</span>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{campaign.name}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </>
               )}
             </DialogTitle>
@@ -221,7 +259,7 @@ function CampaignVerificationUI({ campaign }: { campaign: Campaign }) {
             </DialogDescription>
           </DialogHeader>
 
-          <div className="py-4">
+          <div className="h-[500px] py-4">
             <Tabs
               defaultValue="overview"
               value={reviewTabValue}
@@ -246,62 +284,59 @@ function CampaignVerificationUI({ campaign }: { campaign: Campaign }) {
                       Key information about this campaign
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div className="flex items-center justify-between border-b border-gray-100 py-1.5">
-                      <span className="text-sm text-gray-500">Advertiser</span>
-                      <span className="font-medium">{campaign.name}</span>
-                    </div>
-                    <div className="flex items-center justify-between border-b border-gray-100 py-1.5">
-                      <span className="text-sm text-gray-500">Timeline</span>
-                      <span className="font-medium">
-                        {format(new Date(campaign.startDate), "dd MMM yyyy", {
-                          locale: vi,
-                        })}{" "}
-                        -
-                        {format(new Date(campaign.endDate), "dd MMM yyyy", {
-                          locale: vi,
-                        })}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between border-b border-gray-100 py-1.5">
-                      <span className="text-sm text-gray-500">
-                        Total Budget
-                      </span>
-                      <span className="font-medium">
-                        {formatVNDCurrency(
-                          campaign.offers.reduce(
-                            (sum, offer) => sum + offer.budget,
-                            0
-                          )
-                        )}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between py-1.5">
-                      <span className="text-sm text-gray-500">Offers</span>
-                      <Badge variant="outline" className="font-medium">
-                        {campaign.offers.length} offers
-                      </Badge>
+                  <CardContent>
+                    <div className="space-y-3 pr-1">
+                      <div className="flex items-center justify-between border-b border-gray-100 py-1.5">
+                        <span className="text-sm text-gray-500">
+                          Advertiser
+                        </span>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span className="max-w-[120px] truncate font-medium sm:max-w-[240px]">
+                                {campaign.name}
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>{campaign.name}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
+                      <div className="flex items-center justify-between border-b border-gray-100 py-1.5">
+                        <span className="text-sm text-gray-500">Timeline</span>
+                        <span className="font-medium">
+                          {format(new Date(campaign.startDate), "dd MMM yyyy", {
+                            locale: vi,
+                          })}{" "}
+                          -
+                          {format(new Date(campaign.endDate), "dd MMM yyyy", {
+                            locale: vi,
+                          })}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between border-b border-gray-100 py-1.5">
+                        <span className="text-sm text-gray-500">
+                          Total Budget
+                        </span>
+                        <span className="font-medium">
+                          {formatVNDCurrency(
+                            campaign.offers.reduce(
+                              (sum, offer) => sum + offer.budget,
+                              0
+                            )
+                          )}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between py-1.5">
+                        <span className="text-sm text-gray-500">Offers</span>
+                        <Badge variant="outline" className="font-medium">
+                          {campaign.offers.length} offers
+                        </Badge>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
-
-                {verificationAction === "approve" ? (
-                  <div className="flex items-center rounded-lg border border-purple-100 bg-purple-50 p-3 text-purple-800">
-                    <Info className="mr-2 size-5 text-purple-500" />
-                    <p className="text-sm">
-                      Approving will make this campaign active and visible to
-                      publishers
-                    </p>
-                  </div>
-                ) : (
-                  <div className="flex items-center rounded-lg border border-red-100 bg-red-50 p-3 text-red-800">
-                    <Info className="mr-2 size-5 text-red-500" />
-                    <p className="text-sm">
-                      Rejection requires providing a reason. The advertiser will
-                      be notified.
-                    </p>
-                  </div>
-                )}
               </TabsContent>
 
               {verificationAction === "reject" ? (
@@ -315,67 +350,78 @@ function CampaignVerificationUI({ campaign }: { campaign: Campaign }) {
                         Select a category and provide details
                       </CardDescription>
                     </CardHeader>
-                    <CardContent className="space-y-4">
-                      <RadioGroup
-                        value={rejectCategory}
-                        onValueChange={setRejectCategory}
-                        className="space-y-3"
-                      >
-                        {rejectCategories.map((category) => (
-                          <div
-                            key={category.id}
-                            className="flex items-center space-x-2"
-                          >
-                            <RadioGroupItem
-                              value={category.id}
-                              id={category.id}
-                            />
-                            <Label
-                              htmlFor={category.id}
-                              className="flex flex-col"
+                    <CardContent>
+                      <div className="pr-1">
+                        <div className="grid gap-6 md:grid-cols-2">
+                          {/* Left Column - Rejection Categories */}
+                          <div className="space-y-4">
+                            <div className="text-sm font-medium text-gray-700">
+                              Rejection Category
+                            </div>
+                            <RadioGroup
+                              value={rejectCategory}
+                              onValueChange={setRejectCategory}
+                              className="grid gap-2 sm:grid-cols-2 md:grid-cols-1"
                             >
-                              <span className="font-medium">
-                                {category.label}
-                              </span>
-                              <span className="text-xs text-muted-foreground">
-                                {category.description}
-                              </span>
-                            </Label>
+                              {rejectCategories.map((category) => (
+                                <div
+                                  key={category.id}
+                                  className={`flex items-start space-x-2 rounded-md border p-2.5 transition-colors ${
+                                    rejectCategory === category.id
+                                      ? "border-purple-100 bg-purple-50"
+                                      : "border-gray-100 bg-gray-50 hover:bg-gray-100"
+                                  }`}
+                                >
+                                  <RadioGroupItem
+                                    value={category.id}
+                                    id={category.id}
+                                    className="mt-0.5"
+                                  />
+                                  <Label
+                                    htmlFor={category.id}
+                                    className="flex w-full cursor-pointer flex-col"
+                                  >
+                                    <span className="font-medium">
+                                      {category.label}
+                                    </span>
+                                    <span className="text-xs text-muted-foreground">
+                                      {category.description}
+                                    </span>
+                                  </Label>
+                                </div>
+                              ))}
+                            </RadioGroup>
                           </div>
-                        ))}
-                      </RadioGroup>
 
-                      <div className="pt-2">
-                        <Label
-                          htmlFor="rejection-details"
-                          className="mb-1.5 block text-sm font-medium"
-                        >
-                          Detailed Explanation
-                        </Label>
-                        <Textarea
-                          id="rejection-details"
-                          placeholder="Please provide specific details about the rejection reason..."
-                          value={rejectReason}
-                          onChange={(e) => setRejectReason(e.target.value)}
-                          className="min-h-[120px] resize-none"
-                        />
-                      </div>
-
-                      <div className="flex items-center justify-between rounded-lg border border-gray-100 bg-gray-50 p-3">
-                        <div className="flex items-center gap-2">
-                          <Info className="size-4 text-gray-500" />
-                          <Label
-                            htmlFor="notify-advertiser"
-                            className="text-sm text-gray-700"
-                          >
-                            Notify Advertiser
-                          </Label>
+                          {/* Right Column - Detailed Explanation */}
+                          <div className="space-y-4">
+                            <div className="text-sm font-medium text-gray-700">
+                              Detailed Explanation
+                            </div>
+                            <div className="space-y-1.5">
+                              <Textarea
+                                id="rejection-details"
+                                placeholder="Please provide specific details about the rejection reason..."
+                                value={rejectReason}
+                                onChange={(e) =>
+                                  setRejectReason(e.target.value)
+                                }
+                                className="min-h-[150px] resize-none md:min-h-[220px]"
+                              />
+                              <div className="flex justify-between px-1 text-xs text-gray-500">
+                                <span>
+                                  {rejectReason.length === 0
+                                    ? "Please provide a detailed explanation"
+                                    : ""}
+                                </span>
+                                <span>
+                                  {rejectReason.length} character
+                                  {rejectReason.length !== 1 ? "s" : ""}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
                         </div>
-                        <Switch
-                          id="notify-advertiser"
-                          checked={notifyAdvertiser}
-                          onCheckedChange={setNotifyAdvertiser}
-                        />
                       </div>
                     </CardContent>
                   </Card>
@@ -391,52 +437,65 @@ function CampaignVerificationUI({ campaign }: { campaign: Campaign }) {
                         Additional information about this campaign
                       </CardDescription>
                     </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="overflow-hidden rounded-lg border">
-                        <div className="border-b bg-gray-50 px-4 py-2">
-                          <h4 className="text-sm font-medium">
-                            Offers ({campaign.offers.length})
-                          </h4>
-                        </div>
-                        <div className="divide-y">
-                          {campaign.offers.map((offer) => (
-                            <div
-                              key={offer.id}
-                              className="flex items-center justify-between px-4 py-2.5"
-                            >
-                              <div>
-                                <p className="text-sm font-medium">
-                                  {offer.description}
-                                </p>
-                                <p className="text-xs text-gray-500">
-                                  {offer.pricingModel} · Budget:{" "}
-                                  {formatVNDCurrency(offer.budget)}
-                                </p>
+                    <CardContent>
+                      <div className="space-y-4 pr-1">
+                        <div className="overflow-hidden rounded-lg border">
+                          <div className="border-b bg-gray-50 px-4 py-2">
+                            <h4 className="text-sm font-medium">
+                              Offers ({campaign.offers.length})
+                            </h4>
+                          </div>
+                          <div className="divide-y">
+                            {campaign.offers.map((offer) => (
+                              <div
+                                key={offer.id}
+                                className="flex items-center justify-between px-4 py-2.5"
+                              >
+                                <div className="min-w-0 flex-1 pr-2">
+                                  <TooltipProvider>
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <p className="truncate text-sm font-medium">
+                                          {offer.description}
+                                        </p>
+                                      </TooltipTrigger>
+                                      <TooltipContent>
+                                        <p>{offer.description}</p>
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  </TooltipProvider>
+                                  <p className="truncate text-xs text-gray-500">
+                                    {offer.pricingModel} · Budget:{" "}
+                                    {formatVNDCurrency(offer.budget)}
+                                  </p>
+                                </div>
+                                <Badge
+                                  variant="outline"
+                                  className="shrink-0 text-xs"
+                                >
+                                  {offer.pricingModel}
+                                </Badge>
                               </div>
-                              <Badge variant="outline" className="text-xs">
-                                {offer.pricingModel}
-                              </Badge>
-                            </div>
-                          ))}
+                            ))}
+                          </div>
                         </div>
-                      </div>
 
-                      <div className="flex items-center rounded-lg border border-gray-100 bg-gray-50 p-3">
-                        <div className="flex items-center gap-2">
-                          <Info className="size-4 text-gray-500" />
-                          <Label
-                            htmlFor="notify-approval"
-                            className="text-sm text-gray-700"
-                          >
-                            Notify Advertiser on Approval
-                          </Label>
+                        <div className="flex items-center rounded-lg border border-gray-100 bg-gray-50 p-3">
+                          <div className="flex items-center gap-2">
+                            <Info className="size-4 text-gray-500" />
+                            <Label
+                              htmlFor="notify-approval"
+                              className="text-sm text-gray-700"
+                            >
+                              Notify Advertiser on Approval
+                            </Label>
+                          </div>
+                          <Switch
+                            id="notify-approval"
+                            className="ml-auto"
+                            defaultChecked
+                          />
                         </div>
-                        <Switch
-                          id="notify-approval"
-                          className="ml-auto"
-                          checked={notifyAdvertiser}
-                          onCheckedChange={setNotifyAdvertiser}
-                        />
                       </div>
                     </CardContent>
                   </Card>
@@ -445,49 +504,98 @@ function CampaignVerificationUI({ campaign }: { campaign: Campaign }) {
             </Tabs>
           </div>
 
-          <DialogFooter className="flex items-center gap-3">
-            <Button
-              variant="outline"
-              onClick={() => {
-                if (!isUpdating) {
-                  setIsVerifying(false)
-                  setRejectReason("")
-                }
-              }}
-              disabled={isUpdating}
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleVerificationSubmit}
-              disabled={
-                isUpdating ||
-                (verificationAction === "reject" && rejectReason.trim() === "")
-              }
-              className={cn(
-                "min-w-[140px]",
-                verificationAction === "approve"
-                  ? "bg-purple-600 text-white hover:bg-purple-700"
-                  : "bg-red-600 text-white hover:bg-red-700"
-              )}
-            >
-              {isUpdating ? (
-                <div className="flex items-center gap-2">
-                  <Loader2 className="size-4 animate-spin" />
-                  <span>{getButtonLabel()}</span>
-                </div>
+          {verificationAction === "approve" && (
+            <div className="flex items-center rounded-lg border border-purple-100 bg-purple-50 px-4 py-3 text-purple-800">
+              <Info className="mr-3 size-5 text-purple-500" />
+              <p className="text-sm">
+                Approving will make this campaign active and visible to
+                publishers
+              </p>
+            </div>
+          )}
+
+          {verificationAction === "reject" && (
+            <div className="flex items-center rounded-lg border border-red-100 bg-red-50 px-4 py-3 text-red-800">
+              <Info className="mr-3 size-5 text-red-500" />
+              <p className="text-sm">
+                {rejectReason.trim() === ""
+                  ? "Please provide a reason for rejection before continuing"
+                  : "The advertiser will be notified about this rejection"}
+              </p>
+            </div>
+          )}
+
+          <div className="mt-4 pt-3">
+            <div className="mb-4 h-px w-full bg-gray-100"></div>
+            <DialogFooter className="flex w-full flex-col-reverse gap-3 px-0 sm:flex-row sm:justify-end">
+              {verificationAction === "approve" ? (
+                <>
+                  <Button
+                    onClick={() => {
+                      setVerificationAction("reject")
+                      setReviewTabValue("reason")
+                    }}
+                    disabled={isUpdating}
+                    variant="outline"
+                    className="w-full gap-2 border-red-100 bg-white text-red-600 shadow-sm hover:bg-red-50 hover:text-red-700 sm:w-auto"
+                  >
+                    <XCircle className="size-4" />
+                    <span>Reject</span>
+                  </Button>
+                  <Button
+                    onClick={handleVerificationSubmit}
+                    disabled={isUpdating}
+                    className="w-full gap-2 bg-purple-600 text-white shadow-sm hover:bg-purple-700 sm:w-auto"
+                  >
+                    {isUpdating ? (
+                      <div className="flex items-center gap-2">
+                        <Loader2 className="size-4 animate-spin" />
+                        <span>Processing...</span>
+                      </div>
+                    ) : (
+                      <>
+                        <CheckCircle className="mr-2 size-4" />
+                        Approve Campaign
+                      </>
+                    )}
+                  </Button>
+                </>
               ) : (
                 <>
-                  {verificationAction === "approve" ? (
-                    <CheckCircle className="mr-2 size-4" />
-                  ) : (
-                    <XCircle className="mr-2 size-4" />
-                  )}
-                  {getButtonLabel()}
+                  <Button
+                    onClick={() => {
+                      if (!isUpdating) {
+                        setIsVerifying(false)
+                        setRejectReason("")
+                      }
+                    }}
+                    disabled={isUpdating}
+                    variant="outline"
+                    className="w-full border-gray-200 bg-white shadow-sm hover:bg-gray-50 sm:w-auto"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleVerificationSubmit}
+                    disabled={isUpdating || rejectReason.trim() === ""}
+                    className="w-full gap-2 bg-red-600 text-white shadow-sm hover:bg-red-700 sm:w-auto"
+                  >
+                    {isUpdating ? (
+                      <div className="flex items-center gap-2">
+                        <Loader2 className="size-4 animate-spin" />
+                        <span>Processing...</span>
+                      </div>
+                    ) : (
+                      <>
+                        <XCircle className="mr-2 size-4" />
+                        Reject Campaign
+                      </>
+                    )}
+                  </Button>
                 </>
               )}
-            </Button>
-          </DialogFooter>
+            </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
     </>
@@ -495,7 +603,6 @@ function CampaignVerificationUI({ campaign }: { campaign: Campaign }) {
 }
 
 export function CampaignHeader({ campaign }: { campaign: Campaign }) {
-  // Replacement of old header content with new component
   return (
     <div className="relative space-y-6 bg-gradient-to-b from-white to-gray-50/20">
       <CampaignVerificationUI campaign={campaign} />
