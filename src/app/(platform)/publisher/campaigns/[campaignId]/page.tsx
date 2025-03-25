@@ -610,17 +610,17 @@ export default function CampaignDetailsPage({
                     </div>
                   </div>
 
-                  <Separator />
+                  {/* <Separator /> */}
 
                   {/* Category */}
-                  <div className="flex items-center gap-2">
+                  {/* <div className="flex items-center gap-2">
                     <div>
                       <h3 className="text-sm font-medium">Category</h3>
                       <p className="text-sm text-muted-foreground">
                         {campaign.category}
                       </p>
                     </div>
-                  </div>
+                  </div> */}
                 </CardContent>
               </Card>
 
