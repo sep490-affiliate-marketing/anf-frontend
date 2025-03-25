@@ -1,4 +1,3 @@
-
 export interface ICreateCampaignRequest {
   name: string
   description: string
@@ -53,8 +52,9 @@ export interface ICampaign {
   trackingParams: string
   rejectReason: string | null
   categoryId: number | null
+  categoryName: string | null
   status: string
-  category: any | null
+  campImages: string[]
   offers: Array<{
     id: number
     campaignId: number
@@ -68,9 +68,7 @@ export interface ICampaign {
     commissionRate: number | null
     orderReturnTime: number | null
     imageUrl: string | null
-  }>
-  images: Array<{
-    imageUrl: string
+    pubOfferStatus: number
   }>
 }
 
@@ -80,11 +78,10 @@ export interface IGetCampaignsByAdvertiserResponse {
   value: IPaginatedResponse<ICampaign>
 }
 
-export interface IGetCampaignByCampCodeResponse {
-  success: true
-  data: ICampaign
+export interface IGetCampaignByCampIdResponse {
+  isSuccess: boolean
   message: string
-  type: string
+  value: ICampaign
 }
 
 export type IGetAllCampaignsResponse = IPaginationResponse<ICampaign>
@@ -135,4 +132,3 @@ export interface IUpdateCampaignErrorResponse {
   message: string
   type: "camp_already_active" | "permission_denied" | "update_camp_error"
 }
-

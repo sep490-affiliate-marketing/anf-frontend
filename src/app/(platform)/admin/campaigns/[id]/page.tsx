@@ -13,6 +13,7 @@ import {
   CheckCircle,
   ChevronLeft,
   Clock,
+  Copy,
   CreditCard,
   HelpCircle,
   Image as ImageIcon,
@@ -29,6 +30,8 @@ import Lightbox from "yet-another-react-lightbox"
 import "yet-another-react-lightbox/styles.css"
 
 import { cn, formatVNDCurrency } from "@/lib/utils"
+
+import { useGetCampaignById, useUpdateCampaignStatus } from "@/hooks/campaign"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -100,63 +103,6 @@ type Props = {
 }
 
 type VerificationAction = "approve" | "reject"
-
-// Temporary mock data - replace with actual API call
-const mockCampaign: Campaign = {
-  id: 1,
-  advertiserCode: "2481c765-1f1b-4e9a-8b65-24b8b044d01a",
-  name: "Baotangtruyentranh",
-  description: "Banner at home page of baotangtruyentranh",
-  startDate: "2025-05-01T00:00:00",
-  endDate: "2025-12-31T00:00:00",
-  balance: 15000000,
-  productUrl: "https://baotangtruyentranh.com",
-  trackingParams: null,
-  rejectReason: null,
-  categoryId: null,
-  status: "Pending",
-  category: null,
-  thumbnail:
-    "https://images.unsplash.com/photo-1614332287897-cdc485fa562d?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-  images: [
-    "https://images.unsplash.com/photo-1560419015-7c427e8ae5ba?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-    "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-    "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-  ],
-  offers: [
-    {
-      id: 1,
-      campaignId: 1,
-      pricingModel: "CPA",
-      description: "Offer enter a form in the home page",
-      stepInfo:
-        "1. Click to the banner and redirect to the page has form. 2. Fill the information 3. Submit the form",
-      startDate: "2025-05-01T00:00:00",
-      endDate: "2025-08-01T00:00:00",
-      bid: 100000,
-      budget: 10000000,
-      commissionRate: null,
-      orderReturnTime: "30 days",
-      imageUrl:
-        "https://images.unsplash.com/photo-1552581234-26160f608093?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-    },
-    {
-      id: 2,
-      campaignId: 1,
-      pricingModel: "CPC",
-      description: "Offer click a banner in the home page",
-      stepInfo: "User click the banner",
-      startDate: "2025-08-15T00:00:00",
-      endDate: "2025-12-31T00:00:00",
-      bid: 100000,
-      budget: 5000000,
-      commissionRate: null,
-      orderReturnTime: null,
-      imageUrl:
-        "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-    },
-  ],
-}
 
 function CampaignStatus({
   status,
@@ -363,9 +309,11 @@ function CampaignVerificationUI({ campaign }: { campaign: Campaign }) {
     useState<VerificationAction | null>(null)
   const [rejectReason, setRejectReason] = useState("")
   const [rejectCategory, setRejectCategory] = useState<string>("content")
-  const [isProcessing, setIsProcessing] = useState(false)
-  const [reviewTabValue, setReviewTabValue] = useState<string>("overview")
   const [notifyAdvertiser, setNotifyAdvertiser] = useState(true)
+  const [reviewTabValue, setReviewTabValue] = useState<string>("overview")
+
+  const { mutate: updateStatus, isPending: isUpdating } =
+    useUpdateCampaignStatus()
 
   const rejectCategories = [
     {
@@ -402,32 +350,28 @@ function CampaignVerificationUI({ campaign }: { campaign: Campaign }) {
   }
 
   const handleVerificationSubmit = async () => {
-    try {
-      setIsProcessing(true)
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500))
+    if (!verificationAction) return
 
-      // TODO: Replace with actual API call
-      console.log("Submitting verification:", {
-        action: verificationAction,
-        rejectReason:
-          verificationAction === "reject" ? rejectReason : undefined,
-        rejectCategory:
-          verificationAction === "reject" ? rejectCategory : undefined,
-        notifyAdvertiser,
-      })
+    const status = verificationAction === "approve" ? "verified" : "rejected"
+    const reason = verificationAction === "reject" ? rejectReason : undefined
 
-      setIsVerifying(false)
-      setRejectReason("")
-    } catch (error) {
-      console.error("Error submitting verification:", error)
-    } finally {
-      setIsProcessing(false)
-    }
+    updateStatus(
+      {
+        id: campaign.id,
+        campaignStatus: status,
+        rejectReason: reason,
+      },
+      {
+        onSuccess: () => {
+          setIsVerifying(false)
+          setRejectReason("")
+        },
+      }
+    )
   }
 
   const getButtonLabel = () => {
-    if (isProcessing) return "Processing..."
+    if (isUpdating) return "Processing..."
     return verificationAction === "approve"
       ? "Approve Campaign"
       : "Reject Campaign"
@@ -468,6 +412,7 @@ function CampaignVerificationUI({ campaign }: { campaign: Campaign }) {
                 variant="ghost"
                 className="gap-2 rounded-lg border-0 text-red-700 hover:bg-red-50 hover:text-red-800 focus-visible:ring-0 focus-visible:ring-offset-0"
                 onClick={() => handleVerificationClick("reject")}
+                disabled={isUpdating}
               >
                 <ThumbsDown className="size-4" />
                 <span>Reject</span>
@@ -477,6 +422,7 @@ function CampaignVerificationUI({ campaign }: { campaign: Campaign }) {
                 variant="ghost"
                 className="gap-2 rounded-lg border-0 text-purple-700 hover:bg-purple-50 hover:text-purple-800 focus-visible:ring-0 focus-visible:ring-offset-0"
                 onClick={() => handleVerificationClick("approve")}
+                disabled={isUpdating}
               >
                 <ThumbsUp className="size-4" />
                 <span>Approve</span>
@@ -486,6 +432,7 @@ function CampaignVerificationUI({ campaign }: { campaign: Campaign }) {
             <Button
               className="gap-2 bg-gradient-to-r from-purple-600 to-purple-500 text-white shadow-sm hover:from-purple-700 hover:to-purple-600"
               onClick={() => handleVerificationClick("approve")}
+              disabled={isUpdating}
             >
               <ShieldCheck className="size-4" />
               <span>Review Campaign</span>
@@ -498,7 +445,7 @@ function CampaignVerificationUI({ campaign }: { campaign: Campaign }) {
       <Dialog
         open={isVerifying}
         onOpenChange={(open) => {
-          if (!isProcessing) setIsVerifying(open)
+          if (!isUpdating) setIsVerifying(open)
         }}
       >
         <DialogContent className="sm:max-w-[600px]">
@@ -748,19 +695,19 @@ function CampaignVerificationUI({ campaign }: { campaign: Campaign }) {
             <Button
               variant="outline"
               onClick={() => {
-                if (!isProcessing) {
+                if (!isUpdating) {
                   setIsVerifying(false)
                   setRejectReason("")
                 }
               }}
-              disabled={isProcessing}
+              disabled={isUpdating}
             >
               Cancel
             </Button>
             <Button
               onClick={handleVerificationSubmit}
               disabled={
-                isProcessing ||
+                isUpdating ||
                 (verificationAction === "reject" && rejectReason.trim() === "")
               }
               className={cn(
@@ -770,7 +717,7 @@ function CampaignVerificationUI({ campaign }: { campaign: Campaign }) {
                   : "bg-red-600 text-white hover:bg-red-700"
               )}
             >
-              {isProcessing ? (
+              {isUpdating ? (
                 <div className="flex items-center gap-2">
                   <Loader2 className="size-4 animate-spin" />
                   <span>{getButtonLabel()}</span>
@@ -803,12 +750,46 @@ function CampaignHeader({ campaign }: { campaign: Campaign }) {
 }
 
 export default function CampaignDetailsPage({ params: paramsPromise }: Props) {
-  const campaign = mockCampaign
   const router = useRouter()
 
   // Unwrap params using React.use() as recommended by Next.js
   const params = React.use(paramsPromise)
   const { id } = params
+
+  // Use the campaign hook instead of mock data
+  const { data: campaignResponse, isLoading } = useGetCampaignById(id)
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-[400px] items-center justify-center">
+        <div className="flex items-center gap-2 text-muted-foreground">
+          <Loader2 className="size-5 animate-spin" />
+          <span>Loading campaign details...</span>
+        </div>
+      </div>
+    )
+  }
+
+  if (!campaignResponse?.success || !campaignResponse.data) {
+    return (
+      <div className="flex min-h-[400px] items-center justify-center">
+        <div className="flex items-center gap-2 text-destructive">
+          <AlertCircle className="size-5" />
+          <span>Failed to load campaign details</span>
+        </div>
+      </div>
+    )
+  }
+
+  const campaign = {
+    ...campaignResponse.data,
+    images: campaignResponse.data.campImages || [],
+    thumbnail: campaignResponse.data.campImages?.[0] || null,
+    category: {
+      id: campaignResponse.data.categoryId,
+      name: campaignResponse.data.categoryName,
+    },
+  } as Campaign
 
   const daysLeft = Math.ceil(
     (new Date(campaign.endDate).getTime() - new Date().getTime()) /

@@ -2,6 +2,8 @@
 
 import { useState } from "react"
 
+import Link from "next/link"
+
 import { useAuth } from "@/providers/auth-provider"
 import {
   ColumnDef,
@@ -33,6 +35,7 @@ import { ICampaign } from "@/types/campaign.type"
 import { cn } from "@/lib/utils"
 
 import {
+  useGetAdminCampaigns,
   useGetCampaignsByAdvertiser,
   useUpdateCampaignStatus,
 } from "@/hooks/campaign"
@@ -215,7 +218,9 @@ const columns: ColumnDef<ICampaign>[] = [
     header: "Campaign Name",
     accessorKey: "name",
     cell: ({ row }) => (
-      <div className="truncate font-medium">{row.getValue("name")}</div>
+      <Link href={`/admin/campaigns/${row.original.id}`}>
+        <div className="truncate font-medium">{row.getValue("name")}</div>
+      </Link>
     ),
     size: 250,
   },
@@ -278,14 +283,7 @@ export default function CampaignDataTable() {
   const [pageSize, setPageSize] = useState(10)
   const [pageNumber, setPageNumber] = useState(1)
   const [sorting, setSorting] = useState<SortingState>([])
-  const { user } = useAuth()
-  const { data, isLoading } = useGetCampaignsByAdvertiser(
-    {
-      pageNumber,
-      pageSize,
-    },
-    user?.userCode || ""
-  )
+  const { data, isLoading } = useGetAdminCampaigns()
 
   const table = useReactTable({
     data: data?.value?.data || [],
