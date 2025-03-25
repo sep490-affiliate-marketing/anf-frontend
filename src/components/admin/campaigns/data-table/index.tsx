@@ -4,7 +4,6 @@ import { useState } from "react"
 
 import Link from "next/link"
 
-import { useAuth } from "@/providers/auth-provider"
 import {
   ColumnDef,
   flexRender,
@@ -36,7 +35,6 @@ import { cn } from "@/lib/utils"
 
 import {
   useGetAdminCampaigns,
-  useGetCampaignsByAdvertiser,
   useUpdateCampaignStatus,
 } from "@/hooks/campaign"
 

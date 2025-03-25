@@ -77,3 +77,4 @@ export function formatVNDCurrency(amount: number): string {
     currency: "VND",
   }).format(amount)
 }
+
