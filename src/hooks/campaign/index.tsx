@@ -3,9 +3,10 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 
 import CampaignService, {
+  getAdminCampaigns,
   getCampaignDetailForPublisher,
   joinOffer,
-}, { getAdminCampaigns } from "@/services/campaign.service"
+} from "@/services/campaign.service"
 import {
   CreateCampaignFormSchema,
   ICreateCampaignForm,
