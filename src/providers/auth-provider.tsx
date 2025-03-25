@@ -2,7 +2,7 @@
 
 import React, { useContext } from "react"
 
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 
 import { UserRoleEnum } from "@/enums/user-role"
 import { AuthService } from "@/services/auth.service"
@@ -36,6 +36,8 @@ export const AuthContext = React.createContext<AuthContextType | null>(null)
 export default function AuthProvider({ children }: AuthProviderProps) {
   const queryClient = useQueryClient()
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const callbackUrl = searchParams.get("callbackUrl")
 
   const { data: userData, isLoading: isLoadingUser } = useQuery({
     queryKey: ["me"],
@@ -79,12 +81,16 @@ export default function AuthProvider({ children }: AuthProviderProps) {
 
         queryClient.setQueryData(["me"], res.value)
 
-        if (role === UserRoleEnum.ADVERTISER) {
-          router.push("/advertiser")
-        } else if (role === UserRoleEnum.PUBLISHER) {
-          router.push("/publisher")
-        } else if (role === UserRoleEnum.ADMIN) {
-          router.push("/admin")
+        if (callbackUrl) {
+          router.push(callbackUrl)
+        } else {
+          if (role === UserRoleEnum.ADVERTISER) {
+            router.push("/advertiser")
+          } else if (role === UserRoleEnum.PUBLISHER) {
+            router.push("/publisher")
+          } else if (role === UserRoleEnum.ADMIN) {
+            router.push("/admin")
+          }
         }
 
         toast.success("Login successful")
