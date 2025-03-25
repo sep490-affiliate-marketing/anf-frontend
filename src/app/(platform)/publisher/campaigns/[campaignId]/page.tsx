@@ -5,6 +5,8 @@ import React from "react"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 
+import { env } from "@/env"
+import { useAuth } from "@/providers/auth-provider"
 import { differenceInDays, format, formatDistanceToNow } from "date-fns"
 import {
   ArrowUpRight,
@@ -46,6 +48,7 @@ import {
 import { Progress } from "@/components/ui/progress"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { CopyToClipboardTextarea } from "@/components/ui/textarea/copy-to-clipboard-textarea"
 import {
   Tooltip,
   TooltipContent,
@@ -284,6 +287,13 @@ function CampaignTimeline({ campaign }: { campaign: ExtendedCampaign }) {
 
 function OfferCard({ offer }: { offer: Offer }) {
   const { mutate: joinOffer, isPending } = useJoinOffer()
+  const { user } = useAuth()
+  const trackingUrl =
+    env.NEXT_PUBLIC_BACKEND_URL +
+    "/api/tracking?offerId=" +
+    offer.id +
+    "&publisherCode=" +
+    user?.userCode
 
   const handleJoinOffer = () => {
     joinOffer(offer.id, {
@@ -398,6 +408,27 @@ function OfferCard({ offer }: { offer: Offer }) {
             <p className="text-sm">{offer.conversionGoal}</p>
           </div>
         )}
+        {offer.pubOfferStatus === 1 && (
+          <>
+            <Separator className="my-4" />
+            <div>
+              <h3 className="text-base font-medium text-accent-foreground">
+                Tracking URL
+              </h3>
+              <p className="text-xs text-muted-foreground">
+                Copy the tracking URL to your app
+              </p>
+
+              <div className="mt-3 w-full">
+                <CopyToClipboardTextarea
+                  rows={3}
+                  value={trackingUrl}
+                  className="mt-2"
+                />
+              </div>
+            </div>
+          </>
+        )}
       </CardContent>
       <CardFooter className="flex flex-col gap-4">
         {offer.requirements && offer.requirements.length > 0 && (
@@ -413,6 +444,7 @@ function OfferCard({ offer }: { offer: Offer }) {
             </ul>
           </div>
         )}
+
         <Button
           className="w-full"
           variant={buttonConfig.variant}
