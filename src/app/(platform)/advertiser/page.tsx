@@ -95,11 +95,11 @@ export default function Page() {
           </div>
           <div className="flex items-center gap-3">
             <Button variant="outline" size="sm" className="gap-2">
-              <RefreshCcw className="h-4 w-4" />
+              <RefreshCcw className="size-4" />
               Refresh
             </Button>
             <Button size="sm" className="gap-2">
-              <LineChart className="h-4 w-4" />
+              <LineChart className="size-4" />
               Generate Report
             </Button>
           </div>
@@ -122,7 +122,7 @@ export default function Page() {
           </Select>
           <Separator orientation="vertical" className="mx-2 h-4" />
           <Button variant="outline" size="sm" className="h-8">
-            Daily <ChevronDown className="ml-1 h-3 w-3" />
+            Daily <ChevronDown className="ml-1 size-3" />
           </Button>
         </div>
       </div>
@@ -132,13 +132,13 @@ export default function Page() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+            <DollarSign className="size-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">$45,231.89</div>
             <div className="flex items-center gap-1 text-xs">
               <span className="flex items-center text-green-500">
-                <ArrowUpRight className="h-3 w-3" />
+                <ArrowUpRight className="size-3" />
                 12.5%
               </span>
               <span className="text-muted-foreground">from last month</span>
@@ -148,13 +148,13 @@ export default function Page() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Active Users</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+            <Users className="size-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">2,345</div>
             <div className="flex items-center gap-1 text-xs">
               <span className="flex items-center text-green-500">
-                <ArrowUpRight className="h-3 w-3" />
+                <ArrowUpRight className="size-3" />
                 8.2%
               </span>
               <span className="text-muted-foreground">from last month</span>
@@ -166,13 +166,13 @@ export default function Page() {
             <CardTitle className="text-sm font-medium">
               Conversion Rate
             </CardTitle>
-            <Activity className="h-4 w-4 text-muted-foreground" />
+            <Activity className="size-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">3.24%</div>
             <div className="flex items-center gap-1 text-xs">
               <span className="flex items-center text-red-500">
-                <ArrowDownRight className="h-3 w-3" />
+                <ArrowDownRight className="size-3" />
                 1.2%
               </span>
               <span className="text-muted-foreground">from last month</span>
@@ -184,13 +184,13 @@ export default function Page() {
             <CardTitle className="text-sm font-medium">
               Active Campaigns
             </CardTitle>
-            <Loader2 className="h-4 w-4 text-muted-foreground" />
+            <Loader2 className="size-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">12</div>
             <div className="flex items-center gap-1 text-xs">
               <span className="flex items-center text-green-500">
-                <ArrowUpRight className="h-3 w-3" />2
+                <ArrowUpRight className="size-3" />2
               </span>
               <span className="text-muted-foreground">new this month</span>
             </div>

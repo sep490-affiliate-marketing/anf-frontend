@@ -1,6 +1,6 @@
 "use client"
 
-import { CSSProperties, useEffect, useState } from "react"
+import { CSSProperties, useState } from "react"
 
 import { useAuth } from "@/providers/auth-provider"
 import {
@@ -163,9 +163,9 @@ const columns: ColumnDef<ICampaign>[] = [
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
-                className="flex h-8 w-8 p-0 data-[state=open]:bg-muted"
+                className="flex size-8 p-0 data-[state=open]:bg-muted"
               >
-                <MoreHorizontalIcon className="h-4 w-4" />
+                <MoreHorizontalIcon className="size-4" />
                 <span className="sr-only">Open menu</span>
               </Button>
             </DropdownMenuTrigger>

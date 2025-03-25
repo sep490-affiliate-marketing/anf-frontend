@@ -16,7 +16,7 @@ export default function Page() {
               Manage your countries and their associated data
             </p>
           </div>
-          <div className="flex flex-shrink-0 gap-3">
+          <div className="flex shrink-0 gap-3">
             <CreateCountryModal />
           </div>
         </div>

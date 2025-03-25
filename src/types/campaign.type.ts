@@ -1,4 +1,3 @@
-import { IOffer } from "./offer.type"
 
 export interface ICreateCampaignRequest {
   name: string

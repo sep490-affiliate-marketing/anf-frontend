@@ -2,7 +2,6 @@
 
 import Link from "next/link"
 
-import * as z from "zod"
 import { ISignUpForm, SignUpFormSchema } from "@/validations/auth.validation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"

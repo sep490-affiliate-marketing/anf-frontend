@@ -57,7 +57,7 @@ export default function CreateCarrierModal() {
     <Dialog>
       <DialogTrigger asChild>
         <Button>
-          <PlusIcon className="mr-2 h-4 w-4" />
+          <PlusIcon className="mr-2 size-4" />
           Add carrier
         </Button>
       </DialogTrigger>

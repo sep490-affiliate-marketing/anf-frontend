@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useContext, useState } from "react"
+import React, { useContext } from "react"
 
 import { useRouter } from "next/navigation"
 
@@ -56,6 +56,8 @@ export default function AuthProvider({ children }: AuthProviderProps) {
     mutationFn: () => AuthService.logout(),
     onSuccess: () => {
       queryClient.clear()
+      Cookies.remove("access_token")
+      router.push("/auth/login")
     },
   })
 

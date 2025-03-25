@@ -120,7 +120,7 @@ function OfferStatusBadge({ status }: { status: string }) {
       variant="outline"
       className={`${config.color} flex items-center gap-1.5 px-2.5 py-0.5 font-medium`}
     >
-      <Icon className="h-3.5 w-3.5" />
+      <Icon className="size-3.5" />
       {config.text}
     </Badge>
   )
@@ -179,7 +179,7 @@ export default function OfferDetailPage({
             size="sm"
             className="gap-2 text-gray-600 hover:text-gray-900"
           >
-            <ArrowLeft className="h-4 w-4" />
+            <ArrowLeft className="size-4" />
             Back to Campaign
           </Button>
         </Link>
@@ -197,11 +197,11 @@ export default function OfferDetailPage({
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" className="gap-2">
-            <Settings className="h-4 w-4" />
+            <Settings className="size-4" />
             Settings
           </Button>
           <Button className="gap-2">
-            <Megaphone className="h-4 w-4" />
+            <Megaphone className="size-4" />
             Promote
           </Button>
         </div>
@@ -217,19 +217,19 @@ export default function OfferDetailPage({
           <div className="border-b">
             <TabsList className="justify-start">
               <TabsTrigger value="overview" className="gap-2">
-                <PieChart className="h-4 w-4" />
+                <PieChart className="size-4" />
                 Overview
               </TabsTrigger>
               <TabsTrigger value="statistics" className="gap-2">
-                <BarChart3 className="h-4 w-4" />
+                <BarChart3 className="size-4" />
                 Statistics
               </TabsTrigger>
               <TabsTrigger value="details" className="gap-2">
-                <Info className="h-4 w-4" />
+                <Info className="size-4" />
                 Details
               </TabsTrigger>
               <TabsTrigger value="tracking" className="gap-2">
-                <FileCode className="h-4 w-4" />
+                <FileCode className="size-4" />
                 Tracking
               </TabsTrigger>
             </TabsList>
@@ -242,23 +242,23 @@ export default function OfferDetailPage({
               <StatCard
                 title="Total Spent"
                 value={formatVNDCurrency(offer.spent)}
-                icon={<CreditCard className="h-4 w-4 text-gray-400" />}
+                icon={<CreditCard className="size-4 text-gray-400" />}
                 description={`${Math.round((offer.spent / offer.budget) * 100)}% of budget`}
               />
               <StatCard
                 title="Clicks"
                 value={offer.clicks.toLocaleString()}
-                icon={<ExternalLink className="h-4 w-4 text-gray-400" />}
+                icon={<ExternalLink className="size-4 text-gray-400" />}
               />
               <StatCard
                 title="Conversions"
                 value={offer.conversions.toLocaleString()}
-                icon={<CheckCircle className="h-4 w-4 text-gray-400" />}
+                icon={<CheckCircle className="size-4 text-gray-400" />}
               />
               <StatCard
                 title="Conversion Rate"
                 value={`${offer.conversionRate.toFixed(2)}%`}
-                icon={<PieChart className="h-4 w-4 text-gray-400" />}
+                icon={<PieChart className="size-4 text-gray-400" />}
               />
             </div>
 
@@ -268,7 +268,7 @@ export default function OfferDetailPage({
               <Card className="md:col-span-2">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Info className="h-5 w-5 text-purple-600" />
+                    <Info className="size-5 text-purple-600" />
                     Offer Information
                   </CardTitle>
                   <CardDescription>Details about this offer</CardDescription>
@@ -297,7 +297,7 @@ export default function OfferDetailPage({
                         Date Range
                       </h4>
                       <div className="mt-1 flex items-center gap-2 text-sm">
-                        <Calendar className="h-4 w-4 text-gray-400" />
+                        <Calendar className="size-4 text-gray-400" />
                         <span>
                           {format(new Date(offer.startDate), "dd/MM/yyyy", {
                             locale: vi,
@@ -314,7 +314,7 @@ export default function OfferDetailPage({
                         Pricing Model
                       </h4>
                       <div className="mt-1 flex items-center gap-2 text-sm">
-                        <DollarSign className="h-4 w-4 text-gray-400" />
+                        <DollarSign className="size-4 text-gray-400" />
                         <Badge variant="outline" className="text-gray-700">
                           {offer.pricingModel}
                         </Badge>
@@ -334,7 +334,7 @@ export default function OfferDetailPage({
                         Return Time
                       </h4>
                       <div className="mt-1 flex items-center gap-2 text-sm">
-                        <Clock className="h-4 w-4 text-gray-400" />
+                        <Clock className="size-4 text-gray-400" />
                         <span>{offer.orderReturnTime}</span>
                       </div>
                     </div>
@@ -346,7 +346,7 @@ export default function OfferDetailPage({
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <ImageIcon className="h-5 w-5 text-purple-600" />
+                    <ImageIcon className="size-5 text-purple-600" />
                     Offer Media
                   </CardTitle>
                 </CardHeader>
@@ -364,7 +364,7 @@ export default function OfferDetailPage({
                       size="sm"
                       className="w-full gap-2"
                     >
-                      <Copy className="h-4 w-4" />
+                      <Copy className="size-4" />
                       Download Assets
                     </Button>
                   </div>
@@ -376,7 +376,7 @@ export default function OfferDetailPage({
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <FileCode className="h-5 w-5 text-purple-600" />
+                  <FileCode className="size-5 text-purple-600" />
                   Tracking Information
                 </CardTitle>
                 <CardDescription>
@@ -388,8 +388,8 @@ export default function OfferDetailPage({
                   <h3 className="font-medium text-gray-900">Tracking URL</h3>
                   <div className="flex items-center justify-between rounded-lg bg-gray-50 p-3 font-mono text-sm text-gray-600">
                     <code className="break-all">{offer.trackingUrl}</code>
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                      <Copy className="h-4 w-4" />
+                    <Button variant="ghost" size="sm" className="size-8 p-0">
+                      <Copy className="size-4" />
                     </Button>
                   </div>
                   <p className="text-xs text-gray-500">

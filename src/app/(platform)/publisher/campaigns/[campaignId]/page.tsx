@@ -3,7 +3,6 @@
 import React from "react"
 
 import Link from "next/link"
-import { notFound } from "next/navigation"
 
 import { env } from "@/env"
 import { useAuth } from "@/providers/auth-provider"
@@ -19,9 +18,6 @@ import {
   Globe,
   ImageIcon,
   Info,
-  Link as LinkIcon,
-  Search,
-  Tag,
   Zap,
 } from "lucide-react"
 import { toast } from "sonner"
@@ -141,7 +137,7 @@ function CampaignStatus({ status }: { status: string | undefined | null }) {
       variant="outline"
       className={`${config.color} flex items-center gap-1.5 px-2.5 py-0.5 font-medium`}
     >
-      <Icon className="h-3.5 w-3.5" />
+      <Icon className="size-3.5" />
       {config.text}
     </Badge>
   )
@@ -234,7 +230,7 @@ function CampaignGallery({
           <img
             src={image}
             alt={`Campaign image ${index + 1}`}
-            className="h-full w-full object-cover"
+            className="size-full object-cover"
           />
         </div>
       ))}
@@ -262,13 +258,13 @@ function CampaignTimeline({ campaign }: { campaign: ExtendedCampaign }) {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Calendar className="h-4 w-4 text-muted-foreground" />
+          <Calendar className="size-4 text-muted-foreground" />
           <span className="text-sm">
             Started {format(startDate, "MMM d, yyyy")}
           </span>
         </div>
         <div className="flex items-center gap-2">
-          <Calendar className="h-4 w-4 text-muted-foreground" />
+          <Calendar className="size-4 text-muted-foreground" />
           <span className="text-sm">Ends {format(endDate, "MMM d, yyyy")}</span>
         </div>
       </div>
@@ -437,7 +433,7 @@ function OfferCard({ offer }: { offer: Offer }) {
             <ul className="space-y-1 text-xs text-muted-foreground">
               {offer.requirements.map((req, index) => (
                 <li key={index} className="flex items-start gap-2">
-                  <div className="mt-0.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
+                  <div className="mt-0.5 size-1.5 shrink-0 rounded-full bg-primary" />
                   <span>{req}</span>
                 </li>
               ))}
@@ -566,7 +562,32 @@ export default function CampaignDetailsPage({
                     Detailed information about the campaign
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-6">
+                  {/* Advertiser Info
+                  <div className="flex items-center gap-4">
+                    <div className="size-12 shrink-0 overflow-hidden rounded-full">
+                      <img
+                        src={campaign.advertiserLogo}
+                        alt={campaign.advertiserName}
+                        className="size-full object-cover"
+                      />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">
+                        {campaign.advertiserName}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        Joined{" "}
+                        {formatDistanceToNow(new Date(campaign.createdAt), {
+                          addSuffix: true,
+                        })}
+                      </p>
+                    </div>
+                  </div>
+
+                  <Separator /> */}
+
+                  {/* Campaign Timeline */}
                   <div>
                     <h4 className="font-medium">Description</h4>
                     <p className="text-sm text-muted-foreground">
@@ -575,10 +596,72 @@ export default function CampaignDetailsPage({
                   </div>
                   <Separator />
                   <div>
-                    <h4 className="font-medium">Terms & Conditions</h4>
-                    <p className="text-sm text-muted-foreground">
-                      {campaign.terms || "No specific terms provided."}
-                    </p>
+                    <h3 className="mb-3 text-sm font-medium">Product URL</h3>
+                    <div className="flex items-center gap-2">
+                      <Globe className="size-4 text-muted-foreground" />
+                      <a
+                        href={campaign.productUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm text-primary hover:underline"
+                      >
+                        {campaign.productUrl}
+                      </a>
+                    </div>
+                  </div>
+
+                  <Separator />
+
+                  {/* Category */}
+                  <div className="flex items-center gap-2">
+                    <div>
+                      <h3 className="text-sm font-medium">Category</h3>
+                      <p className="text-sm text-muted-foreground">
+                        {campaign.category}
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Budget Overview */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Budget Overview</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">
+                        Total Budget
+                      </p>
+                      <p className="text-2xl font-bold">
+                        {formatVNDCurrency(campaign.balance)}
+                      </p>
+                    </div>
+                    <CreditCard className="size-10 text-muted-foreground" />
+                  </div>
+
+                  <Separator />
+
+                  <div className="space-y-4">
+                    <h3 className="text-sm font-medium">Budget Allocation</h3>
+                    {campaign.offers.map((offer) => (
+                      <div
+                        key={offer.id}
+                        className="flex items-center justify-between"
+                      >
+                        <div className="flex items-center gap-2">
+                          <OfferBadge model={offer.pricingModel} />
+                          <span className="text-sm">
+                            {offer.description.substring(0, 30)}...
+                          </span>
+                        </div>
+                        <span className="font-medium">
+                          {formatVNDCurrency(offer.budget)}
+                        </span>
+                      </div>
+                    ))}
                   </div>
                 </CardContent>
               </Card>

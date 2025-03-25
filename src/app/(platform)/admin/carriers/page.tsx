@@ -18,7 +18,7 @@ export default function Page() {
               Manage your carriers and their associated data
             </p>
           </div>
-          <div className="flex flex-shrink-0 gap-3">
+          <div className="flex shrink-0 gap-3">
             <CreateCarrierModal />
           </div>
         </div>
