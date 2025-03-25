@@ -549,8 +549,7 @@ export default function PublisherCampaignsPage() {
         campaign.description.toLowerCase().includes(searchQuery.toLowerCase())
 
       const matchesCategory =
-        selectedCategory === "All" ||
-        campaign.category?.name === selectedCategory
+        selectedCategory === "All" || campaign.categoryName === selectedCategory
 
       const matchesPricingModel =
         selectedPricingModel === "All" ||

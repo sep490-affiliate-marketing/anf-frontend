@@ -13,7 +13,6 @@ import {
   CheckCircle,
   ChevronLeft,
   Clock,
-  Copy,
   CreditCard,
   HelpCircle,
   Image as ImageIcon,
