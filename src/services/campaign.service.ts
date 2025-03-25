@@ -5,10 +5,11 @@ import qs from "qs"
 import {
   IActivateCampaignErrorResponse,
   IActivateCampaignResponse,
+  ICampaign,
   ICreateCampaignErrorResponse,
   ICreateCampaignSuccessResponse,
   IGetAllCampaignsResponse,
-  IGetCampaignByCampCodeResponse,
+  IGetCampaignByCampIdResponse,
   IGetCampaignsByAdvertiserParams,
   IGetCampaignsByAdvertiserResponse,
   IGetTrackingParamsErrorResponse,
@@ -19,14 +20,23 @@ import {
 
 import apiClient from "@/lib/api/client"
 
-export interface ITest {
-  code: string
-  name: string
-  description: string
-  id: string
-}
-
+/**
+ * CampaignService
+ *
+ * Provides methods to interact with campaign-related API endpoints, including
+ * creating, retrieving, updating, and activating campaigns.
+ *
+ * This service handles communication with the backend for all campaign operations
+ * and provides appropriate error handling and response formatting.
+ */
 const CampaignService = {
+  /**
+   * Creates a new campaign
+   *
+   * @access Admin, Advertiser
+   * @param {FormData} formData - Form data containing campaign details
+   * @returns {Promise<ICreateCampaignSuccessResponse | ICreateCampaignErrorResponse>} Response with success status and message
+   */
   createCampaign: async (formData: FormData) => {
     try {
       const { data } = await apiClient.post<
@@ -52,6 +62,15 @@ const CampaignService = {
       }
     }
   },
+
+  /**
+   * Retrieves campaigns by advertiser code
+   *
+   * @access Admin, Advertiser, Publisher
+   * @param {IGetCampaignsByAdvertiserParams} params - Query parameters for filtering campaigns
+   * @param {string} code - Advertiser code
+   * @returns {Promise<IGetCampaignsByAdvertiserResponse | IErrorPaginationResponse<ICampaign>>}
+   */
   getCampaignsByAdvertiser: async (
     params: IGetCampaignsByAdvertiserParams,
     code: string
@@ -62,19 +81,39 @@ const CampaignService = {
         `/api/affiliate-network/campaigns/advertisers/${code}/offers?${queryString}`
       )
       return data
-    } catch (error) {
-      return undefined
+    } catch {
+      return {
+        isSuccess: false,
+        message: "Something went wrong while fetching campaigns",
+        value: {
+          pageNumber: params.pageNumber || 1,
+          pageSize: params.pageSize || 10,
+          totalPages: 0,
+          totalRecords: 0,
+          data: [],
+          hasNextPage: false,
+          hasPreviousPage: false,
+        },
+      } as IErrorPaginationResponse<ICampaign>
     }
   },
-  getCampaignByCampCode: async (campaignCode: string) => {
+
+  /**
+   * Retrieves a campaign by its campaign code
+   *
+   * @access Admin, Advertiser, Publisher
+   * @param {string} campaignId - Unique campaign identifier
+   * @returns {Promise<{success: boolean, message: string, data: any | null, type?: string | null}>} Response with campaign data
+   */
+  getCampaignByCampId: async (campaignId: string) => {
     try {
-      const { data } = await apiClient.get<IGetCampaignByCampCodeResponse>(
-        `/api/campaigns/${campaignCode}`
+      const { data } = await apiClient.get<IGetCampaignByCampIdResponse>(
+        `/api/affiliate-network/campaigns/${campaignId}`
       )
       return {
         success: true,
         message: data.message,
-        data: data.data,
+        data: data.value,
       }
     } catch (error) {
       return {
@@ -85,6 +124,14 @@ const CampaignService = {
       }
     }
   },
+
+  /**
+   * Retrieves all campaigns with pagination
+   *
+   * @access Admin
+   * @param {number} page - Page number for pagination, defaults to 1
+   * @returns {Promise<IGetAllCampaignsResponse | undefined>} Paginated list of campaigns or undefined
+   */
   getAllCampaigns: async (page: number = 1) => {
     try {
       const { data } = await apiClient.get<IGetAllCampaignsResponse>(
@@ -95,6 +142,14 @@ const CampaignService = {
       return undefined
     }
   },
+
+  /**
+   * Activates a campaign by its campaign code
+   *
+   * @access Admin, Advertiser
+   * @param {string} campaignCode - Unique campaign identifier
+   * @returns {Promise<IActivateCampaignResponse | {success: boolean, message: string, type: string | null}>} Response with activation status
+   */
   activateCampaign: async (campaignCode: string) => {
     try {
       const { data } = await apiClient.post<IActivateCampaignResponse>(
@@ -118,6 +173,13 @@ const CampaignService = {
       }
     }
   },
+
+  /**
+   * Retrieves tracking parameters used in campaigns
+   *
+   * @access Admin, Advertiser, Publisher
+   * @returns {Promise<{success: boolean, message: string, data?: any, type?: string}>} Response with tracking parameters
+   */
   getTrackingParams: async () => {
     try {
       const { data } = await apiClient.get<IGetTrackingParamsResponse>(
@@ -142,6 +204,52 @@ const CampaignService = {
       }
     }
   },
+
+  /**
+   * Updates a campaign status
+   *
+   * @access Admin
+   * @param {number} id - Campaign ID
+   * @param {string} campaignStatus - New status for the campaign ("Started", "Paused", "Rejected", etc.)
+   * @param {string} [rejectReason] - Reason for rejection (required if status is "Rejected")
+   * @returns {Promise<{isSuccess: boolean, message: string}>} Response with update status result
+   */
+  updateCampaignStatus: async (
+    id: number,
+    campaignStatus: string,
+    rejectReason?: string
+  ) => {
+    try {
+      const { data } = await apiClient.patch(
+        `/api/affiliate-network/campaigns/admin/${id}/status`,
+        {
+          campaignStatus,
+          rejectReason,
+        }
+      )
+      return data
+    } catch (error) {
+      const errorRes =
+        error instanceof AxiosError
+          ? (error.response?.data as IUpdateCampaignErrorResponse)
+          : null
+      return {
+        isSuccess: false,
+        message:
+          errorRes?.message ??
+          "Something went wrong while updating campaign status",
+      }
+    }
+  },
+
+  /**
+   * Updates a campaign by its campaign code
+   *
+   * @access Admin, Advertiser
+   * @param {string} campaignCode - Unique campaign identifier
+   * @param {IUpdateCampaignForm} formData - Form data containing updated campaign details
+   * @returns {Promise<{success: boolean, message: string, type: string}>} Response with update status
+   */
   updateCampaignByCode: async (
     campaignCode: string,
     formData: IUpdateCampaignForm
@@ -173,3 +281,15 @@ const CampaignService = {
 
 export default CampaignService
 
+/**
+ * Get all campaigns for admin
+ *
+ * @access Admin
+ * @returns {Promise<IGetAllCampaignsResponse | undefined>} Paginated list of campaigns or undefined
+ */
+export const getAdminCampaigns = async () => {
+  const { data } = await apiClient.get<IGetAllCampaignsResponse>(
+    "/api/affiliate-network/campaigns/offers"
+  )
+  return data
+}

@@ -2,7 +2,7 @@ import { useState } from "react"
 
 import { useRouter } from "next/navigation"
 
-import CampaignService from "@/services/campaign.service"
+import CampaignService, { getAdminCampaigns } from "@/services/campaign.service"
 import {
   CreateCampaignFormSchema,
   ICreateCampaignForm,
@@ -13,6 +13,19 @@ import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 
 import { IGetCampaignsByAdvertiserParams } from "@/types/campaign.type"
+
+/**
+ * Hook to fetch a campaign by its ID
+ * @param id - The campaign ID to fetch
+ * @returns Query object containing campaign data and loading state
+ */
+export const useGetCampaignById = (id: string) => {
+  return useQuery({
+    queryKey: ["campaign", id],
+    queryFn: () => CampaignService.getCampaignByCampId(id),
+    enabled: !!id,
+  })
+}
 
 export const useCreateCampaignForm = () => {
   const queryClient = useQueryClient()
@@ -167,5 +180,55 @@ export const useGetCampaignsByAdvertiser = (
     queryFn: () =>
       CampaignService.getCampaignsByAdvertiser(params, advertiserCode),
     enabled: !!advertiserCode,
+  })
+}
+
+/**
+ * Hook for updating a campaign status
+ * @returns Mutation function and status for updating campaign status
+ */
+export const useUpdateCampaignStatus = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({
+      id,
+      campaignStatus,
+      rejectReason,
+    }: {
+      id: number
+      campaignStatus: string
+      rejectReason?: string
+    }) => {
+      return CampaignService.updateCampaignStatus(
+        id,
+        campaignStatus,
+        rejectReason
+      )
+    },
+    onSuccess: (data, { id }) => {
+      if (data.isSuccess) {
+        toast.success("Campaign status updated successfully")
+        // Invalidate relevant queries to refetch data
+        queryClient.invalidateQueries({
+          queryKey: ["campaignsByAdvertiser"],
+        })
+        queryClient.invalidateQueries({
+          queryKey: ["campaign", `${id}`],
+        })
+      } else {
+        toast.error(data.message || "Failed to update campaign status")
+      }
+    },
+    onError: () => {
+      toast.error("An error occurred while updating campaign status")
+    },
+  })
+}
+
+export const useGetAdminCampaigns = () => {
+  return useQuery({
+    queryKey: ["adminCampaigns"],
+    queryFn: () => getAdminCampaigns(),
   })
 }
