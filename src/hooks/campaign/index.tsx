@@ -2,6 +2,7 @@ import { useState } from "react"
 
 import { useRouter } from "next/navigation"
 
+import { campaignQueryKeys } from "@/constant/react-query"
 import CampaignService, {
   getAdminCampaigns,
   getCampaignDetailForPublisher,
@@ -16,7 +17,13 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 
-import { IGetCampaignsByAdvertiserParams } from "@/types/campaign.type"
+import {
+  IGetAllCampaignsResponse,
+  IGetCampaignsByAdvertiserParams,
+  IGetPublisherCampaignsResponse,
+} from "@/types/campaign.type"
+
+import apiClient from "@/lib/api/client"
 
 /**
  * Hook to fetch a campaign by its ID
@@ -194,6 +201,22 @@ export const useGetActiveCampaigns = () => {
   })
 }
 
+export const useGetPublisherCampaigns = (publisherId: number) => {
+  return useQuery({
+    queryKey: campaignQueryKeys.publisher.list(publisherId, 1, 10),
+    queryFn: async () => {
+      try {
+        const { data } = await apiClient.get<IGetPublisherCampaignsResponse>(
+          "/api/affiliate-network/offers/publishers"
+        )
+        return data.value
+      } catch (error) {
+        return undefined
+      }
+    },
+  })
+}
+
 export const useGetCampaignDetailForPublisher = (campaignId: number) => {
   return useQuery({
     queryKey: ["campaignDetailForPublisher", campaignId],
@@ -201,9 +224,21 @@ export const useGetCampaignDetailForPublisher = (campaignId: number) => {
   })
 }
 
-export const useJoinOffer = () => {
+export const useJoinOffer = (campaignId: number) => {
+  const queryClient = useQueryClient()
+
   return useMutation({
     mutationFn: (offerId: number) => joinOffer(offerId),
+    onSuccess: (data) => {
+      if (data.isSuccess) {
+        toast.success("Offer joined successfully")
+        queryClient.invalidateQueries({
+          queryKey: ["campaignDetailForPublisher", campaignId],
+        })
+      } else {
+        toast.error(data.message || "Failed to join offer")
+      }
+    },
   })
 }
 

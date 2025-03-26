@@ -278,8 +278,14 @@ function CampaignTimeline({ campaign }: { campaign: ExtendedCampaign }) {
   )
 }
 
-function OfferCard({ offer }: { offer: Offer }) {
-  const { mutate: joinOffer, isPending } = useJoinOffer()
+function OfferCard({
+  offer,
+  campaignId,
+}: {
+  offer: Offer
+  campaignId: number
+}) {
+  const { mutate: joinOffer, isPending } = useJoinOffer(campaignId)
   const { user } = useAuth()
   const trackingUrl =
     env.NEXT_PUBLIC_BACKEND_URL +
@@ -377,11 +383,7 @@ function OfferCard({ offer }: { offer: Offer }) {
       <CardContent className="space-y-4 pb-3">
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">Payout</p>
-          <p className="font-medium">
-            {offer.pricingModel === "CPS"
-              ? "5% commission"
-              : formatVNDCurrency(offer.bid)}
-          </p>
+          <p className="font-medium">{formatVNDCurrency(offer.bid)}</p>
         </div>
 
         <div className="space-y-2">
@@ -540,7 +542,11 @@ export function CampaignDetails({ campaignId }: { campaignId: number }) {
             </TabsList>
             <TabsContent value="offers" className="space-y-4">
               {campaign.offers.map((offer) => (
-                <OfferCard key={offer.id} offer={offer} />
+                <OfferCard
+                  key={offer.id}
+                  offer={offer}
+                  campaignId={campaignId}
+                />
               ))}
             </TabsContent>
             <TabsContent value="details">

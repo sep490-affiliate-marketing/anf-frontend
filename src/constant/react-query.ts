@@ -32,7 +32,7 @@ export const campaignQueryKeys = {
   },
 
   publisher: {
-    list: (publisherId: string, page: number, limit: number) =>
+    list: (publisherId: number, page: number, limit: number) =>
       [
         ...campaignQueryKeys.origin,
         "publisher",
