@@ -4,16 +4,21 @@ import React, { useContext } from "react"
 
 import { useRouter, useSearchParams } from "next/navigation"
 
+import { errorMessage } from "@/constant/error-message"
+import { authQueryKeys } from "@/constant/react-query"
 import { UserRoleEnum } from "@/enums/user-role"
-import { AuthService } from "@/services/auth.service"
 import { ILoginForm, LoginFormSchema } from "@/validations/auth.validation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { AxiosError } from "axios"
 import Cookies from "js-cookie"
 import { useForm, UseFormReturn } from "react-hook-form"
 import { toast } from "sonner"
 
+import { ILoginRes } from "@/types/auth.type"
 import { IUser } from "@/types/user.type"
+
+import apiClient from "@/lib/api/client"
 
 import LogoutDialog from "@/components/dialogs/logout-dialog"
 
@@ -40,22 +45,38 @@ export default function AuthProvider({ children }: AuthProviderProps) {
   const callbackUrl = searchParams.get("callbackUrl")
 
   const { data: userData, isLoading: isLoadingUser } = useQuery({
-    queryKey: ["me"],
+    queryKey: authQueryKeys.me(),
     queryFn: async () => {
-      const response = await AuthService.getUser()
-
-      if ("data" in response) {
-        return response.data.value
+      try {
+        const { data } = await apiClient.get<IBackendRes<IUser>>(
+          "/api/affiliate-network/users/me"
+        )
+        return data.value
+      } catch {
+        return null
       }
-      return null
     },
 
     enabled: !!Cookies.get("access_token"),
   })
 
   const { mutateAsync: logout, isPending: isLoggingOut } = useMutation({
-    mutationKey: ["logout"],
-    mutationFn: () => AuthService.logout(),
+    mutationKey: authQueryKeys.logout(),
+    mutationFn: async () => {
+      try {
+        const data = await apiClient.post<IBackendRes<void>>("/auth/logout")
+        return data
+      } catch (error) {
+        const errRes =
+          error instanceof AxiosError
+            ? (error.response?.data as IBackendErrorRes)
+            : null
+        return {
+          success: false,
+          message: errRes?.message ?? errorMessage.unknown,
+        }
+      }
+    },
     onSuccess: () => {
       queryClient.clear()
       Cookies.remove("access_token")
@@ -72,14 +93,38 @@ export default function AuthProvider({ children }: AuthProviderProps) {
   })
 
   const { mutateAsync: login, isPending: isLoggingIn } = useMutation({
-    mutationKey: ["login"],
-    mutationFn: (data: ILoginForm) => AuthService.login(data),
+    mutationKey: authQueryKeys.login(),
+    mutationFn: async (
+      formData: ILoginForm
+    ): Promise<ILoginRes | IBackendErrorRes> => {
+      try {
+        const { data } = await apiClient.post<ILoginRes>(
+          "/api/affiliate-network/users/login",
+          formData
+        )
+        return data
+      } catch (error) {
+        const errRes =
+          error instanceof AxiosError
+            ? (error.response?.data as IBackendErrorRes)
+            : null
+
+        return {
+          isSuccess: false,
+          message: errRes?.message ?? errorMessage.unknown,
+          statusCode: errRes?.statusCode ?? 500,
+          details: errRes?.details ?? errorMessage.unknown,
+        }
+      }
+    },
     onSuccess: async (res) => {
       if (res.isSuccess === true) {
         const { accessToken, role } = res.value
         await Cookies.set("access_token", accessToken)
 
         queryClient.setQueryData(["me"], res.value)
+
+        loginForm.reset()
 
         if (callbackUrl) {
           router.push(callbackUrl)
@@ -95,7 +140,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
 
         toast.success("Login successful")
       } else {
-        toast.error(res.message)
+        toast.error(res.details)
       }
     },
   })

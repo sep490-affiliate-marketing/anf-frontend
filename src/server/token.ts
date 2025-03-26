@@ -52,8 +52,8 @@ export async function verifyToken(token: string): Promise<JwtPayload | null> {
       console.error("JWT token expired")
       return null
     }
-  } catch (error) {
-    console.error("JWT verification failed:", error)
+  } catch {
+    console.error("JWT verification failed")
     return null
   }
 }
