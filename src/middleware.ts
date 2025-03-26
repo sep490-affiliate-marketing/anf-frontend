@@ -7,14 +7,14 @@ import {
   DEFAULT_LOGIN_REDIRECT,
   publicRoutes,
 } from "@/configs/route.config"
-import { UserRole } from "@/enums/user-role"
+import { UserRoleEnum } from "@/enums/user-role"
 import { handleInvalidToken, verifyToken } from "@/server/token"
 
 // Define role-based routes with proper typing using the enum
-const ROLE_REDIRECTS: Record<UserRole, string> = {
-  [UserRole.ADVERTISER]: "/advertiser",
-  [UserRole.PUBLISHER]: "/publisher",
-  [UserRole.ADMIN]: "/admin",
+const ROLE_REDIRECTS: Record<UserRoleEnum, string> = {
+  [UserRoleEnum.ADVERTISER]: "/advertiser",
+  [UserRoleEnum.PUBLISHER]: "/publisher",
+  [UserRoleEnum.ADMIN]: "/admin",
 }
 
 /**
@@ -22,7 +22,7 @@ const ROLE_REDIRECTS: Record<UserRole, string> = {
  * @param role The user's role
  * @returns The appropriate redirect URL for the role
  */
-function getRoleRedirect(role: UserRole): string {
+function getRoleRedirect(role: UserRoleEnum): string {
   return ROLE_REDIRECTS[role] || DEFAULT_LOGIN_REDIRECT
 }
 
@@ -34,7 +34,7 @@ function getRoleRedirect(role: UserRole): string {
  */
 function canAccessPath(path: string, roleValue: string): boolean {
   // Admin can access everything
-  if (roleValue === UserRole.ADMIN) {
+  if (roleValue === UserRoleEnum.ADMIN) {
     return true
   }
 
@@ -42,15 +42,15 @@ function canAccessPath(path: string, roleValue: string): boolean {
   const normalizedPath = path.toLowerCase()
 
   if (normalizedPath.startsWith("/advertiser")) {
-    return roleValue === UserRole.ADVERTISER
+    return roleValue === UserRoleEnum.ADVERTISER
   }
 
   if (normalizedPath.startsWith("/publisher")) {
-    return roleValue === UserRole.PUBLISHER
+    return roleValue === UserRoleEnum.PUBLISHER
   }
 
   if (normalizedPath.startsWith("/admin")) {
-    return roleValue === UserRole.ADMIN
+    return roleValue === UserRoleEnum.ADMIN
   }
 
   // For other paths, allow access
@@ -97,7 +97,7 @@ export default async function middleware(request: NextRequest) {
   // Handle auth routes: redirect to appropriate dashboard based on role if already logged in
   if (isAuthRoute) {
     if (isLoggedIn && userPayload) {
-      const role = userPayload.role as UserRole
+      const role = userPayload.role as UserRoleEnum
       const roleRedirect = getRoleRedirect(role)
       return NextResponse.redirect(new URL(roleRedirect, nextUrl))
     }
@@ -107,7 +107,7 @@ export default async function middleware(request: NextRequest) {
   // Handle public routes: redirect to role-specific dashboard if already logged in
   if (isPublicRoute) {
     if (isLoggedIn && userPayload) {
-      const role = userPayload.role as UserRole
+      const role = userPayload.role as UserRoleEnum
       const roleRedirect = getRoleRedirect(role)
       return NextResponse.redirect(new URL(roleRedirect, nextUrl))
     }
@@ -141,7 +141,7 @@ export default async function middleware(request: NextRequest) {
 
   // Check for role-specific routes and verify access
   if (isLoggedIn && userPayload) {
-    const roleEnum = userPayload.role as UserRole
+    const roleEnum = userPayload.role as UserRoleEnum
     const roleValue = userPayload.role.toString()
 
     // Check if user can access the requested path

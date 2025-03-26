@@ -1,4 +1,4 @@
-import { UserRole } from "@/enums/user-role"
+import { UserRoleEnum } from "@/enums/user-role"
 
 export type IUser = {
   id: number
@@ -10,7 +10,7 @@ export type IUser = {
   address: string
   dateOfBirth: string
   email: string
-  role: UserRole
+  role: UserRoleEnum
   imageUrl: string | null
   accessToken: string
 }

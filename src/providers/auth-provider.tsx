@@ -2,18 +2,23 @@
 
 import React, { useContext } from "react"
 
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 
-import { UserRole } from "@/enums/user-role"
-import { AuthService } from "@/services/auth.service"
+import { errorMessage } from "@/constant/error-message"
+import { authQueryKeys } from "@/constant/react-query"
+import { UserRoleEnum } from "@/enums/user-role"
 import { ILoginForm, LoginFormSchema } from "@/validations/auth.validation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { AxiosError } from "axios"
 import Cookies from "js-cookie"
 import { useForm, UseFormReturn } from "react-hook-form"
 import { toast } from "sonner"
 
+import { ILoginRes } from "@/types/auth.type"
 import { IUser } from "@/types/user.type"
+
+import apiClient from "@/lib/api/client"
 
 import LogoutDialog from "@/components/dialogs/logout-dialog"
 
@@ -36,24 +41,42 @@ export const AuthContext = React.createContext<AuthContextType | null>(null)
 export default function AuthProvider({ children }: AuthProviderProps) {
   const queryClient = useQueryClient()
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const callbackUrl = searchParams.get("callbackUrl")
 
   const { data: userData, isLoading: isLoadingUser } = useQuery({
-    queryKey: ["me"],
+    queryKey: authQueryKeys.me(),
     queryFn: async () => {
-      const response = await AuthService.getUser()
-
-      if ("data" in response) {
-        return response.data.value
+      try {
+        const { data } = await apiClient.get<IBackendRes<IUser>>(
+          "/api/affiliate-network/users/me"
+        )
+        return data.value
+      } catch {
+        return null
       }
-      return null
     },
 
     enabled: !!Cookies.get("access_token"),
   })
 
   const { mutateAsync: logout, isPending: isLoggingOut } = useMutation({
-    mutationKey: ["logout"],
-    mutationFn: () => AuthService.logout(),
+    mutationKey: authQueryKeys.logout(),
+    mutationFn: async () => {
+      try {
+        const data = await apiClient.post<IBackendRes<void>>("/auth/logout")
+        return data
+      } catch (error) {
+        const errRes =
+          error instanceof AxiosError
+            ? (error.response?.data as IBackendErrorRes)
+            : null
+        return {
+          success: false,
+          message: errRes?.message ?? errorMessage.unknown,
+        }
+      }
+    },
     onSuccess: () => {
       queryClient.clear()
       Cookies.remove("access_token")
@@ -70,8 +93,30 @@ export default function AuthProvider({ children }: AuthProviderProps) {
   })
 
   const { mutateAsync: login, isPending: isLoggingIn } = useMutation({
-    mutationKey: ["login"],
-    mutationFn: (data: ILoginForm) => AuthService.login(data),
+    mutationKey: authQueryKeys.login(),
+    mutationFn: async (
+      formData: ILoginForm
+    ): Promise<ILoginRes | IBackendErrorRes> => {
+      try {
+        const { data } = await apiClient.post<ILoginRes>(
+          "/api/affiliate-network/users/login",
+          formData
+        )
+        return data
+      } catch (error) {
+        const errRes =
+          error instanceof AxiosError
+            ? (error.response?.data as IBackendErrorRes)
+            : null
+
+        return {
+          isSuccess: false,
+          message: errRes?.message ?? errorMessage.unknown,
+          statusCode: errRes?.statusCode ?? 500,
+          details: errRes?.details ?? errorMessage.unknown,
+        }
+      }
+    },
     onSuccess: async (res) => {
       if (res.isSuccess === true) {
         const { accessToken, role } = res.value
@@ -79,17 +124,23 @@ export default function AuthProvider({ children }: AuthProviderProps) {
 
         queryClient.setQueryData(["me"], res.value)
 
-        if (role === UserRole.ADVERTISER) {
-          router.push("/advertiser")
-        } else if (role === UserRole.PUBLISHER) {
-          router.push("/publisher")
-        } else if (role === UserRole.ADMIN) {
-          router.push("/admin")
+        loginForm.reset()
+
+        if (callbackUrl) {
+          router.push(callbackUrl)
+        } else {
+          if (role === UserRoleEnum.ADVERTISER) {
+            router.push("/advertiser")
+          } else if (role === UserRoleEnum.PUBLISHER) {
+            router.push("/publisher")
+          } else if (role === UserRoleEnum.ADMIN) {
+            router.push("/admin")
+          }
         }
 
         toast.success("Login successful")
       } else {
-        toast.error(res.message)
+        toast.error(res.details)
       }
     },
   })

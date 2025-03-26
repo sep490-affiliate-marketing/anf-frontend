@@ -215,20 +215,32 @@ export default function OfferDetailPage({
           className="space-y-6"
         >
           <div className="border-b">
-            <TabsList className="justify-start">
-              <TabsTrigger value="overview" className="gap-2">
+            <TabsList className="h-auto justify-start rounded-none bg-transparent p-0">
+              <TabsTrigger
+                value="overview"
+                className="relative gap-2 rounded-none py-2 after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none data-[state=active]:after:bg-primary"
+              >
                 <PieChart className="size-4" />
                 Overview
               </TabsTrigger>
-              <TabsTrigger value="statistics" className="gap-2">
+              <TabsTrigger
+                value="statistics"
+                className="relative gap-2 rounded-none py-2 after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none data-[state=active]:after:bg-primary"
+              >
                 <BarChart3 className="size-4" />
                 Statistics
               </TabsTrigger>
-              <TabsTrigger value="details" className="gap-2">
+              <TabsTrigger
+                value="details"
+                className="relative gap-2 rounded-none py-2 after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none data-[state=active]:after:bg-primary"
+              >
                 <Info className="size-4" />
                 Details
               </TabsTrigger>
-              <TabsTrigger value="tracking" className="gap-2">
+              <TabsTrigger
+                value="tracking"
+                className="relative gap-2 rounded-none py-2 after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none data-[state=active]:after:bg-primary"
+              >
                 <FileCode className="size-4" />
                 Tracking
               </TabsTrigger>

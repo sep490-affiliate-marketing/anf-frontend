@@ -1,7 +1,7 @@
 import { cookies } from "next/headers"
 import { NextRequest, NextResponse } from "next/server"
 
-import { UserRole } from "@/enums/user-role"
+import { UserRoleEnum } from "@/enums/user-role"
 import { env } from "@/env"
 import { jwtVerify } from "jose"
 
@@ -12,7 +12,7 @@ export interface JwtPayload {
   email: string // User email (e.g. "admin@gmail.com")
 
   // User role
-  role: UserRole
+  role: UserRoleEnum
 
   // Token timing fields
   nbf: number // Not Before timestamp
@@ -52,8 +52,8 @@ export async function verifyToken(token: string): Promise<JwtPayload | null> {
       console.error("JWT token expired")
       return null
     }
-  } catch (error) {
-    console.error("JWT verification failed:", error)
+  } catch {
+    console.error("JWT verification failed")
     return null
   }
 }
