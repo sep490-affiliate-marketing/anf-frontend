@@ -19,6 +19,7 @@ import {
   IGetCampaignDetailForPublisherResponse,
   IGetCampaignsByAdvertiserParams,
   IGetCampaignsByAdvertiserResponse,
+  IGetPublisherCampaignsErrorResponse,
   IGetPublisherCampaignsResponse,
   IUpdateCampaignErrorResponse,
 } from "@/types/campaign.type"
@@ -27,22 +28,21 @@ import apiClient from "@/lib/api/client"
 
 export const useGetCampaignById = (campaignId: string) => {
   return useQuery({
-    queryKey: ["campaign", campaignId],
+    queryKey: campaignQueryKeys.global.details(campaignId),
     queryFn: async () => {
       try {
         const { data } = await apiClient.get<IGetCampaignByCampIdResponse>(
           `/api/affiliate-network/campaigns/${campaignId}`
         )
         return {
-          success: true,
+          isSuccess: true,
           message: data.message,
           data: data.value,
         }
-      } catch (error) {
+      } catch {
         return {
-          success: false,
+          isSuccess: false,
           message: "Something went wrong while fetching campaign",
-          type: null,
           data: null,
         }
       }
@@ -199,15 +199,27 @@ export const useGetActiveCampaigns = (
   pageSize: number = 10
 ) => {
   return useQuery({
-    queryKey: ["activeCampaigns", page, pageSize],
+    queryKey: campaignQueryKeys.global.listActive(page, pageSize),
     queryFn: async () => {
       try {
         const { data } = await apiClient.get<IGetAllCampaignsResponse>(
           `/api/affiliate-network/campaigns?pageNumber=${page}&pageSize=${pageSize}`
         )
         return data
-      } catch (error) {
-        return undefined
+      } catch {
+        return {
+          isSuccess: false,
+          message: "Something went wrong while fetching campaigns",
+          value: {
+            pageNumber: page,
+            pageSize: pageSize,
+            totalPages: 0,
+            totalRecords: 0,
+            data: [],
+            hasNextPage: false,
+            hasPreviousPage: false,
+          },
+        }
       }
     },
   })
@@ -215,23 +227,39 @@ export const useGetActiveCampaigns = (
 
 export const useGetPublisherCampaigns = (publisherId: number) => {
   return useQuery({
-    queryKey: campaignQueryKeys.publisher.list(publisherId, 1, 10),
-    queryFn: async () => {
+    queryKey: campaignQueryKeys.publisher.listOwnedByPublisher(
+      publisherId,
+      1,
+      10
+    ),
+    queryFn: async (): Promise<
+      IGetPublisherCampaignsResponse | IGetPublisherCampaignsErrorResponse
+    > => {
       try {
         const { data } = await apiClient.get<IGetPublisherCampaignsResponse>(
           "/api/affiliate-network/offers/publishers"
         )
-        return data.value
+        return data
       } catch (error) {
-        return undefined
+        const errRes =
+          error instanceof AxiosError
+            ? (error.response?.data as IGetPublisherCampaignsErrorResponse)
+            : null
+        return {
+          isSuccess: false,
+          statusCode: errRes?.statusCode ?? 500,
+          message: errRes?.message ?? errorMessage.unknown,
+          details: errRes?.details ?? errorMessage.unknown,
+        }
       }
     },
+    enabled: !!publisherId,
   })
 }
 
 export const useGetCampaignDetailForPublisher = (campaignId: number) => {
   return useQuery({
-    queryKey: ["campaignDetailForPublisher", campaignId],
+    queryKey: campaignQueryKeys.publisher.details(campaignId),
     queryFn: async () => {
       try {
         const { data } =
@@ -303,15 +331,27 @@ export const useUpdateCampaignStatus = () => {
 
 export const useGetAdminCampaigns = () => {
   return useQuery({
-    queryKey: ["adminCampaigns"],
+    queryKey: campaignQueryKeys.admin.list(1, 10),
     queryFn: async () => {
       try {
         const { data } = await apiClient.get<IGetAllCampaignsResponse>(
           "/api/affiliate-network/campaigns/offers"
         )
         return data
-      } catch (error) {
-        return undefined
+      } catch {
+        return {
+          isSuccess: false,
+          message: "Something went wrong while fetching campaigns",
+          value: {
+            pageNumber: 1,
+            pageSize: 10,
+            totalPages: 0,
+            totalRecords: 0,
+            data: [],
+            hasNextPage: false,
+            hasPreviousPage: false,
+          },
+        }
       }
     },
   })

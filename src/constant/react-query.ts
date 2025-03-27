@@ -11,6 +11,18 @@ export const authQueryKeys = {
 export const campaignQueryKeys = {
   origin: ["campaigns"] as const,
 
+  global: {
+    details: (campaignId: string) =>
+      [...campaignQueryKeys.origin, "global", "details", campaignId] as const,
+    listActive: (page: number, limit: number) =>
+      [
+        ...campaignQueryKeys.origin,
+        "global",
+        "active",
+        { page, limit },
+      ] as const,
+  },
+
   admin: {
     list: (page: number, limit: number) =>
       [...campaignQueryKeys.origin, "admin", "list", { page, limit }] as const,
@@ -34,7 +46,7 @@ export const campaignQueryKeys = {
   },
 
   publisher: {
-    list: (publisherId: number, page: number, limit: number) =>
+    listOwnedByPublisher: (publisherId: number, page: number, limit: number) =>
       [
         ...campaignQueryKeys.origin,
         "publisher",
@@ -42,8 +54,13 @@ export const campaignQueryKeys = {
         "list",
         { page, limit },
       ] as const,
-    details: (id: string) =>
-      [...campaignQueryKeys.origin, "publisher", "details", id] as const,
+    details: (campaignId: number) =>
+      [
+        ...campaignQueryKeys.origin,
+        "publisher",
+        "details",
+        campaignId,
+      ] as const,
   },
 }
 

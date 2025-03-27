@@ -96,7 +96,7 @@ export default function CampaignDetailsPage({ params: paramsPromise }: Props) {
     )
   }
 
-  if (!campaignResponse?.success || !campaignResponse.data) {
+  if (!campaignResponse?.isSuccess || !campaignResponse.data) {
     return (
       <div className="flex min-h-[400px] items-center justify-center">
         <div className="flex items-center gap-2 text-destructive">

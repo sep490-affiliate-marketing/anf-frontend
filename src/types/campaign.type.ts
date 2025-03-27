@@ -148,6 +148,13 @@ export interface IGetPublisherCampaignsResponse {
   }[]
 }
 
+export interface IGetPublisherCampaignsErrorResponse {
+  isSuccess: false
+  statusCode: number
+  message: string
+  details: string
+}
+
 export interface IGetPublisherInOfferResponse {
   poNo: number
   publisherId: number
