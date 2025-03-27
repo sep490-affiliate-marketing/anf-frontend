@@ -18,10 +18,8 @@ import { toast } from "sonner"
 
 import { ICampaign } from "@/types/campaign.type"
 
-import {
-  useGetCampaignDetailForPublisher,
-  useJoinOffer,
-} from "@/hooks/campaign"
+import { useGetCampaignDetailForPublisher } from "@/hooks/campaign"
+import { useJoinOffer } from "@/hooks/offer"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"

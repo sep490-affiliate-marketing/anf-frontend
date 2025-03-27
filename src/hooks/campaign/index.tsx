@@ -1,10 +1,5 @@
 import { errorMessage } from "@/constant/error-message"
 import { campaignQueryKeys } from "@/constant/react-query"
-import CampaignService, {
-  getAdminCampaigns,
-  getCampaignDetailForPublisher,
-  joinOffer,
-} from "@/services/campaign.service"
 import {
   CreateCampaignFormSchema,
   ICreateCampaignForm,
@@ -12,23 +7,47 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { AxiosError } from "axios"
+import qs from "qs"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 
 import {
   ICreateCampaignErrorResponse,
   ICreateCampaignSuccessResponse,
+  IGetAllCampaignsResponse,
+  IGetCampaignByCampIdResponse,
+  IGetCampaignDetailForPublisherResponse,
   IGetCampaignsByAdvertiserParams,
+  IGetCampaignsByAdvertiserResponse,
   IGetPublisherCampaignsResponse,
+  IUpdateCampaignErrorResponse,
 } from "@/types/campaign.type"
 
 import apiClient from "@/lib/api/client"
 
-export const useGetCampaignById = (id: string) => {
+export const useGetCampaignById = (campaignId: string) => {
   return useQuery({
-    queryKey: ["campaign", id],
-    queryFn: () => CampaignService.getCampaignByCampId(id),
-    enabled: !!id,
+    queryKey: ["campaign", campaignId],
+    queryFn: async () => {
+      try {
+        const { data } = await apiClient.get<IGetCampaignByCampIdResponse>(
+          `/api/affiliate-network/campaigns/${campaignId}`
+        )
+        return {
+          success: true,
+          message: data.message,
+          data: data.value,
+        }
+      } catch (error) {
+        return {
+          success: false,
+          message: "Something went wrong while fetching campaign",
+          type: null,
+          data: null,
+        }
+      }
+    },
+    enabled: !!campaignId,
   })
 }
 
@@ -148,16 +167,49 @@ export const useGetCampaignsByAdvertiser = (
 ) => {
   return useQuery({
     queryKey: ["campaignsByAdvertiser", params, advertiserCode],
-    queryFn: () =>
-      CampaignService.getCampaignsByAdvertiser(params, advertiserCode),
+    queryFn: async () => {
+      const queryString = qs.stringify(params)
+      try {
+        const { data } = await apiClient.get<IGetCampaignsByAdvertiserResponse>(
+          `/api/affiliate-network/campaigns/advertisers/${advertiserCode}/offers?${queryString}`
+        )
+        return data
+      } catch {
+        return {
+          isSuccess: false,
+          message: "Something went wrong while fetching campaigns",
+          value: {
+            pageNumber: params.pageNumber || 1,
+            pageSize: params.pageSize || 10,
+            totalPages: 0,
+            totalRecords: 0,
+            data: [],
+            hasNextPage: false,
+            hasPreviousPage: false,
+          },
+        }
+      }
+    },
     enabled: !!advertiserCode,
   })
 }
 
-export const useGetActiveCampaigns = () => {
+export const useGetActiveCampaigns = (
+  page: number = 1,
+  pageSize: number = 10
+) => {
   return useQuery({
-    queryKey: ["activeCampaigns"],
-    queryFn: () => CampaignService.getActiveCampaigns(),
+    queryKey: ["activeCampaigns", page, pageSize],
+    queryFn: async () => {
+      try {
+        const { data } = await apiClient.get<IGetAllCampaignsResponse>(
+          `/api/affiliate-network/campaigns?pageNumber=${page}&pageSize=${pageSize}`
+        )
+        return data
+      } catch (error) {
+        return undefined
+      }
+    },
   })
 }
 
@@ -180,23 +232,15 @@ export const useGetPublisherCampaigns = (publisherId: number) => {
 export const useGetCampaignDetailForPublisher = (campaignId: number) => {
   return useQuery({
     queryKey: ["campaignDetailForPublisher", campaignId],
-    queryFn: () => getCampaignDetailForPublisher(campaignId),
-  })
-}
-
-export const useJoinOffer = (campaignId: number) => {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: (offerId: number) => joinOffer(offerId),
-    onSuccess: (data) => {
-      if (data.isSuccess) {
-        toast.success("Offer joined successfully")
-        queryClient.invalidateQueries({
-          queryKey: ["campaignDetailForPublisher", campaignId],
-        })
-      } else {
-        toast.error(data.message || "Failed to join offer")
+    queryFn: async () => {
+      try {
+        const { data } =
+          await apiClient.get<IGetCampaignDetailForPublisherResponse>(
+            `/api/affiliate-network/campaigns/${campaignId}/publishers`
+          )
+        return data
+      } catch (error) {
+        return undefined
       }
     },
   })
@@ -206,7 +250,7 @@ export const useUpdateCampaignStatus = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({
+    mutationFn: async ({
       id,
       campaignStatus,
       rejectReason,
@@ -215,11 +259,27 @@ export const useUpdateCampaignStatus = () => {
       campaignStatus: string
       rejectReason?: string
     }) => {
-      return CampaignService.updateCampaignStatus(
-        id,
-        campaignStatus,
-        rejectReason
-      )
+      try {
+        const { data } = await apiClient.patch(
+          `/api/affiliate-network/campaigns/admin/${id}/status`,
+          {
+            campaignStatus,
+            rejectReason,
+          }
+        )
+        return data
+      } catch (error) {
+        const errorRes =
+          error instanceof AxiosError
+            ? (error.response?.data as IUpdateCampaignErrorResponse)
+            : null
+        return {
+          isSuccess: false,
+          message:
+            errorRes?.message ??
+            "Something went wrong while updating campaign status",
+        }
+      }
     },
     onSuccess: (data, { id }) => {
       if (data.isSuccess) {
@@ -244,6 +304,15 @@ export const useUpdateCampaignStatus = () => {
 export const useGetAdminCampaigns = () => {
   return useQuery({
     queryKey: ["adminCampaigns"],
-    queryFn: () => getAdminCampaigns(),
+    queryFn: async () => {
+      try {
+        const { data } = await apiClient.get<IGetAllCampaignsResponse>(
+          "/api/affiliate-network/campaigns/offers"
+        )
+        return data
+      } catch (error) {
+        return undefined
+      }
+    },
   })
 }
