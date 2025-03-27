@@ -21,6 +21,8 @@ import {
   IGetAllCampaignsResponse,
   IGetCampaignsByAdvertiserParams,
   IGetPublisherCampaignsResponse,
+  IGetPublisherInOfferResponse,
+  IOffer,
 } from "@/types/campaign.type"
 
 import apiClient from "@/lib/api/client"
@@ -289,5 +291,37 @@ export const useGetAdminCampaigns = () => {
   return useQuery({
     queryKey: ["adminCampaigns"],
     queryFn: () => getAdminCampaigns(),
+  })
+}
+
+export const useGetPublisherInOffer = (offerId: number) => {
+  return useQuery({
+    queryKey: campaignQueryKeys.offer.publisherInOffer(offerId),
+    queryFn: async () => {
+      try {
+        const { data } = await apiClient.get<
+          IBackendRes<IGetPublisherInOfferResponse[]>
+        >(`/api/affiliate-network/offers/${offerId}/publishers`)
+        return data.value
+      } catch (error) {
+        return undefined
+      }
+    },
+  })
+}
+
+export const useGetOfferDetails = (offerId: number) => {
+  return useQuery({
+    queryKey: campaignQueryKeys.offer.details(offerId),
+    queryFn: async () => {
+      try {
+        const { data } = await apiClient.get<IBackendRes<IOffer>>(
+          `/api/affiliate-network/offers/${offerId}`
+        )
+        return data.value
+      } catch (error) {
+        return undefined
+      }
+    },
   })
 }

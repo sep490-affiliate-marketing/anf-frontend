@@ -43,4 +43,16 @@ export const campaignQueryKeys = {
     details: (id: string) =>
       [...campaignQueryKeys.origin, "publisher", "details", id] as const,
   },
+
+  offer: {
+    details: (id: number) =>
+      [...campaignQueryKeys.origin, "offer", "details", id] as const,
+    publisherInOffer: (offerId: number) =>
+      [
+        ...campaignQueryKeys.origin,
+        "offer",
+        "publisherInOffer",
+        offerId,
+      ] as const,
+  },
 }

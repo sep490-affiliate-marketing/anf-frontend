@@ -26,8 +26,8 @@ import { CopyToClipboardTextarea } from "@/components/ui/textarea/copy-to-clipbo
 
 export default function JoinedCampaignsPage() {
   const { user } = useAuth()
-  const publisherId = user?.id
-  const { data, isLoading } = useGetPublisherCampaigns(publisherId ?? 0)
+  const publisherId = user?.id ?? 0
+  const { data, isLoading } = useGetPublisherCampaigns(publisherId)
 
   if (isLoading) {
     return (

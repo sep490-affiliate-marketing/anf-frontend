@@ -32,6 +32,8 @@ import {
 
 import { formatVNDCurrency } from "@/lib/utils"
 
+import { useGetOfferDetails, useGetPublisherInOffer } from "@/hooks/campaign"
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -42,6 +44,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { Skeleton } from "@/components/ui/skeleton"
 import {
   Table,
   TableBody,
@@ -60,77 +63,10 @@ import {
 
 interface OfferDetailParams {
   params: Promise<{
-    id: string
+    campaignId: string
     offerId: string
   }>
 }
-
-// Mock data for the offer
-const mockOffer = {
-  id: 1,
-  campaignId: 1,
-  campaignName: "Baotangtruyentranh",
-  pricingModel: "CPA",
-  status: "Active",
-  description: "Offer enter a form in the home page",
-  stepInfo:
-    "1. Click to the banner and redirect to the page has form. 2. Fill the information 3. Submit the form",
-  startDate: "2025-05-01T00:00:00",
-  endDate: "2025-08-01T00:00:00",
-  bid: 100000,
-  budget: 10000000,
-  spent: 2500000,
-  commissionRate: null,
-  orderReturnTime: "30 days",
-  clicks: 3250,
-  conversions: 25,
-  impressions: 45000,
-  ctr: 7.22,
-  conversionRate: 0.77,
-  imageUrl:
-    "https://images.unsplash.com/photo-1552581234-26160f608093?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-  trackingUrl:
-    "https://backend.affiliate-network.com/tracking?aff_id={affiliate_id}&source={source}",
-  targetAudience: "All",
-  allowedTrafficSources: ["Search", "Social", "Display", "Email"],
-}
-
-// Mock data for publishers requesting to join
-const mockPublisherRequests = [
-  {
-    id: "pub-001",
-    name: "TechBlog Vietnam",
-    requestDate: "2023-11-15T10:30:00",
-    email: "contact@techblogvn.com",
-    website: "https://techblogvn.com",
-    status: "pending",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=TechBlog",
-    description: "Technology blog with 50k monthly visitors",
-    trafficSources: ["Organic", "Social Media"],
-  },
-  {
-    id: "pub-002",
-    name: "Saigon Digital",
-    requestDate: "2023-11-14T15:45:00",
-    email: "partnerships@saigondigital.vn",
-    website: "https://saigondigital.vn",
-    status: "pending",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Saigon",
-    description: "Digital marketing platform focused on e-commerce",
-    trafficSources: ["Email", "Social Media", "Paid Ads"],
-  },
-  {
-    id: "pub-003",
-    name: "VN Gaming Hub",
-    requestDate: "2023-11-12T09:15:00",
-    email: "admin@vngaminghub.com",
-    website: "https://vngaminghub.com",
-    status: "pending",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Gaming",
-    description: "Gaming community with 100k monthly active users",
-    trafficSources: ["Organic", "Forums", "YouTube"],
-  },
-]
 
 function OfferStatusBadge({ status }: { status: string }) {
   const getStatusConfig = (status: string) => {
@@ -217,16 +153,38 @@ export default function OfferDetailPage({
   params: paramsPromise,
 }: OfferDetailParams) {
   const [activeTab, setActiveTab] = useState("overview")
-  const [publisherRequests, setPublisherRequests] = useState(
-    mockPublisherRequests
-  )
 
   // Unwrap params using React.use() as recommended by Next.js
   const params = React.use(paramsPromise)
-  const { id, offerId } = params
+  const { campaignId, offerId } = params
 
-  // In a real implementation, you would fetch the offer data
-  const offer = mockOffer
+  // Use real data from hooks instead of mock data
+  const { data: offer, isLoading: isLoadingOffer } = useGetOfferDetails(
+    Number(offerId)
+  )
+  const { data: publisherList, isLoading: isLoadingPublishers } =
+    useGetPublisherInOffer(Number(offerId))
+
+  // Map publishers from API format to the format needed by the UI
+  const [publisherRequests, setPublisherRequests] = useState<any[]>([])
+
+  // Update publisherRequests when data is loaded
+  React.useEffect(() => {
+    if (publisherList) {
+      const formattedPublishers = publisherList.map((publisher) => ({
+        id: publisher.publisherId.toString(),
+        name: `${publisher.firstName} ${publisher.lastName}`,
+        requestDate: new Date().toISOString(), // Request date not available in API, using current date
+        email: publisher.email,
+        website: "", // Not available in API
+        status: "pending",
+        avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${publisher.publisherCode}`,
+        description: publisher.publisherCode,
+        trafficSources: publisher.trafficSources || ["Unknown"],
+      }))
+      setPublisherRequests(formattedPublishers)
+    }
+  }, [publisherList])
 
   // Handle publisher request status change
   const handlePublisherStatusChange = (
@@ -242,11 +200,49 @@ export default function OfferDetailPage({
     )
   }
 
+  // Loading states
+  if (isLoadingOffer) {
+    return (
+      <div className="container mx-auto px-6 py-8">
+        <div className="space-y-4">
+          <Skeleton className="h-12 w-1/3" />
+          <Skeleton className="h-6 w-1/2" />
+          <div className="grid gap-4 md:grid-cols-4">
+            {[1, 2, 3, 4].map((i) => (
+              <Skeleton key={i} className="h-32 w-full" />
+            ))}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // If data is not available
+  if (!offer) {
+    return (
+      <div className="container mx-auto px-6 py-8">
+        <div className="flex flex-col items-center justify-center">
+          <AlertCircle className="mb-4 size-12 text-red-500" />
+          <h2 className="text-xl font-semibold">Offer Not Found</h2>
+          <p className="mt-2 text-gray-500">
+            The requested offer could not be found or you don't have access to
+            it.
+          </p>
+          <Button asChild className="mt-6">
+            <Link href={`/advertiser/campaigns/${campaignId}`}>
+              Back to Campaign
+            </Link>
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="sticky top-0 z-10 flex items-center gap-4 border-b bg-white/95 px-6 py-4 backdrop-blur supports-[backdrop-filter]:bg-white/60">
-        <Link href={`/admin/campaigns/${id}`}>
+        <Link href={`/advertiser/campaigns/${campaignId}`}>
           <Button
             variant="ghost"
             size="sm"
@@ -333,23 +329,23 @@ export default function OfferDetailPage({
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               <StatCard
                 title="Total Spent"
-                value={formatVNDCurrency(offer.spent)}
+                value={formatVNDCurrency(offer.budget * 0.25)} // Assuming 25% spent for display
                 icon={<CreditCard className="size-4 text-gray-400" />}
-                description={`${Math.round((offer.spent / offer.budget) * 100)}% of budget`}
+                description={`${Math.round(25)}% of budget`} // Assuming 25% spent for display
               />
               <StatCard
                 title="Clicks"
-                value={offer.clicks.toLocaleString()}
+                value={(3000).toLocaleString()} // Sample value, replace with actual data when available
                 icon={<ExternalLink className="size-4 text-gray-400" />}
               />
               <StatCard
                 title="Conversions"
-                value={offer.conversions.toLocaleString()}
+                value={(25).toLocaleString()} // Sample value, replace with actual data when available
                 icon={<CheckCircle className="size-4 text-gray-400" />}
               />
               <StatCard
                 title="Conversion Rate"
-                value={`${offer.conversionRate.toFixed(2)}%`}
+                value={`${(0.83).toFixed(2)}%`} // Sample value, replace with actual data when available
                 icon={<PieChart className="size-4 text-gray-400" />}
               />
             </div>
@@ -436,7 +432,7 @@ export default function OfferDetailPage({
                           </h4>
                           <div className="mt-1 flex items-center gap-2 text-sm">
                             <Clock className="size-4 text-gray-400" />
-                            <span>{offer.orderReturnTime}</span>
+                            <span>{offer.orderReturnTime || "30 days"}</span>
                           </div>
                         </div>
                       </div>
@@ -454,7 +450,10 @@ export default function OfferDetailPage({
                       </div>
                       <div className="overflow-hidden rounded-lg border bg-white">
                         <img
-                          src={offer.imageUrl}
+                          src={
+                            offer.imageUrl ||
+                            "https://images.unsplash.com/photo-1552581234-26160f608093?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3"
+                          }
                           alt={offer.description}
                           className="h-auto w-full object-cover transition-transform hover:scale-105"
                         />
@@ -488,7 +487,10 @@ export default function OfferDetailPage({
                 <div className="space-y-2">
                   <h3 className="font-medium text-gray-900">Tracking URL</h3>
                   <div className="flex items-center justify-between rounded-lg bg-gray-50 p-3 font-mono text-sm text-gray-600">
-                    <code className="break-all">{offer.trackingUrl}</code>
+                    <code className="break-all">
+                      https://backend.affiliate-network.com/tracking?offer_id=
+                      {offer.id}&aff_id={"{affiliate_id}"}&source={"{source}"}
+                    </code>
                     <Button variant="ghost" size="sm" className="size-8 p-0">
                       <Copy className="size-4" />
                     </Button>
@@ -532,7 +534,13 @@ export default function OfferDetailPage({
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                {publisherRequests.length === 0 ? (
+                {isLoadingPublishers ? (
+                  <div className="space-y-4">
+                    <Skeleton className="h-12 w-full" />
+                    <Skeleton className="h-12 w-full" />
+                    <Skeleton className="h-12 w-full" />
+                  </div>
+                ) : publisherRequests.length === 0 ? (
                   <div className="flex h-40 flex-col items-center justify-center space-y-3 rounded-lg border border-dashed">
                     <div className="bg-primary-50 rounded-full p-3">
                       <User className="size-6 text-primary" />
@@ -596,15 +604,17 @@ export default function OfferDetailPage({
                             </TableCell>
                             <TableCell>
                               <div className="flex flex-wrap gap-1">
-                                {publisher.trafficSources.map((source) => (
-                                  <Badge
-                                    key={source}
-                                    variant="secondary"
-                                    className="text-xs"
-                                  >
-                                    {source}
-                                  </Badge>
-                                ))}
+                                {publisher.trafficSources.map(
+                                  (source: string) => (
+                                    <Badge
+                                      key={source}
+                                      variant="secondary"
+                                      className="text-xs"
+                                    >
+                                      {source}
+                                    </Badge>
+                                  )
+                                )}
                               </div>
                             </TableCell>
                             <TableCell>
@@ -701,14 +711,16 @@ export default function OfferDetailPage({
                       <h4 className="text-sm font-medium text-gray-500">
                         Target Audience
                       </h4>
-                      <p className="font-medium">{offer.targetAudience}</p>
+                      <p className="font-medium">All</p>
                     </div>
                     <div className="space-y-1">
                       <h4 className="text-sm font-medium text-gray-500">
                         Allowed Traffic Sources
                       </h4>
                       <div className="flex flex-wrap gap-2">
-                        {offer.allowedTrafficSources.map((source) => (
+                        {(
+                          ["Search", "Social", "Display", "Email"] as string[]
+                        ).map((source) => (
                           <Badge key={source} variant="secondary">
                             {source}
                           </Badge>
