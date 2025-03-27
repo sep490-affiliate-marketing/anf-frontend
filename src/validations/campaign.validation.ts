@@ -173,4 +173,3 @@ export function UpdateCampaignFormSchema() {
 export type IUpdateCampaignForm = z.infer<
   ReturnType<typeof UpdateCampaignFormSchema>
 >
-

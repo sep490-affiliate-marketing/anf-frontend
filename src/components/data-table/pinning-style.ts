@@ -1,8 +1,10 @@
-import { Column } from "@tanstack/react-table"
 import { CSSProperties } from "react"
 
+import { Column } from "@tanstack/react-table"
 
-export const getPinningStyles = <T extends object>(column: Column<T>): CSSProperties => {
+export const getPinningStyles = <T extends object>(
+  column: Column<T>
+): CSSProperties => {
   const isPinned = column.getIsPinned()
   return {
     left: isPinned === "left" ? `${column.getStart("left")}px` : undefined,

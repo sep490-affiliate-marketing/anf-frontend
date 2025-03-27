@@ -1,14 +1,10 @@
 "use client"
 
-import { useState } from "react"
-
 import Image from "next/image"
 
 import { env } from "@/env"
 import { useAuth } from "@/providers/auth-provider"
 import { format } from "date-fns"
-
-import { IGetPublisherCampaignsResponse } from "@/types/campaign.type"
 
 import { useGetPublisherCampaigns } from "@/hooks/campaign"
 

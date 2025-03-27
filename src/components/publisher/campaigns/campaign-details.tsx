@@ -198,7 +198,7 @@ function CampaignGallery({
     return (
       <div className="flex h-40 items-center justify-center rounded-lg border">
         <div className="text-center">
-          <ImageIcon className="mx-auto h-8 w-8 text-muted-foreground" />
+          <ImageIcon className="mx-auto size-8 text-muted-foreground" />
           <p className="mt-2 text-sm text-muted-foreground">
             No images available
           </p>
@@ -476,7 +476,7 @@ export function CampaignDetails({ campaignId }: { campaignId: number }) {
           </p>
           <Link href="/publisher/campaigns" className="mt-4 inline-block">
             <Button variant="outline" className="gap-2">
-              <ChevronLeft className="h-4 w-4" />
+              <ChevronLeft className="size-4" />
               Back to Campaigns
             </Button>
           </Link>
@@ -491,7 +491,7 @@ export function CampaignDetails({ campaignId }: { campaignId: number }) {
       <div className="flex items-center gap-2">
         <Link href="/publisher/campaigns">
           <Button variant="outline" size="sm" className="gap-2">
-            <ChevronLeft className="h-4 w-4" />
+            <ChevronLeft className="size-4" />
             Back to Campaigns
           </Button>
         </Link>
@@ -505,13 +505,13 @@ export function CampaignDetails({ campaignId }: { campaignId: number }) {
           <p className="mt-2 text-muted-foreground">{campaign.description}</p>
           <div className="mt-4 flex flex-wrap items-center gap-4">
             <div className="flex items-center gap-2">
-              <Globe className="h-4 w-4 text-muted-foreground" />
+              <Globe className="size-4 text-muted-foreground" />
               <span className="text-sm text-muted-foreground">
                 {campaign.productUrl}
               </span>
             </div>
             <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4 text-muted-foreground" />
+              <Calendar className="size-4 text-muted-foreground" />
               <span className="text-sm text-muted-foreground">
                 {format(new Date(campaign.startDate), "dd MMM yyyy")} -{" "}
                 {format(new Date(campaign.endDate), "dd MMM yyyy")}

@@ -33,10 +33,7 @@ import { ICampaign } from "@/types/campaign.type"
 
 import { cn } from "@/lib/utils"
 
-import {
-  useGetAdminCampaigns,
-  useUpdateCampaignStatus,
-} from "@/hooks/campaign"
+import { useGetAdminCampaigns, useUpdateCampaignStatus } from "@/hooks/campaign"
 
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
