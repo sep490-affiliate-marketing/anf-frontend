@@ -2,7 +2,7 @@
 
 import React, { useContext } from "react"
 
-import { useRouter, useSearchParams } from "next/navigation"
+import { useRouter } from "next/navigation"
 
 import { errorMessage } from "@/constant/error-message"
 import { authQueryKeys } from "@/constant/react-query"
@@ -31,7 +31,7 @@ type AuthContextType = {
   isLoadingUser: boolean
   logout: () => void
   isLoggingOut: boolean
-  login: (data: ILoginForm) => void
+  login: (data: ILoginForm, callbackUrl?: string | null) => void
   isLoggingIn: boolean
   loginForm: UseFormReturn<ILoginForm>
 }
@@ -41,8 +41,6 @@ export const AuthContext = React.createContext<AuthContextType | null>(null)
 export default function AuthProvider({ children }: AuthProviderProps) {
   const queryClient = useQueryClient()
   const router = useRouter()
-  const searchParams = useSearchParams()
-  const callbackUrl = searchParams.get("callbackUrl")
 
   const { data: userData, isLoading: isLoadingUser } = useQuery({
     queryKey: authQueryKeys.me(),
@@ -92,7 +90,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
     },
   })
 
-  const { mutateAsync: login, isPending: isLoggingIn } = useMutation({
+  const { mutateAsync: loginMutation, isPending: isLoggingIn } = useMutation({
     mutationKey: authQueryKeys.login(),
     mutationFn: async (
       formData: ILoginForm
@@ -119,24 +117,12 @@ export default function AuthProvider({ children }: AuthProviderProps) {
     },
     onSuccess: async (res) => {
       if (res.isSuccess === true) {
-        const { accessToken, role } = res.value
+        const { accessToken } = res.value
         await Cookies.set("access_token", accessToken)
 
         queryClient.setQueryData(["me"], res.value)
 
         loginForm.reset()
-
-        if (callbackUrl) {
-          router.push(callbackUrl)
-        } else {
-          if (role === UserRoleEnum.ADVERTISER) {
-            router.push("/advertiser")
-          } else if (role === UserRoleEnum.PUBLISHER) {
-            router.push("/publisher")
-          } else if (role === UserRoleEnum.ADMIN) {
-            router.push("/admin")
-          }
-        }
 
         toast.success("Login successful")
       } else {
@@ -144,6 +130,26 @@ export default function AuthProvider({ children }: AuthProviderProps) {
       }
     },
   })
+
+  // Custom login function that handles redirection with callbackUrl
+  const login = async (formData: ILoginForm, callbackUrl?: string | null) => {
+    const res = await loginMutation(formData)
+
+    if (res.isSuccess === true) {
+      if (callbackUrl) {
+        router.push(callbackUrl)
+      } else {
+        const { role } = res.value
+        if (role === UserRoleEnum.ADVERTISER) {
+          router.push("/advertiser")
+        } else if (role === UserRoleEnum.PUBLISHER) {
+          router.push("/publisher")
+        } else if (role === UserRoleEnum.ADMIN) {
+          router.push("/admin")
+        }
+      }
+    }
+  }
 
   return (
     <AuthContext.Provider
