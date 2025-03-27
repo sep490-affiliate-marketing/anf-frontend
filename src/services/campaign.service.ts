@@ -32,42 +32,9 @@ import apiClient from "@/lib/api/client"
  */
 const CampaignService = {
   /**
-   * Creates a new campaign
-   *
-   * @access Admin, Advertiser
-   * @param {FormData} formData - Form data containing campaign details
-   * @returns {Promise<ICreateCampaignSuccessResponse | ICreateCampaignErrorResponse>} Response with success status and message
-   */
-  createCampaign: async (formData: FormData) => {
-    try {
-      const { data } = await apiClient.post<
-        ICreateCampaignSuccessResponse | ICreateCampaignErrorResponse
-      >("/api/affiliate-network/campaigns", formData)
-      return data
-    } catch (error) {
-      if (error instanceof AxiosError) {
-        const errorRes = error.response?.data as ICreateCampaignErrorResponse
-        return {
-          success: false,
-          message: errorRes.message,
-          type: errorRes.type,
-          errors: errorRes.errors,
-        }
-      } else {
-        return {
-          success: false,
-          message: "Something went wrong while creating campaign",
-          type: null,
-          errors: null,
-        }
-      }
-    }
-  },
-
-  /**
    * Retrieves campaigns by advertiser code
    *
-   * @access Admin, Advertiser, Publisher
+   * @access  Advertiser
    * @param {IGetCampaignsByAdvertiserParams} params - Query parameters for filtering campaigns
    * @param {string} code - Advertiser code
    * @returns {Promise<IGetCampaignsByAdvertiserResponse | IErrorPaginationResponse<ICampaign>>}
@@ -95,7 +62,7 @@ const CampaignService = {
           hasNextPage: false,
           hasPreviousPage: false,
         },
-      } as IErrorPaginationResponse<ICampaign>
+      }
     }
   },
 

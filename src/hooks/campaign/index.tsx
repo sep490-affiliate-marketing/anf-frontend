@@ -1,7 +1,4 @@
-import { useState } from "react"
-
-import { useRouter } from "next/navigation"
-
+import { errorMessage } from "@/constant/error-message"
 import { campaignQueryKeys } from "@/constant/react-query"
 import CampaignService, {
   getAdminCampaigns,
@@ -14,24 +11,19 @@ import {
 } from "@/validations/campaign.validation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { AxiosError } from "axios"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 
 import {
-  IGetAllCampaignsResponse,
+  ICreateCampaignErrorResponse,
+  ICreateCampaignSuccessResponse,
   IGetCampaignsByAdvertiserParams,
   IGetPublisherCampaignsResponse,
-  IGetPublisherInOfferResponse,
-  IOffer,
 } from "@/types/campaign.type"
 
 import apiClient from "@/lib/api/client"
 
-/**
- * Hook to fetch a campaign by its ID
- * @param id - The campaign ID to fetch
- * @returns Query object containing campaign data and loading state
- */
 export const useGetCampaignById = (id: string) => {
   return useQuery({
     queryKey: ["campaign", id],
@@ -42,11 +34,7 @@ export const useGetCampaignById = (id: string) => {
 
 export const useCreateCampaignForm = () => {
   const queryClient = useQueryClient()
-  const [errorMessage, setErrorMessage] = useState<string>("")
-  const [successMessage, setSuccessMessage] = useState<string>("")
-  // const t = useTranslations("CampaignForm");
-  const router = useRouter()
-  // const { data: countries, isCountryLoading } = useGetActiveCountries();
+
   const form = useForm<ICreateCampaignForm>({
     mode: "onChange",
     resolver: zodResolver(CreateCampaignFormSchema()),
@@ -68,63 +56,45 @@ export const useCreateCampaignForm = () => {
   })
 
   const { mutateAsync: createCampaignMutation, isPending } = useMutation({
-    mutationKey: ["createCampaign"],
-    mutationFn: (formData: FormData) =>
-      CampaignService.createCampaign(formData),
-    onSuccess: async (resData) => {
-      if (resData?.success === false) {
-        const { type } = resData
-        switch (type) {
-          case "error_code_camp":
-            toast.error("responseMessage.error.code_campaign.title", {
-              description: "responseMessage.error.code_campaign.description",
-            })
-            break
-          case "error_date_camp":
-            toast.error("responseMessage.error.date_campaign.title", {
-              description: "responseMessage.error.date_campaign.description",
-            })
-            break
-          case "error_camp_not_exist":
-            toast.error("responseMessage.error.campaign_not_exist.title", {
-              description:
-                "responseMessage.error.campaign_not_exist.description",
-            })
-            break
-          case "error_date_offer":
-            toast.error("responseMessage.error.date_offer.title", {
-              description: "responseMessage.error.date_offer.description",
-            })
-            break
-          case "validation_error":
-            if (resData.errors) {
-              Object.entries(resData.errors).forEach(([key, value]) => {
-                toast.error(`responseMessage.error.${key}.${value[0]}.title`, {
-                  description: `responseMessage.error.${key}.${value[0]}.description`,
-                })
-              })
-            }
-            break
-          default:
-            toast.error("responseMessage.error.create_campaign.title", {
-              description: "responseMessage.error.create_campaign.description",
-            })
+    mutationKey: campaignQueryKeys.advertiser.create(),
+    mutationFn: async (
+      formData: FormData
+    ): Promise<
+      ICreateCampaignSuccessResponse | ICreateCampaignErrorResponse
+    > => {
+      try {
+        const { data } = await apiClient.post<
+          ICreateCampaignSuccessResponse | ICreateCampaignErrorResponse
+        >("/api/affiliate-network/campaigns", formData)
+        return data
+      } catch (error) {
+        const errRes =
+          error instanceof AxiosError
+            ? (error.response?.data as ICreateCampaignErrorResponse)
+            : null
+
+        return {
+          isSuccess: false,
+          statusCode: errRes?.statusCode ?? 500,
+          message: errRes?.message ?? errorMessage.unknown,
+          details: errRes?.details ?? errorMessage.unknown,
         }
-      } else {
-        toast.success("responseMessage.success.create_campaign.title", {
-          description: "responseMessage.success.create_campaign.description",
+      }
+    },
+    onSuccess: async (resData) => {
+      if (resData.isSuccess === true) {
+        toast.success("Campaign created successfully")
+        queryClient.invalidateQueries({
+          queryKey: campaignQueryKeys.advertiser.list,
         })
-        queryClient.invalidateQueries({ queryKey: ["advertiserCampaigns", 1] })
-        // router.push(`/advertiser/campaigns`)
+      } else {
+        toast.error(resData.message)
       }
     },
   })
 
   const onCreateCampaign = async (data: ICreateCampaignForm) => {
     try {
-      setErrorMessage("")
-      setSuccessMessage("")
-
       // Initialize FormData instance
       const formData = new FormData()
 
@@ -161,11 +131,7 @@ export const useCreateCampaignForm = () => {
 
       // Execute mutation to create the campaign
       await createCampaignMutation(formData)
-    } catch (error) {
-      setErrorMessage(
-        error instanceof Error ? error.message : "An error occurred"
-      )
-    }
+    } catch {}
   }
 
   return {
@@ -173,16 +139,8 @@ export const useCreateCampaignForm = () => {
     isPending,
     onCreateCampaign,
     errorMessage,
-    successMessage,
   }
 }
-
-// export const useGetTrackingParams = () => {
-//   return useQuery({
-//     queryKey: ["trackingParams"],
-//     queryFn: () => CampaignService.getTrackingParams(),
-//   })
-// }
 
 export const useGetCampaignsByAdvertiser = (
   params: IGetCampaignsByAdvertiserParams,
@@ -244,10 +202,6 @@ export const useJoinOffer = (campaignId: number) => {
   })
 }
 
-/**
- * Hook for updating a campaign status
- * @returns Mutation function and status for updating campaign status
- */
 export const useUpdateCampaignStatus = () => {
   const queryClient = useQueryClient()
 
@@ -291,37 +245,5 @@ export const useGetAdminCampaigns = () => {
   return useQuery({
     queryKey: ["adminCampaigns"],
     queryFn: () => getAdminCampaigns(),
-  })
-}
-
-export const useGetPublisherInOffer = (offerId: number) => {
-  return useQuery({
-    queryKey: campaignQueryKeys.offer.publisherInOffer(offerId),
-    queryFn: async () => {
-      try {
-        const { data } = await apiClient.get<
-          IBackendRes<IGetPublisherInOfferResponse[]>
-        >(`/api/affiliate-network/offers/${offerId}/publishers`)
-        return data.value
-      } catch (error) {
-        return undefined
-      }
-    },
-  })
-}
-
-export const useGetOfferDetails = (offerId: number) => {
-  return useQuery({
-    queryKey: campaignQueryKeys.offer.details(offerId),
-    queryFn: async () => {
-      try {
-        const { data } = await apiClient.get<IBackendRes<IOffer>>(
-          `/api/affiliate-network/offers/${offerId}`
-        )
-        return data.value
-      } catch (error) {
-        return undefined
-      }
-    },
   })
 }

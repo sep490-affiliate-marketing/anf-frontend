@@ -1,30 +1,22 @@
 "use client"
 
-import React from "react"
-
 import Link from "next/link"
 
 import { env } from "@/env"
 import { useAuth } from "@/providers/auth-provider"
-import { differenceInDays, format, formatDistanceToNow } from "date-fns"
+import { differenceInDays, format } from "date-fns"
 import {
-  ArrowUpRight,
   Calendar,
   ChevronLeft,
   Clock,
-  Copy,
   CreditCard,
-  Gem,
   Globe,
   ImageIcon,
   Info,
-  Zap,
 } from "lucide-react"
 import { toast } from "sonner"
 
 import { ICampaign } from "@/types/campaign.type"
-
-import { cn } from "@/lib/utils"
 
 import {
   useGetCampaignDetailForPublisher,

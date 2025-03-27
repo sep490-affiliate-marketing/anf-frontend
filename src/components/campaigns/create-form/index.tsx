@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react"
 
 import Image from "next/image"
-import { useRouter } from "next/navigation"
 
 import { useAuth } from "@/providers/auth-provider"
 import { ICreateCampaignForm } from "@/validations/campaign.validation"
@@ -32,9 +31,7 @@ import OfferList from "./offer-list"
 import TrackingUrlBuilder from "./tracking-url-builder"
 
 const CampaignForm = () => {
-  const router = useRouter()
   const { form, isPending, onCreateCampaign } = useCreateCampaignForm()
-  const [isLoading, setIsLoading] = useState(false)
 
   const { user } = useAuth()
 
@@ -113,7 +110,6 @@ const CampaignForm = () => {
 
   const onSubmit = async (data: ICreateCampaignForm) => {
     try {
-      setIsLoading(true)
       console.log("Form data before processing:", data)
       const campaignData = {
         ...data,
@@ -127,12 +123,9 @@ const CampaignForm = () => {
       console.log("Campaign data:", campaignData)
 
       await onCreateCampaign(campaignData)
-      toast.success("Campaign created successfully")
     } catch (error) {
       console.error("Error creating campaign:", error)
       toast.error("Failed to create campaign")
-    } finally {
-      setIsLoading(false)
     }
   }
   return (

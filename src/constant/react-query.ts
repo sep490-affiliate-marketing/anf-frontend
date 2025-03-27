@@ -29,6 +29,8 @@ export const campaignQueryKeys = {
       ] as const,
     details: (id: string) =>
       [...campaignQueryKeys.origin, "advertiser", "details", id] as const,
+    create: () =>
+      [...campaignQueryKeys.origin, "advertiser", "create"] as const,
   },
 
   publisher: {
@@ -43,16 +45,33 @@ export const campaignQueryKeys = {
     details: (id: string) =>
       [...campaignQueryKeys.origin, "publisher", "details", id] as const,
   },
+}
 
-  offer: {
+export const offerQueryKeys = {
+  origin: ["offers"] as const,
+
+  global: {
+    list: (page: number, limit: number) =>
+      [...offerQueryKeys.origin, "global", "list", { page, limit }] as const,
     details: (id: number) =>
-      [...campaignQueryKeys.origin, "offer", "details", id] as const,
+      [...offerQueryKeys.origin, "global", "details", id] as const,
     publisherInOffer: (offerId: number) =>
       [
-        ...campaignQueryKeys.origin,
-        "offer",
+        ...offerQueryKeys.origin,
+        "global",
         "publisherInOffer",
         offerId,
+      ] as const,
+  },
+
+  advertiser: {
+    list: (advertiserId: number, page: number, limit: number) =>
+      [
+        ...offerQueryKeys.origin,
+        "advertiser",
+        advertiserId,
+        "list",
+        { page, limit },
       ] as const,
   },
 }
