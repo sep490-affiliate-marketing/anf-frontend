@@ -137,3 +137,71 @@ export interface IGetCampaignDetailForPublisherResponse {
   message: string
   value: ICampaign
 }
+
+export interface IGetPublisherCampaignsResponse {
+  isSuccess: true
+  message: string
+  value: {
+    id: number
+    campaignId: number
+    pricingModel: string
+    description: string
+    stepInfo: string
+    startDate: string
+    endDate: string
+    bid: number
+    budget: number
+    commissionRate: null
+    orderReturnTime: null
+    imageUrl: null
+    status: string
+    rejectedReason: null
+    pubOfferStatus: number
+    campaign: {
+      id: number
+      name: string
+      description: string
+      startDate: string
+      endDate: string
+      balance: null
+      productUrl: string
+      trackingParams: string
+      categoryId: null
+      categoryName: string
+      status: string
+      campImages: string[]
+      offers: []
+    }
+  }[]
+}
+
+export interface IGetPublisherInOfferResponse {
+  poNo: number
+  publisherId: number
+  publisherCode: string
+  offerId: number
+  firstName: string
+  lastName: string
+  phoneNumber: string
+  email: string
+  trafficSources: string[]
+}
+
+export interface IOffer {
+  id: number
+  campaignId: number
+  pricingModel: string
+  description: string
+  stepInfo: string
+  startDate: string
+  endDate: string
+  bid: number
+  budget: number
+  commissionRate: null
+  orderReturnTime: null
+  imageUrl: null
+  status: string
+  rejectedReason: null
+  pubOfferStatus: number
+  campaign: null
+}

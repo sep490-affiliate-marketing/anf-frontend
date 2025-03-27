@@ -32,7 +32,7 @@ export const campaignQueryKeys = {
   },
 
   publisher: {
-    list: (publisherId: string, page: number, limit: number) =>
+    list: (publisherId: number, page: number, limit: number) =>
       [
         ...campaignQueryKeys.origin,
         "publisher",
@@ -42,5 +42,17 @@ export const campaignQueryKeys = {
       ] as const,
     details: (id: string) =>
       [...campaignQueryKeys.origin, "publisher", "details", id] as const,
+  },
+
+  offer: {
+    details: (id: number) =>
+      [...campaignQueryKeys.origin, "offer", "details", id] as const,
+    publisherInOffer: (offerId: number) =>
+      [
+        ...campaignQueryKeys.origin,
+        "offer",
+        "publisherInOffer",
+        offerId,
+      ] as const,
   },
 }
