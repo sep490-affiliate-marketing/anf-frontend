@@ -2,15 +2,9 @@
 
 import { useEffect, useState } from "react"
 
-
 import { PRICE_MODAL } from "@/constant/campaign"
 import { ICreateCampaignForm } from "@/validations/campaign.validation"
-import {
-  Check,
-  ChevronsUpDown,
-  DollarSign,
-  Trash2Icon,
-} from "lucide-react"
+import { Check, ChevronsUpDown, DollarSign, Trash2Icon } from "lucide-react"
 import { DateRange } from "react-day-picker"
 import { useFieldArray, UseFormReturn } from "react-hook-form"
 
@@ -415,4 +409,3 @@ const OfferList = ({
 }
 
 export default OfferList
-

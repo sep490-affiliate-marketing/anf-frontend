@@ -11,6 +11,18 @@ export const authQueryKeys = {
 export const campaignQueryKeys = {
   origin: ["campaigns"] as const,
 
+  global: {
+    details: (campaignId: string) =>
+      [...campaignQueryKeys.origin, "global", "details", campaignId] as const,
+    listActive: (page: number, limit: number) =>
+      [
+        ...campaignQueryKeys.origin,
+        "global",
+        "active",
+        { page, limit },
+      ] as const,
+  },
+
   admin: {
     list: (page: number, limit: number) =>
       [...campaignQueryKeys.origin, "admin", "list", { page, limit }] as const,
@@ -29,10 +41,12 @@ export const campaignQueryKeys = {
       ] as const,
     details: (id: string) =>
       [...campaignQueryKeys.origin, "advertiser", "details", id] as const,
+    create: () =>
+      [...campaignQueryKeys.origin, "advertiser", "create"] as const,
   },
 
   publisher: {
-    list: (publisherId: number, page: number, limit: number) =>
+    listOwnedByPublisher: (publisherId: number, page: number, limit: number) =>
       [
         ...campaignQueryKeys.origin,
         "publisher",
@@ -40,19 +54,41 @@ export const campaignQueryKeys = {
         "list",
         { page, limit },
       ] as const,
-    details: (id: string) =>
-      [...campaignQueryKeys.origin, "publisher", "details", id] as const,
-  },
-
-  offer: {
-    details: (id: number) =>
-      [...campaignQueryKeys.origin, "offer", "details", id] as const,
-    publisherInOffer: (offerId: number) =>
+    details: (campaignId: number) =>
       [
         ...campaignQueryKeys.origin,
-        "offer",
+        "publisher",
+        "details",
+        campaignId,
+      ] as const,
+  },
+}
+
+export const offerQueryKeys = {
+  origin: ["offers"] as const,
+
+  global: {
+    list: (page: number, limit: number) =>
+      [...offerQueryKeys.origin, "global", "list", { page, limit }] as const,
+    details: (id: number) =>
+      [...offerQueryKeys.origin, "global", "details", id] as const,
+    publisherInOffer: (offerId: number) =>
+      [
+        ...offerQueryKeys.origin,
+        "global",
         "publisherInOffer",
         offerId,
+      ] as const,
+  },
+
+  advertiser: {
+    list: (advertiserId: number, page: number, limit: number) =>
+      [
+        ...offerQueryKeys.origin,
+        "advertiser",
+        advertiserId,
+        "list",
+        { page, limit },
       ] as const,
   },
 }

@@ -20,7 +20,6 @@ import {
   ExternalLink,
   FileCode,
   HelpCircle,
-  Image as ImageIcon,
   Info,
   Megaphone,
   PieChart,
@@ -32,7 +31,7 @@ import {
 
 import { formatVNDCurrency } from "@/lib/utils"
 
-import { useGetOfferDetails, useGetPublisherInOffer } from "@/hooks/campaign"
+import { useGetOfferDetails, useGetPublisherInOffer } from "@/hooks/offer"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -225,8 +224,8 @@ export default function OfferDetailPage({
           <AlertCircle className="mb-4 size-12 text-red-500" />
           <h2 className="text-xl font-semibold">Offer Not Found</h2>
           <p className="mt-2 text-gray-500">
-            The requested offer could not be found or you don't have access to
-            it.
+            The requested offer could not be found or you don&apos;t have access
+            to it.
           </p>
           <Button asChild className="mt-6">
             <Link href={`/advertiser/campaigns/${campaignId}`}>

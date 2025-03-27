@@ -1,27 +1,5 @@
-export interface ICreateCampaignRequest {
-  name: string
-  description: string
-  startDate: string
-  endDate: string
-  url?: string
-  baseUrl?: string
-  advertiserCode?: string
-  trackingParams?: string
-  images: File[]
-  offers: Array<{
-    pricingModel: string
-    description: string
-    bid: string
-    startDate: string
-    endDate: string
-    budget: string
-    stepInfo: string
-    thumbnail?: File | string
-  }>
-}
-
 export interface ICreateCampaignSuccessResponse {
-  success: true
+  isSuccess: true
   message: string
   data: {
     campaignCode: string
@@ -29,15 +7,10 @@ export interface ICreateCampaignSuccessResponse {
 }
 
 export interface ICreateCampaignErrorResponse {
-  success: false
+  isSuccess: false
+  statusCode: number
   message: string
-  type: string | null
-  errors: Record<string, string[]> | null
-}
-
-export interface ITrackingParams {
-  param_name: string
-  param_value: string
+  details: string
 }
 
 export interface ICampaign {
@@ -175,6 +148,13 @@ export interface IGetPublisherCampaignsResponse {
   }[]
 }
 
+export interface IGetPublisherCampaignsErrorResponse {
+  isSuccess: false
+  statusCode: number
+  message: string
+  details: string
+}
+
 export interface IGetPublisherInOfferResponse {
   poNo: number
   publisherId: number
@@ -185,23 +165,4 @@ export interface IGetPublisherInOfferResponse {
   phoneNumber: string
   email: string
   trafficSources: string[]
-}
-
-export interface IOffer {
-  id: number
-  campaignId: number
-  pricingModel: string
-  description: string
-  stepInfo: string
-  startDate: string
-  endDate: string
-  bid: number
-  budget: number
-  commissionRate: null
-  orderReturnTime: null
-  imageUrl: null
-  status: string
-  rejectedReason: null
-  pubOfferStatus: number
-  campaign: null
 }

@@ -1,14 +1,10 @@
 "use client"
 
-import { useState } from "react"
-
 import Image from "next/image"
 
 import { env } from "@/env"
 import { useAuth } from "@/providers/auth-provider"
 import { format } from "date-fns"
-
-import { IGetPublisherCampaignsResponse } from "@/types/campaign.type"
 
 import { useGetPublisherCampaigns } from "@/hooks/campaign"
 
@@ -29,6 +25,9 @@ export default function JoinedCampaignsPage() {
   const publisherId = user?.id ?? 0
   const { data, isLoading } = useGetPublisherCampaigns(publisherId)
 
+  // Extract campaigns from the response
+  const campaigns = data?.isSuccess ? data.value : []
+
   if (isLoading) {
     return (
       <div className="container mx-auto p-6">
@@ -36,8 +35,6 @@ export default function JoinedCampaignsPage() {
       </div>
     )
   }
-
-  const campaigns = data || []
 
   if (campaigns.length === 0) {
     return (

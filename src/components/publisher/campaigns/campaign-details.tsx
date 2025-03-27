@@ -1,35 +1,25 @@
 "use client"
 
-import React from "react"
-
 import Link from "next/link"
 
 import { env } from "@/env"
 import { useAuth } from "@/providers/auth-provider"
-import { differenceInDays, format, formatDistanceToNow } from "date-fns"
+import { differenceInDays, format } from "date-fns"
 import {
-  ArrowUpRight,
   Calendar,
   ChevronLeft,
   Clock,
-  Copy,
   CreditCard,
-  Gem,
   Globe,
   ImageIcon,
   Info,
-  Zap,
 } from "lucide-react"
 import { toast } from "sonner"
 
 import { ICampaign } from "@/types/campaign.type"
 
-import { cn } from "@/lib/utils"
-
-import {
-  useGetCampaignDetailForPublisher,
-  useJoinOffer,
-} from "@/hooks/campaign"
+import { useGetCampaignDetailForPublisher } from "@/hooks/campaign"
+import { useJoinOffer } from "@/hooks/offer"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -208,7 +198,7 @@ function CampaignGallery({
     return (
       <div className="flex h-40 items-center justify-center rounded-lg border">
         <div className="text-center">
-          <ImageIcon className="mx-auto h-8 w-8 text-muted-foreground" />
+          <ImageIcon className="mx-auto size-8 text-muted-foreground" />
           <p className="mt-2 text-sm text-muted-foreground">
             No images available
           </p>
@@ -486,7 +476,7 @@ export function CampaignDetails({ campaignId }: { campaignId: number }) {
           </p>
           <Link href="/publisher/campaigns" className="mt-4 inline-block">
             <Button variant="outline" className="gap-2">
-              <ChevronLeft className="h-4 w-4" />
+              <ChevronLeft className="size-4" />
               Back to Campaigns
             </Button>
           </Link>
@@ -501,7 +491,7 @@ export function CampaignDetails({ campaignId }: { campaignId: number }) {
       <div className="flex items-center gap-2">
         <Link href="/publisher/campaigns">
           <Button variant="outline" size="sm" className="gap-2">
-            <ChevronLeft className="h-4 w-4" />
+            <ChevronLeft className="size-4" />
             Back to Campaigns
           </Button>
         </Link>
@@ -515,13 +505,13 @@ export function CampaignDetails({ campaignId }: { campaignId: number }) {
           <p className="mt-2 text-muted-foreground">{campaign.description}</p>
           <div className="mt-4 flex flex-wrap items-center gap-4">
             <div className="flex items-center gap-2">
-              <Globe className="h-4 w-4 text-muted-foreground" />
+              <Globe className="size-4 text-muted-foreground" />
               <span className="text-sm text-muted-foreground">
                 {campaign.productUrl}
               </span>
             </div>
             <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4 text-muted-foreground" />
+              <Calendar className="size-4 text-muted-foreground" />
               <span className="text-sm text-muted-foreground">
                 {format(new Date(campaign.startDate), "dd MMM yyyy")} -{" "}
                 {format(new Date(campaign.endDate), "dd MMM yyyy")}

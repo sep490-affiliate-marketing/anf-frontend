@@ -1,6 +1,9 @@
 "use client"
 
+import { Suspense } from "react"
+
 import Link from "next/link"
+import { useSearchParams } from "next/navigation"
 
 import { useAuth } from "@/providers/auth-provider"
 
@@ -17,11 +20,18 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 
-export function LoginForm({
+// Inner component that uses useSearchParams
+function LoginFormWithCallback({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
   const { loginForm, login, isLoggingIn } = useAuth()
+  const searchParams = useSearchParams()
+  const callbackUrl = searchParams.get("callbackUrl")
+
+  const handleSubmit = loginForm.handleSubmit((data) => {
+    login(data, callbackUrl)
+  })
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
@@ -32,7 +42,7 @@ export function LoginForm({
         </p>
       </div>
       <Form {...loginForm}>
-        <form onSubmit={loginForm.handleSubmit(login)} className="grid gap-6">
+        <form onSubmit={handleSubmit} className="grid gap-6">
           <FormField
             control={loginForm.control}
             name="email"
@@ -104,6 +114,53 @@ export function LoginForm({
         <Link href="/auth/signup" className="underline underline-offset-4">
           Sign up
         </Link>
+      </div>
+    </div>
+  )
+}
+
+// Wrapper component with Suspense
+export function LoginForm(props: React.ComponentPropsWithoutRef<"div">) {
+  return (
+    <Suspense fallback={<LoginFormSkeleton {...props} />}>
+      <LoginFormWithCallback {...props} />
+    </Suspense>
+  )
+}
+
+// Skeleton component to display while loading
+function LoginFormSkeleton({
+  className,
+  ...props
+}: React.ComponentPropsWithoutRef<"div">) {
+  return (
+    <div className={cn("flex flex-col gap-6", className)} {...props}>
+      <div className="flex flex-col items-center gap-2 text-center">
+        <div className="h-8 w-48 animate-pulse rounded-md bg-muted" />
+        <div className="h-4 w-72 animate-pulse rounded-md bg-muted" />
+      </div>
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <div className="h-4 w-16 animate-pulse rounded-md bg-muted" />
+          <div className="h-10 w-full animate-pulse rounded-md bg-muted" />
+        </div>
+        <div className="space-y-2">
+          <div className="flex justify-between">
+            <div className="h-4 w-16 animate-pulse rounded-md bg-muted" />
+            <div className="h-4 w-36 animate-pulse rounded-md bg-muted" />
+          </div>
+          <div className="h-10 w-full animate-pulse rounded-md bg-muted" />
+        </div>
+        <div className="h-10 w-full animate-pulse rounded-md bg-muted" />
+        <div className="flex items-center justify-center gap-2">
+          <div className="h-px flex-1 bg-border" />
+          <div className="h-4 w-28 animate-pulse rounded-md bg-muted" />
+          <div className="h-px flex-1 bg-border" />
+        </div>
+        <div className="h-10 w-full animate-pulse rounded-md bg-muted" />
+      </div>
+      <div className="text-center">
+        <div className="mx-auto h-4 w-48 animate-pulse rounded-md bg-muted" />
       </div>
     </div>
   )

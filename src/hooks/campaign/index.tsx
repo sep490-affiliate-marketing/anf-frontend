@@ -1,52 +1,59 @@
-import { useState } from "react"
-
-import { useRouter } from "next/navigation"
-
+import { errorMessage } from "@/constant/error-message"
 import { campaignQueryKeys } from "@/constant/react-query"
-import CampaignService, {
-  getAdminCampaigns,
-  getCampaignDetailForPublisher,
-  joinOffer,
-} from "@/services/campaign.service"
 import {
   CreateCampaignFormSchema,
   ICreateCampaignForm,
 } from "@/validations/campaign.validation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { AxiosError } from "axios"
+import qs from "qs"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 
 import {
+  ICreateCampaignErrorResponse,
+  ICreateCampaignSuccessResponse,
   IGetAllCampaignsResponse,
+  IGetCampaignByCampIdResponse,
+  IGetCampaignDetailForPublisherResponse,
   IGetCampaignsByAdvertiserParams,
+  IGetCampaignsByAdvertiserResponse,
+  IGetPublisherCampaignsErrorResponse,
   IGetPublisherCampaignsResponse,
-  IGetPublisherInOfferResponse,
-  IOffer,
+  IUpdateCampaignErrorResponse,
 } from "@/types/campaign.type"
 
 import apiClient from "@/lib/api/client"
 
-/**
- * Hook to fetch a campaign by its ID
- * @param id - The campaign ID to fetch
- * @returns Query object containing campaign data and loading state
- */
-export const useGetCampaignById = (id: string) => {
+export const useGetCampaignById = (campaignId: string) => {
   return useQuery({
-    queryKey: ["campaign", id],
-    queryFn: () => CampaignService.getCampaignByCampId(id),
-    enabled: !!id,
+    queryKey: campaignQueryKeys.global.details(campaignId),
+    queryFn: async () => {
+      try {
+        const { data } = await apiClient.get<IGetCampaignByCampIdResponse>(
+          `/api/affiliate-network/campaigns/${campaignId}`
+        )
+        return {
+          isSuccess: true,
+          message: data.message,
+          data: data.value,
+        }
+      } catch {
+        return {
+          isSuccess: false,
+          message: "Something went wrong while fetching campaign",
+          data: null,
+        }
+      }
+    },
+    enabled: !!campaignId,
   })
 }
 
 export const useCreateCampaignForm = () => {
   const queryClient = useQueryClient()
-  const [errorMessage, setErrorMessage] = useState<string>("")
-  const [successMessage, setSuccessMessage] = useState<string>("")
-  // const t = useTranslations("CampaignForm");
-  const router = useRouter()
-  // const { data: countries, isCountryLoading } = useGetActiveCountries();
+
   const form = useForm<ICreateCampaignForm>({
     mode: "onChange",
     resolver: zodResolver(CreateCampaignFormSchema()),
@@ -68,63 +75,45 @@ export const useCreateCampaignForm = () => {
   })
 
   const { mutateAsync: createCampaignMutation, isPending } = useMutation({
-    mutationKey: ["createCampaign"],
-    mutationFn: (formData: FormData) =>
-      CampaignService.createCampaign(formData),
-    onSuccess: async (resData) => {
-      if (resData?.success === false) {
-        const { type } = resData
-        switch (type) {
-          case "error_code_camp":
-            toast.error("responseMessage.error.code_campaign.title", {
-              description: "responseMessage.error.code_campaign.description",
-            })
-            break
-          case "error_date_camp":
-            toast.error("responseMessage.error.date_campaign.title", {
-              description: "responseMessage.error.date_campaign.description",
-            })
-            break
-          case "error_camp_not_exist":
-            toast.error("responseMessage.error.campaign_not_exist.title", {
-              description:
-                "responseMessage.error.campaign_not_exist.description",
-            })
-            break
-          case "error_date_offer":
-            toast.error("responseMessage.error.date_offer.title", {
-              description: "responseMessage.error.date_offer.description",
-            })
-            break
-          case "validation_error":
-            if (resData.errors) {
-              Object.entries(resData.errors).forEach(([key, value]) => {
-                toast.error(`responseMessage.error.${key}.${value[0]}.title`, {
-                  description: `responseMessage.error.${key}.${value[0]}.description`,
-                })
-              })
-            }
-            break
-          default:
-            toast.error("responseMessage.error.create_campaign.title", {
-              description: "responseMessage.error.create_campaign.description",
-            })
+    mutationKey: campaignQueryKeys.advertiser.create(),
+    mutationFn: async (
+      formData: FormData
+    ): Promise<
+      ICreateCampaignSuccessResponse | ICreateCampaignErrorResponse
+    > => {
+      try {
+        const { data } = await apiClient.post<
+          ICreateCampaignSuccessResponse | ICreateCampaignErrorResponse
+        >("/api/affiliate-network/campaigns", formData)
+        return data
+      } catch (error) {
+        const errRes =
+          error instanceof AxiosError
+            ? (error.response?.data as ICreateCampaignErrorResponse)
+            : null
+
+        return {
+          isSuccess: false,
+          statusCode: errRes?.statusCode ?? 500,
+          message: errRes?.message ?? errorMessage.unknown,
+          details: errRes?.details ?? errorMessage.unknown,
         }
-      } else {
-        toast.success("responseMessage.success.create_campaign.title", {
-          description: "responseMessage.success.create_campaign.description",
+      }
+    },
+    onSuccess: async (resData) => {
+      if (resData.isSuccess === true) {
+        toast.success("Campaign created successfully")
+        queryClient.invalidateQueries({
+          queryKey: campaignQueryKeys.advertiser.list,
         })
-        queryClient.invalidateQueries({ queryKey: ["advertiserCampaigns", 1] })
-        // router.push(`/advertiser/campaigns`)
+      } else {
+        toast.error(resData.message)
       }
     },
   })
 
   const onCreateCampaign = async (data: ICreateCampaignForm) => {
     try {
-      setErrorMessage("")
-      setSuccessMessage("")
-
       // Initialize FormData instance
       const formData = new FormData()
 
@@ -161,11 +150,7 @@ export const useCreateCampaignForm = () => {
 
       // Execute mutation to create the campaign
       await createCampaignMutation(formData)
-    } catch (error) {
-      setErrorMessage(
-        error instanceof Error ? error.message : "An error occurred"
-      )
-    }
+    } catch {}
   }
 
   return {
@@ -173,16 +158,8 @@ export const useCreateCampaignForm = () => {
     isPending,
     onCreateCampaign,
     errorMessage,
-    successMessage,
   }
 }
-
-// export const useGetTrackingParams = () => {
-//   return useQuery({
-//     queryKey: ["trackingParams"],
-//     queryFn: () => CampaignService.getTrackingParams(),
-//   })
-// }
 
 export const useGetCampaignsByAdvertiser = (
   params: IGetCampaignsByAdvertiserParams,
@@ -190,28 +167,106 @@ export const useGetCampaignsByAdvertiser = (
 ) => {
   return useQuery({
     queryKey: ["campaignsByAdvertiser", params, advertiserCode],
-    queryFn: () =>
-      CampaignService.getCampaignsByAdvertiser(params, advertiserCode),
+    queryFn: async () => {
+      const queryString = qs.stringify(params)
+      try {
+        const { data } = await apiClient.get<IGetCampaignsByAdvertiserResponse>(
+          `/api/affiliate-network/campaigns/advertisers/${advertiserCode}/offers?${queryString}`
+        )
+        return data
+      } catch {
+        return {
+          isSuccess: false,
+          message: "Something went wrong while fetching campaigns",
+          value: {
+            pageNumber: params.pageNumber || 1,
+            pageSize: params.pageSize || 10,
+            totalPages: 0,
+            totalRecords: 0,
+            data: [],
+            hasNextPage: false,
+            hasPreviousPage: false,
+          },
+        }
+      }
+    },
     enabled: !!advertiserCode,
   })
 }
 
-export const useGetActiveCampaigns = () => {
+export const useGetActiveCampaigns = (
+  page: number = 1,
+  pageSize: number = 10
+) => {
   return useQuery({
-    queryKey: ["activeCampaigns"],
-    queryFn: () => CampaignService.getActiveCampaigns(),
+    queryKey: campaignQueryKeys.global.listActive(page, pageSize),
+    queryFn: async () => {
+      try {
+        const { data } = await apiClient.get<IGetAllCampaignsResponse>(
+          `/api/affiliate-network/campaigns?pageNumber=${page}&pageSize=${pageSize}`
+        )
+        return data
+      } catch {
+        return {
+          isSuccess: false,
+          message: "Something went wrong while fetching campaigns",
+          value: {
+            pageNumber: page,
+            pageSize: pageSize,
+            totalPages: 0,
+            totalRecords: 0,
+            data: [],
+            hasNextPage: false,
+            hasPreviousPage: false,
+          },
+        }
+      }
+    },
   })
 }
 
 export const useGetPublisherCampaigns = (publisherId: number) => {
   return useQuery({
-    queryKey: campaignQueryKeys.publisher.list(publisherId, 1, 10),
-    queryFn: async () => {
+    queryKey: campaignQueryKeys.publisher.listOwnedByPublisher(
+      publisherId,
+      1,
+      10
+    ),
+    queryFn: async (): Promise<
+      IGetPublisherCampaignsResponse | IGetPublisherCampaignsErrorResponse
+    > => {
       try {
         const { data } = await apiClient.get<IGetPublisherCampaignsResponse>(
           "/api/affiliate-network/offers/publishers"
         )
-        return data.value
+        return data
+      } catch (error) {
+        const errRes =
+          error instanceof AxiosError
+            ? (error.response?.data as IGetPublisherCampaignsErrorResponse)
+            : null
+        return {
+          isSuccess: false,
+          statusCode: errRes?.statusCode ?? 500,
+          message: errRes?.message ?? errorMessage.unknown,
+          details: errRes?.details ?? errorMessage.unknown,
+        }
+      }
+    },
+    enabled: !!publisherId,
+  })
+}
+
+export const useGetCampaignDetailForPublisher = (campaignId: number) => {
+  return useQuery({
+    queryKey: campaignQueryKeys.publisher.details(campaignId),
+    queryFn: async () => {
+      try {
+        const { data } =
+          await apiClient.get<IGetCampaignDetailForPublisherResponse>(
+            `/api/affiliate-network/campaigns/${campaignId}/publishers`
+          )
+        return data
       } catch (error) {
         return undefined
       }
@@ -219,40 +274,11 @@ export const useGetPublisherCampaigns = (publisherId: number) => {
   })
 }
 
-export const useGetCampaignDetailForPublisher = (campaignId: number) => {
-  return useQuery({
-    queryKey: ["campaignDetailForPublisher", campaignId],
-    queryFn: () => getCampaignDetailForPublisher(campaignId),
-  })
-}
-
-export const useJoinOffer = (campaignId: number) => {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: (offerId: number) => joinOffer(offerId),
-    onSuccess: (data) => {
-      if (data.isSuccess) {
-        toast.success("Offer joined successfully")
-        queryClient.invalidateQueries({
-          queryKey: ["campaignDetailForPublisher", campaignId],
-        })
-      } else {
-        toast.error(data.message || "Failed to join offer")
-      }
-    },
-  })
-}
-
-/**
- * Hook for updating a campaign status
- * @returns Mutation function and status for updating campaign status
- */
 export const useUpdateCampaignStatus = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({
+    mutationFn: async ({
       id,
       campaignStatus,
       rejectReason,
@@ -261,11 +287,27 @@ export const useUpdateCampaignStatus = () => {
       campaignStatus: string
       rejectReason?: string
     }) => {
-      return CampaignService.updateCampaignStatus(
-        id,
-        campaignStatus,
-        rejectReason
-      )
+      try {
+        const { data } = await apiClient.patch(
+          `/api/affiliate-network/campaigns/admin/${id}/status`,
+          {
+            campaignStatus,
+            rejectReason,
+          }
+        )
+        return data
+      } catch (error) {
+        const errorRes =
+          error instanceof AxiosError
+            ? (error.response?.data as IUpdateCampaignErrorResponse)
+            : null
+        return {
+          isSuccess: false,
+          message:
+            errorRes?.message ??
+            "Something went wrong while updating campaign status",
+        }
+      }
     },
     onSuccess: (data, { id }) => {
       if (data.isSuccess) {
@@ -289,38 +331,27 @@ export const useUpdateCampaignStatus = () => {
 
 export const useGetAdminCampaigns = () => {
   return useQuery({
-    queryKey: ["adminCampaigns"],
-    queryFn: () => getAdminCampaigns(),
-  })
-}
-
-export const useGetPublisherInOffer = (offerId: number) => {
-  return useQuery({
-    queryKey: campaignQueryKeys.offer.publisherInOffer(offerId),
+    queryKey: campaignQueryKeys.admin.list(1, 10),
     queryFn: async () => {
       try {
-        const { data } = await apiClient.get<
-          IBackendRes<IGetPublisherInOfferResponse[]>
-        >(`/api/affiliate-network/offers/${offerId}/publishers`)
-        return data.value
-      } catch (error) {
-        return undefined
-      }
-    },
-  })
-}
-
-export const useGetOfferDetails = (offerId: number) => {
-  return useQuery({
-    queryKey: campaignQueryKeys.offer.details(offerId),
-    queryFn: async () => {
-      try {
-        const { data } = await apiClient.get<IBackendRes<IOffer>>(
-          `/api/affiliate-network/offers/${offerId}`
+        const { data } = await apiClient.get<IGetAllCampaignsResponse>(
+          "/api/affiliate-network/campaigns/offers"
         )
-        return data.value
-      } catch (error) {
-        return undefined
+        return data
+      } catch {
+        return {
+          isSuccess: false,
+          message: "Something went wrong while fetching campaigns",
+          value: {
+            pageNumber: 1,
+            pageSize: 10,
+            totalPages: 0,
+            totalRecords: 0,
+            data: [],
+            hasNextPage: false,
+            hasPreviousPage: false,
+          },
+        }
       }
     },
   })
