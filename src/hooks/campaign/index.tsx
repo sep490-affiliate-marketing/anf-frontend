@@ -82,9 +82,10 @@ export const useCreateCampaignForm = () => {
       ICreateCampaignSuccessResponse | ICreateCampaignErrorResponse
     > => {
       try {
-        const { data } = await apiClient.post<
-          ICreateCampaignSuccessResponse | ICreateCampaignErrorResponse
-        >("/api/affiliate-network/campaigns", formData)
+        const { data } = await apiClient.post<ICreateCampaignSuccessResponse>(
+          "/api/affiliate-network/campaigns",
+          formData
+        )
         return data
       } catch (error) {
         const errRes =

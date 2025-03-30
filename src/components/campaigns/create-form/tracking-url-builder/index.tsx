@@ -37,11 +37,11 @@ export default function TrackingUrlBuilder({ form }: TrackingUrlBuilderProps) {
             {mode === "simple" ? "Simple Mode" : "Advanced Mode"}
           </StatusBadge>
           <Button
+            type="button"
             variant="outline"
             size="sm"
             onClick={toggleMode}
             className="gap-2"
-            type="button"
           >
             {mode === "simple" ? (
               <>
