@@ -105,7 +105,7 @@ const OfferList = ({
     <div className="mt-16 space-y-8">
       <div className="flex items-center justify-between">
         <h3 className="flex items-center gap-2 text-2xl font-bold text-accent-foreground">
-          <span>{"offersLabel"}</span>
+          <span>Campaign Offers</span>
           <span className="rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-primary">
             {fields.length}
           </span>
@@ -118,7 +118,7 @@ const OfferList = ({
           className="relative space-y-8 rounded-xl border border-border p-6 shadow-sm transition-all md:p-8"
         >
           <div className="absolute -top-4 left-4 rounded-full bg-primary px-3 py-1 text-sm font-medium text-white">
-            {"offer"} {index + 1}
+            Offer {index + 1}
           </div>
 
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -127,9 +127,7 @@ const OfferList = ({
               name={`offers.${index}.pricingModel`}
               render={({ field }) => (
                 <FormItem>
-                  <Label className="text-lg font-semibold">
-                    {"pricingModelLabel"}
-                  </Label>
+                  <Label className="text-lg font-semibold">Pricing Model</Label>
                   <Popover
                     open={isPriceModalOpen[index] || false}
                     onOpenChange={(open) =>
@@ -151,7 +149,7 @@ const OfferList = ({
                         >
                           <span className="flex items-center gap-2">
                             <DollarSign className="size-4" />
-                            {field.value || "priceModalPlaceholder"}
+                            {field.value || "Select pricing model"}
                           </span>
                           <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
                         </Button>
@@ -159,9 +157,9 @@ const OfferList = ({
                     </PopoverTrigger>
                     <PopoverContent className="w-full p-0">
                       <Command>
-                        <CommandInput placeholder={"searchPriceModal"} />
+                        <CommandInput placeholder="Search pricing model" />
                         <CommandList>
-                          <CommandEmpty>{"noPriceModalFound"}</CommandEmpty>
+                          <CommandEmpty>No pricing model found</CommandEmpty>
                           <CommandGroup>
                             {PRICE_MODAL.map((option) => (
                               <CommandItem
@@ -205,7 +203,7 @@ const OfferList = ({
               name={`offers.${index}.bid`}
               render={({ field: { onChange, value, onBlur, ...field } }) => (
                 <FormItem>
-                  <Label className="text-lg font-semibold">{"bidLabel"}</Label>
+                  <Label className="text-lg font-semibold">Bid Amount</Label>
                   <FormControl>
                     <div className="relative">
                       <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
@@ -261,7 +259,7 @@ const OfferList = ({
               name={`offers.${index}.budget`}
               render={({ field: { onChange, value, onBlur, ...field } }) => (
                 <FormItem>
-                  <Label className="text-lg font-semibold">{"bidLabel"}</Label>
+                  <Label className="text-lg font-semibold">Budget</Label>
                   <FormControl>
                     <div className="relative">
                       <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
@@ -318,7 +316,7 @@ const OfferList = ({
               render={({ field }) => (
                 <FormItem>
                   <Label className="text-lg font-semibold">
-                    {"stepInfoLabel"}
+                    Step Information
                   </Label>
                   <FormControl>
                     <Input {...field} />
@@ -333,9 +331,7 @@ const OfferList = ({
               name={`offers.${index}.description`}
               render={({ field }) => (
                 <FormItem>
-                  <Label className="text-lg font-semibold">
-                    {"descriptionLabel"}
-                  </Label>
+                  <Label className="text-lg font-semibold">Description</Label>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -345,9 +341,7 @@ const OfferList = ({
             />
 
             <div className="space-y-2 md:col-span-1">
-              <Label className="text-lg font-semibold">
-                {"offerDateRangeLabel"}
-              </Label>
+              <Label className="text-lg font-semibold">Offer Date Range</Label>
               <DatePickerWithRange
                 className="w-full"
                 onChange={(dates: {
@@ -380,7 +374,7 @@ const OfferList = ({
               className="mt-6 w-full transition-all hover:bg-red-600 sm:w-auto"
             >
               <Trash2Icon className="mr-2 size-4" />
-              {"removeOffer"}
+              Remove Offer
             </Button>
           )}
         </div>
@@ -402,7 +396,7 @@ const OfferList = ({
         }
         className="w-full"
       >
-        {"addOffer"}
+        Add New Offer
       </Button>
     </div>
   )

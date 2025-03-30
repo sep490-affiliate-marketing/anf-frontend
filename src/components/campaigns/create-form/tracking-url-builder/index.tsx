@@ -30,11 +30,11 @@ export default function TrackingUrlBuilder({ form }: TrackingUrlBuilderProps) {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <Label className="text-lg font-semibold">
-          {"trackingUrlConfiguration"}
+          Tracking URL Configuration
         </Label>
         <div className="flex items-center gap-4">
           <StatusBadge variant="orange" className="text-sm font-medium">
-            {mode === "simple" ? "simpleMode" : "advancedMode"}
+            {mode === "simple" ? "Simple Mode" : "Advanced Mode"}
           </StatusBadge>
           <Button
             variant="outline"
@@ -46,12 +46,12 @@ export default function TrackingUrlBuilder({ form }: TrackingUrlBuilderProps) {
             {mode === "simple" ? (
               <>
                 <Settings className="size-4" />
-                {"simpleModeButton"}
+                Switch to Advanced
               </>
             ) : (
               <>
                 <Link className="size-4" />
-                {"advancedModeButton"}
+                Switch to Simple
               </>
             )}
           </Button>
@@ -76,7 +76,7 @@ export default function TrackingUrlBuilder({ form }: TrackingUrlBuilderProps) {
                 "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300"
             )}
           >
-            {generateUrl() || "invalidUrl"}
+            {generateUrl() || "Invalid URL format. Please check your inputs."}
           </pre>
         </div>
       </div>

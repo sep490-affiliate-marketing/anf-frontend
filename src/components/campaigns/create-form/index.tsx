@@ -13,9 +13,6 @@ import { toast } from "sonner"
 import { useCreateCampaignForm } from "@/hooks/campaign"
 
 import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-
 import {
   Form,
   FormControl,
@@ -23,11 +20,13 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "../../ui/form"
-import { Input } from "../../ui/input"
+} from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+
 import { DatePickerWithRange } from "./date-range-picker"
 import OfferList from "./offer-list"
-// import PostbackUrl from "./postback-instruction"
 import TrackingUrlBuilder from "./tracking-url-builder"
 
 const CampaignForm = () => {
@@ -137,7 +136,7 @@ const CampaignForm = () => {
       >
         <div className="text-center">
           <h2 className="text-2xl font-extrabold tracking-tight text-gray-800 dark:text-gray-100 md:text-3xl">
-            {"title"}
+            Create New Campaign
           </h2>
           <div className="mt-3 flex justify-center">
             <div className="h-1 w-16 rounded-full bg-primary"></div>
@@ -151,7 +150,7 @@ const CampaignForm = () => {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <Label className="text-lg font-semibold">{"nameLabel"}</Label>
+                  <Label className="text-lg font-semibold">Campaign Name</Label>
                   <FormControl>
                     <Input
                       {...field}
@@ -166,9 +165,7 @@ const CampaignForm = () => {
           </div>
 
           <div className="space-y-2 md:col-span-1">
-            <Label className="text-lg font-semibold">
-              {"campaignDateRangeLabel"}
-            </Label>
+            <Label className="text-lg font-semibold">Campaign Date Range</Label>
             <DatePickerWithRange
               className="w-full"
               onChange={(dates: {
@@ -201,7 +198,9 @@ const CampaignForm = () => {
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <Label className="text-lg font-semibold">{"noteLabel"}</Label>
+                  <Label className="text-lg font-semibold">
+                    Campaign Description
+                  </Label>
                   <FormControl>
                     <Textarea rows={4} {...field} />
                   </FormControl>
@@ -289,7 +288,7 @@ const CampaignForm = () => {
           isLoading={isPending}
           className="w-full"
         >
-          {"submitting"}
+          Create Campaign
         </Button>
       </form>
     </Form>
