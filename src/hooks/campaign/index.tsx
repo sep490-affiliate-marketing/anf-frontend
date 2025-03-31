@@ -58,6 +58,8 @@ export const useCreateCampaignForm = () => {
     mode: "onChange",
     resolver: zodResolver(CreateCampaignFormSchema()),
     defaultValues: {
+      name: "",
+      description: "",
       url: "",
       images: [],
       offers: [
