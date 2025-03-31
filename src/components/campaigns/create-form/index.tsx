@@ -7,7 +7,6 @@ import Image from "next/image"
 import { useAuth } from "@/providers/auth-provider"
 import { ICreateCampaignForm } from "@/validations/campaign.validation"
 import { addDays, format } from "date-fns"
-import { ImageIcon } from "lucide-react"
 import { DateRange } from "react-day-picker"
 import { useFieldArray } from "react-hook-form"
 import { toast } from "sonner"
@@ -36,6 +35,7 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 
 import { DatePickerWithRange } from "./date-range-picker"
+import ImageUpload from "./image-upload"
 import OfferList from "./offer-list"
 import TrackingUrlBuilder from "./tracking-url-builder"
 
@@ -88,7 +88,6 @@ const CampaignForm = () => {
 
   const [currentStep, setCurrentStep] = useState(1)
   const [previewImage, setPreviewImage] = useState<string | null>(null)
-  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const { fields } = useFieldArray({
     control: form.control,
@@ -115,6 +114,23 @@ const CampaignForm = () => {
     }
   }, [campaignStartDate, campaignEndDate, offers, setValue])
 
+  // Clear preview when component unmounts
+  useEffect(() => {
+    // We only need to revoke object URLs we've created ourselves
+    // Don't revoke URLs for existing images from the server
+    return () => {
+      if (previewImage && previewImage.startsWith("blob:")) {
+        URL.revokeObjectURL(previewImage)
+      }
+    }
+  }, [previewImage])
+
+  // Helper function for tracking parameters
+  const safeTrackingParams = () => {
+    const params = watch("tracking_param")
+    return Array.isArray(params) ? params : []
+  }
+
   const onSubmit = async (data: ICreateCampaignForm) => {
     try {
       console.log("Form data before processing:", data)
@@ -135,6 +151,50 @@ const CampaignForm = () => {
       toast.error("Failed to create campaign")
     }
   }
+
+  // Check for existing images when needed
+  useEffect(() => {
+    const formImages = form.getValues("images")
+
+    // If we have images in the form but no preview image, set it up
+    if (formImages?.length > 0 && !previewImage) {
+      const lastImage = formImages[formImages.length - 1]
+
+      // If it's a File object, create a preview URL
+      if (lastImage instanceof File) {
+        const previewUrl = URL.createObjectURL(lastImage)
+        setPreviewImage(previewUrl)
+      }
+      // If it's a string URL, use it directly
+      else if (typeof lastImage === "string") {
+        setPreviewImage(lastImage)
+      }
+    }
+  }, [form, previewImage])
+
+  // Create a more robust image tracking system
+  // This useEffect handles revocation of previous blob URLs when a new image is set
+  const lastBlobUrlRef = useRef<string | null>(null)
+
+  useEffect(() => {
+    // If we have a new preview image that's a blob URL
+    if (previewImage && previewImage.startsWith("blob:")) {
+      // If we had a previous blob URL that's different, revoke it
+      if (lastBlobUrlRef.current && lastBlobUrlRef.current !== previewImage) {
+        URL.revokeObjectURL(lastBlobUrlRef.current)
+      }
+
+      // Update our reference to the current blob URL
+      lastBlobUrlRef.current = previewImage
+    }
+
+    // When component unmounts, clean up any blob URL
+    return () => {
+      if (lastBlobUrlRef.current) {
+        URL.revokeObjectURL(lastBlobUrlRef.current)
+      }
+    }
+  }, [previewImage])
 
   // Convert string dates to DateRange for DatePicker
   const getDateRangeForPicker = (): DateRange | undefined => {
@@ -157,47 +217,29 @@ const CampaignForm = () => {
     })
   }
 
-  // Function to handle image upload
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-
-    // Validate file size (5MB max)
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error("Image size must be less than 5MB")
-      return
-    }
-
-    // Validate file type
-    const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/jpg"]
-    if (!allowedTypes.includes(file.type)) {
-      toast.error("Only JPG, PNG and WebP formats are allowed")
-      return
-    }
-
-    // Create preview URL
-    const previewUrl = URL.createObjectURL(file)
-    setPreviewImage(previewUrl)
-
-    // Update form state
-    const currentImages = form.getValues("images") || []
-    form.setValue("images", [...currentImages, file], { shouldValidate: true })
-  }
-
-  // Clear preview when component unmounts
+  // Create a more general image sync effect that works across all steps
   useEffect(() => {
-    return () => {
-      if (previewImage) {
-        URL.revokeObjectURL(previewImage)
+    // Sync image preview with form data whenever the step changes
+    const formImages = form.getValues("images")
+
+    if (formImages?.length > 0 && !previewImage) {
+      const lastImage = formImages[formImages.length - 1]
+
+      // If the image is a File object, create a preview URL
+      if (lastImage instanceof File) {
+        console.log(
+          `Creating preview URL for File object in step ${currentStep}`
+        )
+        const previewUrl = URL.createObjectURL(lastImage)
+        setPreviewImage(previewUrl)
+      }
+      // If it's a string URL, use it directly
+      else if (typeof lastImage === "string") {
+        console.log(`Using string URL for preview in step ${currentStep}`)
+        setPreviewImage(lastImage)
       }
     }
-  }, [previewImage])
-
-  // Add this helper function near the top of the component:
-  const safeTrackingParams = () => {
-    const params = watch("tracking_param")
-    return Array.isArray(params) ? params : []
-  }
+  }, [currentStep, form, previewImage])
 
   // Render the content based on the current step
   const renderStepContent = () => {
@@ -269,51 +311,11 @@ const CampaignForm = () => {
                 control={control}
                 name="images"
                 render={() => (
-                  <FormItem>
-                    <FormLabel className="text-base font-medium">
-                      Campaign image
-                    </FormLabel>
-                    <div className="flex items-center gap-4">
-                      <div
-                        className="flex size-24 items-center justify-center overflow-hidden rounded-md border border-dashed border-gray-300 bg-gray-50/50 dark:border-gray-700 dark:bg-gray-900/50"
-                        onClick={() => fileInputRef.current?.click()}
-                      >
-                        {previewImage ? (
-                          <div className="relative size-full">
-                            <Image
-                              src={previewImage}
-                              alt="Campaign preview"
-                              fill
-                              className="object-cover"
-                            />
-                          </div>
-                        ) : (
-                          <ImageIcon className="size-8 text-muted-foreground" />
-                        )}
-                      </div>
-                      <div>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          className="mb-2 h-11"
-                          onClick={() => fileInputRef.current?.click()}
-                        >
-                          Upload image
-                        </Button>
-                        <input
-                          ref={fileInputRef}
-                          type="file"
-                          accept="image/jpeg,image/png,image/webp,image/jpg"
-                          className="hidden"
-                          onChange={handleImageUpload}
-                        />
-                        <p className="text-sm text-muted-foreground">
-                          Recommended: 1024x1024px, max 5MB, JPG or PNG format
-                        </p>
-                      </div>
-                    </div>
-                    <FormMessage />
-                  </FormItem>
+                  <ImageUpload
+                    form={form}
+                    previewImage={previewImage}
+                    setPreviewImage={setPreviewImage}
+                  />
                 )}
               />
             </div>
@@ -323,6 +325,13 @@ const CampaignForm = () => {
                 type="button"
                 onClick={(e) => {
                   e.preventDefault()
+                  // Log before transition
+                  console.log(
+                    "Transitioning from step 1 to 2. Form images:",
+                    form.getValues("images"),
+                    "Preview:",
+                    previewImage
+                  )
                   setCurrentStep(2)
                 }}
                 className="h-11 px-6"
@@ -351,6 +360,13 @@ const CampaignForm = () => {
                 variant="outline"
                 onClick={(e) => {
                   e.preventDefault()
+                  // Log before transition
+                  console.log(
+                    "Transitioning from step 2 to 1. Form images:",
+                    form.getValues("images"),
+                    "Preview:",
+                    previewImage
+                  )
                   setCurrentStep(1)
                 }}
                 className="h-11"
@@ -406,6 +422,13 @@ const CampaignForm = () => {
                 type="button"
                 onClick={(e) => {
                   e.preventDefault()
+                  // Log before transition to step 4
+                  console.log(
+                    "Transitioning from step 3 to 4. Form images:",
+                    form.getValues("images"),
+                    "Preview:",
+                    previewImage
+                  )
                   setCurrentStep(4)
                 }}
                 className="h-11 px-6"
@@ -471,13 +494,14 @@ const CampaignForm = () => {
                       {watch("description") || "No description provided"}
                     </dd>
                   </div>
-                  {previewImage && (
-                    <div className="col-span-full mt-2">
-                      <dt className="mb-2 text-sm text-muted-foreground">
-                        Campaign Image
-                      </dt>
-                      <dd className="text-sm font-medium">
-                        <div className="relative size-40 overflow-hidden rounded-md border">
+                  {/* Show campaign image if available */}
+                  <div className="col-span-full mt-4">
+                    <dt className="mb-2 text-sm text-muted-foreground">
+                      Campaign Image
+                    </dt>
+                    <dd className="text-sm font-medium">
+                      {previewImage ? (
+                        <div className="relative h-60 w-full max-w-xl overflow-hidden rounded-md border">
                           <Image
                             src={previewImage}
                             alt="Campaign preview"
@@ -485,9 +509,15 @@ const CampaignForm = () => {
                             className="object-cover"
                           />
                         </div>
-                      </dd>
-                    </div>
-                  )}
+                      ) : (
+                        <div className="rounded-md border border-dashed border-gray-300 bg-gray-50/50 p-4 text-center dark:border-gray-700 dark:bg-gray-900/50">
+                          <p className="text-muted-foreground">
+                            No image provided
+                          </p>
+                        </div>
+                      )}
+                    </dd>
+                  </div>
                 </dl>
               </div>
 
@@ -512,14 +542,22 @@ const CampaignForm = () => {
                       </dt>
                       <dd className="mt-1">
                         <ul className="space-y-1 text-sm">
-                          {safeTrackingParams().map((param, index) => (
-                            <li
-                              key={index}
-                              className="rounded bg-muted/50 px-3 py-1.5 font-mono text-xs"
-                            >
-                              {param.param_name}: {param.param_value}
-                            </li>
-                          ))}
+                          {safeTrackingParams().map(
+                            (
+                              param: {
+                                param_name: string
+                                param_value: string
+                              },
+                              index: number
+                            ) => (
+                              <li
+                                key={index}
+                                className="rounded bg-muted/50 px-3 py-1.5 font-mono text-xs"
+                              >
+                                {param.param_name}: {param.param_value}
+                              </li>
+                            )
+                          )}
                         </ul>
                       </dd>
                     </div>
