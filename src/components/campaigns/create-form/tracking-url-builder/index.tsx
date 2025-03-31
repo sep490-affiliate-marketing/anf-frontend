@@ -33,7 +33,7 @@ export default function TrackingUrlBuilder({ form }: TrackingUrlBuilderProps) {
           Tracking URL Configuration
         </Label>
         <div className="flex items-center gap-4">
-          <StatusBadge variant="orange" className="text-sm font-medium">
+          <StatusBadge variant="purple" className="text-sm font-medium">
             {mode === "simple" ? "Simple Mode" : "Advanced Mode"}
           </StatusBadge>
           <Button

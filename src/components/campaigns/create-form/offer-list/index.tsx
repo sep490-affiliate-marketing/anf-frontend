@@ -103,15 +103,6 @@ const OfferList = ({
 
   return (
     <div className="mt-16 space-y-8">
-      <div className="flex items-center justify-between">
-        <h3 className="flex items-center gap-2 text-2xl font-bold text-accent-foreground">
-          <span>Campaign Offers</span>
-          <span className="rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-primary">
-            {fields.length}
-          </span>
-        </h3>
-      </div>
-
       {fields.map((field, index) => (
         <div
           key={field.id}

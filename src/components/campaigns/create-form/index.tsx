@@ -9,6 +9,7 @@ import { ICreateCampaignForm } from "@/validations/campaign.validation"
 import { addDays, format } from "date-fns"
 import { ImageIcon } from "lucide-react"
 import { DateRange } from "react-day-picker"
+import { useFieldArray } from "react-hook-form"
 import { toast } from "sonner"
 
 import { useCreateCampaignForm } from "@/hooks/campaign"
@@ -88,6 +89,11 @@ const CampaignForm = () => {
   const [currentStep, setCurrentStep] = useState(1)
   const [previewImage, setPreviewImage] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const { fields } = useFieldArray({
+    control: form.control,
+    name: "offers",
+  })
 
   useEffect(() => {
     if (dateRange) {
@@ -262,7 +268,7 @@ const CampaignForm = () => {
               <FormField
                 control={control}
                 name="images"
-                render={({ field }) => (
+                render={() => (
                   <FormItem>
                     <FormLabel className="text-base font-medium">
                       Campaign image
@@ -368,7 +374,14 @@ const CampaignForm = () => {
         return (
           <div className="space-y-8">
             <div>
-              <h2 className="text-2xl font-medium">Create Offers</h2>
+              <div className="flex items-center justify-between">
+                <h3 className="flex items-center gap-2 text-2xl font-medium text-accent-foreground">
+                  <span>Campaign Offers</span>
+                  <span className="rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-primary">
+                    {fields.length}
+                  </span>
+                </h3>
+              </div>
               <p className="mt-1 text-muted-foreground">
                 Set up the offers for your campaign including pricing, budgets,
                 and conditions.
