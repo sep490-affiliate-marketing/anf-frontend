@@ -1,3 +1,5 @@
+import { useRouter } from "next/navigation"
+
 import { errorMessage } from "@/constant/error-message"
 import { campaignQueryKeys } from "@/constant/react-query"
 import {
@@ -53,6 +55,7 @@ export const useGetCampaignById = (campaignId: string) => {
 
 export const useCreateCampaignForm = () => {
   const queryClient = useQueryClient()
+  const router = useRouter()
 
   const form = useForm<ICreateCampaignForm>({
     mode: "onChange",
@@ -110,6 +113,8 @@ export const useCreateCampaignForm = () => {
         queryClient.invalidateQueries({
           queryKey: campaignQueryKeys.advertiser.list,
         })
+        form.reset()
+        router.push("/advertiser/campaigns")
       } else {
         toast.error(resData.message)
       }

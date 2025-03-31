@@ -662,12 +662,12 @@ const CampaignForm = () => {
       >
         <div className="grid grid-cols-12 gap-12">
           {/* Stepper (Left Column) */}
-          <div className="col-span-12 md:col-span-4 lg:col-span-3">
+          <div className="col-span-12 md:sticky md:top-24 md:col-span-4 md:h-fit md:self-start lg:col-span-3">
             <Stepper
               value={currentStep}
               onValueChange={setCurrentStep}
               orientation="vertical"
-              className="sticky top-8"
+              className="max-h-[calc(100vh-8rem)] overflow-y-auto pb-4"
             >
               {steps.map(({ step, title, description }) => (
                 <StepperItem
