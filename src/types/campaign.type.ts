@@ -76,11 +76,6 @@ export interface IActivateCampaignErrorResponse {
     | "active_camp_error"
 }
 
-export interface IGetCampaignsByAdvertiserParams {
-  pageNumber?: number
-  pageSize?: number
-}
-
 export interface IGetTrackingParamsResponse {
   success: true
   data: string[]

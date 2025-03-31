@@ -1,4 +1,4 @@
-import CampaignDataTable from "@/components/admin/campaigns/data-table"
+import CampaignDataTable from "@/components/advertiser/campaigns/data-table"
 import { SearchInput } from "@/components/inputs/search-input"
 
 export default function Page() {

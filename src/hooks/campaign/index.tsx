@@ -19,7 +19,6 @@ import {
   IGetAllCampaignsResponse,
   IGetCampaignByCampIdResponse,
   IGetCampaignDetailForPublisherResponse,
-  IGetCampaignsByAdvertiserParams,
   IGetCampaignsByAdvertiserResponse,
   IGetPublisherCampaignsErrorResponse,
   IGetPublisherCampaignsResponse,
@@ -171,13 +170,21 @@ export const useCreateCampaignForm = () => {
 }
 
 export const useGetCampaignsByAdvertiser = (
-  params: IGetCampaignsByAdvertiserParams,
-  advertiserCode: string
+  advertiserCode: string,
+  page?: number,
+  pageSize?: number
 ) => {
   return useQuery({
-    queryKey: ["campaignsByAdvertiser", params, advertiserCode],
+    queryKey: campaignQueryKeys.advertiser.list(
+      advertiserCode,
+      page ?? 1,
+      pageSize ?? 10
+    ),
     queryFn: async () => {
-      const queryString = qs.stringify(params)
+      const queryString = qs.stringify({
+        pageNumber: page ?? 1,
+        pageSize: pageSize ?? 10,
+      })
       try {
         const { data } = await apiClient.get<IGetCampaignsByAdvertiserResponse>(
           `/api/affiliate-network/campaigns/advertisers/${advertiserCode}/offers?${queryString}`
@@ -188,8 +195,8 @@ export const useGetCampaignsByAdvertiser = (
           isSuccess: false,
           message: "Something went wrong while fetching campaigns",
           value: {
-            pageNumber: params.pageNumber || 1,
-            pageSize: params.pageSize || 10,
+            pageNumber: page ?? 1,
+            pageSize: pageSize ?? 10,
             totalPages: 0,
             totalRecords: 0,
             data: [],
