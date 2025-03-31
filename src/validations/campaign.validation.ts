@@ -57,15 +57,6 @@ export function CreateCampaignFormSchema() {
           },
           { message: "validation.endDate.notInPast" }
         ),
-      // Simple mode fields
-      url: z
-        .string()
-        .url("validation.url.invalid")
-        .refine((url) => !url.endsWith("/"), {
-          message: "validation.url.noTrailingSlash",
-        })
-        .optional(),
-      // Advanced mode fields
       baseUrl: z
         .string()
         .url("validation.url.invalid")
@@ -136,15 +127,6 @@ export function UpdateCampaignFormSchema() {
           { message: "validation.endDate.notInPast" }
         )
         .optional(),
-      // Simple mode fields
-      url: z
-        .string()
-        .url("validation.url.invalid")
-        .refine((url) => !url.endsWith("/"), {
-          message: "validation.url.noTrailingSlash",
-        })
-        .optional(),
-      // Advanced mode fields
       baseUrl: z
         .string()
         .url("validation.url.invalid")

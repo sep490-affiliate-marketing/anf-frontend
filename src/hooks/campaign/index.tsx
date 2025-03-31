@@ -60,7 +60,8 @@ export const useCreateCampaignForm = () => {
     defaultValues: {
       name: "",
       description: "",
-      url: "",
+      baseUrl: "",
+      tracking_param: [],
       images: [],
       offers: [
         {

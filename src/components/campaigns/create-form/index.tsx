@@ -525,20 +525,16 @@ const CampaignForm = () => {
                 <h3 className="text-lg font-medium">Tracking Information</h3>
                 <dl className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div className="col-span-full">
-                    <dt className="text-sm text-muted-foreground">
-                      Tracking URL
-                    </dt>
+                    <dt className="text-sm text-muted-foreground">Base URL</dt>
                     <dd className="mt-1 break-all rounded bg-muted/50 p-3 font-mono text-xs">
-                      {watch("url") ||
-                        watch("baseUrl") ||
-                        "No tracking URL configured"}
+                      {watch("baseUrl") || "No tracking URL configured"}
                     </dd>
                   </div>
 
                   {safeTrackingParams().length > 0 && (
                     <div className="col-span-full">
                       <dt className="text-sm text-muted-foreground">
-                        Parameters
+                        Tracking Parameters
                       </dt>
                       <dd className="mt-1">
                         <ul className="space-y-1 text-sm">
