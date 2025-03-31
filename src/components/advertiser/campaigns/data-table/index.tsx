@@ -218,7 +218,7 @@ const columns: ColumnDef<ICampaign>[] = [
     header: "Campaign Name",
     accessorKey: "name",
     cell: ({ row }) => (
-      <Link href={`/admin/campaigns/${row.original.id}`}>
+      <Link href={`/advertiser/campaigns/${row.original.id}`}>
         <div className="truncate font-medium">{row.getValue("name")}</div>
       </Link>
     ),
