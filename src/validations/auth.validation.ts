@@ -12,12 +12,13 @@ export const SignUpFormSchema = z
     email: z.string().email("Please enter a valid email address"),
     lastName: z.string().min(3, "Last name must be at least 3 characters"),
     firstName: z.string().min(3, "First name must be at least 3 characters"),
+    address: z.string().min(5, "Address must be at least 5 characters"),
     phoneNumber: z
       .string()
       .min(10, "Phone number must be at least 10 characters"),
     citizenId: z.string().min(13, "Citizen ID must be at least 13 characters"),
-    dateOfBirth: z.string().date(),
-
+    dateOfBirth: z.coerce.date(),
+    role: z.string().optional(),
     password: z
       .string()
       .min(8, "Password must be at least 8 characters")
