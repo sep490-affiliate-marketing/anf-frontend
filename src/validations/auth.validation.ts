@@ -18,7 +18,13 @@ export const SignUpFormSchema = z
       .string()
       .min(10, "Phone number must be at least 10 characters"),
     citizenId: z.string().min(12, "Citizen ID must be at least 13 characters"),
-    dateOfBirth: z.coerce.date(),
+    dateOfBirth: z.coerce.date()
+      .refine(date => date < new Date(), {
+        message: "Date of birth cannot be in the future"
+      })
+      .refine(date => date > new Date(1900, 0, 1), {
+        message: "Date of birth must be after 1900"
+      }),
     role: z.nativeEnum(UserRoleEnum, {
       required_error: "Please select a role",
     }),
