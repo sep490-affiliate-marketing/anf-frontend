@@ -31,11 +31,11 @@ export const campaignQueryKeys = {
   },
 
   advertiser: {
-    list: (advertiserId: string, page: number, limit: number) =>
+    list: (advertiserCode: string, page: number, limit: number) =>
       [
         ...campaignQueryKeys.origin,
         "advertiser",
-        advertiserId,
+        advertiserCode,
         "list",
         { page, limit },
       ] as const,

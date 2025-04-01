@@ -79,7 +79,9 @@ export default async function middleware(request: NextRequest) {
       normalizedPath === route || normalizedPath.startsWith(`${route}/`)
   )
 
-  const isAuthRoute = authRoutes.some((path) => normalizedPath.startsWith(path))
+  const isAuthRoute = authRoutes.some((path) =>
+    normalizedPath.startsWith(`/${path}`) || normalizedPath === `/${path}`
+  )
 
   // Is this a login page? Used to prevent redirect loops
   const isLoginPage = normalizedPath.includes("login")

@@ -7,7 +7,12 @@ import { useRouter } from "next/navigation"
 import { errorMessage } from "@/constant/error-message"
 import { authQueryKeys } from "@/constant/react-query"
 import { UserRoleEnum } from "@/enums/user-role"
-import { ILoginForm, LoginFormSchema } from "@/validations/auth.validation"
+import {
+  ILoginForm,
+  ISignUpForm,
+  LoginFormSchema,
+  SignUpFormSchema,
+} from "@/validations/auth.validation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { AxiosError } from "axios"
@@ -34,6 +39,9 @@ type AuthContextType = {
   login: (data: ILoginForm, callbackUrl?: string | null) => void
   isLoggingIn: boolean
   loginForm: UseFormReturn<ILoginForm>
+  signup: (data: ISignUpForm) => void
+  isSigningUp: boolean
+  signupForm: UseFormReturn<ISignUpForm>
 }
 
 export const AuthContext = React.createContext<AuthContextType | null>(null)
@@ -90,6 +98,22 @@ export default function AuthProvider({ children }: AuthProviderProps) {
     },
   })
 
+  const signupForm = useForm<ISignUpForm>({
+    resolver: zodResolver(SignUpFormSchema),
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      phoneNumber: "",
+      citizenId: "",
+      dateOfBirth: new Date(1, 1, 1990),
+      email: "",
+      password: "",
+      passwordConfirmed: "",
+      address: "",
+      role: "" as any,
+    },
+  })
+
   const { mutateAsync: loginMutation, isPending: isLoggingIn } = useMutation({
     mutationKey: authQueryKeys.login(),
     mutationFn: async (
@@ -131,6 +155,44 @@ export default function AuthProvider({ children }: AuthProviderProps) {
     },
   })
 
+  const { mutateAsync: signupMutation, isPending: isSigningUp } = useMutation({
+    mutationKey: authQueryKeys.register(),
+    mutationFn: async (
+      formData: ISignUpForm
+    ): Promise<IBackendRes<void> | IBackendErrorRes> => {
+      try {
+        const { data } = await apiClient.post<IBackendRes<void>>(
+          "/api/affiliate-network/users/account",
+          formData
+        )
+        return data
+      } catch (error) {
+        const errRes =
+          error instanceof AxiosError
+            ? (error.response?.data as IBackendErrorRes)
+            : null
+
+        return {
+          isSuccess: false,
+          message: errRes?.message ?? errorMessage.unknown,
+          statusCode: errRes?.statusCode ?? 500,
+          details: errRes?.details ?? errorMessage.unknown,
+        }
+      }
+    },
+    onSuccess: (res) => {
+      if (res.isSuccess === true) {
+        signupForm.reset()
+        toast.success("Successful", {
+          description: "Successfully registered, please login to continue",
+        })
+        router.push("/auth/sign-in")
+      } else {
+        toast.error(res.details || res.message || "Registration failed")
+      }
+    },
+  })
+
   // Custom login function that handles redirection with callbackUrl
   const login = async (formData: ILoginForm, callbackUrl?: string | null) => {
     const res = await loginMutation(formData)
@@ -151,6 +213,11 @@ export default function AuthProvider({ children }: AuthProviderProps) {
     }
   }
 
+  // Custom signup function
+  const signup = async (formData: ISignUpForm) => {
+    await signupMutation(formData)
+  }
+
   return (
     <AuthContext.Provider
       value={{
@@ -161,6 +228,9 @@ export default function AuthProvider({ children }: AuthProviderProps) {
         login,
         isLoggingIn,
         loginForm,
+        signup,
+        isSigningUp,
+        signupForm,
       }}
     >
       {children}

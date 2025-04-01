@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils"
 
 type StatusBadgeProps = {
-  variant: "success" | "warning" | "destructive" | "orange"
+  variant: "success" | "warning" | "destructive" | "orange" | "purple"
   children: React.ReactNode
   className?: string
 }
@@ -22,6 +22,8 @@ export default function StatusBadge({
     destructive: "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300",
     orange:
       "bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300",
+    purple:
+      "bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300",
   }
 
   const dotClasses = {
@@ -29,6 +31,7 @@ export default function StatusBadge({
     warning: "bg-yellow-500 dark:bg-yellow-400",
     destructive: "bg-red-500 dark:bg-red-400",
     orange: "bg-orange-500 dark:bg-orange-400",
+    purple: "bg-purple-500 dark:bg-purple-400",
   }
 
   return (

@@ -47,11 +47,6 @@ export default function AdvancedUrlBuilderForm({
     }
   }, [append, fields.length])
 
-  // if (isLoading) return <AdvancedUrlBuilderFormSkeleton />
-
-  // if (!tracking_param || isError)
-  //   return <p className="text-sm text-gray-500">{"noTrackingParamsFound"}</p>
-
   const formattedTrackingParams = transformTrackingParameters(
     TRACKING_PARAMS?.map((param) => param.name) ?? []
   )
@@ -72,9 +67,13 @@ export default function AdvancedUrlBuilderForm({
         name="baseUrl"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>{"baseUrl"}</FormLabel>
+            <FormLabel>Base URL</FormLabel>
             <FormControl>
-              <Input placeholder="https://example.com" {...field} />
+              <Input
+                placeholder="https://example.com"
+                {...field}
+                value={field.value || ""}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -83,14 +82,14 @@ export default function AdvancedUrlBuilderForm({
 
       {/* Available Parameters */}
       <div className="space-y-4">
-        <FormLabel>{"availableParams"}</FormLabel>
+        <FormLabel>Available Tracking Parameters</FormLabel>
         <div className="flex flex-wrap gap-2">
           {availableParams.map((param) => (
             <Button
               type="button"
               key={param.param_value}
               size="sm"
-              variant="outline"
+              variant="default"
               className="first-letter:uppercase"
               onClick={() =>
                 append({
@@ -104,7 +103,7 @@ export default function AdvancedUrlBuilderForm({
           ))}
           {availableParams.length === 0 && (
             <p className="text-sm text-gray-500">
-              {"allTrackingParamsSelected"}
+              All tracking parameters have been added
             </p>
           )}
         </div>
@@ -128,9 +127,13 @@ export default function AdvancedUrlBuilderForm({
               name={`tracking_param.${index}.param_name`}
               render={({ field }) => (
                 <FormItem>
-                  <Label>{"paramName"}</Label>
+                  <Label>Parameter Name</Label>
                   <FormControl>
-                    <Input {...field} placeholder="Parameter name" />
+                    <Input
+                      {...field}
+                      placeholder="Parameter name"
+                      value={field.value || ""}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -141,9 +144,14 @@ export default function AdvancedUrlBuilderForm({
               name={`tracking_param.${index}.param_value`}
               render={({ field }) => (
                 <FormItem>
-                  <Label>{"paramValue"}</Label>
+                  <Label>Parameter Value</Label>
                   <FormControl>
-                    <Input {...field} placeholder="Parameter value" disabled />
+                    <Input
+                      {...field}
+                      placeholder="Parameter value"
+                      disabled
+                      value={field.value || ""}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
