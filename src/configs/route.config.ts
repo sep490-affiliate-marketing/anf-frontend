@@ -2,7 +2,6 @@ export const publicRoutes = ["/"]
 
 export const authRoutes = [
   "auth/sign-in",
-  "auth/signup",
   "auth/sign-up",
   "auth/forgot-password",
   "auth/resend-email",

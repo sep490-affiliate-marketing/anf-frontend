@@ -105,12 +105,12 @@ export default function AuthProvider({ children }: AuthProviderProps) {
       lastName: "",
       phoneNumber: "",
       citizenId: "",
-      dateOfBirth: new Date(),
+      dateOfBirth: new Date(1, 1, 1990),
       email: "",
       password: "",
       passwordConfirmed: "",
       address: "",
-      role: "",
+      role: "" as any,
     },
   })
 
@@ -183,8 +183,10 @@ export default function AuthProvider({ children }: AuthProviderProps) {
     onSuccess: (res) => {
       if (res.isSuccess === true) {
         signupForm.reset()
-        toast.success("Registration successful. Please log in to continue.")
-        router.push("/auth/login")
+        toast.success("Successful", {
+          description: "Successfully registered, please login to continue",
+        })
+        router.push("/auth/sign-in")
       } else {
         toast.error(res.details || res.message || "Registration failed")
       }

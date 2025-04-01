@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { UserRoleEnum } from "@/enums/user-role"
 
 export const LoginFormSchema = z.object({
   email: z.string().email(),
@@ -16,9 +17,11 @@ export const SignUpFormSchema = z
     phoneNumber: z
       .string()
       .min(10, "Phone number must be at least 10 characters"),
-    citizenId: z.string().min(13, "Citizen ID must be at least 13 characters"),
+    citizenId: z.string().min(12, "Citizen ID must be at least 13 characters"),
     dateOfBirth: z.coerce.date(),
-    role: z.string().optional(),
+    role: z.nativeEnum(UserRoleEnum, {
+      required_error: "Please select a role",
+    }),
     password: z
       .string()
       .min(8, "Password must be at least 8 characters")
