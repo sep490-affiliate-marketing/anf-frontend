@@ -79,8 +79,9 @@ export default async function middleware(request: NextRequest) {
       normalizedPath === route || normalizedPath.startsWith(`${route}/`)
   )
 
-  const isAuthRoute = authRoutes.some((path) =>
-    normalizedPath.startsWith(`/${path}`) || normalizedPath === `/${path}`
+  const isAuthRoute = authRoutes.some(
+    (path) =>
+      normalizedPath.startsWith(`/${path}`) || normalizedPath === `/${path}`
   )
 
   // Is this a login page? Used to prevent redirect loops
@@ -127,7 +128,7 @@ export default async function middleware(request: NextRequest) {
 
       const encodedCallbackUrl = encodeURIComponent(callbackUrl)
       const loginUrl = new URL(
-        `/auth/login?callbackUrl=${encodedCallbackUrl}`,
+        `/auth/sign-in?callbackUrl=${encodedCallbackUrl}`,
         nextUrl
       ).toString()
 
