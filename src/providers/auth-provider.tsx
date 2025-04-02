@@ -105,7 +105,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
       lastName: "",
       phoneNumber: "",
       citizenId: "",
-      dateOfBirth: new Date(1, 1, 2000),
+      dateOfBirth: new Date(2000, 0, 1),
       email: "",
       password: "",
       passwordConfirmed: "",
