@@ -75,18 +75,18 @@ function SigninFormWithCallback({}) {
           type="submit"
           disabled={isLoggingIn}
           isLoading={isLoggingIn}
-          loadingText="Xác minh"
+          loadingText="Verifying"
         >
-          Đăng nhập
+          Sign in
         </Button>
 
         <div className="flex items-center justify-center text-sm">
-          <span className="text-dark-600">Mới với Denticare?</span>
+          <span className="text-dark-600">New to Affiliate network?</span>
           <Link
             href="/auth/sign-up"
             className="ml-2 text-primary hover:underline"
           >
-            Tạo tài khoản
+            Sign up
           </Link>
         </div>
       </form>

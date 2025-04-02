@@ -6,7 +6,7 @@ import Link from "next/link"
 
 import { motion } from "framer-motion"
 
-import { Button } from "@/components/ui/button"
+import { Button, buttonVariants } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -55,39 +55,22 @@ export default function Header() {
 
       <li className="flex items-center space-x-4">
         <Link
-          href="/auth/login"
+          href="/auth/sign-in"
           className="relative text-sm font-medium text-gray-600 transition-all duration-300 hover:-translate-y-px hover:text-gray-900"
         >
           Sign In
         </Link>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white transition-all duration-300 hover:-translate-y-px hover:from-purple-700 hover:to-indigo-700 hover:shadow-lg"
-              size="sm"
-            >
-              Get Started
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48 bg-white">
-            <DropdownMenuItem asChild>
-              <Link
-                href="/register/publisher"
-                className="text-sm font-medium text-gray-700 transition-all duration-200 hover:bg-gradient-to-r hover:from-purple-50 hover:to-indigo-50 hover:text-gray-900"
-              >
-                Join as Publisher
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link
-                href="/register/advertiser"
-                className="text-sm font-medium text-gray-700 transition-all duration-200 hover:bg-gradient-to-r hover:from-purple-50 hover:to-indigo-50 hover:text-gray-900"
-              >
-                Join as Advertiser
-              </Link>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+
+        <Link
+          className={buttonVariants({
+            className:
+              "bg-gradient-to-r from-purple-600 to-indigo-600 text-white transition-all duration-300 hover:-translate-y-px hover:from-purple-700 hover:to-indigo-700 hover:shadow-lg",
+            size: "sm",
+          })}
+          href="/auth/sign-up"
+        >
+          Get Started
+        </Link>
       </li>
     </>
   )
