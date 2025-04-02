@@ -83,7 +83,7 @@ export function ForgotPasswordForm({
               <div className="mt-4 text-center text-sm">
                 Remember your password?{" "}
                 <Link
-                  href="/auth/login"
+                  href="/auth/sign-in"
                   className="underline underline-offset-4"
                 >
                   Back to login

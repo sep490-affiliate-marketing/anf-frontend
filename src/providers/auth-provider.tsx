@@ -86,7 +86,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
     onSuccess: () => {
       queryClient.clear()
       Cookies.remove("access_token")
-      router.push("/auth/login")
+      router.push("/auth/sign-in")
     },
   })
 
@@ -105,7 +105,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
       lastName: "",
       phoneNumber: "",
       citizenId: "",
-      dateOfBirth: new Date(1, 1, 1990),
+      dateOfBirth: new Date(2000, 0, 1),
       email: "",
       password: "",
       passwordConfirmed: "",
