@@ -142,7 +142,9 @@ export default function AuthProvider({ children }: AuthProviderProps) {
     onSuccess: async (res) => {
       if (res.isSuccess === true) {
         const { accessToken } = res.value
-        await Cookies.set("access_token", accessToken)
+        await Cookies.set("access_token", accessToken, {
+          expires: 1, //1 hours
+        })
 
         queryClient.setQueryData(["me"], res.value)
 
