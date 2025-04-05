@@ -178,17 +178,24 @@ function UserDetailsForm({
 
               {/* Second column - Additional Information */}
               <div className="space-y-4">
-                
                 <FormField
                   control={signupForm.control}
                   name="dateOfBirth"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Date of Birth</FormLabel>
-                      <DatePicker 
-                        className="*:not-first:mt-2" 
-                        value={field.value ? parseDate(field.value.toISOString().split('T')[0]) : undefined} 
-                        onChange={(date) => field.onChange(date ? new Date(date.toString()) : null)}
+                      <DatePicker
+                        className="*:not-first:mt-2"
+                        value={
+                          field.value
+                            ? parseDate(field.value.toISOString().split("T")[0])
+                            : undefined
+                        }
+                        onChange={(date) =>
+                          field.onChange(
+                            date ? new Date(date.toString()) : null
+                          )
+                        }
                       >
                         <div className="flex">
                           <Group className="w-full">
