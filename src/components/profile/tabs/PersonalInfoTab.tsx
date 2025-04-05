@@ -1,0 +1,95 @@
+import { UseProfileReturn } from "@/hooks/profile"
+
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Separator } from "@/components/ui/separator"
+import { Switch } from "@/components/ui/switch"
+import { TabsContent } from "@/components/ui/tabs"
+
+interface PersonalInfoTabProps {
+  profile: UseProfileReturn
+}
+
+export function PersonalInfoTab({ profile }: PersonalInfoTabProps) {
+  const { user, updateUser } = profile
+
+  return (
+    <TabsContent value="profile" className="mt-0 space-y-6 pb-4">
+      <div className="space-y-6">
+        <div className="rounded-lg border bg-card p-5 text-card-foreground shadow-sm">
+          <h3 className="mb-4 font-medium">Basic Information</h3>
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="name" className="text-sm font-medium">
+                Full Name
+              </Label>
+              <Input
+                id="name"
+                value={user.name}
+                onChange={(e) => updateUser({ name: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-sm font-medium">
+                Email Address
+              </Label>
+              <Input
+                id="email"
+                type="email"
+                value={user.email}
+                onChange={(e) => updateUser({ email: e.target.value })}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Notification preferences */}
+        <div className="rounded-lg border bg-card p-5 text-card-foreground shadow-sm">
+          <h3 className="mb-4 font-medium">Notification Preferences</h3>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label className="text-sm font-medium">
+                  Email Notifications
+                </Label>
+                <p className="text-xs text-muted-foreground">
+                  Receive notifications about your account activity via email
+                </p>
+              </div>
+              <Switch defaultChecked />
+            </div>
+            <Separator />
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label className="text-sm font-medium">
+                  System Notifications
+                </Label>
+                <p className="text-xs text-muted-foreground">
+                  Receive notifications about system updates and maintenance
+                </p>
+              </div>
+              <Switch defaultChecked />
+            </div>
+            <Separator />
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label className="text-sm font-medium">
+                  Update Notifications
+                </Label>
+                <p className="text-xs text-muted-foreground">
+                  Receive notifications about new features and updates
+                </p>
+              </div>
+              <Switch />
+            </div>
+          </div>
+        </div>
+
+        <div className="flex justify-end">
+          <Button className="px-6 shadow-sm">Save Changes</Button>
+        </div>
+      </div>
+    </TabsContent>
+  )
+}
