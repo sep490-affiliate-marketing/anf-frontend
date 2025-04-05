@@ -30,6 +30,13 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 
+interface BankAccountPayload {
+  accountName: string
+  bankingNo: string
+  bankingCode: string
+  bankingName: string
+}
+
 interface AddBankAccountDialogProps {
   profile: UseProfileReturn
   onAddAccount: (account: BankingInfo) => void
@@ -46,6 +53,9 @@ export function AddBankAccountDialog({
     isLookingUpAccount,
     lookupError,
     getCachedBankAccount,
+    addBankAccount,
+    isAddingBankAccount,
+    addBankAccountError,
   } = profile
 
   const [bankingInfo, setBankingInfo] = useState<Partial<BankingInfo>>({
@@ -56,6 +66,7 @@ export function AddBankAccountDialog({
   })
 
   const [isLookupEnabled, setIsLookupEnabled] = useState(false)
+  const [isOpen, setIsOpen] = useState(false)
 
   useEffect(() => {
     setIsLookupEnabled(
@@ -106,19 +117,29 @@ export function AddBankAccountDialog({
     )
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (
       bankingInfo.accountHolderName &&
       bankingInfo.accountNumber &&
       bankingInfo.bankName
     ) {
+      addBankAccount(bankingInfo as BankingInfo)
       onAddAccount(bankingInfo as BankingInfo)
+      if (!addBankAccountError) {
+        setIsOpen(false)
+        setBankingInfo({
+          id: crypto.randomUUID(),
+          accountHolderName: "",
+          accountNumber: "",
+          bankName: "",
+        })
+      }
     }
   }
 
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button variant="outline">Add Bank Account</Button>
       </DialogTrigger>
@@ -222,8 +243,25 @@ export function AddBankAccountDialog({
           </div>
 
           <DialogFooter>
-            <Button type="submit" disabled={!bankingInfo.accountHolderName}>
-              Add Account
+            {addBankAccountError && (
+              <p className="text-sm text-destructive">
+                {addBankAccountError instanceof Error
+                  ? addBankAccountError.message
+                  : "Failed to add bank account"}
+              </p>
+            )}
+            <Button
+              type="submit"
+              disabled={!bankingInfo.accountHolderName || isAddingBankAccount}
+            >
+              {isAddingBankAccount ? (
+                <>
+                  <Loader2 className="mr-2 size-4 animate-spin" />
+                  Adding...
+                </>
+              ) : (
+                "Add Account"
+              )}
             </Button>
           </DialogFooter>
         </form>

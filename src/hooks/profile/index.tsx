@@ -9,9 +9,25 @@ import {
   updateBankingInfo,
   updateUserProfile,
 } from "@/api/profile"
+import { errorMessage } from "@/constant/error-message"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { AxiosError } from "axios"
 
-import { BankingInfo, UserBankAccounts, UserProfile } from "@/types/profile"
+import {
+  Bank,
+  BankingInfo,
+  UserBankAccounts,
+  UserProfile,
+} from "@/types/profile"
+
+import apiClient from "@/lib/api/client"
+
+interface AddBankAccountPayload {
+  accountName: string
+  bankingNo: string
+  bankingCode: string
+  bankingName: string
+}
 
 const defaultUser: UserProfile = {
   name: "",
@@ -113,12 +129,56 @@ export const useProfile = () => {
     },
   })
 
+  // Add bank account mutation
+  const {
+    mutate: addBankAccountMutation,
+    isPending: isAddingBankAccount,
+    error: addBankAccountError,
+  } = useMutation({
+    mutationFn: async (payload: AddBankAccountPayload) => {
+      try {
+        const response = await apiClient.post(
+          "/api/affiliate-network/users/bank-accounts",
+          [payload]
+        )
+        return response
+      } catch (error) {
+        const errRes = error instanceof AxiosError ? error.response?.data : null
+
+        return {
+          isSuccess: false,
+          statusCode: errRes?.statusCode ?? 500,
+          message: errRes?.message ?? errorMessage.unknown,
+          details: errRes?.details ?? errorMessage.unknown,
+        }
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["profile"] })
+    },
+  })
+
   const handleAddBankAccount = (account: BankingInfo) => {
-    const updatedAccounts = {
-      accounts: [...bankAccounts.accounts, account],
-      primaryAccountId: bankAccounts.primaryAccountId || account.id,
+    const selectedBank = banks.find(
+      (bank: Bank) => bank.code === account.bankName
+    )
+
+    const payload: AddBankAccountPayload = {
+      accountName: account.accountHolderName,
+      bankingNo: account.accountNumber,
+      bankingCode: account.bankName,
+      bankingName: selectedBank?.name || "",
     }
-    updateBankAccounts(updatedAccounts)
+
+    addBankAccountMutation(payload, {
+      onSuccess: () => {
+        const updatedAccounts = {
+          accounts: [...bankAccounts.accounts, account],
+          primaryAccountId: bankAccounts.primaryAccountId || account.id,
+        }
+        updateBankAccounts(updatedAccounts)
+      },
+    })
   }
 
   const handleSetPrimaryAccount = (accountId: string) => {
@@ -182,6 +242,8 @@ export const useProfile = () => {
     addCredit: addCreditMutation,
     bankAccounts,
     addBankAccount: handleAddBankAccount,
+    isAddingBankAccount,
+    addBankAccountError,
     setPrimaryAccount: handleSetPrimaryAccount,
     deleteBankAccount: handleDeleteBankAccount,
     lookupAccount,
