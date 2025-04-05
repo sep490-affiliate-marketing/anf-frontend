@@ -7,14 +7,20 @@ import Link from "next/link"
 import { UserRoleEnum } from "@/enums/user-role"
 import { useAuth } from "@/providers/auth-provider"
 import { ISignUpForm } from "@/validations/auth.validation"
-import { format } from "date-fns"
+import { parseDate } from "@internationalized/date"
 import { CalendarIcon } from "lucide-react"
+import {
+  Button as ButtonAria,
+  DatePicker,
+  Dialog,
+  Group,
+  Popover as PopoverAria,
+} from "react-aria-components"
 import { UseFormReturn } from "react-hook-form"
 
-import { cn } from "@/lib/utils"
-
 import { Button } from "@/components/ui/button"
-import { Calendar } from "@/components/ui/calendar"
+import { Calendar } from "@/components/ui/calendar-rac"
+import { DateInput } from "@/components/ui/datefield-rac"
 import {
   Form,
   FormControl,
@@ -24,11 +30,6 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Textarea } from "@/components/ui/textarea"
 
@@ -44,7 +45,12 @@ export default function SignupForm() {
 
   return (
     <Form {...signupForm}>
-      <form onSubmit={signupForm.handleSubmit(onSubmit)} className="space-y-8">
+      <form
+        onSubmit={signupForm.handleSubmit(onSubmit, (err) => {
+          console.log(err)
+        })}
+        className="space-y-8"
+      >
         {step === 1 && (
           <UserTypeSelection signupForm={signupForm} setStep={setStep} />
         )}
@@ -172,40 +178,35 @@ function UserDetailsForm({
 
               {/* Second column - Additional Information */}
               <div className="space-y-4">
+                
                 <FormField
                   control={signupForm.control}
                   name="dateOfBirth"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Date of Birth</FormLabel>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant={"outline"}
-                              className={cn(
-                                "w-full pl-3 text-left font-normal",
-                                !field.value && "text-muted-foreground"
-                              )}
-                            >
-                              {field.value ? (
-                                format(field.value, "PPP")
-                              ) : (
-                                <span>Pick a date</span>
-                              )}
-                              <CalendarIcon className="ml-auto size-4 opacity-50" />
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={field.value}
-                            onSelect={field.onChange}
-                            initialFocus
-                          />
-                        </PopoverContent>
-                      </Popover>
+                      <DatePicker 
+                        className="*:not-first:mt-2" 
+                        value={field.value ? parseDate(field.value.toISOString().split('T')[0]) : undefined} 
+                        onChange={(date) => field.onChange(date ? new Date(date.toString()) : null)}
+                      >
+                        <div className="flex">
+                          <Group className="w-full">
+                            <DateInput className="pe-9" />
+                          </Group>
+                          <ButtonAria className="data-focus-visible:border-ring data-focus-visible:ring-ring/50 data-focus-visible:ring z-10 -me-px -ms-9 flex w-9 items-center justify-center rounded-e-md text-muted-foreground/80 outline-none transition-[color,box-shadow] hover:text-foreground">
+                            <CalendarIcon size={16} />
+                          </ButtonAria>
+                        </div>
+                        <PopoverAria
+                          className="data-entering:animate-in data-exiting:animate-out outline-hidden z-50 rounded-lg border bg-background text-popover-foreground shadow-lg data-[entering]:fade-in-0 data-[exiting]:fade-out-0 data-[entering]:zoom-in-95 data-[exiting]:zoom-out-95 data-[placement=bottom]:slide-in-from-top-2 data-[placement=left]:slide-in-from-right-2 data-[placement=right]:slide-in-from-left-2 data-[placement=top]:slide-in-from-bottom-2"
+                          offset={4}
+                        >
+                          <Dialog className="max-h-[inherit] overflow-auto p-2">
+                            <Calendar />
+                          </Dialog>
+                        </PopoverAria>
+                      </DatePicker>
                       <FormMessage />
                     </FormItem>
                   )}
