@@ -24,6 +24,8 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
+import { AddCreditDialog } from "@/components/profile/dialogs/AddCreditDialog"
+
 interface ProfileSidebarProps {
   profile: UseProfileReturn
   onTabChange: (tab: string) => void
@@ -183,15 +185,19 @@ export function ProfileSidebar({ profile, onTabChange }: ProfileSidebarProps) {
           <span className="ml-1 text-xs text-muted-foreground">USD</span>
         </div>
         <div className="mt-6 grid grid-cols-2 gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            className="rounded-lg border-primary/20 bg-primary/5 text-xs font-medium text-primary shadow-sm hover:bg-primary/10 hover:text-primary"
-            onClick={() => onTabChange("addCredit")}
-          >
-            <Plus className="mr-1 size-3" />
-            Add Credit
-          </Button>
+          <AddCreditDialog 
+            profile={profile}
+            trigger={
+              <Button
+                variant="outline"
+                size="sm"
+                className="rounded-lg border-primary/20 bg-primary/5 text-xs font-medium text-primary shadow-sm hover:bg-primary/10 hover:text-primary"
+              >
+                <Plus className="mr-1 size-3" />
+                Add Credit
+              </Button>
+            }
+          />
           <Button
             variant="outline"
             size="sm"
