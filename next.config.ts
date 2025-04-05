@@ -8,7 +8,13 @@ const nextConfig: NextConfig = {
       },
       {
         hostname: "images.unsplash.com",
-      }
+      },
+      {
+        hostname: "cdn.banklookup.net",
+      },
+      {
+        hostname: "www.shinhancard.com",
+      },
     ],
   },
 }
