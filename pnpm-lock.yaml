@@ -6228,6 +6228,7 @@ snapshots:
   affiliate-network-fe@file:(@types/react-dom@19.0.4(@types/react@19.0.10))(@types/react@19.0.10)(tailwindcss@3.4.17)(typescript@5.7.3):
     dependencies:
       '@hookform/resolvers': 3.10.0(react-hook-form@7.54.2(react@19.0.0))
+      '@internationalized/date': 3.7.0
       '@radix-ui/react-accordion': 1.2.3(@types/react-dom@19.0.4(@types/react@19.0.10))(@types/react@19.0.10)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@radix-ui/react-alert-dialog': 1.1.6(@types/react-dom@19.0.4(@types/react@19.0.10))(@types/react@19.0.10)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@radix-ui/react-aspect-ratio': 1.1.2(@types/react-dom@19.0.4(@types/react@19.0.10))(@types/react@19.0.10)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
@@ -6274,6 +6275,7 @@ snapshots:
       nuqs: 2.4.0(next@15.2.3(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react@19.0.0)
       qs: 6.14.0
       react: 19.0.0
+      react-aria-components: 1.7.1(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       react-day-picker: 8.10.1(date-fns@3.6.0)(react@19.0.0)
       react-dom: 19.0.0(react@19.0.0)
       react-hook-form: 7.54.2(react@19.0.0)
