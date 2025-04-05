@@ -143,8 +143,8 @@ export function AddCreditDialog({ profile, trigger }: AddCreditDialogProps) {
               <p className="flex items-start gap-1.5">
                 <InfoIcon className="mt-0.5 size-3 text-primary" />
                 <span>
-                  Funds will be available in your account immediately after
-                  the transaction is processed.
+                  Funds will be available in your account immediately after the
+                  transaction is processed.
                 </span>
               </p>
             </div>
@@ -153,4 +153,4 @@ export function AddCreditDialog({ profile, trigger }: AddCreditDialogProps) {
       </DialogContent>
     </Dialog>
   )
-} 
+}

@@ -34,11 +34,13 @@ export default function Page() {
         </div>
 
         {/* Main Content */}
-        <div className="space-y-12 lg:col-span-8">
+        <div className="lg:col-span-8">
           {/* Section 1: Profile Settings */}
           <div>
-            <CardHeader className="px-0 pb-5">
-              <CardTitle className="text-xl font-semibold">Profile Settings</CardTitle>
+            <CardHeader className="p-0 pb-5">
+              <CardTitle className="text-xl font-semibold">
+                Profile Settings
+              </CardTitle>
               <CardDescription className="text-muted-foreground">
                 Manage your personal information and security
               </CardDescription>
@@ -47,7 +49,11 @@ export default function Page() {
               <Tabs
                 defaultValue="profile"
                 className="w-full"
-                value={activeTab === "profile" || activeTab === "security" ? activeTab : "profile"}
+                value={
+                  activeTab === "profile" || activeTab === "security"
+                    ? activeTab
+                    : "profile"
+                }
                 onValueChange={(value) => setActiveTab(value)}
               >
                 <TabsList className="mb-6 h-auto w-full justify-start rounded-none border-b bg-transparent p-0">
@@ -87,7 +93,11 @@ export default function Page() {
               <Tabs
                 defaultValue="walletHistory"
                 className="w-full"
-                value={activeTab === "walletHistory" || activeTab === "bankingInfo" ? activeTab : "walletHistory"}
+                value={
+                  activeTab === "walletHistory" || activeTab === "bankingInfo"
+                    ? activeTab
+                    : "walletHistory"
+                }
                 onValueChange={(value) => setActiveTab(value)}
               >
                 <TabsList className="mb-6 h-auto w-full justify-start rounded-none border-b bg-transparent p-0">

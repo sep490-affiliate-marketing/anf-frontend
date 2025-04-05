@@ -1,10 +1,10 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 
 import Image from "next/image"
 
-import { Loader2 } from "lucide-react"
+import { Loader2, Plus } from "lucide-react"
 
 import { Bank, BankingInfo } from "@/types/profile"
 
@@ -120,7 +120,14 @@ export function AddBankAccountDialog({
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline">Add Bank Account</Button>
+        <Button
+          variant="outline"
+          size="sm"
+          className="mt-3 w-full rounded-lg border-dashed border-gray-300 py-5 text-sm font-normal"
+        >
+          <Plus className="mr-2 size-4" />
+          Link a new bank account
+        </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[450px]">
         <form onSubmit={handleSubmit}>
@@ -161,7 +168,7 @@ export function AddBankAccountDialog({
                           alt={bank.short_name}
                           width={16}
                           height={16}
-                          className="h-4 w-4 object-contain"
+                          className="size-4 object-contain"
                         />
                         <span>{bank.name}</span>
                       </div>

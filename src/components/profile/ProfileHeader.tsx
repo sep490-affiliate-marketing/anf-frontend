@@ -17,12 +17,8 @@ export function ProfileHeader({ userName }: ProfileHeaderProps) {
 
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">
-            Welcome back, {userName}
-          </h1>
-          <p className="mt-1 text-muted-foreground">
-            Manage your account settings and preferences
-          </p>
+          <h1 className="text-3xl font-bold tracking-tight">Profile</h1>
+          <p className="mt-1 text-muted-foreground">Welcome back, {userName}</p>
         </div>
         <div className="flex items-center gap-4">
           <div className="text-right">
