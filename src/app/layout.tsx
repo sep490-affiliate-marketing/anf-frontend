@@ -1,5 +1,3 @@
-import { ReactNode } from "react"
-
 import { Plus_Jakarta_Sans as JakartaSans } from "next/font/google"
 
 import { constructMetadata } from "@/configs/site.config"
@@ -19,39 +17,42 @@ import "@/styles/globals.css"
 
 const jakarta = JakartaSans({
   subsets: ["latin"],
-  variable: "--font-jakarta",
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-sans",
 })
 
 export const metadata = constructMetadata()
 
-interface RootLayoutProps {
-  children: ReactNode
-}
-
-export default function RootLayout({ children }: RootLayoutProps) {
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode
+}>) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={cn(jakarta.variable, "font-jakarta antialiased")}>
         <ReactQueryClientProvider>
           <ThemeProvider
             attribute="class"
-            defaultTheme="system"
+            defaultTheme="light"
             enableSystem
             disableTransitionOnChange
+            enableColorScheme
           >
-            <AuthProvider>
-              <ApiProvider>
+            <NextTopLoader height={4} color="#7c3aed" showSpinner={false} />
+            <ApiProvider>
+              <AuthProvider>
                 <NuqsAdapter>
                   <Toaster />
                   <div className="relative flex min-h-svh flex-col bg-background">
                     {children}
                   </div>
                 </NuqsAdapter>
-              </ApiProvider>
-            </AuthProvider>
+              </AuthProvider>
+            </ApiProvider>
+            <TailwindIndicator />
           </ThemeProvider>
         </ReactQueryClientProvider>
-        <TailwindIndicator />
       </body>
     </html>
   )
