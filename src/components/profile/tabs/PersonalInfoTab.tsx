@@ -1,4 +1,8 @@
-import { UseProfileReturn } from "@/hooks/profile"
+"use client"
+
+import { useState } from "react"
+
+import { useAuth } from "@/providers/auth-provider"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -7,12 +11,25 @@ import { Separator } from "@/components/ui/separator"
 import { Switch } from "@/components/ui/switch"
 import { TabsContent } from "@/components/ui/tabs"
 
-interface PersonalInfoTabProps {
-  profile: UseProfileReturn
-}
+export function PersonalInfoTab() {
+  const { user } = useAuth()
+  const [formData, setFormData] = useState({
+    firstName: user?.firstName || "",
+    lastName: user?.lastName || "",
+    email: user?.email || "",
+  })
 
-export function PersonalInfoTab({ profile }: PersonalInfoTabProps) {
-  const { user, updateUser } = profile
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }))
+  }
+
+  const handleSaveChanges = () => {
+    // In a real app, this would call an API to update the user's profile
+    console.log("Saving changes:", formData)
+  }
 
   return (
     <TabsContent value="profile" className="mt-0 space-y-6 pb-4">
@@ -21,13 +38,23 @@ export function PersonalInfoTab({ profile }: PersonalInfoTabProps) {
           <h3 className="mb-4 font-medium">Basic Information</h3>
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="name" className="text-sm font-medium">
-                Full Name
+              <Label htmlFor="firstName" className="text-sm font-medium">
+                First Name
               </Label>
               <Input
-                id="name"
-                value={user.name}
-                onChange={(e) => updateUser({ name: e.target.value })}
+                id="firstName"
+                value={formData.firstName}
+                onChange={(e) => handleInputChange("firstName", e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="lastName" className="text-sm font-medium">
+                Last Name
+              </Label>
+              <Input
+                id="lastName"
+                value={formData.lastName}
+                onChange={(e) => handleInputChange("lastName", e.target.value)}
               />
             </div>
             <div className="space-y-2">
@@ -37,8 +64,20 @@ export function PersonalInfoTab({ profile }: PersonalInfoTabProps) {
               <Input
                 id="email"
                 type="email"
-                value={user.email}
-                onChange={(e) => updateUser({ email: e.target.value })}
+                value={formData.email}
+                onChange={(e) => handleInputChange("email", e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="phoneNumber" className="text-sm font-medium">
+                Phone Number
+              </Label>
+              <Input
+                id="phoneNumber"
+                type="tel"
+                value={user?.phoneNumber || ""}
+                placeholder="Enter your phone number"
+                readOnly
               />
             </div>
           </div>
@@ -87,7 +126,7 @@ export function PersonalInfoTab({ profile }: PersonalInfoTabProps) {
         </div>
 
         <div className="flex justify-end">
-          <Button className="px-6 shadow-sm">Save Changes</Button>
+          <Button className="px-6 shadow-sm" onClick={handleSaveChanges}>Save Changes</Button>
         </div>
       </div>
     </TabsContent>

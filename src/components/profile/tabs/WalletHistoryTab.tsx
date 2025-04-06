@@ -1,8 +1,12 @@
+"use client"
+
+import { useState } from "react"
+
 import { ArrowDownToLine, ArrowUpFromLine, Search } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
-import { UseProfileReturn } from "@/hooks/profile"
+import { useAuth } from "@/providers/auth-provider"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -17,12 +21,54 @@ import {
 } from "@/components/ui/table"
 import { TabsContent } from "@/components/ui/tabs"
 
-interface WalletHistoryTabProps {
-  profile: UseProfileReturn
-}
+// Sample transaction data
+const sampleTransactions = [
+  {
+    id: "1",
+    date: "2023-06-15T10:30:00",
+    description: "Payment for campaign #12345",
+    type: "credit",
+    amount: 1250.00,
+    status: "completed",
+  },
+  {
+    id: "2",
+    date: "2023-06-10T14:45:00",
+    description: "Withdrawal to bank account",
+    type: "debit",
+    amount: 800.00,
+    status: "completed",
+  },
+  {
+    id: "3",
+    date: "2023-06-05T09:15:00",
+    description: "Payment for campaign #12344",
+    type: "credit",
+    amount: 950.00,
+    status: "completed",
+  },
+  {
+    id: "4",
+    date: "2023-05-28T16:20:00",
+    description: "Withdrawal to bank account",
+    type: "debit",
+    amount: 650.00,
+    status: "pending",
+  },
+]
 
-export function WalletHistoryTab({ profile }: WalletHistoryTabProps) {
-  const { transactions, formatCurrency } = profile
+export function WalletHistoryTab() {
+  const { user } = useAuth()
+  const [transactions, setTransactions] = useState(sampleTransactions)
+
+  // Function to format currency
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 2
+    }).format(amount)
+  }
 
   return (
     <TabsContent value="walletHistory" className="mt-0 space-y-6 pb-4">

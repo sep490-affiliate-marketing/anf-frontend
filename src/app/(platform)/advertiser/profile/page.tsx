@@ -2,8 +2,6 @@
 
 import { CreditCard, Landmark, Shield, User } from "lucide-react"
 
-import { useProfile } from "@/hooks/profile"
-
 import {
   CardContent,
   CardDescription,
@@ -11,26 +9,23 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-
 import { ProfileHeader } from "@/components/profile/ProfileHeader"
 import { ProfileSidebar } from "@/components/profile/ProfileSidebar"
+
 import { BankingInfoTab } from "@/components/profile/tabs/BankingInfoTab"
 import { PersonalInfoTab } from "@/components/profile/tabs/PersonalInfoTab"
 import { SecurityTab } from "@/components/profile/tabs/SecurityTab"
 import { WalletHistoryTab } from "@/components/profile/tabs/WalletHistoryTab"
 
 export default function Page() {
-  const profile = useProfile()
-  const { activeTab, setActiveTab } = profile
-
   return (
     <div className="space-y-8 pb-10">
-      <ProfileHeader userName={profile.user.name} />
+      <ProfileHeader />
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
         {/* Sidebar */}
         <div className="space-y-6 lg:col-span-4">
-          <ProfileSidebar profile={profile} onTabChange={setActiveTab} />
+          <ProfileSidebar />
         </div>
 
         {/* Main Content */}
@@ -46,16 +41,7 @@ export default function Page() {
               </CardDescription>
             </CardHeader>
             <CardContent className="px-0">
-              <Tabs
-                defaultValue="profile"
-                className="w-full"
-                value={
-                  activeTab === "profile" || activeTab === "security"
-                    ? activeTab
-                    : "profile"
-                }
-                onValueChange={(value) => setActiveTab(value)}
-              >
+              <Tabs defaultValue="profile" className="w-full">
                 <TabsList className="mb-6 h-auto w-full justify-start rounded-none border-b bg-transparent p-0">
                   <TabsTrigger
                     value="profile"
@@ -74,7 +60,7 @@ export default function Page() {
                 </TabsList>
 
                 <div className="max-h-full overflow-visible">
-                  <PersonalInfoTab profile={profile} />
+                  <PersonalInfoTab />
                   <SecurityTab />
                 </div>
               </Tabs>
@@ -90,16 +76,7 @@ export default function Page() {
               </CardDescription>
             </CardHeader>
             <CardContent className="px-0">
-              <Tabs
-                defaultValue="walletHistory"
-                className="w-full"
-                value={
-                  activeTab === "walletHistory" || activeTab === "bankingInfo"
-                    ? activeTab
-                    : "walletHistory"
-                }
-                onValueChange={(value) => setActiveTab(value)}
-              >
+              <Tabs defaultValue="walletHistory" className="w-full">
                 <TabsList className="mb-6 h-auto w-full justify-start rounded-none border-b bg-transparent p-0">
                   <TabsTrigger
                     value="walletHistory"
@@ -118,8 +95,8 @@ export default function Page() {
                 </TabsList>
 
                 <div className="max-h-full overflow-visible">
-                  <WalletHistoryTab profile={profile} />
-                  <BankingInfoTab profile={profile} />
+                 <WalletHistoryTab  /> 
+                  <BankingInfoTab />
                 </div>
               </Tabs>
             </CardContent>

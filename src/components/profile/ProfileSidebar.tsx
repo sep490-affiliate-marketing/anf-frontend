@@ -1,5 +1,8 @@
+"use client"
+
 import { useState } from "react"
 
+import { useAuth } from "@/providers/auth-provider"
 import {
   Building,
   Calendar,
@@ -18,8 +21,6 @@ import {
 
 import { BankingInfo } from "@/types/profile"
 
-import { UseProfileReturn } from "@/hooks/profile"
-
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -32,28 +33,22 @@ import {
 } from "@/components/ui/tooltip"
 
 import { AddCreditDialog } from "@/components/profile/dialogs/AddCreditDialog"
-
 import { AddBankAccountDialog } from "./dialogs/AddBankAccountDialog"
 
-interface ProfileSidebarProps {
-  profile: UseProfileReturn
-  onTabChange: (tab: string) => void
-}
-
-export function ProfileSidebar({ profile, onTabChange }: ProfileSidebarProps) {
-  const { user, formatCurrency, getInitials } = profile
+export function ProfileSidebar() {
+  const { user } = useAuth()
 
   // Sample linked accounts data - this would normally come from your API
   const [linkedAccounts, setLinkedAccounts] = useState<BankingInfo[]>([
     {
       id: "1",
-      accountHolderName: user.name,
+      accountHolderName: `${user?.firstName} ${user?.lastName}` || "",
       accountNumber: "************1234",
       bankName: "MB Bank",
     },
     {
       id: "2",
-      accountHolderName: user.name,
+      accountHolderName: `${user?.firstName} ${user?.lastName}` || "",
       accountNumber: "************5678",
       bankName: "Techcombank",
     },
@@ -67,6 +62,19 @@ export function ProfileSidebar({ profile, onTabChange }: ProfileSidebarProps) {
   const handleAccountClick = (account: BankingInfo) => {
     setSelectedAccount(account)
     setShowAccountDetails(true)
+  }
+
+  const handleAddAccount = (account: BankingInfo) => {
+    setLinkedAccounts([...linkedAccounts, account])
+  }
+
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return "-"
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    })
   }
 
   return (
@@ -97,9 +105,15 @@ export function ProfileSidebar({ profile, onTabChange }: ProfileSidebarProps) {
             <div className="absolute -bottom-12 left-6">
               <div className="relative">
                 <Avatar className="size-24 border-4 border-background shadow-md transition-all duration-300 group-hover:scale-105">
-                  <AvatarFallback className="bg-primary text-3xl font-medium text-primary-foreground">
-                    {getInitials(user.name)}
-                  </AvatarFallback>
+                  {user?.imageUrl ? (
+                    // If user has an image URL, display it
+                    <img src={user.imageUrl} alt={user.firstName} />
+                  ) : (
+                    // Otherwise, use the fallback
+                    <AvatarFallback className="bg-primary text-3xl font-medium text-primary-foreground">
+                      {user?.firstName?.charAt(0)}
+                    </AvatarFallback>
+                  )}
                 </Avatar>
                 <div className="absolute -bottom-1 -right-1">
                   <TooltipProvider>
@@ -125,17 +139,17 @@ export function ProfileSidebar({ profile, onTabChange }: ProfileSidebarProps) {
           <div className="pb-5 pt-16">
             <div className="flex flex-col items-start">
               <div className="flex w-full items-center justify-between">
-                <h2 className="text-xl font-bold">{user.name}</h2>
+                <h2 className="text-xl font-bold">{`${user?.firstName} ${user?.lastName}`}</h2>
                 <Badge
                   variant="outline"
                   className="border-primary/20 bg-primary/10 font-medium text-primary transition-all duration-300 hover:border-primary/30 hover:bg-primary/15"
                 >
-                  {user.title}
+                  {user?.role}
                 </Badge>
               </div>
               <div className="mt-1 flex items-center gap-1.5 text-muted-foreground">
                 <Mail className="size-3.5" />
-                <p className="text-sm">{user.email}</p>
+                <p className="text-sm">{user?.email}</p>
               </div>
             </div>
           </div>
@@ -150,7 +164,7 @@ export function ProfileSidebar({ profile, onTabChange }: ProfileSidebarProps) {
                   <p className="text-xs font-medium text-muted-foreground">
                     Position
                   </p>
-                  <p className="mt-0.5 text-sm font-medium">{user.position}</p>
+                  <p className="mt-0.5 text-sm font-medium">{user?.role}</p>
                 </div>
               </div>
             </div>
@@ -162,9 +176,9 @@ export function ProfileSidebar({ profile, onTabChange }: ProfileSidebarProps) {
                 </div>
                 <div>
                   <p className="text-xs font-medium text-muted-foreground">
-                    Team
+                    User ID
                   </p>
-                  <p className="mt-0.5 text-sm font-medium">{user.team}</p>
+                  <p className="mt-0.5 text-sm font-medium">{user?.userCode}</p>
                 </div>
               </div>
             </div>
@@ -176,9 +190,11 @@ export function ProfileSidebar({ profile, onTabChange }: ProfileSidebarProps) {
                 </div>
                 <div>
                   <p className="text-xs font-medium text-muted-foreground">
-                    Join Date
+                    Date of Birth
                   </p>
-                  <p className="mt-0.5 text-sm font-medium">{user.joinDate}</p>
+                  <p className="mt-0.5 text-sm font-medium">
+                    {formatDate(user?.dateOfBirth)}
+                  </p>
                 </div>
               </div>
             </div>
@@ -190,11 +206,9 @@ export function ProfileSidebar({ profile, onTabChange }: ProfileSidebarProps) {
                 </div>
                 <div>
                   <p className="text-xs font-medium text-muted-foreground">
-                    Salary
+                    Contact
                   </p>
-                  <p className="mt-0.5 text-sm font-medium">
-                    {formatCurrency(user.salary)}
-                  </p>
+                  <p className="mt-0.5 text-sm font-medium">{user?.phoneNumber}</p>
                 </div>
               </div>
             </div>
@@ -210,24 +224,19 @@ export function ProfileSidebar({ profile, onTabChange }: ProfileSidebarProps) {
         </div>
         <div className="mt-3 flex items-baseline">
           <span className="text-3xl font-bold tracking-tight text-gray-900">
-            {formatCurrency(user.walletBalance)}
+            0.00
           </span>
           <span className="ml-1 text-xs text-muted-foreground">USD</span>
         </div>
         <div className="mt-4">
-          <AddCreditDialog
-            profile={profile}
-            trigger={
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full rounded-lg border-primary/20 bg-primary/5 text-xs font-medium text-primary shadow-sm hover:bg-primary/10 hover:text-primary"
-              >
-                <Plus className="mr-1 size-3" />
-                Add Credit
-              </Button>
-            }
-          />
+          <Button
+            variant="outline"
+            size="sm"
+            className="w-full rounded-lg border-primary/20 bg-primary/5 text-xs font-medium text-primary shadow-sm hover:bg-primary/10 hover:text-primary"
+          >
+            <Plus className="mr-1 size-3" />
+            Add Credit
+          </Button>
         </div>
 
         {/* Linked Accounts Section */}
@@ -240,7 +249,7 @@ export function ProfileSidebar({ profile, onTabChange }: ProfileSidebarProps) {
               variant="ghost"
               size="sm"
               className="h-7 px-2 text-xs font-medium text-primary hover:bg-transparent hover:text-primary/80"
-              onClick={() => onTabChange("bankingInfo")}
+              onClick={() => {}}
             >
               Manage
             </Button>
@@ -269,7 +278,7 @@ export function ProfileSidebar({ profile, onTabChange }: ProfileSidebarProps) {
             ))}
           </div>
 
-          <AddBankAccountDialog profile={profile} onAddAccount={() => {}} />
+          <AddBankAccountDialog onAddAccount={handleAddAccount} />
         </div>
       </div>
 
@@ -387,8 +396,8 @@ export function ProfileSidebar({ profile, onTabChange }: ProfileSidebarProps) {
                 type="button"
                 className="p-4 text-sm font-medium text-red-600 transition-colors hover:bg-red-50"
                 onClick={() => {
+                  setLinkedAccounts(linkedAccounts.filter(acc => acc.id !== selectedAccount.id))
                   setShowAccountDetails(false)
-                  onTabChange("bankingInfo")
                 }}
               >
                 Remove Account

@@ -1,12 +1,12 @@
+"use client"
+
+import { useAuth } from "@/providers/auth-provider"
 import { ChevronRight, Home } from "lucide-react"
 
 import { Separator } from "@/components/ui/separator"
 
-interface ProfileHeaderProps {
-  userName: string
-}
-
-export function ProfileHeader({ userName }: ProfileHeaderProps) {
+export function ProfileHeader() {
+  const { user } = useAuth()
   return (
     <div>
       <div className="mb-4 flex items-center text-sm text-muted-foreground">
@@ -18,7 +18,9 @@ export function ProfileHeader({ userName }: ProfileHeaderProps) {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Profile</h1>
-          <p className="mt-1 text-muted-foreground">Welcome back, {userName}</p>
+          <p className="mt-1 text-muted-foreground">
+            Welcome back, {user?.firstName}
+          </p>
         </div>
         <div className="flex items-center gap-4">
           <div className="text-right">

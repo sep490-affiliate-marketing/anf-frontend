@@ -6,9 +6,7 @@ import Image from "next/image"
 
 import { Loader2, Plus } from "lucide-react"
 
-import { Bank, BankingInfo } from "@/types/profile"
-
-import { UseProfileReturn } from "@/hooks/profile"
+import { BankingInfo } from "@/types/profile"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -30,34 +28,45 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 
-interface BankAccountPayload {
-  accountName: string
-  bankingNo: string
-  bankingCode: string
-  bankingName: string
-}
+// Sample bank data - in a real app, this would come from an API
+const sampleBanks = [
+  {
+    id: "1",
+    code: "MBBANK",
+    name: "MB Bank",
+    short_name: "MB",
+    icon_url: "/images/banks/mb-bank.png"
+  },
+  {
+    id: "2",
+    code: "TCB",
+    name: "Techcombank",
+    short_name: "TCB",
+    icon_url: "/images/banks/techcombank.png"
+  },
+  {
+    id: "3",
+    code: "VCB",
+    name: "Vietcombank",
+    short_name: "VCB",
+    icon_url: "/images/banks/vietcombank.png"
+  },
+  {
+    id: "4",
+    code: "BIDV",
+    name: "BIDV",
+    short_name: "BIDV",
+    icon_url: "/images/banks/bidv.png"
+  }
+]
 
 interface AddBankAccountDialogProps {
-  profile: UseProfileReturn
   onAddAccount: (account: BankingInfo) => void
 }
 
 export function AddBankAccountDialog({
-  profile,
   onAddAccount,
 }: AddBankAccountDialogProps) {
-  const {
-    banks,
-    isLoadingBanks,
-    lookupAccount,
-    isLookingUpAccount,
-    lookupError,
-    getCachedBankAccount,
-    addBankAccount,
-    isAddingBankAccount,
-    addBankAccountError,
-  } = profile
-
   const [bankingInfo, setBankingInfo] = useState<Partial<BankingInfo>>({
     id: crypto.randomUUID(),
     accountHolderName: "",
@@ -67,6 +76,10 @@ export function AddBankAccountDialog({
 
   const [isLookupEnabled, setIsLookupEnabled] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
+  const [isLookingUpAccount, setIsLookingUpAccount] = useState(false)
+  const [lookupError, setLookupError] = useState<Error | null>(null)
+  const [isAddingBankAccount, setIsAddingBankAccount] = useState(false)
+  const [addBankAccountError, setAddBankAccountError] = useState<Error | null>(null)
 
   useEffect(() => {
     setIsLookupEnabled(
@@ -84,37 +97,26 @@ export function AddBankAccountDialog({
 
   const handleLookup = async () => {
     if (!bankingInfo.bankName || !bankingInfo.accountNumber) return
-
-    // Check cache first
-    const cachedData = getCachedBankAccount(
-      bankingInfo.bankName,
-      bankingInfo.accountNumber
-    )
-
-    if (cachedData) {
-      // Use cached data if available
-      setBankingInfo((prev) => ({
+    
+    setIsLookingUpAccount(true)
+    setLookupError(null)
+    
+    try {
+      // In a real app, this would be an API call
+      // For demo purposes, simulate an API call with a timeout
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      
+      // Mock successful lookup - in a real app, this would use the response from the API
+      const bankName = sampleBanks.find(b => b.code === bankingInfo.bankName)?.name || ""
+      setBankingInfo(prev => ({
         ...prev,
-        accountHolderName: cachedData.ownerName,
+        accountHolderName: "Advertiser Real", // Using the user's name from our data
       }))
-      return
+    } catch (error) {
+      setLookupError(error instanceof Error ? error : new Error("Failed to lookup account"))
+    } finally {
+      setIsLookingUpAccount(false)
     }
-
-    // If not in cache, make API call
-    lookupAccount(
-      {
-        bankName: bankingInfo.bankName,
-        accountNumber: bankingInfo.accountNumber,
-      },
-      {
-        onSuccess: (data) => {
-          setBankingInfo((prev) => ({
-            ...prev,
-            accountHolderName: data.ownerName,
-          }))
-        },
-      }
-    )
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -124,9 +126,26 @@ export function AddBankAccountDialog({
       bankingInfo.accountNumber &&
       bankingInfo.bankName
     ) {
-      addBankAccount(bankingInfo as BankingInfo)
-      onAddAccount(bankingInfo as BankingInfo)
-      if (!addBankAccountError) {
+      setIsAddingBankAccount(true)
+      setAddBankAccountError(null)
+      
+      try {
+        // In a real app, this would be an API call
+        // For demo purposes, simulate an API call with a timeout
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        
+        // Find the full bank name from the code
+        const bankInfo = sampleBanks.find(b => b.code === bankingInfo.bankName)
+        const fullBankName = bankInfo?.name || bankingInfo.bankName
+        
+        const newAccount: BankingInfo = {
+          id: bankingInfo.id || crypto.randomUUID(),
+          accountHolderName: bankingInfo.accountHolderName,
+          accountNumber: bankingInfo.accountNumber,
+          bankName: fullBankName,
+        }
+        
+        onAddAccount(newAccount)
         setIsOpen(false)
         setBankingInfo({
           id: crypto.randomUUID(),
@@ -134,6 +153,10 @@ export function AddBankAccountDialog({
           accountNumber: "",
           bankName: "",
         })
+      } catch (error) {
+        setAddBankAccountError(error instanceof Error ? error : new Error("Failed to add bank account"))
+      } finally {
+        setIsAddingBankAccount(false)
       }
     }
   }
@@ -167,30 +190,22 @@ export function AddBankAccountDialog({
                 onValueChange={(value) =>
                   handleUpdateBankingInfo("bankName", value)
                 }
-                disabled={isLoadingBanks}
               >
                 <SelectTrigger className="h-11 w-full">
-                  <SelectValue
-                    placeholder={
-                      isLoadingBanks ? "Loading banks..." : "Select your bank"
-                    }
-                  />
+                  <SelectValue placeholder="Select your bank" />
                 </SelectTrigger>
                 <SelectContent>
-                  {banks.map((bank: Bank) => (
+                  {sampleBanks.map((bank) => (
                     <SelectItem
                       key={bank.id}
                       value={bank.code}
                       className="flex items-center gap-2"
                     >
                       <div className="flex items-center gap-2">
-                        <Image
-                          src={bank.icon_url}
-                          alt={bank.short_name}
-                          width={16}
-                          height={16}
-                          className="size-4 object-contain"
-                        />
+                        <div className="size-4 rounded-full bg-gray-100 flex items-center justify-center">
+                          {/* In a real app, these would be real images */}
+                          <span className="text-xs">{bank.short_name.substring(0, 1)}</span>
+                        </div>
                         <span>{bank.name}</span>
                       </div>
                     </SelectItem>
@@ -241,9 +256,7 @@ export function AddBankAccountDialog({
               </div>
               {lookupError && (
                 <p className="text-sm text-destructive">
-                  {lookupError instanceof Error
-                    ? lookupError.message
-                    : "Failed to lookup account"}
+                  {lookupError.message || "Failed to lookup account"}
                 </p>
               )}
             </div>
@@ -252,9 +265,7 @@ export function AddBankAccountDialog({
           <DialogFooter>
             {addBankAccountError && (
               <p className="text-sm text-destructive">
-                {addBankAccountError instanceof Error
-                  ? addBankAccountError.message
-                  : "Failed to add bank account"}
+                {addBankAccountError.message || "Failed to add bank account"}
               </p>
             )}
             <Button
