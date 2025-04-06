@@ -34,6 +34,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Textarea } from "@/components/ui/textarea"
 
 import UserTypeCard from "./user-type-card"
+import { PasswordInput } from "@/components/inputs/password-input"
 
 export default function SignupForm() {
   const [step, setStep] = useState<number>(1)
@@ -139,7 +140,7 @@ function UserDetailsForm({
   return (
     <React.Fragment>
       <ScrollArea className="h-[550px]">
-        <div className="pl-1 pr-4">
+        <div className="pb-2 pl-1 pr-4">
           {/* User Information Section */}
           <div className="mx-auto max-w-4xl">
             <h3 className="mb-6 text-lg font-medium">User Information</h3>
@@ -309,7 +310,7 @@ function UserDetailsForm({
                     <FormItem>
                       <FormLabel>Password</FormLabel>
                       <FormControl>
-                        <Input
+                        <PasswordInput
                           type="password"
                           placeholder="Enter your password"
                           {...field}
@@ -329,7 +330,7 @@ function UserDetailsForm({
                     <FormItem>
                       <FormLabel>Confirm Password</FormLabel>
                       <FormControl>
-                        <Input
+                        <PasswordInput
                           type="password"
                           placeholder="Confirm your password"
                           {...field}
