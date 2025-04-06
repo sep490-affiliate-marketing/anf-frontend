@@ -8,11 +8,9 @@ import { BankingInfo } from "@/types/profile"
 
 import { UseProfileReturn } from "@/hooks/profile"
 
-import { Alert, AlertDescription } from "@/components/ui/alert"
 import { TabsContent } from "@/components/ui/tabs"
 
 import { BankAccountCard } from "@/components/profile/BankAccountCard"
-import { AddBankAccountDialog } from "@/components/profile/dialogs/AddBankAccountDialog"
 
 interface BankingInfoTabProps {
   profile: UseProfileReturn
@@ -51,10 +49,6 @@ export function BankingInfoTab({ profile }: BankingInfoTabProps) {
                 Manage your bank accounts for receiving payments
               </p>
             </div>
-            <AddBankAccountDialog
-              profile={profile}
-              onAddAccount={handleAddAccount}
-            />
           </div>
 
           <div className="grid gap-4">
