@@ -9,9 +9,9 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+
 import { ProfileHeader } from "@/components/profile/ProfileHeader"
 import { ProfileSidebar } from "@/components/profile/ProfileSidebar"
-
 import { BankingInfoTab } from "@/components/profile/tabs/BankingInfoTab"
 import { PersonalInfoTab } from "@/components/profile/tabs/PersonalInfoTab"
 import { SecurityTab } from "@/components/profile/tabs/SecurityTab"
@@ -95,7 +95,7 @@ export default function Page() {
                 </TabsList>
 
                 <div className="max-h-full overflow-visible">
-                 <WalletHistoryTab  /> 
+                  <WalletHistoryTab />
                   <BankingInfoTab />
                 </div>
               </Tabs>
