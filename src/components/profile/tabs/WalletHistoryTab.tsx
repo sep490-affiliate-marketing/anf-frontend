@@ -2,11 +2,10 @@
 
 import { useState } from "react"
 
+import { useAuth } from "@/providers/auth-provider"
 import { ArrowDownToLine, ArrowUpFromLine, Search } from "lucide-react"
 
 import { cn } from "@/lib/utils"
-
-import { useAuth } from "@/providers/auth-provider"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -28,7 +27,7 @@ const sampleTransactions = [
     date: "2023-06-15T10:30:00",
     description: "Payment for campaign #12345",
     type: "credit",
-    amount: 1250.00,
+    amount: 1250.0,
     status: "completed",
   },
   {
@@ -36,7 +35,7 @@ const sampleTransactions = [
     date: "2023-06-10T14:45:00",
     description: "Withdrawal to bank account",
     type: "debit",
-    amount: 800.00,
+    amount: 800.0,
     status: "completed",
   },
   {
@@ -44,7 +43,7 @@ const sampleTransactions = [
     date: "2023-06-05T09:15:00",
     description: "Payment for campaign #12344",
     type: "credit",
-    amount: 950.00,
+    amount: 950.0,
     status: "completed",
   },
   {
@@ -52,7 +51,7 @@ const sampleTransactions = [
     date: "2023-05-28T16:20:00",
     description: "Withdrawal to bank account",
     type: "debit",
-    amount: 650.00,
+    amount: 650.0,
     status: "pending",
   },
 ]
@@ -63,10 +62,10 @@ export function WalletHistoryTab() {
 
   // Function to format currency
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 2
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+      minimumFractionDigits: 2,
     }).format(amount)
   }
 

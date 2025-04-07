@@ -2,11 +2,10 @@
 
 import { useState } from "react"
 
+import { useAuth } from "@/providers/auth-provider"
 import { InfoIcon } from "lucide-react"
 
 import { BankingInfo } from "@/types/profile"
-
-import { useAuth } from "@/providers/auth-provider"
 
 import { TabsContent } from "@/components/ui/tabs"
 
