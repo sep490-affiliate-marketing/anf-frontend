@@ -1,7 +1,5 @@
 "use client"
 
-import { useState } from "react"
-
 import { useAuth } from "@/providers/auth-provider"
 
 import { Button } from "@/components/ui/button"
@@ -13,23 +11,6 @@ import { TabsContent } from "@/components/ui/tabs"
 
 export function PersonalInfoTab() {
   const { user } = useAuth()
-  const [formData, setFormData] = useState({
-    firstName: user?.firstName || "",
-    lastName: user?.lastName || "",
-    email: user?.email || "",
-  })
-
-  const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }))
-  }
-
-  const handleSaveChanges = () => {
-    // In a real app, this would call an API to update the user's profile
-    console.log("Saving changes:", formData)
-  }
 
   return (
     <TabsContent value="profile" className="mt-0 space-y-6 pb-4">
@@ -41,32 +22,19 @@ export function PersonalInfoTab() {
               <Label htmlFor="firstName" className="text-sm font-medium">
                 First Name
               </Label>
-              <Input
-                id="firstName"
-                value={formData.firstName}
-                onChange={(e) => handleInputChange("firstName", e.target.value)}
-              />
+              <Input id="firstName" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="lastName" className="text-sm font-medium">
                 Last Name
               </Label>
-              <Input
-                id="lastName"
-                value={formData.lastName}
-                onChange={(e) => handleInputChange("lastName", e.target.value)}
-              />
+              <Input id="lastName" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="email" className="text-sm font-medium">
                 Email Address
               </Label>
-              <Input
-                id="email"
-                type="email"
-                value={formData.email}
-                onChange={(e) => handleInputChange("email", e.target.value)}
-              />
+              <Input id="email" type="email" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="phoneNumber" className="text-sm font-medium">
@@ -126,9 +94,10 @@ export function PersonalInfoTab() {
         </div>
 
         <div className="flex justify-end">
-          <Button className="px-6 shadow-sm" onClick={handleSaveChanges}>Save Changes</Button>
+          <Button className="px-6 shadow-sm">Save Changes</Button>
         </div>
       </div>
     </TabsContent>
   )
 }
+
