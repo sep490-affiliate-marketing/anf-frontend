@@ -216,7 +216,7 @@ export function ProfileSidebar() {
             ))}
           </div>
 
-          <AddBankAccountDialog onAddAccount={handleAddAccount} />
+          <AddBankAccountDialog />
         </div>
       </div>
 

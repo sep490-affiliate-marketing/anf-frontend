@@ -92,3 +92,9 @@ export const offerQueryKeys = {
       ] as const,
   },
 }
+
+export const bankQueryKeys = {
+  origin: ["banks"] as const,
+  list: () => [...bankQueryKeys.origin, "list"] as const,
+  add: () => [...bankQueryKeys.origin, "add"] as const,
+}
