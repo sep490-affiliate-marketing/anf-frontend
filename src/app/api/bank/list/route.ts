@@ -1,21 +1,22 @@
 import { NextResponse } from "next/server"
 
+import axios from "axios"
+
+import { IBankListResponse } from "@/types/bank.type"
+
 export async function GET() {
   try {
-    const response = await fetch("https://api.banklookup.net/api/bank/list")
-    const data = await response.json()
-
-    if (data.success) {
-      return NextResponse.json({ data: data.data })
-    }
-
-    return NextResponse.json(
-      { error: "Failed to fetch banks" },
-      { status: 500 }
+    const { data } = await axios.get<IBankListResponse>(
+      "https://api.banklookup.net/api/bank/list"
     )
+
+    return NextResponse.json({
+      data: data.data,
+      isSuccess: data.success,
+    })
   } catch {
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: "Internal server error", isSuccess: false },
       { status: 500 }
     )
   }
