@@ -146,7 +146,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
           expires: 1, //1 hours
         })
 
-        queryClient.setQueryData(["me"], res.value)
+        queryClient.setQueryData(authQueryKeys.me(), res.value)
 
         loginForm.reset()
 
