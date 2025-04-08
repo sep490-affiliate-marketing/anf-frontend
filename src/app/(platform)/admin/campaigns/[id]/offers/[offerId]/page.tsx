@@ -19,7 +19,6 @@ import {
   ExternalLink,
   FileCode,
   HelpCircle,
-  Image as ImageIcon,
   Info,
   Megaphone,
   PieChart,
@@ -180,7 +179,7 @@ export default function OfferDetailPage({
             className="gap-2 text-gray-600 hover:text-gray-900"
           >
             <ArrowLeft className="size-4" />
-            Back to Campaign
+            Back
           </Button>
         </Link>
         <div className="h-4 w-px bg-border" />
@@ -275,7 +274,7 @@ export default function OfferDetailPage({
             </div>
 
             {/* Main Content */}
-            <div className="grid gap-6 md:grid-cols-3">
+            <div className="grid gap-6 md:grid-cols-1">
               {/* Offer Details Card */}
               <Card className="md:col-span-2">
                 <CardHeader>
@@ -350,35 +349,6 @@ export default function OfferDetailPage({
                         <span>{offer.orderReturnTime}</span>
                       </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Offer Image Card */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <ImageIcon className="size-5 text-purple-600" />
-                    Offer Media
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="overflow-hidden rounded-lg">
-                    <img
-                      src={offer.imageUrl}
-                      alt={offer.description}
-                      className="h-auto w-full object-cover transition-transform hover:scale-105"
-                    />
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="w-full gap-2"
-                    >
-                      <Copy className="size-4" />
-                      Download Assets
-                    </Button>
                   </div>
                 </CardContent>
               </Card>
