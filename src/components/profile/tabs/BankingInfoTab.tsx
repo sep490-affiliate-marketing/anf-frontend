@@ -3,7 +3,6 @@
 import { useState } from "react"
 
 import { useAuth } from "@/providers/auth-provider"
-import { InfoIcon } from "lucide-react"
 
 import { BankingInfo } from "@/types/profile"
 
@@ -37,7 +36,7 @@ export function BankingInfoTab() {
   return (
     <TabsContent value="bankingInfo" className="mt-0 space-y-6 pb-4">
       <div className="space-y-6">
-        <div className="rounded-lg border bg-card p-5 text-card-foreground shadow-sm">
+        <div className="bg-card text-card-foreground">
           <div className="mb-6 flex items-center justify-between">
             <div>
               <h3 className="text-lg font-medium">Banking Information</h3>
@@ -66,42 +65,6 @@ export function BankingInfoTab() {
                 </p>
               </div>
             )}
-          </div>
-        </div>
-
-        <div className="rounded-lg border bg-card p-5 text-card-foreground shadow-sm">
-          <h4 className="flex items-center gap-1.5 font-medium">
-            <InfoIcon className="size-4 text-primary" />
-            Important Information
-          </h4>
-          <div className="mt-4 space-y-4">
-            <div className="rounded-md bg-primary/5 p-3 text-sm text-muted-foreground">
-              <p className="flex items-start gap-1.5">
-                <InfoIcon className="mt-0.5 size-3.5 text-primary" />
-                <span>
-                  Your banking information is encrypted and stored securely. We
-                  use industry-standard security measures to protect your data.
-                </span>
-              </p>
-            </div>
-            <div className="rounded-md bg-primary/5 p-3 text-sm text-muted-foreground">
-              <p className="flex items-start gap-1.5">
-                <InfoIcon className="mt-0.5 size-3.5 text-primary" />
-                <span>
-                  Please ensure all banking details are accurate. Incorrect
-                  information may result in failed transactions.
-                </span>
-              </p>
-            </div>
-            <div className="rounded-md bg-primary/5 p-3 text-sm text-muted-foreground">
-              <p className="flex items-start gap-1.5">
-                <InfoIcon className="mt-0.5 size-3.5 text-primary" />
-                <span>
-                  For security reasons, you will need to verify your identity
-                  when updating banking information.
-                </span>
-              </p>
-            </div>
           </div>
         </div>
       </div>

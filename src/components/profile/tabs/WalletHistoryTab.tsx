@@ -72,7 +72,7 @@ export function WalletHistoryTab() {
   return (
     <TabsContent value="walletHistory" className="mt-0 space-y-6 pb-4">
       <div className="space-y-6">
-        <div className="rounded-lg border bg-card p-5 text-card-foreground shadow-sm">
+        <div className="bg-card text-card-foreground">
           <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h3 className="text-lg font-medium">Transaction History</h3>

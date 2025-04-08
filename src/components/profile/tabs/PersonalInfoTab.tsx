@@ -15,7 +15,7 @@ export function PersonalInfoTab() {
   return (
     <TabsContent value="profile" className="mt-0 space-y-6 pb-4">
       <div className="space-y-6">
-        <div className="rounded-lg border bg-card p-5 text-card-foreground shadow-sm">
+        <div className="rounded-lg text-card-foreground shadow-sm">
           <h3 className="mb-4 font-medium">Basic Information</h3>
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div className="space-y-2">
@@ -51,8 +51,10 @@ export function PersonalInfoTab() {
           </div>
         </div>
 
+        <Separator />
+
         {/* Notification preferences */}
-        <div className="rounded-lg border bg-card p-5 text-card-foreground shadow-sm">
+        <div className="bg-card text-card-foreground shadow-sm">
           <h3 className="mb-4 font-medium">Notification Preferences</h3>
           <div className="space-y-4">
             <div className="flex items-center justify-between">

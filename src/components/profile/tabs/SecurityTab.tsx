@@ -12,7 +12,7 @@ export function SecurityTab() {
     <TabsContent value="security" className="mt-0 space-y-6 pb-4">
       <div className="space-y-6">
         {/* Password form */}
-        <div className="rounded-lg border bg-card p-5 text-card-foreground shadow-sm">
+        <div className="bg-card text-card-foreground">
           <h3 className="mb-4 font-medium">Change Password</h3>
           <div className="space-y-4">
             <div className="space-y-2">
@@ -48,8 +48,10 @@ export function SecurityTab() {
           </div>
         </div>
 
+        <Separator />
+
         {/* Login security section */}
-        <div className="rounded-lg border bg-card p-5 text-card-foreground shadow-sm">
+        <div className="bg-card text-card-foreground shadow-sm">
           <h3 className="mb-4 font-medium">Login Security</h3>
           <div className="space-y-4">
             <div className="flex items-center justify-between">

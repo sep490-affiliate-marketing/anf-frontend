@@ -3,6 +3,7 @@
 import { CreditCard, Landmark, Shield, User } from "lucide-react"
 
 import {
+  Card,
   CardContent,
   CardDescription,
   CardHeader,
@@ -29,10 +30,10 @@ export default function Page() {
         </div>
 
         {/* Main Content */}
-        <div className="lg:col-span-8">
+        <div className="space-y-8 lg:col-span-8">
           {/* Section 1: Profile Settings */}
-          <div>
-            <CardHeader className="p-0 pb-5">
+          <Card>
+            <CardHeader>
               <CardTitle className="text-xl font-semibold">
                 Profile Settings
               </CardTitle>
@@ -40,7 +41,7 @@ export default function Page() {
                 Manage your personal information and security
               </CardDescription>
             </CardHeader>
-            <CardContent className="px-0">
+            <CardContent>
               <Tabs defaultValue="profile" className="w-full">
                 <TabsList className="mb-6 h-auto w-full justify-start rounded-none border-b bg-transparent p-0">
                   <TabsTrigger
@@ -65,17 +66,17 @@ export default function Page() {
                 </div>
               </Tabs>
             </CardContent>
-          </div>
+          </Card>
 
           {/* Section 2: Wallet */}
-          <div>
-            <CardHeader className="px-0 pb-5">
+          <Card>
+            <CardHeader>
               <CardTitle className="text-xl font-semibold">Wallet</CardTitle>
               <CardDescription className="text-muted-foreground">
                 Manage your banking information and view transaction history
               </CardDescription>
             </CardHeader>
-            <CardContent className="px-0">
+            <CardContent>
               <Tabs defaultValue="walletHistory" className="w-full">
                 <TabsList className="mb-6 h-auto w-full justify-start rounded-none border-b bg-transparent p-0">
                   <TabsTrigger
@@ -100,7 +101,7 @@ export default function Page() {
                 </div>
               </Tabs>
             </CardContent>
-          </div>
+          </Card>
         </div>
       </div>
     </div>
