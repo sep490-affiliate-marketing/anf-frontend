@@ -2,17 +2,12 @@
 
 import { useState } from "react"
 
+import Image from "next/image"
 import Link from "next/link"
 
 import { motion } from "framer-motion"
 
-import { Button, buttonVariants } from "@/components/ui/button"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+import { buttonVariants } from "@/components/ui/button"
 
 const NAV_ITEMS = [
   { label: "Solutions", href: "#solutions" },
@@ -22,7 +17,6 @@ const NAV_ITEMS = [
 ]
 
 export default function Header() {
-  // const { session, isLoading } = useSession();
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const NavItems = () => (
@@ -40,18 +34,6 @@ export default function Header() {
           </li>
         ))}
       </div>
-
-      {/* {isLoading && (
-        <li>
-          <div className="size-10 animate-pulse rounded-full bg-gray-200" />
-        </li>
-      )} */}
-
-      {/* {session?.user && !isLoading && (
-        <li>
-          <UserAvatarButton session={session} />
-        </li>
-      )} */}
 
       <li className="flex items-center space-x-4">
         <Link
@@ -80,9 +62,7 @@ export default function Header() {
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <div className="flex items-center">
           <Link href="/" className="flex items-center space-x-2">
-            <span className="bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-xl font-bold text-transparent">
-              Affiliate Network
-            </span>
+            <Image src="/logo.png" alt="Logo" width={40} height={40} />
           </Link>
         </div>
 
