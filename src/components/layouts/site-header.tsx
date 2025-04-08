@@ -5,44 +5,20 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 
-import { Bell, ExternalLink } from "lucide-react"
-
-import { cn } from "@/lib/utils"
+import { UserRoleEnum } from "@/enums/user-role"
+import {
+  BarChart3,
+  Bell,
+  ExternalLink,
+  LayoutDashboard,
+  Megaphone,
+  Settings,
+} from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 
+import { NavLink } from "@/components/layouts/nav-link"
 import UserAvatar from "@/components/layouts/user-avatar"
-
-interface NavLinkProps {
-  active?: boolean
-  children: React.ReactNode
-  href: string
-  className?: string
-  onClick?: React.MouseEventHandler<HTMLAnchorElement>
-}
-
-const NavLink = ({
-  active,
-  children,
-  className,
-  href,
-  onClick,
-}: NavLinkProps) => {
-  return (
-    <Link
-      href={href}
-      className={cn(
-        "group relative flex h-12 items-center px-4 text-sm font-medium text-gray-600 transition-colors hover:text-primary",
-        active &&
-          "text-primary after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-full after:bg-primary",
-        className
-      )}
-      onClick={onClick}
-    >
-      {children}
-    </Link>
-  )
-}
 
 const mapRange = (
   num: number,
@@ -59,8 +35,15 @@ const mapRange = (
   )
 }
 
+// Define the navigation item interface
+interface NavItem {
+  title: string
+  url: string
+  matchPattern?: string
+  roles?: UserRoleEnum[] // Optional array of roles that can see this item
+}
+
 export function SiteHeader() {
-  const [activeTab, setActiveTab] = useState("overview")
   const [scrollState, setScrollState] = useState({ y: 0, isScrollingUp: false })
   const lastScrollY = useRef(0)
 
@@ -135,7 +118,47 @@ export function SiteHeader() {
     [logoOpacity]
   )
 
-  const navItems = ["Overview", "Campaigns", "Analytics", "Settings"]
+  // Define navigation items as an array of objects with more details
+  const navItems: NavItem[] = [
+    {
+      title: "Overview",
+      url: "/",
+      matchPattern: "",
+    },
+    {
+      title: "Campaigns",
+      url: "/campaigns",
+      matchPattern: "campaigns",
+    },
+    // Admin-only routes
+    {
+      title: "Carriers",
+      url: "/carriers",
+      matchPattern: "carriers",
+      roles: [UserRoleEnum.ADMIN],
+    },
+    {
+      title: "Countries",
+      url: "/countries",
+      matchPattern: "countries",
+      roles: [UserRoleEnum.ADMIN],
+    },
+    {
+      title: "Tickets",
+      url: "/tickets",
+      matchPattern: "tickets",
+    },
+    {
+      title: "Withdrawal Requests",
+      url: "/withdrawal-requests",
+      matchPattern: "withdrawal-requests",
+    },
+    {
+      title: "Settings",
+      url: "/settings",
+      matchPattern: "settings",
+    },
+  ]
 
   return (
     <div className="sticky top-0 z-50 flex w-full flex-col bg-white">
@@ -204,15 +227,13 @@ export function SiteHeader() {
         <div className="flex will-change-transform" style={navStyle}>
           {navItems.map((item) => (
             <NavLink
-              key={item}
-              href={`#${item.toLowerCase()}`}
-              active={activeTab === item.toLowerCase()}
-              onClick={(e) => {
-                e.preventDefault()
-                setActiveTab(item.toLowerCase())
-              }}
+              key={item.title}
+              href={item.url}
+              exact={false}
+              matchPattern={item.matchPattern}
+              roles={item.roles}
             >
-              {item}
+              {item.title}
             </NavLink>
           ))}
         </div>
