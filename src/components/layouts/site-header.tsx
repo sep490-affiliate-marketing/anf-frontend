@@ -11,6 +11,8 @@ import { cn } from "@/lib/utils"
 
 import { Button } from "@/components/ui/button"
 
+import UserAvatar from "@/components/layouts/user-avatar"
+
 // NavLink component replacing the TabsTrigger
 interface NavLinkProps {
   active?: boolean
@@ -193,9 +195,7 @@ export function SiteHeader() {
           >
             <Bell className="size-5" />
           </Button>
-          <div className="flex size-8 cursor-pointer items-center justify-center rounded-full bg-orange-500 text-sm text-white transition-opacity duration-200 hover:opacity-90">
-            L
-          </div>
+          <UserAvatar />
         </div>
       </div>
 
