@@ -229,7 +229,7 @@ export function AddBankAccountDialog() {
                   placeholder="Account holder name will appear here"
                   readOnly
                   value={accountHolderName}
-                  className="h-11 flex-1"
+                  className="h-11 flex-1 border-transparent bg-muted shadow-none"
                 />
                 <Button
                   type="button"
@@ -281,4 +281,3 @@ export function AddBankAccountDialog() {
     </Dialog>
   )
 }
-

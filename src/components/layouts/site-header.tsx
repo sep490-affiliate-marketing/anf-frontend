@@ -147,16 +147,6 @@ export function SiteHeader() {
           >
             <Image src="/logo.png" alt="Logo" width={32} height={32} />
           </Link>
-          <div className="group flex cursor-pointer items-center space-x-2">
-            <div className="flex items-center space-x-2">
-              <div className="size-5 rounded-full bg-orange-400"></div>
-              <span className="text-sm font-medium">L3oN projects</span>
-            </div>
-            <div className="rounded-full bg-gray-100 px-2 py-0.5 text-xs">
-              Hobby
-            </div>
-            <ChevronDown className="size-4 text-gray-500 transition-transform duration-200 group-hover:translate-y-0.5" />
-          </div>
         </div>
         <div className="flex items-center space-x-1">
           <Button
