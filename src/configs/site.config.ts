@@ -7,7 +7,7 @@ export function constructMetadata({
   },
   description = "",
   image = "/assets/backgrounds/bg-1.png",
-  icons = "/favicon.ico",
+  icons = "/logo.png",
 }: {
   title?: {
     default: string
