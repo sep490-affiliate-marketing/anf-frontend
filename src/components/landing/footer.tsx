@@ -72,7 +72,9 @@ export default function Footer() {
               className="space-y-8"
             >
               <div className="space-y-6">
-                <p className="text-2xl font-bold text-white">Modobom Network</p>
+                <p className="text-2xl font-bold text-white">
+                  Affiliate Network
+                </p>
                 <p className="max-w-md text-base text-gray-400">
                   Empowering marketers worldwide with cutting-edge affiliate
                   marketing solutions and real-time analytics.
