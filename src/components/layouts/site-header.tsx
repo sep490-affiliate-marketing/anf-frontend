@@ -14,7 +14,7 @@ import { IUser } from "@/types/user.type"
 import { Button } from "@/components/ui/button"
 
 import { NavLink } from "@/components/layouts/nav-link"
-import UserAvatar from "@/components/layouts/user-avatar"
+import UserAvatarButton from "@/components/layouts/user-avatar-button"
 
 const mapRange = (
   num: number,
@@ -138,20 +138,6 @@ export function SiteHeader() {
             size="sm"
             className="text-sm font-normal text-gray-600 transition-colors duration-200 hover:bg-gray-50 hover:text-black"
           >
-            Feedback
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-sm font-normal text-gray-600 transition-colors duration-200 hover:bg-gray-50 hover:text-black"
-          >
-            Changelog
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-sm font-normal text-gray-600 transition-colors duration-200 hover:bg-gray-50 hover:text-black"
-          >
             Help
           </Button>
           <Button
@@ -169,7 +155,7 @@ export function SiteHeader() {
           >
             <Bell className="size-5" />
           </Button>
-          <UserAvatar />
+          <UserAvatarButton />
         </div>
       </div>
 
