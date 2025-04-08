@@ -6,14 +6,10 @@ import Image from "next/image"
 import Link from "next/link"
 
 import { UserRoleEnum } from "@/enums/user-role"
-import {
-  BarChart3,
-  Bell,
-  ExternalLink,
-  LayoutDashboard,
-  Megaphone,
-  Settings,
-} from "lucide-react"
+import { useAuth } from "@/providers/auth-provider"
+import { Bell, ExternalLink } from "lucide-react"
+
+import { IUser } from "@/types/user.type"
 
 import { Button } from "@/components/ui/button"
 
@@ -46,6 +42,7 @@ interface NavItem {
 export function SiteHeader() {
   const [scrollState, setScrollState] = useState({ y: 0, isScrollingUp: false })
   const lastScrollY = useRef(0)
+  const { user, isLoadingUser } = useAuth()
 
   const handleScroll = useCallback(() => {
     const currentScrollY = window.scrollY
@@ -118,47 +115,7 @@ export function SiteHeader() {
     [logoOpacity]
   )
 
-  // Define navigation items as an array of objects with more details
-  const navItems: NavItem[] = [
-    {
-      title: "Overview",
-      url: "/",
-      matchPattern: "",
-    },
-    {
-      title: "Campaigns",
-      url: "/campaigns",
-      matchPattern: "campaigns",
-    },
-    // Admin-only routes
-    {
-      title: "Carriers",
-      url: "/carriers",
-      matchPattern: "carriers",
-      roles: [UserRoleEnum.ADMIN],
-    },
-    {
-      title: "Countries",
-      url: "/countries",
-      matchPattern: "countries",
-      roles: [UserRoleEnum.ADMIN],
-    },
-    {
-      title: "Tickets",
-      url: "/tickets",
-      matchPattern: "tickets",
-    },
-    {
-      title: "Withdrawal Requests",
-      url: "/withdrawal-requests",
-      matchPattern: "withdrawal-requests",
-    },
-    {
-      title: "Settings",
-      url: "/settings",
-      matchPattern: "settings",
-    },
-  ]
+  const accessibleRoutes = getAccessibleRoutes(user, isLoadingUser)
 
   return (
     <div className="sticky top-0 z-50 flex w-full flex-col bg-white">
@@ -225,7 +182,7 @@ export function SiteHeader() {
           <Image src="/logo.png" alt="Logo" width={32} height={32} />
         </div>
         <div className="flex will-change-transform" style={navStyle}>
-          {navItems.map((item) => (
+          {accessibleRoutes.map((item) => (
             <NavLink
               key={item.title}
               href={item.url}
@@ -240,4 +197,66 @@ export function SiteHeader() {
       </div>
     </div>
   )
+}
+
+const getAccessibleRoutes = (
+  user: IUser | null,
+  isLoadingUser: boolean
+): NavItem[] => {
+  // If still loading or no user, return empty array
+  if (isLoadingUser || !user) {
+    return []
+  }
+
+  // Define all navigation items
+  const navItems: NavItem[] = [
+    {
+      title: "Overview",
+      url: "/",
+      matchPattern: "",
+    },
+    {
+      title: "Campaigns",
+      url: "/campaigns",
+      matchPattern: "campaigns",
+    },
+    // Admin-only routes
+    {
+      title: "Carriers",
+      url: "/carriers",
+      matchPattern: "carriers",
+      roles: [UserRoleEnum.ADMIN],
+    },
+    {
+      title: "Countries",
+      url: "/countries",
+      matchPattern: "countries",
+      roles: [UserRoleEnum.ADMIN],
+    },
+    {
+      title: "Tickets",
+      url: "/tickets",
+      matchPattern: "tickets",
+    },
+    {
+      title: "Withdrawal Requests",
+      url: "/withdrawal-requests",
+      matchPattern: "withdrawal-requests",
+    },
+    {
+      title: "Settings",
+      url: "/settings",
+      matchPattern: "settings",
+    },
+  ]
+
+  // Filter routes based on user role
+  return navItems.filter((item) => {
+    // If no roles specified, route is accessible to all
+    if (!item.roles) {
+      return true
+    }
+    // Check if user's role is included in allowed roles
+    return item.roles.includes(user.role)
+  })
 }
