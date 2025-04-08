@@ -92,3 +92,15 @@ export const offerQueryKeys = {
       ] as const,
   },
 }
+
+export const bankQueryKeys = {
+  origin: ["banks"] as const,
+  list: () => [...bankQueryKeys.origin, "list"] as const,
+  add: () => [...bankQueryKeys.origin, "add"] as const,
+}
+
+export const walletQueryKeys = {
+  origin: ["wallets"] as const,
+  list: () => [...walletQueryKeys.origin, "list"] as const,
+  deposit: () => [...walletQueryKeys.origin, "deposit"] as const,
+}

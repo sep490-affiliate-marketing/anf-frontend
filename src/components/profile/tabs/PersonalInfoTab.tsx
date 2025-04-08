@@ -1,4 +1,6 @@
-import { UseProfileReturn } from "@/hooks/profile"
+"use client"
+
+import { useAuth } from "@/providers/auth-provider"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -7,12 +9,8 @@ import { Separator } from "@/components/ui/separator"
 import { Switch } from "@/components/ui/switch"
 import { TabsContent } from "@/components/ui/tabs"
 
-interface PersonalInfoTabProps {
-  profile: UseProfileReturn
-}
-
-export function PersonalInfoTab({ profile }: PersonalInfoTabProps) {
-  const { user, updateUser } = profile
+export function PersonalInfoTab() {
+  const { user } = useAuth()
 
   return (
     <TabsContent value="profile" className="mt-0 space-y-6 pb-4">
@@ -21,24 +19,33 @@ export function PersonalInfoTab({ profile }: PersonalInfoTabProps) {
           <h3 className="mb-4 font-medium">Basic Information</h3>
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="name" className="text-sm font-medium">
-                Full Name
+              <Label htmlFor="firstName" className="text-sm font-medium">
+                First Name
               </Label>
-              <Input
-                id="name"
-                value={user.name}
-                onChange={(e) => updateUser({ name: e.target.value })}
-              />
+              <Input id="firstName" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="lastName" className="text-sm font-medium">
+                Last Name
+              </Label>
+              <Input id="lastName" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="email" className="text-sm font-medium">
                 Email Address
               </Label>
+              <Input id="email" type="email" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="phoneNumber" className="text-sm font-medium">
+                Phone Number
+              </Label>
               <Input
-                id="email"
-                type="email"
-                value={user.email}
-                onChange={(e) => updateUser({ email: e.target.value })}
+                id="phoneNumber"
+                type="tel"
+                value={user?.phoneNumber || ""}
+                placeholder="Enter your phone number"
+                readOnly
               />
             </div>
           </div>
@@ -93,3 +100,4 @@ export function PersonalInfoTab({ profile }: PersonalInfoTabProps) {
     </TabsContent>
   )
 }
+

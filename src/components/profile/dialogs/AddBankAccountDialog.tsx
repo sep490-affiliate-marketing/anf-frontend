@@ -4,11 +4,13 @@ import { useEffect, useState } from "react"
 
 import Image from "next/image"
 
+import axios, { AxiosError } from "axios"
 import { Loader2, Plus } from "lucide-react"
 
-import { Bank, BankingInfo } from "@/types/profile"
+import { IBank } from "@/types/bank.type"
+import { BankingInfo } from "@/types/profile"
 
-import { UseProfileReturn } from "@/hooks/profile"
+import { useAddBankAccount, useGetBankList } from "@/hooks/bank"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -30,112 +32,127 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 
-interface BankAccountPayload {
-  accountName: string
-  bankingNo: string
-  bankingCode: string
-  bankingName: string
-}
-
-interface AddBankAccountDialogProps {
-  profile: UseProfileReturn
-  onAddAccount: (account: BankingInfo) => void
-}
-
-export function AddBankAccountDialog({
-  profile,
-  onAddAccount,
-}: AddBankAccountDialogProps) {
-  const {
-    banks,
-    isLoadingBanks,
-    lookupAccount,
-    isLookingUpAccount,
-    lookupError,
-    getCachedBankAccount,
-    addBankAccount,
-    isAddingBankAccount,
-    addBankAccountError,
-  } = profile
-
+export function AddBankAccountDialog() {
   const [bankingInfo, setBankingInfo] = useState<Partial<BankingInfo>>({
-    id: crypto.randomUUID(),
-    accountHolderName: "",
     accountNumber: "",
     bankName: "",
   })
-
   const [isLookupEnabled, setIsLookupEnabled] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
+  const [isLookingUpAccount, setIsLookingUpAccount] = useState(false)
+  const [lookupError, setLookupError] = useState<string | null>(null)
 
+  const [accountHolderName, setAccountHolderName] = useState("")
+  const [addBankAccountError, setAddBankAccountError] = useState<Error | null>(
+    null
+  )
+
+  const { mutate: addBankAccount, isPending: isAddingBankAccount } =
+    useAddBankAccount()
+
+  const { data: bankList, isLoading: isLoadingBankList } = useGetBankList()
+
+  // Reset form when dialog is opened/closed
+  useEffect(() => {
+    if (!isOpen) {
+      setBankingInfo({
+        accountNumber: "",
+        bankName: "",
+      })
+      setAccountHolderName("")
+      setLookupError(null)
+      setAddBankAccountError(null)
+    }
+  }, [isOpen])
+
+  // Enable lookup when bank and account number are provided
   useEffect(() => {
     setIsLookupEnabled(
-      Boolean(bankingInfo.bankName && bankingInfo.accountNumber)
+      !!bankingInfo.bankName &&
+        !!bankingInfo.accountNumber &&
+        bankingInfo.accountNumber.length >= 8
     )
   }, [bankingInfo.bankName, bankingInfo.accountNumber])
 
-  const handleUpdateBankingInfo = (field: keyof BankingInfo, value: string) => {
-    const updatedInfo = {
-      ...bankingInfo,
-      [field]: value,
-    }
-    setBankingInfo(updatedInfo)
+  const handleBankChange = (value: string) => {
+    setBankingInfo((prev) => ({ ...prev, bankName: value }))
   }
 
-  const handleLookup = async () => {
+  const handleAccountNumberChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setBankingInfo((prev) => ({ ...prev, accountNumber: e.target.value }))
+  }
+
+  const handleLookupAccount = async () => {
     if (!bankingInfo.bankName || !bankingInfo.accountNumber) return
 
-    // Check cache first
-    const cachedData = getCachedBankAccount(
-      bankingInfo.bankName,
-      bankingInfo.accountNumber
-    )
+    setIsLookingUpAccount(true)
+    setLookupError(null)
 
-    if (cachedData) {
-      // Use cached data if available
-      setBankingInfo((prev) => ({
-        ...prev,
-        accountHolderName: cachedData.ownerName,
-      }))
+    try {
+      const { data } = await axios.post("/api/bank/look-up", {
+        bankCode: bankingInfo.bankName,
+        accountNumber: bankingInfo.accountNumber,
+      })
+
+      setAccountHolderName(data.data.ownerName)
+    } catch (error) {
+      setLookupError(
+        error instanceof AxiosError
+          ? error.response?.data?.error
+          : "Failed to lookup account123"
+      )
+    } finally {
+      setIsLookingUpAccount(false)
+    }
+  }
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+
+    if (
+      !accountHolderName ||
+      !bankingInfo.accountNumber ||
+      !bankingInfo.bankName
+    ) {
       return
     }
 
-    // If not in cache, make API call
-    lookupAccount(
-      {
-        bankName: bankingInfo.bankName,
-        accountNumber: bankingInfo.accountNumber,
-      },
-      {
-        onSuccess: (data) => {
-          setBankingInfo((prev) => ({
-            ...prev,
-            accountHolderName: data.ownerName,
-          }))
-        },
-      }
+    // Find the selected bank to get its name
+    const selectedBank = bankList?.data?.find(
+      (bank: IBank) => bank.code === bankingInfo.bankName
     )
-  }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (
-      bankingInfo.accountHolderName &&
-      bankingInfo.accountNumber &&
-      bankingInfo.bankName
-    ) {
-      addBankAccount(bankingInfo as BankingInfo)
-      onAddAccount(bankingInfo as BankingInfo)
-      if (!addBankAccountError) {
-        setIsOpen(false)
-        setBankingInfo({
-          id: crypto.randomUUID(),
-          accountHolderName: "",
-          accountNumber: "",
-          bankName: "",
-        })
-      }
+    if (!selectedBank) {
+      setAddBankAccountError(new Error("Selected bank not found"))
+      return
     }
+
+    // Prepare the data in the required format
+    const bankAccountData = [
+      {
+        accountName: accountHolderName,
+        bankingNo: bankingInfo.accountNumber,
+        bankingCode: bankingInfo.bankName,
+        bankingName: selectedBank.name,
+      },
+    ]
+
+    // Call the mutation to add the bank account
+    addBankAccount(bankAccountData, {
+      onSuccess: () => {
+        // Close the dialog on success
+        setIsOpen(false)
+      },
+      onError: (error) => {
+        setAddBankAccountError(
+          error instanceof Error
+            ? error
+            : new Error("Failed to add bank account")
+        )
+      },
+    })
   }
 
   return (
@@ -161,23 +178,17 @@ export function AddBankAccountDialog({
 
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <Label htmlFor="bankName">Bank Name</Label>
+              <Label htmlFor="bankName">Select Bank</Label>
               <Select
                 value={bankingInfo.bankName}
-                onValueChange={(value) =>
-                  handleUpdateBankingInfo("bankName", value)
-                }
-                disabled={isLoadingBanks}
+                onValueChange={handleBankChange}
+                disabled={isLoadingBankList}
               >
                 <SelectTrigger className="h-11 w-full">
-                  <SelectValue
-                    placeholder={
-                      isLoadingBanks ? "Loading banks..." : "Select your bank"
-                    }
-                  />
+                  <SelectValue placeholder="Select a bank" />
                 </SelectTrigger>
                 <SelectContent>
-                  {banks.map((bank: Bank) => (
+                  {bankList?.data?.map((bank: IBank) => (
                     <SelectItem
                       key={bank.id}
                       value={bank.code}
@@ -204,11 +215,9 @@ export function AddBankAccountDialog({
               <Input
                 id="accountNumber"
                 placeholder="Enter account number"
-                value={bankingInfo.accountNumber}
-                onChange={(e) =>
-                  handleUpdateBankingInfo("accountNumber", e.target.value)
-                }
                 className="h-11"
+                value={bankingInfo.accountNumber}
+                onChange={handleAccountNumberChange}
               />
             </div>
 
@@ -218,8 +227,8 @@ export function AddBankAccountDialog({
                 <Input
                   id="accountHolderName"
                   placeholder="Account holder name will appear here"
-                  value={bankingInfo.accountHolderName}
                   readOnly
+                  value={accountHolderName}
                   className="h-11 flex-1"
                 />
                 <Button
@@ -227,7 +236,7 @@ export function AddBankAccountDialog({
                   variant="outline"
                   className="h-11 min-w-24"
                   disabled={!isLookupEnabled || isLookingUpAccount}
-                  onClick={handleLookup}
+                  onClick={handleLookupAccount}
                 >
                   {isLookingUpAccount ? (
                     <>
@@ -241,9 +250,7 @@ export function AddBankAccountDialog({
               </div>
               {lookupError && (
                 <p className="text-sm text-destructive">
-                  {lookupError instanceof Error
-                    ? lookupError.message
-                    : "Failed to lookup account"}
+                  {lookupError || "Failed to lookup account"}
                 </p>
               )}
             </div>
@@ -252,14 +259,12 @@ export function AddBankAccountDialog({
           <DialogFooter>
             {addBankAccountError && (
               <p className="text-sm text-destructive">
-                {addBankAccountError instanceof Error
-                  ? addBankAccountError.message
-                  : "Failed to add bank account"}
+                {addBankAccountError.message || "Failed to add bank account"}
               </p>
             )}
             <Button
               type="submit"
-              disabled={!bankingInfo.accountHolderName || isAddingBankAccount}
+              disabled={!accountHolderName || isAddingBankAccount}
             >
               {isAddingBankAccount ? (
                 <>
@@ -276,3 +281,4 @@ export function AddBankAccountDialog({
     </Dialog>
   )
 }
+

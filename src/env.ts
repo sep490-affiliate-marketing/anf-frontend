@@ -4,6 +4,8 @@ import { z } from "zod"
 export const env = createEnv({
   server: {
     JWT_SECRET: z.string().min(1),
+    BANK_LOOKUP_API_KEY: z.string().min(1),
+    BANK_LOOKUP_SECRET: z.string().min(1),
   },
   client: {
     NEXT_PUBLIC_BACKEND_URL: z.string().url(),
@@ -11,5 +13,7 @@ export const env = createEnv({
   runtimeEnv: {
     NEXT_PUBLIC_BACKEND_URL: process.env.NEXT_PUBLIC_BACKEND_URL,
     JWT_SECRET: process.env.JWT_SECRET,
+    BANK_LOOKUP_API_KEY: process.env.BANK_LOOKUP_API_KEY,
+    BANK_LOOKUP_SECRET: process.env.BANK_LOOKUP_SECRET,
   },
 })

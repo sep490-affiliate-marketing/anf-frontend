@@ -33,8 +33,9 @@ import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Textarea } from "@/components/ui/textarea"
 
-import UserTypeCard from "./user-type-card"
 import { PasswordInput } from "@/components/inputs/password-input"
+
+import UserTypeCard from "./user-type-card"
 
 export default function SignupForm() {
   const [step, setStep] = useState<number>(1)

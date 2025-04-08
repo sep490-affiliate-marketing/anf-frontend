@@ -2,21 +2,17 @@
 
 import { useState } from "react"
 
+import { useAuth } from "@/providers/auth-provider"
 import { InfoIcon } from "lucide-react"
 
 import { BankingInfo } from "@/types/profile"
-
-import { UseProfileReturn } from "@/hooks/profile"
 
 import { TabsContent } from "@/components/ui/tabs"
 
 import { BankAccountCard } from "@/components/profile/BankAccountCard"
 
-interface BankingInfoTabProps {
-  profile: UseProfileReturn
-}
-
-export function BankingInfoTab({ profile }: BankingInfoTabProps) {
+export function BankingInfoTab() {
+  const { user } = useAuth()
   const [bankAccounts, setBankAccounts] = useState<BankingInfo[]>([])
   const [primaryAccountId, setPrimaryAccountId] = useState<string>()
 

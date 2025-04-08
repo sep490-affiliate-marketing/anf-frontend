@@ -1,59 +1,43 @@
+"use client"
+
 import { useState } from "react"
 
+import { useAuth } from "@/providers/auth-provider"
+import { format } from "date-fns"
 import {
-  Building,
-  Calendar,
   ChevronRight,
   CreditCard,
-  DollarSign,
-  Edit2,
   ImageIcon,
   Landmark,
-  LogOut,
-  Mail,
   Plus,
-  Terminal,
   Wallet,
 } from "lucide-react"
 
 import { BankingInfo } from "@/types/profile"
 
-import { UseProfileReturn } from "@/hooks/profile"
-
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
 
 import { AddCreditDialog } from "@/components/profile/dialogs/AddCreditDialog"
 
 import { AddBankAccountDialog } from "./dialogs/AddBankAccountDialog"
 
-interface ProfileSidebarProps {
-  profile: UseProfileReturn
-  onTabChange: (tab: string) => void
-}
-
-export function ProfileSidebar({ profile, onTabChange }: ProfileSidebarProps) {
-  const { user, formatCurrency, getInitials } = profile
+export function ProfileSidebar() {
+  const { user } = useAuth()
 
   // Sample linked accounts data - this would normally come from your API
   const [linkedAccounts, setLinkedAccounts] = useState<BankingInfo[]>([
     {
       id: "1",
-      accountHolderName: user.name,
+      accountHolderName: `${user?.firstName} ${user?.lastName}` || "",
       accountNumber: "************1234",
       bankName: "MB Bank",
     },
     {
       id: "2",
-      accountHolderName: user.name,
+      accountHolderName: `${user?.firstName} ${user?.lastName}` || "",
       accountNumber: "************5678",
       bankName: "Techcombank",
     },
@@ -69,132 +53,98 @@ export function ProfileSidebar({ profile, onTabChange }: ProfileSidebarProps) {
     setShowAccountDetails(true)
   }
 
+  const handleAddAccount = (account: BankingInfo) => {
+    setLinkedAccounts([...linkedAccounts, account])
+  }
+
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-4">
-        <div className="group overflow-hidden border-none transition-all duration-300">
+      <div className="flex flex-col gap-4 rounded-xl border">
+        <div className="group overflow-hidden rounded-xl border-none transition-all duration-300">
           <div className="relative">
             <div className="h-32 bg-gradient-to-r from-primary/70 to-primary/90"></div>
             <div className="absolute inset-0 h-32 bg-[url('/profile-pattern.svg')] bg-center opacity-20"></div>
-            <div className="absolute bottom-0 right-0 p-4">
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="size-8 rounded-full bg-white/20 text-white backdrop-blur-sm hover:bg-white/30"
-                    >
-                      <Edit2 className="size-4" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Edit Cover Photo</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
+
             <div className="absolute -bottom-12 left-6">
               <div className="relative">
                 <Avatar className="size-24 border-4 border-background shadow-md transition-all duration-300 group-hover:scale-105">
-                  <AvatarFallback className="bg-primary text-3xl font-medium text-primary-foreground">
-                    {getInitials(user.name)}
-                  </AvatarFallback>
+                  {user?.imageUrl ? (
+                    // If user has an image URL, display it
+                    <img src={user.imageUrl} alt={user.firstName} />
+                  ) : (
+                    // Otherwise, use the fallback
+                    <AvatarFallback className="bg-primary text-3xl font-medium text-primary-foreground">
+                      {user?.firstName?.charAt(0)}
+                    </AvatarFallback>
+                  )}
                 </Avatar>
                 <div className="absolute -bottom-1 -right-1">
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          size="icon"
-                          variant="outline"
-                          className="size-7 rounded-full border-primary/20 bg-background shadow-sm hover:bg-primary/5"
-                        >
-                          <ImageIcon className="size-3.5 text-primary" />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Update Avatar</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
+                  <Button
+                    size="icon"
+                    variant="outline"
+                    className="size-7 rounded-full border-primary/20 bg-background shadow-sm"
+                  >
+                    <ImageIcon className="size-3 text-primary" />
+                  </Button>
                 </div>
               </div>
             </div>
           </div>
-          <div className="pb-5 pt-16">
+          <div className="px-5 pb-5 pt-16">
             <div className="flex flex-col items-start">
               <div className="flex w-full items-center justify-between">
-                <h2 className="text-xl font-bold">{user.name}</h2>
+                <h2 className="text-xl font-bold first-letter:uppercase">{`${user?.firstName} ${user?.lastName}`}</h2>
                 <Badge
                   variant="outline"
                   className="border-primary/20 bg-primary/10 font-medium text-primary transition-all duration-300 hover:border-primary/30 hover:bg-primary/15"
                 >
-                  {user.title}
+                  {user?.role}
                 </Badge>
               </div>
-              <div className="mt-1 flex items-center gap-1.5 text-muted-foreground">
-                <Mail className="size-3.5" />
-                <p className="text-sm">{user.email}</p>
-              </div>
-            </div>
-          </div>
 
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <div className="rounded-md bg-muted/30 p-3 transition-colors hover:bg-muted/40">
-              <div className="flex items-start gap-2.5">
-                <div className="mt-0.5 flex size-6 items-center justify-center rounded-full bg-primary/10">
-                  <Terminal className="size-3 text-primary" />
-                </div>
-                <div>
-                  <p className="text-xs font-medium text-muted-foreground">
-                    Position
-                  </p>
-                  <p className="mt-0.5 text-sm font-medium">{user.position}</p>
-                </div>
-              </div>
-            </div>
+              {/* User Information Section */}
+              <div className="mt-6 w-full">
+                <h3 className="mb-4 text-sm font-medium text-gray-600">
+                  User Information
+                </h3>
 
-            <div className="rounded-md bg-muted/30 p-3 transition-colors hover:bg-muted/40">
-              <div className="flex items-start gap-2.5">
-                <div className="mt-0.5 flex size-6 items-center justify-center rounded-full bg-primary/10">
-                  <Building className="size-3 text-primary" />
-                </div>
-                <div>
-                  <p className="text-xs font-medium text-muted-foreground">
-                    Team
-                  </p>
-                  <p className="mt-0.5 text-sm font-medium">{user.team}</p>
-                </div>
-              </div>
-            </div>
+                <div className="space-y-4">
+                  <div className="flex items-baseline justify-between">
+                    <p className="text-[13px] text-gray-500">Phone Number</p>
+                    <p className="text-[13px] font-medium text-gray-900">
+                      {user?.phoneNumber || "-"}
+                    </p>
+                  </div>
 
-            <div className="rounded-md bg-muted/30 p-3 transition-colors hover:bg-muted/40">
-              <div className="flex items-start gap-2.5">
-                <div className="mt-0.5 flex size-6 items-center justify-center rounded-full bg-primary/10">
-                  <Calendar className="size-3 text-primary" />
-                </div>
-                <div>
-                  <p className="text-xs font-medium text-muted-foreground">
-                    Join Date
-                  </p>
-                  <p className="mt-0.5 text-sm font-medium">{user.joinDate}</p>
-                </div>
-              </div>
-            </div>
+                  <div className="flex items-baseline justify-between">
+                    <p className="text-[13px] text-gray-500">Email</p>
+                    <p className="text-[13px] font-medium text-gray-900">
+                      {user?.email || "-"}
+                    </p>
+                  </div>
 
-            <div className="rounded-md bg-muted/30 p-3 transition-colors hover:bg-muted/40">
-              <div className="flex items-start gap-2.5">
-                <div className="mt-0.5 flex size-6 items-center justify-center rounded-full bg-primary/10">
-                  <DollarSign className="size-3 text-primary" />
-                </div>
-                <div>
-                  <p className="text-xs font-medium text-muted-foreground">
-                    Salary
-                  </p>
-                  <p className="mt-0.5 text-sm font-medium">
-                    {formatCurrency(user.salary)}
-                  </p>
+                  <div className="flex items-baseline justify-between">
+                    <p className="text-[13px] text-gray-500">Citizen ID</p>
+                    <p className="text-[13px] font-medium text-gray-900">
+                      {user?.citizenId || "-"}
+                    </p>
+                  </div>
+
+                  <div className="flex items-baseline justify-between">
+                    <p className="text-[13px] text-gray-500">Date of Birth</p>
+                    <p className="text-[13px] font-medium text-gray-900">
+                      {user?.dateOfBirth
+                        ? format(new Date(user.dateOfBirth), "dd/MM/yyyy")
+                        : "-"}
+                    </p>
+                  </div>
+
+                  <div className="flex items-baseline justify-between">
+                    <p className="text-[13px] text-gray-500">Address</p>
+                    <p className="truncate text-[13px] font-medium text-gray-900">
+                      {user?.address || "-"}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -210,24 +160,21 @@ export function ProfileSidebar({ profile, onTabChange }: ProfileSidebarProps) {
         </div>
         <div className="mt-3 flex items-baseline">
           <span className="text-3xl font-bold tracking-tight text-gray-900">
-            {formatCurrency(user.walletBalance)}
+            0.00
           </span>
-          <span className="ml-1 text-xs text-muted-foreground">USD</span>
+          <span className="ml-1 text-xs text-muted-foreground">VND</span>
         </div>
         <div className="mt-4">
-          <AddCreditDialog
-            profile={profile}
-            trigger={
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full rounded-lg border-primary/20 bg-primary/5 text-xs font-medium text-primary shadow-sm hover:bg-primary/10 hover:text-primary"
-              >
-                <Plus className="mr-1 size-3" />
-                Add Credit
-              </Button>
-            }
-          />
+          <AddCreditDialog>
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full rounded-lg border-primary/20 bg-primary/5 text-xs font-medium text-primary shadow-sm hover:bg-primary/10 hover:text-primary"
+            >
+              <Plus className="mr-1 size-3" />
+              Add Credit
+            </Button>
+          </AddCreditDialog>
         </div>
 
         {/* Linked Accounts Section */}
@@ -240,7 +187,7 @@ export function ProfileSidebar({ profile, onTabChange }: ProfileSidebarProps) {
               variant="ghost"
               size="sm"
               className="h-7 px-2 text-xs font-medium text-primary hover:bg-transparent hover:text-primary/80"
-              onClick={() => onTabChange("bankingInfo")}
+              onClick={() => {}}
             >
               Manage
             </Button>
@@ -269,7 +216,7 @@ export function ProfileSidebar({ profile, onTabChange }: ProfileSidebarProps) {
             ))}
           </div>
 
-          <AddBankAccountDialog profile={profile} onAddAccount={() => {}} />
+          <AddBankAccountDialog />
         </div>
       </div>
 
@@ -387,8 +334,12 @@ export function ProfileSidebar({ profile, onTabChange }: ProfileSidebarProps) {
                 type="button"
                 className="p-4 text-sm font-medium text-red-600 transition-colors hover:bg-red-50"
                 onClick={() => {
+                  setLinkedAccounts(
+                    linkedAccounts.filter(
+                      (acc) => acc.id !== selectedAccount.id
+                    )
+                  )
                   setShowAccountDetails(false)
-                  onTabChange("bankingInfo")
                 }}
               >
                 Remove Account
@@ -400,3 +351,4 @@ export function ProfileSidebar({ profile, onTabChange }: ProfileSidebarProps) {
     </div>
   )
 }
+
