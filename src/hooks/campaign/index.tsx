@@ -345,9 +345,12 @@ export const useUpdateCampaignStatus = () => {
   })
 }
 
-export const useGetAdminCampaigns = () => {
+export const useGetAdminCampaigns = (
+  page: number = 1,
+  pageSize: number = 10
+) => {
   return useQuery({
-    queryKey: campaignQueryKeys.admin.list(1, 10),
+    queryKey: campaignQueryKeys.admin.list(page, pageSize),
     queryFn: async () => {
       try {
         const { data } = await apiClient.get<IGetAllCampaignsResponse>(
