@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Skeleton } from "@/components/ui/skeleton"
 
-export default function UserAvatar() {
+export default function UserAvatarButton() {
   const { user, isLoadingUser, logout, isLoggingOut } = useAuth()
 
   return (
@@ -27,7 +27,7 @@ export default function UserAvatar() {
           className="bord2 rounded-full border p-0 hover:bg-transparent"
         >
           <Avatar>
-            <AvatarImage src="/logo.png" alt="Profile image" />
+            <AvatarImage src={user?.imageUrl || "/"} alt="Profile image" />
             <AvatarFallback>
               {user?.firstName?.charAt(0) || ""}
               {user?.lastName?.charAt(0) || ""}

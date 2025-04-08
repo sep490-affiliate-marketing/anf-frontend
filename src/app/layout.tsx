@@ -11,6 +11,7 @@ import { Toaster } from "sonner"
 
 import { cn } from "@/lib/utils"
 
+import ScrollToTop from "@/components/layouts/scroll-to-top"
 import TailwindIndicator from "@/components/layouts/tailwind-indicator"
 
 import "@/styles/globals.css"
@@ -47,6 +48,7 @@ export default function RootLayout({
                   <div className="relative flex min-h-svh flex-col bg-background">
                     {children}
                   </div>
+                  <ScrollToTop />
                 </NuqsAdapter>
               </AuthProvider>
             </ApiProvider>
