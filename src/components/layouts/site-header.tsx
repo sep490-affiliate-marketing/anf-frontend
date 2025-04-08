@@ -1,11 +1,11 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 
+import Image from "next/image"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
 
-import { Bell, ChevronDown, ExternalLink, Triangle } from "lucide-react"
+import { Bell, ChevronDown, ExternalLink } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
@@ -31,97 +31,111 @@ const NavLink = ({
     <Link
       href={href}
       className={cn(
-        "group relative flex h-12 items-center px-4 text-sm font-medium text-gray-600 transition-colors hover:text-black",
+        "group relative flex h-12 items-center px-4 text-sm font-medium text-gray-600 transition-colors hover:text-primary",
         active &&
-          "text-black after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-full after:bg-black",
+          "text-primary after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-full after:bg-primary",
         className
       )}
       onClick={onClick}
     >
       {children}
-      {!active && (
-        <span className="absolute bottom-0 left-0 h-[2px] w-0 bg-gray-300 transition-all duration-200 ease-out group-hover:w-full" />
-      )}
     </Link>
   )
 }
 
-// Hook to map a value from one range to another (similar to useRange in sample code)
-const useRange = (
-  value: number,
+// Helper function to map a value from one range to another
+const mapRange = (
+  num: number,
   inMin: number,
   inMax: number,
   outMin: number,
   outMax: number
-) => {
-  return useMemo(() => {
-    const mappedValue =
-      ((value - inMin) * (outMax - outMin)) / (inMax - inMin) + outMin
-    const largest = Math.max(outMin, outMax)
-    const smallest = Math.min(outMin, outMax)
-    return Math.min(Math.max(mappedValue, smallest), largest)
-  }, [value, inMin, inMax, outMin, outMax])
+): number => {
+  const mappedValue =
+    ((num - inMin) * (outMax - outMin)) / (inMax - inMin) + outMin
+  const largest = Math.max(outMin, outMax)
+  const smallest = Math.min(outMin, outMax)
+  return Math.min(Math.max(mappedValue, smallest), largest)
 }
 
 export function SiteHeader() {
-  const pathname = usePathname()
   const [activeTab, setActiveTab] = useState("overview")
   const [scrollY, setScrollY] = useState(0)
+  const [isScrollingUp, setIsScrollingUp] = useState(false)
+  const [lastScrollY, setLastScrollY] = useState(0)
 
-  // Calculate header transformations based on scroll position
-  const headerOpacity = useRange(scrollY, 0, 50, 1, 0)
-  const navX = useRange(scrollY, 0, 50, 0, 42)
-  const logoScale = useRange(scrollY, 0, 50, 1, 0.8)
-  const logoOpacity = useRange(scrollY, 30, 50, 0, 1)
+  // Custom scroll handler that's more predictable and performant
+  const handleScroll = useCallback(() => {
+    const currentScrollY = window.scrollY
 
-  // Update scroll position
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrollY(window.scrollY)
+    // Detect scroll direction
+    if (currentScrollY < lastScrollY) {
+      setIsScrollingUp(true)
+    } else if (currentScrollY > lastScrollY) {
+      setIsScrollingUp(false)
     }
 
-    // Use requestAnimationFrame for smoother updates
-    let ticking = false
-    const scrollListener = () => {
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
+    setLastScrollY(currentScrollY)
+    setScrollY(currentScrollY)
+  }, [lastScrollY])
+
+  // Set up scroll listener with requestAnimationFrame
+  useEffect(() => {
+    let rafId: number | null = null
+
+    const onScroll = () => {
+      if (rafId === null) {
+        rafId = requestAnimationFrame(() => {
           handleScroll()
-          ticking = false
+          rafId = null
         })
-        ticking = true
       }
     }
 
-    window.addEventListener("scroll", scrollListener, { passive: true })
-    return () => window.removeEventListener("scroll", scrollListener)
-  }, [])
+    window.addEventListener("scroll", onScroll, { passive: true })
+    return () => {
+      window.removeEventListener("scroll", onScroll)
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId)
+      }
+    }
+  }, [handleScroll])
+
+  // Compute all the animation values based on scroll position and direction
+  const headerOpacity = useMemo(() => {
+    if (isScrollingUp) {
+      return mapRange(scrollY, 0, 40, 1, 0)
+    }
+    return mapRange(scrollY, 0, 60, 1, 0)
+  }, [isScrollingUp, scrollY])
+
+  const navX = useMemo(() => {
+    if (isScrollingUp) {
+      return mapRange(scrollY, 0, 40, 0, 42)
+    }
+    return mapRange(scrollY, 0, 60, 0, 42)
+  }, [isScrollingUp, scrollY])
+
+  const logoOpacity = useMemo(() => {
+    if (isScrollingUp) {
+      return mapRange(scrollY, 10, 40, 0, 1)
+    }
+    return mapRange(scrollY, 20, 60, 0, 1)
+  }, [isScrollingUp, scrollY])
 
   // Navigation items for the bottom nav
-  const navItems = [
-    "Overview",
-    "Integrations",
-    "Activity",
-    "Domains",
-    "Usage",
-    "Monitoring",
-    "Observability",
-    "Storage",
-    "Flags",
-    "AI",
-    "Support",
-    "Settings",
-  ]
+  const navItems = ["Overview", "Campaigns", "Analytics", "Settings"]
 
   return (
     <div className="sticky top-0 z-50 flex w-full flex-col bg-white">
       {/* Top Navigation - fades out on scroll */}
       <div
-        className="flex items-center justify-between border-b border-gray-100 px-6 transition-all duration-200 ease-out"
+        className="flex items-center justify-between px-6 transition-all duration-200"
         style={{
           opacity: headerOpacity,
-          height: `${useRange(headerOpacity, 0, 1, 0, 56)}px`,
+          height: headerOpacity < 0.05 ? 0 : 56,
           overflow: "hidden",
-          visibility: headerOpacity < 0.05 ? "hidden" : "visible",
+          pointerEvents: headerOpacity < 0.1 ? "none" : "auto",
         }}
       >
         <div className="flex items-center space-x-4">
@@ -129,7 +143,7 @@ export function SiteHeader() {
             href="#"
             className="flex items-center space-x-2 transition-opacity duration-200 hover:opacity-70"
           >
-            <Triangle className="size-5 fill-black" />
+            <Image src="/logo.png" alt="Logo" width={32} height={32} />
           </Link>
           <div className="group flex cursor-pointer items-center space-x-2">
             <div className="flex items-center space-x-2">
@@ -187,28 +201,27 @@ export function SiteHeader() {
 
       {/* Secondary Navigation - slides right on scroll */}
       <div className="flex h-12 items-center border-b border-gray-200 bg-white px-6">
-        {/* Logo scales and remains visible when top nav disappears */}
+        {/* Logo container - always present but with opacity/scale changes */}
         <div
+          className="pointer-events-none absolute left-6 select-none"
           style={{
-            transform: `scale(${logoScale})`,
             opacity: logoOpacity,
-            marginRight: scrollY > 30 ? "1rem" : "0",
-            position: "absolute",
-            left: "24px", // Same as px-6
-            willChange: "transform, opacity", // Optimization for animations
+            transition: isScrollingUp
+              ? "all 0.15s ease-out"
+              : "all 0.25s ease-in-out",
           }}
-          className="transition-all duration-200 ease-out"
-          aria-hidden={logoOpacity < 0.5 ? "true" : "false"}
         >
-          <Triangle className="size-5 fill-black" />
+          <Image src="/logo.png" alt="Logo" width={32} height={32} />
         </div>
 
         {/* Navigation links slide right */}
         <div
-          className="flex transition-transform duration-200 ease-out"
+          className="flex"
           style={{
             transform: `translateX(${navX}px)`,
-            willChange: "transform", // Optimization for animations
+            transition: isScrollingUp
+              ? "transform 0.15s ease-out"
+              : "transform 0.25s ease-in-out",
           }}
         >
           {navItems.map((item) => (
