@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
 import Image from "next/image"
 import Link from "next/link"
@@ -13,7 +13,6 @@ import { Button } from "@/components/ui/button"
 
 import UserAvatar from "@/components/layouts/user-avatar"
 
-// NavLink component replacing the TabsTrigger
 interface NavLinkProps {
   active?: boolean
   children: React.ReactNode
@@ -45,7 +44,6 @@ const NavLink = ({
   )
 }
 
-// Helper function to map a value from one range to another
 const mapRange = (
   num: number,
   inMin: number,
@@ -55,38 +53,30 @@ const mapRange = (
 ): number => {
   const mappedValue =
     ((num - inMin) * (outMax - outMin)) / (inMax - inMin) + outMin
-  const largest = Math.max(outMin, outMax)
-  const smallest = Math.min(outMin, outMax)
-  return Math.min(Math.max(mappedValue, smallest), largest)
+  return Math.min(
+    Math.max(mappedValue, Math.min(outMin, outMax)),
+    Math.max(outMin, outMax)
+  )
 }
 
 export function SiteHeader() {
   const [activeTab, setActiveTab] = useState("overview")
-  const [scrollY, setScrollY] = useState(0)
-  const [isScrollingUp, setIsScrollingUp] = useState(false)
-  const [lastScrollY, setLastScrollY] = useState(0)
+  const [scrollState, setScrollState] = useState({ y: 0, isScrollingUp: false })
+  const lastScrollY = useRef(0)
 
-  // Custom scroll handler that's more predictable and performant
   const handleScroll = useCallback(() => {
     const currentScrollY = window.scrollY
+    const isScrollingUp = currentScrollY < lastScrollY.current
 
-    // Detect scroll direction
-    if (currentScrollY < lastScrollY) {
-      setIsScrollingUp(true)
-    } else if (currentScrollY > lastScrollY) {
-      setIsScrollingUp(false)
-    }
+    setScrollState({ y: currentScrollY, isScrollingUp })
+    lastScrollY.current = currentScrollY
+  }, [])
 
-    setLastScrollY(currentScrollY)
-    setScrollY(currentScrollY)
-  }, [lastScrollY])
-
-  // Set up scroll listener with requestAnimationFrame
   useEffect(() => {
     let rafId: number | null = null
 
     const onScroll = () => {
-      if (rafId === null) {
+      if (!rafId) {
         rafId = requestAnimationFrame(() => {
           handleScroll()
           rafId = null
@@ -97,53 +87,67 @@ export function SiteHeader() {
     window.addEventListener("scroll", onScroll, { passive: true })
     return () => {
       window.removeEventListener("scroll", onScroll)
-      if (rafId !== null) {
-        cancelAnimationFrame(rafId)
-      }
+      if (rafId) cancelAnimationFrame(rafId)
     }
   }, [handleScroll])
 
-  // Compute all the animation values based on scroll position and direction
-  const headerOpacity = useMemo(() => {
-    if (isScrollingUp) {
-      return mapRange(scrollY, 0, 40, 1, 0)
-    }
-    return mapRange(scrollY, 0, 60, 1, 0)
-  }, [isScrollingUp, scrollY])
+  const { y: scrollY, isScrollingUp } = scrollState
 
-  const navX = useMemo(() => {
-    if (isScrollingUp) {
-      return mapRange(scrollY, 0, 40, 0, 42)
-    }
-    return mapRange(scrollY, 0, 60, 0, 42)
-  }, [isScrollingUp, scrollY])
+  const headerOpacity = useMemo(
+    () => mapRange(scrollY, 0, isScrollingUp ? 40 : 60, 1, 0),
+    [scrollY, isScrollingUp]
+  )
 
-  const logoOpacity = useMemo(() => {
-    if (isScrollingUp) {
-      return mapRange(scrollY, 10, 40, 0, 1)
-    }
-    return mapRange(scrollY, 20, 60, 0, 1)
-  }, [isScrollingUp, scrollY])
+  const navX = useMemo(
+    () => mapRange(scrollY, 0, isScrollingUp ? 40 : 60, 0, 42),
+    [scrollY, isScrollingUp]
+  )
 
-  // Navigation items for the bottom nav
+  const logoOpacity = useMemo(
+    () =>
+      mapRange(scrollY, isScrollingUp ? 10 : 20, isScrollingUp ? 40 : 60, 0, 1),
+    [scrollY, isScrollingUp]
+  )
+
+  const topHeaderStyle = useMemo(
+    (): React.CSSProperties => ({
+      opacity: headerOpacity,
+      height: headerOpacity < 0.05 ? 0 : 56,
+      overflow: "hidden",
+      pointerEvents: headerOpacity < 0.1 ? "none" : "auto",
+    }),
+    [headerOpacity]
+  )
+
+  const navStyle = useMemo(
+    () => ({
+      transform: `translateX(${navX}px)`,
+      transition: "transform 0.2s ease-out",
+    }),
+    [navX]
+  )
+
+  const logoStyle = useMemo(
+    () => ({
+      opacity: logoOpacity,
+      transition: "opacity 0.2s ease-out",
+    }),
+    [logoOpacity]
+  )
+
   const navItems = ["Overview", "Campaigns", "Analytics", "Settings"]
 
   return (
     <div className="sticky top-0 z-50 flex w-full flex-col bg-white">
-      {/* Top Navigation - fades out on scroll */}
+      {/* Top Header */}
       <div
-        className="flex items-center justify-between px-6 transition-all duration-200"
-        style={{
-          opacity: headerOpacity,
-          height: headerOpacity < 0.05 ? 0 : 56,
-          overflow: "hidden",
-          pointerEvents: headerOpacity < 0.1 ? "none" : "auto",
-        }}
+        className="flex items-center justify-between px-6 transition-all duration-200 will-change-[opacity,height]"
+        style={topHeaderStyle}
       >
         <div className="flex items-center space-x-4">
           <Link
             href="#"
-            className="flex items-center space-x-2 transition-opacity duration-200 hover:opacity-70"
+            className="flex items-center space-x-2 transition-opacity hover:opacity-70"
           >
             <Image src="/logo.png" alt="Logo" width={32} height={32} />
           </Link>
@@ -189,31 +193,15 @@ export function SiteHeader() {
         </div>
       </div>
 
-      {/* Secondary Navigation - slides right on scroll */}
+      {/* Secondary Navigation */}
       <div className="flex h-12 items-center border-b border-gray-200 bg-white px-6">
-        {/* Logo container - always present but with opacity/scale changes */}
         <div
           className="pointer-events-none absolute left-6 select-none"
-          style={{
-            opacity: logoOpacity,
-            transition: isScrollingUp
-              ? "all 0.15s ease-out"
-              : "all 0.25s ease-in-out",
-          }}
+          style={logoStyle}
         >
           <Image src="/logo.png" alt="Logo" width={32} height={32} />
         </div>
-
-        {/* Navigation links slide right */}
-        <div
-          className="flex"
-          style={{
-            transform: `translateX(${navX}px)`,
-            transition: isScrollingUp
-              ? "transform 0.15s ease-out"
-              : "transform 0.25s ease-in-out",
-          }}
-        >
+        <div className="flex will-change-transform" style={navStyle}>
           {navItems.map((item) => (
             <NavLink
               key={item}
