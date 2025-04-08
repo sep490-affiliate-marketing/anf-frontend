@@ -90,7 +90,7 @@ export function ProfileSidebar() {
               </div>
             </div>
           </div>
-          <div className="px-5 pb-5 pt-16">
+          <div className="bg-white px-5 pb-5 pt-16">
             <div className="flex flex-col items-start">
               <div className="flex w-full items-center justify-between">
                 <h2 className="text-xl font-bold first-letter:uppercase">{`${user?.firstName} ${user?.lastName}`}</h2>
