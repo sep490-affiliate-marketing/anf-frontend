@@ -1,8 +1,10 @@
 "use client"
 
+import Link from "next/link"
+
 import { useAuth } from "@/providers/auth-provider"
 import { format } from "date-fns"
-import { EllipsisIcon } from "lucide-react"
+import { EllipsisIcon, PlusIcon } from "lucide-react"
 import { useRouter } from "nextjs-toploader/app"
 import { parseAsInteger, useQueryState } from "nuqs"
 
@@ -10,7 +12,7 @@ import { ICampaign } from "@/types/campaign.type"
 
 import { useGetCampaignsByAdvertiser } from "@/hooks/campaign"
 
-import { Button } from "@/components/ui/button"
+import { Button, buttonVariants } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -89,10 +91,21 @@ export default function CampaignDataTable() {
     <div className="flex min-h-[calc(100vh-200px)] flex-col">
       {/* Filters Section */}
       <div className="space-y-6">
-        <SearchInput
-          className="w-[500px] transition-all focus-within:ring-2 focus-within:ring-ring"
-          placeholder="Find campaign by name..."
-        />
+        <div className="flex items-center justify-between">
+          <SearchInput
+            className="w-[500px] transition-all focus-within:ring-2 focus-within:ring-ring"
+            placeholder="Find campaign by name..."
+          />
+          <Link
+            href="/advertiser/campaigns/create"
+            className={buttonVariants({
+              variant: "default",
+            })}
+          >
+            <PlusIcon size={16} />
+            Create Campaign
+          </Link>
+        </div>
 
         {/* Results Table or Empty State */}
         <div className="mt-4 grow">
