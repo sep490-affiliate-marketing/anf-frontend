@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 import { useAuth } from "@/providers/auth-provider"
 import { format } from "date-fns"
@@ -13,9 +13,7 @@ import {
   Wallet,
 } from "lucide-react"
 
-import { BankingInfo } from "@/types/profile"
-
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
@@ -27,34 +25,45 @@ import { AddBankAccountDialog } from "./dialogs/AddBankAccountDialog"
 export function ProfileSidebar() {
   const { user } = useAuth()
 
-  // Sample linked accounts data - this would normally come from your API
-  const [linkedAccounts, setLinkedAccounts] = useState<BankingInfo[]>([
+  // Transform bankResponses to expected BankingInfo format
+  const [linkedAccounts, setLinkedAccounts] = useState<
     {
-      id: "1",
-      accountHolderName: `${user?.firstName} ${user?.lastName}` || "",
-      accountNumber: "************1234",
-      bankName: "MB Bank",
-    },
-    {
-      id: "2",
-      accountHolderName: `${user?.firstName} ${user?.lastName}` || "",
-      accountNumber: "************5678",
-      bankName: "Techcombank",
-    },
-  ])
+      id: string
+      accountHolderName: string
+      accountNumber: string
+      bankName: string
+    }[]
+  >([])
 
-  const [selectedAccount, setSelectedAccount] = useState<BankingInfo | null>(
-    null
-  )
+  // Update linkedAccounts when user data changes
+  useEffect(() => {
+    if (user?.bankResponses?.length) {
+      const mappedAccounts = user.bankResponses.map((bank) => ({
+        id: bank.id.toString(),
+        accountHolderName: `${user?.firstName} ${user?.lastName}` || "",
+        accountNumber: bank.bankingNo,
+        bankName: bank.bankingProvider,
+      }))
+      setLinkedAccounts(mappedAccounts)
+    }
+  }, [user])
+
+  const [selectedAccount, setSelectedAccount] = useState<{
+    id: string
+    accountHolderName: string
+    accountNumber: string
+    bankName: string
+  } | null>(null)
   const [showAccountDetails, setShowAccountDetails] = useState(false)
 
-  const handleAccountClick = (account: BankingInfo) => {
+  const handleAccountClick = (account: {
+    id: string
+    accountHolderName: string
+    accountNumber: string
+    bankName: string
+  }) => {
     setSelectedAccount(account)
     setShowAccountDetails(true)
-  }
-
-  const handleAddAccount = (account: BankingInfo) => {
-    setLinkedAccounts([...linkedAccounts, account])
   }
 
   return (
@@ -70,7 +79,7 @@ export function ProfileSidebar() {
                 <Avatar className="size-24 border-4 border-background shadow-md transition-all duration-300 group-hover:scale-105">
                   {user?.imageUrl ? (
                     // If user has an image URL, display it
-                    <img src={user.imageUrl} alt={user.firstName} />
+                    <AvatarImage src={user.imageUrl} alt={user.firstName} />
                   ) : (
                     // Otherwise, use the fallback
                     <AvatarFallback className="bg-primary text-3xl font-medium text-primary-foreground">
