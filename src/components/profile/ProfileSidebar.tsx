@@ -4,13 +4,7 @@ import { useEffect, useState } from "react"
 
 import { useAuth } from "@/providers/auth-provider"
 import { format } from "date-fns"
-import {
-  ChevronRight,
-  CreditCard,
-  Landmark,
-  Plus,
-  Wallet,
-} from "lucide-react"
+import { ChevronRight, CreditCard, Landmark, Plus, Wallet } from "lucide-react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -426,24 +420,6 @@ export function ProfileSidebar() {
                   </div>
                 </div>
               </div>
-            </div>
-
-            <div className="flex flex-col border-t border-gray-100">
-              <div className="h-px w-full bg-gray-100"></div>
-              <button
-                type="button"
-                className="p-4 text-sm font-medium text-red-600 transition-colors hover:bg-red-50"
-                onClick={() => {
-                  setLinkedAccounts(
-                    linkedAccounts.filter(
-                      (acc) => acc.id !== selectedAccount.id
-                    )
-                  )
-                  setShowAccountDetails(false)
-                }}
-              >
-                Remove Account
-              </button>
             </div>
           </DialogContent>
         </Dialog>

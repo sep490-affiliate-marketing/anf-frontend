@@ -1,10 +1,13 @@
 import { useRouter } from "next/navigation"
 
 import { walletQueryKeys } from "@/constant/react-query"
-import { useMutation } from "@tanstack/react-query"
+import { useMutation, useQuery } from "@tanstack/react-query"
 import { toast } from "sonner"
 
-import { IAddCreditResponse } from "@/types/wallet.type"
+import {
+  IAddCreditResponse,
+  IGetWalletHistoryResponse,
+} from "@/types/wallet.type"
 
 import apiClient from "@/lib/api/client"
 
@@ -33,6 +36,26 @@ export const useAddCredit = () => {
       }
       if (!resData?.isSuccess) {
         toast.error("Failed to add credit. Please try again.")
+      }
+    },
+  })
+}
+
+export const useGetWalletHistory = (
+  userCode: string,
+  page: number,
+  limit: number
+) => {
+  return useQuery({
+    queryKey: walletQueryKeys.walletHistory(userCode, page, limit),
+    queryFn: async () => {
+      try {
+        const { data } = await apiClient.get<IGetWalletHistoryResponse>(
+          `/api/affiliate-network/users/${userCode}/transactions?page=${page}&limit=${limit}`
+        )
+        return data
+      } catch (error) {
+        return undefined
       }
     },
   })

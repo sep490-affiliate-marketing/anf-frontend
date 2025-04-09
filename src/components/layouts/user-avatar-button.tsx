@@ -2,6 +2,7 @@
 
 import { useAuth } from "@/providers/auth-provider"
 import { BoltIcon, Layers2Icon, LogOutIcon, UserPenIcon } from "lucide-react"
+import { useRouter } from "nextjs-toploader/app"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
@@ -18,6 +19,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 
 export default function UserAvatarButton() {
   const { user, isLoadingUser, logout, isLoggingOut } = useAuth()
+  const router = useRouter()
 
   return (
     <DropdownMenu>
@@ -66,7 +68,11 @@ export default function UserAvatarButton() {
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() =>
+              router.push(`${user?.role.toLocaleLowerCase()}/profile`)
+            }
+          >
             <UserPenIcon size={16} className="opacity-60" aria-hidden="true" />
             <span>Profile</span>
           </DropdownMenuItem>

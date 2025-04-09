@@ -101,6 +101,12 @@ export const bankQueryKeys = {
 
 export const walletQueryKeys = {
   origin: ["wallets"] as const,
-  list: () => [...walletQueryKeys.origin, "list"] as const,
+  walletHistory: (userCode: string, page: number, limit: number) =>
+    [
+      ...walletQueryKeys.origin,
+      "walletHistory",
+      userCode,
+      { page, limit },
+    ] as const,
   deposit: () => [...walletQueryKeys.origin, "deposit"] as const,
 }
