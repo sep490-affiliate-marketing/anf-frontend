@@ -3,6 +3,7 @@
 import { useAuth } from "@/providers/auth-provider"
 import { format } from "date-fns"
 import { EllipsisIcon } from "lucide-react"
+import { useRouter } from "nextjs-toploader/app"
 import { parseAsInteger, useQueryState } from "nuqs"
 
 import { ICampaign } from "@/types/campaign.type"
@@ -42,6 +43,7 @@ import { Spinner } from "@/components/spinner"
 
 export default function CampaignDataTable() {
   const { user } = useAuth()
+  const router = useRouter()
 
   const [currentPage, setCurrentPage] = useQueryState(
     "page",
@@ -154,8 +156,11 @@ export default function CampaignDataTable() {
                   <TableBody>
                     {campaigns.map((campaign: ICampaign) => (
                       <TableRow
+                        onClick={() =>
+                          router.push(`/advertiser/campaigns/${campaign.id}`)
+                        }
                         key={campaign.id}
-                        className="border-b border-gray-200 hover:bg-gray-50"
+                        className="cursor-pointer border-b border-gray-200 hover:bg-gray-50"
                       >
                         <TableCell className="py-3 text-sm font-medium text-muted-foreground">
                           {campaign.id}
@@ -209,8 +214,14 @@ export default function CampaignDataTable() {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                               <DropdownMenuGroup>
-                                <DropdownMenuItem>
-                                  <span>Edit</span>
+                                <DropdownMenuItem
+                                  onClick={() =>
+                                    router.push(
+                                      `/advertiser/campaigns/${campaign.id}`
+                                    )
+                                  }
+                                >
+                                  <span>View details</span>
                                   <DropdownMenuShortcut>
                                     ⌘E
                                   </DropdownMenuShortcut>

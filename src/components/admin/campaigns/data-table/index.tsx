@@ -9,6 +9,7 @@ import {
   PlayCircle as PlayCircleIcon,
   XCircle as XCircleIcon,
 } from "lucide-react"
+import { useRouter } from "nextjs-toploader/app"
 import { parseAsInteger, useQueryState } from "nuqs"
 
 import { ICampaign } from "@/types/campaign.type"
@@ -56,6 +57,8 @@ import { SearchInput } from "@/components/inputs/search-input"
 import { Spinner } from "@/components/spinner"
 
 export default function CampaignDataTable() {
+  const router = useRouter()
+
   const { mutate: updateStatus, isPending } = useUpdateCampaignStatus()
   const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false)
   const [rejectReason, setRejectReason] = useState("")
@@ -194,8 +197,11 @@ export default function CampaignDataTable() {
                   <TableBody>
                     {campaigns.map((campaign: ICampaign) => (
                       <TableRow
+                        onClick={() =>
+                          router.push(`/admin/campaigns/${campaign.id}`)
+                        }
                         key={campaign.id}
-                        className="border-b border-gray-200 hover:bg-gray-50"
+                        className="cursor-pointer border-b border-gray-200 hover:bg-gray-50"
                       >
                         <TableCell className="py-3 text-sm font-medium text-muted-foreground">
                           {campaign.id}
