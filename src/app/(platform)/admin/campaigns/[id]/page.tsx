@@ -31,6 +31,7 @@ import {
 
 import { CampaignHeader } from "@/components/admin/campaigns/detail/campaign-header"
 import { CampaignGallery } from "@/components/admin/campaigns/detail/campaign-image-gallery"
+import { Spinner } from "@/components/spinner"
 
 interface Offer {
   id: number
@@ -80,14 +81,17 @@ export default function CampaignDetailsPage({ params: paramsPromise }: Props) {
   const { id } = params
 
   // Use the campaign hook instead of mock data
-  const { data: campaignResponse, isLoading } = useGetCampaignById(id)
+  const {
+    data: campaignResponse,
+    isLoading,
+    isFetching,
+  } = useGetCampaignById(id)
 
-  if (isLoading) {
+  if (isLoading || isFetching) {
     return (
-      <div className="flex min-h-[400px] items-center justify-center">
-        <div className="flex items-center gap-2 text-muted-foreground">
-          <Loader2 className="size-5 animate-spin" />
-          <span>Loading campaign details...</span>
+      <div className="flex items-center justify-center py-8">
+        <div className="text-center">
+          <Spinner />
         </div>
       </div>
     )
