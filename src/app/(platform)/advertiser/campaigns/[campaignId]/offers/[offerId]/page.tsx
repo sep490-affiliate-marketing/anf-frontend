@@ -11,29 +11,23 @@ import {
   ArrowLeft,
   BarChart3,
   Calendar,
-  Check,
   CheckCircle,
   Clock,
   Copy,
   CreditCard,
   DollarSign,
-  ExternalLink,
   FileCode,
   HelpCircle,
   Info,
   Megaphone,
   PieChart,
   Settings,
-  User,
-  Users,
-  X,
 } from "lucide-react"
 
 import { formatVNDCurrency } from "@/lib/utils"
 
-import { useGetOfferDetails, useGetPublisherInOffer } from "@/hooks/offer"
+import { useGetOfferDetails } from "@/hooks/offer"
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -43,32 +37,38 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { Skeleton } from "@/components/ui/skeleton"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
+
+import { EmptyTable } from "@/components/data-table/empty-table"
+import { Spinner } from "@/components/spinner"
 
 interface OfferDetailParams {
   params: Promise<{
-    campaignId: string
+    id: string
     offerId: string
   }>
 }
 
-function OfferStatusBadge({ status }: { status: string }) {
-  const getStatusConfig = (status: string) => {
+// Placeholder stats data that might not be in the API response
+const placeholderStats = {
+  spent: 0,
+  clicks: 0,
+  conversions: 0,
+  conversionRate: 0,
+  trackingUrl:
+    "https://backend.affiliate-network.com/tracking?aff_id={affiliate_id}&source={source}",
+}
+
+function OfferStatusBadge({ status }: { status: string | null }) {
+  const getStatusConfig = (status: string | null) => {
+    if (!status) {
+      return {
+        color: "bg-gray-50 text-gray-700 border-gray-200",
+        icon: HelpCircle,
+        text: "Unknown",
+      }
+    }
+
     switch (status.toLowerCase()) {
       case "active":
         return {
@@ -155,85 +155,32 @@ export default function OfferDetailPage({
 
   // Unwrap params using React.use() as recommended by Next.js
   const params = React.use(paramsPromise)
-  const { campaignId, offerId } = params
+  const { id, offerId } = params
 
-  // Use real data from hooks instead of mock data
-  const { data: offer, isLoading: isLoadingOffer } = useGetOfferDetails(
-    Number(offerId)
-  )
-  const { data: publisherList, isLoading: isLoadingPublishers } =
-    useGetPublisherInOffer(Number(offerId))
+  const {
+    data: offerResData,
+    isLoading,
+    isFetching,
+  } = useGetOfferDetails(Number(offerId))
 
-  // Map publishers from API format to the format needed by the UI
-  const [publisherRequests, setPublisherRequests] = useState<any[]>([])
-
-  // Update publisherRequests when data is loaded
-  React.useEffect(() => {
-    if (publisherList) {
-      const formattedPublishers = publisherList.map((publisher) => ({
-        id: publisher.publisherId.toString(),
-        name: `${publisher.firstName} ${publisher.lastName}`,
-        requestDate: new Date().toISOString(), // Request date not available in API, using current date
-        email: publisher.email,
-        website: "", // Not available in API
-        status: "pending",
-        avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${publisher.publisherCode}`,
-        description: publisher.publisherCode,
-        trafficSources: publisher.trafficSources || ["Unknown"],
-      }))
-      setPublisherRequests(formattedPublishers)
-    }
-  }, [publisherList])
-
-  // Handle publisher request status change
-  const handlePublisherStatusChange = (
-    publisherId: string,
-    newStatus: "approved" | "rejected"
-  ) => {
-    setPublisherRequests(
-      publisherRequests.map((publisher) =>
-        publisher.id === publisherId
-          ? { ...publisher, status: newStatus }
-          : publisher
-      )
-    )
-  }
-
-  // Loading states
-  if (isLoadingOffer) {
+  // If data isn't loaded yet, use a loading state or fallback
+  if (isLoading || isFetching) {
     return (
-      <div className="container mx-auto px-6 py-8">
-        <div className="space-y-4">
-          <Skeleton className="h-12 w-1/3" />
-          <Skeleton className="h-6 w-1/2" />
-          <div className="grid gap-4 md:grid-cols-4">
-            {[1, 2, 3, 4].map((i) => (
-              <Skeleton key={i} className="h-32 w-full" />
-            ))}
-          </div>
+      <div className="flex items-center justify-center py-8">
+        <div className="text-center">
+          <Spinner />
         </div>
       </div>
     )
   }
 
-  // If data is not available
-  if (!offer) {
+  if (!offerResData) {
     return (
-      <div className="container mx-auto px-6 py-8">
-        <div className="flex flex-col items-center justify-center">
-          <AlertCircle className="mb-4 size-12 text-red-500" />
-          <h2 className="text-xl font-semibold">Offer Not Found</h2>
-          <p className="mt-2 text-gray-500">
-            The requested offer could not be found or you don&apos;t have access
-            to it.
-          </p>
-          <Button asChild className="mt-6">
-            <Link href={`/advertiser/campaigns/${campaignId}`}>
-              Back to Campaign
-            </Link>
-          </Button>
-        </div>
-      </div>
+      <EmptyTable
+        title="Offer not found"
+        description={`The requested offer does not exist: ${offerId}`}
+        onRefresh={() => {}}
+      />
     )
   }
 
@@ -241,26 +188,26 @@ export default function OfferDetailPage({
     <div className="space-y-6">
       {/* Header */}
       <div className="sticky top-0 z-10 flex items-center gap-4 border-b bg-white/95 px-6 py-4 backdrop-blur supports-[backdrop-filter]:bg-white/60">
-        <Link href={`/advertiser/campaigns/${campaignId}`}>
+        <Link href={`/admin/campaigns/${id}`}>
           <Button
             variant="ghost"
             size="sm"
             className="gap-2 text-gray-600 hover:text-gray-900"
           >
             <ArrowLeft className="size-4" />
-            Back to Campaign
+            Back
           </Button>
         </Link>
         <div className="h-4 w-px bg-border" />
         <div className="flex-1">
           <div className="flex items-center gap-3">
             <h1 className="text-xl font-semibold tracking-tight">
-              Offer #{offer.id}
+              Offer #{offerResData?.id}
             </h1>
-            <OfferStatusBadge status={offer.status} />
+            <OfferStatusBadge status={offerResData?.status} />
           </div>
           <p className="mt-1 text-sm text-muted-foreground">
-            {offer.description}
+            {offerResData?.description}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -299,13 +246,6 @@ export default function OfferDetailPage({
                 Statistics
               </TabsTrigger>
               <TabsTrigger
-                value="publishers"
-                className="relative gap-2 rounded-none py-2 after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none data-[state=active]:after:bg-primary"
-              >
-                <Users className="size-4" />
-                Publishers
-              </TabsTrigger>
-              <TabsTrigger
                 value="details"
                 className="relative gap-2 rounded-none py-2 after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none data-[state=active]:after:bg-primary"
               >
@@ -327,32 +267,33 @@ export default function OfferDetailPage({
             {/* Key Stats */}
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               <StatCard
-                title="Total Spent"
-                value={formatVNDCurrency(offer.budget * 0.25)} // Assuming 25% spent for display
+                title="Budget"
+                value={formatVNDCurrency(offerResData.budget)}
                 icon={<CreditCard className="size-4 text-gray-400" />}
-                description={`${Math.round(25)}% of budget`} // Assuming 25% spent for display
+                description="Total budget allocated"
               />
               <StatCard
-                title="Clicks"
-                value={(3000).toLocaleString()} // Sample value, replace with actual data when available
-                icon={<ExternalLink className="size-4 text-gray-400" />}
+                title="Bid Amount"
+                value={formatVNDCurrency(offerResData.bid)}
+                icon={<DollarSign className="size-4 text-gray-400" />}
+                description={`Per ${offerResData.pricingModel} payout`}
               />
               <StatCard
-                title="Conversions"
-                value={(25).toLocaleString()} // Sample value, replace with actual data when available
-                icon={<CheckCircle className="size-4 text-gray-400" />}
+                title="Campaign ID"
+                value={offerResData.campaignId}
+                icon={<Megaphone className="size-4 text-gray-400" />}
               />
               <StatCard
-                title="Conversion Rate"
-                value={`${(0.83).toFixed(2)}%`} // Sample value, replace with actual data when available
+                title="Pricing Model"
+                value={offerResData.pricingModel || "N/A"}
                 icon={<PieChart className="size-4 text-gray-400" />}
               />
             </div>
 
             {/* Main Content */}
-            <div className="grid gap-6 md:grid-cols-3">
+            <div className="grid gap-6 md:grid-cols-1">
               {/* Offer Details Card */}
-              <Card className="md:col-span-3">
+              <Card className="md:col-span-2">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Info className="size-5 text-purple-600" />
@@ -360,112 +301,87 @@ export default function OfferDetailPage({
                   </CardTitle>
                   <CardDescription>Details about this offer</CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <div className="grid gap-6 lg:grid-cols-3">
-                    {/* Left side - Offer details */}
-                    <div className="space-y-6 lg:col-span-2">
-                      {/* Offer Description */}
-                      <div className="space-y-2">
-                        <h3 className="font-medium text-gray-900">
-                          Description
-                        </h3>
-                        <p className="text-sm text-gray-600">
-                          {offer.description}
-                        </p>
-                      </div>
+                <CardContent className="space-y-4">
+                  {/* Offer Description */}
+                  <div className="space-y-2">
+                    <h3 className="font-medium text-gray-900">Description</h3>
+                    <p className="text-sm text-gray-600">
+                      {offerResData.description}
+                    </p>
+                  </div>
 
-                      {/* Steps Information */}
-                      <div className="space-y-2">
-                        <h3 className="font-medium text-gray-900">
-                          Conversion Steps
-                        </h3>
-                        <div className="rounded-lg bg-gray-50 p-3 text-sm text-gray-600">
-                          {offer.stepInfo}
-                        </div>
-                      </div>
-
-                      {/* Additional Details */}
-                      <div className="grid gap-4 pt-4 sm:grid-cols-2">
-                        <div>
-                          <h4 className="text-sm font-medium text-gray-500">
-                            Date Range
-                          </h4>
-                          <div className="mt-1 flex items-center gap-2 text-sm">
-                            <Calendar className="size-4 text-gray-400" />
-                            <span>
-                              {format(new Date(offer.startDate), "dd/MM/yyyy", {
-                                locale: vi,
-                              })}{" "}
-                              -{" "}
-                              {format(new Date(offer.endDate), "dd/MM/yyyy", {
-                                locale: vi,
-                              })}
-                            </span>
-                          </div>
-                        </div>
-                        <div>
-                          <h4 className="text-sm font-medium text-gray-500">
-                            Pricing Model
-                          </h4>
-                          <div className="mt-1 flex items-center gap-2 text-sm">
-                            <DollarSign className="size-4 text-gray-400" />
-                            <Badge variant="outline" className="text-gray-700">
-                              {offer.pricingModel}
-                            </Badge>
-                          </div>
-                        </div>
-                        <div>
-                          <h4 className="text-sm font-medium text-gray-500">
-                            Payout
-                          </h4>
-                          <div className="mt-1 flex items-center gap-2 text-sm font-medium">
-                            <span>{formatVNDCurrency(offer.bid)}</span>
-                            <span className="text-gray-400">
-                              per conversion
-                            </span>
-                          </div>
-                        </div>
-                        <div>
-                          <h4 className="text-sm font-medium text-gray-500">
-                            Return Time
-                          </h4>
-                          <div className="mt-1 flex items-center gap-2 text-sm">
-                            <Clock className="size-4 text-gray-400" />
-                            <span>{offer.orderReturnTime || "30 days"}</span>
-                          </div>
-                        </div>
+                  {/* Steps Information */}
+                  {offerResData.stepInfo && (
+                    <div className="space-y-2">
+                      <h3 className="font-medium text-gray-900">
+                        Conversion Steps
+                      </h3>
+                      <div className="rounded-lg bg-gray-50 p-3 text-sm text-gray-600">
+                        {offerResData.stepInfo}
                       </div>
                     </div>
+                  )}
 
-                    {/* Right side - Offer image */}
-                    <div className="space-y-4">
+                  {/* Additional Details */}
+                  <div className="grid gap-4 pt-4 sm:grid-cols-2">
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-500">
+                        Date Range
+                      </h4>
+                      <div className="mt-1 flex items-center gap-2 text-sm">
+                        <Calendar className="size-4 text-gray-400" />
+                        <span>
+                          {format(
+                            new Date(offerResData.startDate),
+                            "dd/MM/yyyy",
+                            {
+                              locale: vi,
+                            }
+                          )}{" "}
+                          -{" "}
+                          {format(
+                            new Date(offerResData.endDate),
+                            "dd/MM/yyyy",
+                            {
+                              locale: vi,
+                            }
+                          )}
+                        </span>
+                      </div>
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-500">
+                        Pricing Model
+                      </h4>
+                      <div className="mt-1 flex items-center gap-2 text-sm">
+                        <DollarSign className="size-4 text-gray-400" />
+                        <Badge variant="outline" className="text-gray-700">
+                          {offerResData.pricingModel || "N/A"}
+                        </Badge>
+                      </div>
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-500">
+                        Payout
+                      </h4>
+                      <div className="mt-1 flex items-center gap-2 text-sm font-medium">
+                        <span>{formatVNDCurrency(offerResData.bid)}</span>
+                        <span className="text-gray-400">
+                          per {offerResData.pricingModel}
+                        </span>
+                      </div>
+                    </div>
+                    {offerResData.orderReturnTime && (
                       <div>
-                        <h3 className="font-medium text-gray-900">
-                          Offer Media
-                        </h3>
-                        <p className="mb-3 text-sm text-gray-500">
-                          Preview of offer creative
-                        </p>
+                        <h4 className="text-sm font-medium text-gray-500">
+                          Return Time
+                        </h4>
+                        <div className="mt-1 flex items-center gap-2 text-sm">
+                          <Clock className="size-4 text-gray-400" />
+                          <span>{offerResData.orderReturnTime}</span>
+                        </div>
                       </div>
-                      <div className="overflow-hidden rounded-lg border bg-white">
-                        <img
-                          src={
-                            offer.imageUrl ||
-                            "https://images.unsplash.com/photo-1552581234-26160f608093?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3"
-                          }
-                          alt={offer.description}
-                          className="h-auto w-full object-cover transition-transform hover:scale-105"
-                        />
-                      </div>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="w-full gap-2"
-                      >
-                        <Copy className="size-4" />
-                        Download Assets
-                      </Button>
-                    </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -487,8 +403,7 @@ export default function OfferDetailPage({
                   <h3 className="font-medium text-gray-900">Tracking URL</h3>
                   <div className="flex items-center justify-between rounded-lg bg-gray-50 p-3 font-mono text-sm text-gray-600">
                     <code className="break-all">
-                      https://backend.affiliate-network.com/tracking?offer_id=
-                      {offer.id}&aff_id={"{affiliate_id}"}&source={"{source}"}
+                      {placeholderStats.trackingUrl}
                     </code>
                     <Button variant="ghost" size="sm" className="size-8 p-0">
                       <Copy className="size-4" />
@@ -514,182 +429,8 @@ export default function OfferDetailPage({
               </CardHeader>
               <CardContent className="space-y-4">
                 <p className="py-10 text-center text-gray-500">
-                  Statistics charts would be displayed here
+                  Statistics data not available yet
                 </p>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Publishers Tab */}
-          <TabsContent value="publishers" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Users className="size-5 text-purple-600" />
-                  Publisher Requests
-                </CardTitle>
-                <CardDescription>
-                  Approve or reject publishers who want to join this campaign
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {isLoadingPublishers ? (
-                  <div className="space-y-4">
-                    <Skeleton className="h-12 w-full" />
-                    <Skeleton className="h-12 w-full" />
-                    <Skeleton className="h-12 w-full" />
-                  </div>
-                ) : publisherRequests.length === 0 ? (
-                  <div className="flex h-40 flex-col items-center justify-center space-y-3 rounded-lg border border-dashed">
-                    <div className="bg-primary-50 rounded-full p-3">
-                      <User className="size-6 text-primary" />
-                    </div>
-                    <div className="text-center">
-                      <p className="text-sm font-medium text-gray-900">
-                        No requests
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        There are no pending publisher requests for this
-                        campaign.
-                      </p>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="relative overflow-hidden rounded-lg border">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Publisher</TableHead>
-                          <TableHead>Request Date</TableHead>
-                          <TableHead>Traffic Sources</TableHead>
-                          <TableHead>Description</TableHead>
-                          <TableHead className="w-[100px] text-right">
-                            Actions
-                          </TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {publisherRequests.map((publisher) => (
-                          <TableRow key={publisher.id}>
-                            <TableCell>
-                              <div className="flex items-center gap-3">
-                                <Avatar className="size-8">
-                                  <AvatarImage
-                                    src={publisher.avatar}
-                                    alt={publisher.name}
-                                  />
-                                  <AvatarFallback>
-                                    {publisher.name.slice(0, 2)}
-                                  </AvatarFallback>
-                                </Avatar>
-                                <div>
-                                  <p className="font-medium">
-                                    {publisher.name}
-                                  </p>
-                                  <p className="text-xs text-muted-foreground">
-                                    {publisher.email}
-                                  </p>
-                                </div>
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              {format(
-                                new Date(publisher.requestDate),
-                                "dd/MM/yyyy",
-                                {
-                                  locale: vi,
-                                }
-                              )}
-                            </TableCell>
-                            <TableCell>
-                              <div className="flex flex-wrap gap-1">
-                                {publisher.trafficSources.map(
-                                  (source: string) => (
-                                    <Badge
-                                      key={source}
-                                      variant="secondary"
-                                      className="text-xs"
-                                    >
-                                      {source}
-                                    </Badge>
-                                  )
-                                )}
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <span className="line-clamp-1">
-                                {publisher.description}
-                              </span>
-                            </TableCell>
-                            <TableCell className="text-right">
-                              {publisher.status === "pending" ? (
-                                <div className="flex justify-end gap-2">
-                                  <TooltipProvider>
-                                    <Tooltip>
-                                      <TooltipTrigger asChild>
-                                        <Button
-                                          size="sm"
-                                          variant="outline"
-                                          className="size-8 p-0 text-red-600 hover:bg-red-50 hover:text-red-700"
-                                          onClick={() =>
-                                            handlePublisherStatusChange(
-                                              publisher.id,
-                                              "rejected"
-                                            )
-                                          }
-                                        >
-                                          <X className="size-4" />
-                                        </Button>
-                                      </TooltipTrigger>
-                                      <TooltipContent>
-                                        <p>Reject request</p>
-                                      </TooltipContent>
-                                    </Tooltip>
-                                  </TooltipProvider>
-                                  <TooltipProvider>
-                                    <Tooltip>
-                                      <TooltipTrigger asChild>
-                                        <Button
-                                          size="sm"
-                                          variant="outline"
-                                          className="size-8 p-0 text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700"
-                                          onClick={() =>
-                                            handlePublisherStatusChange(
-                                              publisher.id,
-                                              "approved"
-                                            )
-                                          }
-                                        >
-                                          <Check className="size-4" />
-                                        </Button>
-                                      </TooltipTrigger>
-                                      <TooltipContent>
-                                        <p>Approve request</p>
-                                      </TooltipContent>
-                                    </Tooltip>
-                                  </TooltipProvider>
-                                </div>
-                              ) : (
-                                <Badge
-                                  variant="outline"
-                                  className={
-                                    publisher.status === "approved"
-                                      ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                                      : "border-red-200 bg-red-50 text-red-700"
-                                  }
-                                >
-                                  {publisher.status === "approved"
-                                    ? "Approved"
-                                    : "Rejected"}
-                                </Badge>
-                              )}
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </div>
-                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -708,24 +449,38 @@ export default function OfferDetailPage({
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1">
                       <h4 className="text-sm font-medium text-gray-500">
-                        Target Audience
+                        Campaign ID
                       </h4>
-                      <p className="font-medium">All</p>
+                      <p className="font-medium">{offerResData.campaignId}</p>
                     </div>
                     <div className="space-y-1">
                       <h4 className="text-sm font-medium text-gray-500">
-                        Allowed Traffic Sources
+                        Pricing Model
                       </h4>
-                      <div className="flex flex-wrap gap-2">
-                        {(
-                          ["Search", "Social", "Display", "Email"] as string[]
-                        ).map((source) => (
-                          <Badge key={source} variant="secondary">
-                            {source}
-                          </Badge>
-                        ))}
-                      </div>
+                      <p className="font-medium">
+                        {offerResData.pricingModel || "N/A"}
+                      </p>
                     </div>
+                    {offerResData.pubOfferStatus !== undefined && (
+                      <div className="space-y-1">
+                        <h4 className="text-sm font-medium text-gray-500">
+                          Publisher Offer Status
+                        </h4>
+                        <p className="font-medium">
+                          {offerResData.pubOfferStatus}
+                        </p>
+                      </div>
+                    )}
+                    {offerResData.rejectedReason && (
+                      <div className="space-y-1">
+                        <h4 className="text-sm font-medium text-gray-500">
+                          Rejection Reason
+                        </h4>
+                        <p className="font-medium">
+                          {offerResData.rejectedReason}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </div>
               </CardContent>
