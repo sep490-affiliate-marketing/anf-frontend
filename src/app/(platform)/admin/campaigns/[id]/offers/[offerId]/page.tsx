@@ -7,17 +7,14 @@ import Link from "next/link"
 import { format } from "date-fns"
 import { vi } from "date-fns/locale"
 import {
-  AlertCircle,
   ArrowLeft,
   BarChart3,
   Calendar,
-  CheckCircle,
   Clock,
   Copy,
   CreditCard,
   DollarSign,
   FileCode,
-  HelpCircle,
   Info,
   Megaphone,
   PieChart,
@@ -39,6 +36,7 @@ import {
 } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
+import { OfferStatusBadge } from "@/components/badge/offer-status-badge"
 import { EmptyTable } from "@/components/data-table/empty-table"
 import { Spinner } from "@/components/spinner"
 
@@ -57,64 +55,6 @@ const placeholderStats = {
   conversionRate: 0,
   trackingUrl:
     "https://backend.affiliate-network.com/tracking?aff_id={affiliate_id}&source={source}",
-}
-
-function OfferStatusBadge({ status }: { status: string | null }) {
-  const getStatusConfig = (status: string | null) => {
-    if (!status) {
-      return {
-        color: "bg-gray-50 text-gray-700 border-gray-200",
-        icon: HelpCircle,
-        text: "Unknown",
-      }
-    }
-
-    switch (status.toLowerCase()) {
-      case "active":
-        return {
-          color: "bg-emerald-50 text-emerald-700 border-emerald-200",
-          icon: CheckCircle,
-          text: "Active",
-        }
-      case "paused":
-        return {
-          color: "bg-amber-50 text-amber-700 border-amber-200",
-          icon: Clock,
-          text: "Paused",
-        }
-      case "pending":
-        return {
-          color: "bg-blue-50 text-blue-700 border-blue-200",
-          icon: Clock,
-          text: "Pending",
-        }
-      case "rejected":
-        return {
-          color: "bg-red-50 text-red-700 border-red-200",
-          icon: AlertCircle,
-          text: "Rejected",
-        }
-      default:
-        return {
-          color: "bg-gray-50 text-gray-700 border-gray-200",
-          icon: HelpCircle,
-          text: status,
-        }
-    }
-  }
-
-  const config = getStatusConfig(status)
-  const Icon = config.icon
-
-  return (
-    <Badge
-      variant="outline"
-      className={`${config.color} flex items-center gap-1.5 px-2.5 py-0.5 font-medium`}
-    >
-      <Icon className="size-3.5" />
-      {config.text}
-    </Badge>
-  )
 }
 
 function StatCard({
