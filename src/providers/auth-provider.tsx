@@ -20,8 +20,7 @@ import Cookies from "js-cookie"
 import { useForm, UseFormReturn } from "react-hook-form"
 import { toast } from "sonner"
 
-import { ILoginRes } from "@/types/auth.type"
-import { IUser } from "@/types/user.type"
+import { ILoginRes, IMeRes, IUserExtended } from "@/types/auth.type"
 
 import apiClient from "@/lib/api/client"
 
@@ -32,7 +31,7 @@ type AuthProviderProps = {
 }
 
 type AuthContextType = {
-  user: IUser | null
+  user: IUserExtended | null
   isLoadingUser: boolean
   logout: () => void
   isLoggingOut: boolean
@@ -54,7 +53,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
     queryKey: authQueryKeys.me(),
     queryFn: async () => {
       try {
-        const { data } = await apiClient.get<IBackendRes<IUser>>(
+        const { data } = await apiClient.get<IMeRes>(
           "/api/affiliate-network/users/me"
         )
         return data.value
