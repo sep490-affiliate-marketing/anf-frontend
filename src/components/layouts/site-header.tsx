@@ -14,7 +14,8 @@ import { IUser } from "@/types/user.type"
 import { Button } from "@/components/ui/button"
 
 import { NavLink } from "@/components/layouts/nav-link"
-import UserAvatarButton from "@/components/layouts/user-avatar-button"
+
+import UserAvatarButton from "./user-avatar-button"
 
 const mapRange = (
   num: number,
@@ -40,68 +41,23 @@ interface NavItem {
 }
 
 export function SiteHeader() {
-  const [scrollState, setScrollState] = useState({
-    y: 0,
-    isScrollingUp: false,
-    lastDirectionChangeY: 0,
-  })
+  const [scrollState, setScrollState] = useState({ y: 0, isScrollingUp: false })
   const lastScrollY = useRef(0)
-  const directionChangeCount = useRef(0)
-  const lastDirection = useRef(false)
   const { user, isLoadingUser } = useAuth()
 
   const handleScroll = useCallback(() => {
     const currentScrollY = window.scrollY
-    const previousDirection = lastDirection.current
-    const newDirection = currentScrollY < lastScrollY.current
+    const isScrollingUp = currentScrollY < lastScrollY.current
 
-    // Determine if direction has changed
-    if (newDirection !== previousDirection) {
-      directionChangeCount.current++
-
-      // Only update direction after consistent scrolling in same direction
-      // or if we've scrolled more than 8px in the new direction
-      const scrollDelta = Math.abs(currentScrollY - lastScrollY.current)
-
-      if (scrollDelta > 8 || directionChangeCount.current > 3) {
-        lastDirection.current = newDirection
-        directionChangeCount.current = 0
-
-        setScrollState({
-          y: currentScrollY,
-          isScrollingUp: newDirection,
-          lastDirectionChangeY: currentScrollY,
-        })
-      } else {
-        // Just update position but keep direction stable
-        setScrollState((prev) => ({
-          ...prev,
-          y: currentScrollY,
-        }))
-      }
-    } else {
-      // Same direction, reset counter and update normally
-      directionChangeCount.current = 0
-      setScrollState((prev) => ({
-        ...prev,
-        y: currentScrollY,
-        isScrollingUp: newDirection,
-      }))
-    }
-
+    setScrollState({ y: currentScrollY, isScrollingUp })
     lastScrollY.current = currentScrollY
   }, [])
 
   useEffect(() => {
     let rafId: number | null = null
-    let lastExecutionTime = 0
-    const THROTTLE_MS = 16 // ~60fps
 
     const onScroll = () => {
-      const now = Date.now()
-
-      if (!rafId && now - lastExecutionTime >= THROTTLE_MS) {
-        lastExecutionTime = now
+      if (!rafId) {
         rafId = requestAnimationFrame(() => {
           handleScroll()
           rafId = null
@@ -118,25 +74,19 @@ export function SiteHeader() {
 
   const { y: scrollY, isScrollingUp } = scrollState
 
-  // More gradual thresholds with wider ranges
-  const HEADER_MIN_SCROLL = 0
-  const HEADER_MAX_SCROLL = isScrollingUp ? 60 : 80
-
-  const LOGO_MIN_SCROLL = isScrollingUp ? 20 : 30
-  const LOGO_MAX_SCROLL = isScrollingUp ? 60 : 80
-
   const headerOpacity = useMemo(
-    () => mapRange(scrollY, HEADER_MIN_SCROLL, HEADER_MAX_SCROLL, 1, 0),
+    () => mapRange(scrollY, 0, isScrollingUp ? 40 : 60, 1, 0),
     [scrollY, isScrollingUp]
   )
 
   const navX = useMemo(
-    () => mapRange(scrollY, HEADER_MIN_SCROLL, HEADER_MAX_SCROLL, 0, 42),
+    () => mapRange(scrollY, 0, isScrollingUp ? 40 : 60, 0, 42),
     [scrollY, isScrollingUp]
   )
 
   const logoOpacity = useMemo(
-    () => mapRange(scrollY, LOGO_MIN_SCROLL, LOGO_MAX_SCROLL, 0, 1),
+    () =>
+      mapRange(scrollY, isScrollingUp ? 10 : 20, isScrollingUp ? 40 : 60, 0, 1),
     [scrollY, isScrollingUp]
   )
 
@@ -146,8 +96,6 @@ export function SiteHeader() {
       height: headerOpacity < 0.05 ? 0 : 56,
       overflow: "hidden",
       pointerEvents: headerOpacity < 0.1 ? "none" : "auto",
-      transition:
-        "opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1), height 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
     }),
     [headerOpacity]
   )
@@ -155,7 +103,7 @@ export function SiteHeader() {
   const navStyle = useMemo(
     () => ({
       transform: `translateX(${navX}px)`,
-      transition: "transform 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
+      transition: "transform 0.2s ease-out",
     }),
     [navX]
   )
@@ -163,7 +111,7 @@ export function SiteHeader() {
   const logoStyle = useMemo(
     () => ({
       opacity: logoOpacity,
-      transition: "opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
+      transition: "opacity 0.2s ease-out",
     }),
     [logoOpacity]
   )
@@ -174,7 +122,7 @@ export function SiteHeader() {
     <div className="sticky top-0 z-50 flex w-full flex-col bg-white">
       {/* Top Header */}
       <div
-        className="flex items-center justify-between px-6 will-change-[opacity,height]"
+        className="flex items-center justify-between px-6 transition-all duration-200 will-change-[opacity,height]"
         style={topHeaderStyle}
       >
         <div className="flex items-center space-x-4">
@@ -186,6 +134,20 @@ export function SiteHeader() {
           </Link>
         </div>
         <div className="flex items-center space-x-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-sm font-normal text-gray-600 transition-colors duration-200 hover:bg-gray-50 hover:text-black"
+          >
+            Feedback
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-sm font-normal text-gray-600 transition-colors duration-200 hover:bg-gray-50 hover:text-black"
+          >
+            Changelog
+          </Button>
           <Button
             variant="ghost"
             size="sm"
