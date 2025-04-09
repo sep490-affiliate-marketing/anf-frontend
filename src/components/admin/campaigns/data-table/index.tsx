@@ -16,7 +16,6 @@ import { ICampaign } from "@/types/campaign.type"
 
 import { useGetAdminCampaigns, useUpdateCampaignStatus } from "@/hooks/campaign"
 
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,

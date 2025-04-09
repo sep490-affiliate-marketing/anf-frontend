@@ -1,7 +1,6 @@
 import { useState } from "react"
 
 import { DollarSign, InfoIcon, Loader2 } from "lucide-react"
-import { toast } from "sonner"
 
 import { useAddCredit } from "@/hooks/wallet"
 

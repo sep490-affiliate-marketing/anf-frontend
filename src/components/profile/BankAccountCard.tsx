@@ -2,7 +2,7 @@
 
 import { Landmark, Star, StarOff, Trash2 } from "lucide-react"
 
-import { Bank, BankingInfo } from "@/types/profile"
+import { BankingInfo } from "@/types/profile"
 
 import { Button } from "@/components/ui/button"
 import {
