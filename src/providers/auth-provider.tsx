@@ -28,6 +28,7 @@ import LogoutDialog from "@/components/dialogs/logout-dialog"
 
 type AuthProviderProps = {
   children: React.ReactNode
+  initUserData?: IUserExtended | null
 }
 
 type AuthContextType = {
@@ -45,11 +46,14 @@ type AuthContextType = {
 
 export const AuthContext = React.createContext<AuthContextType | null>(null)
 
-export default function AuthProvider({ children }: AuthProviderProps) {
+export default function AuthProvider({
+  children,
+  initUserData,
+}: AuthProviderProps) {
   const queryClient = useQueryClient()
   const router = useRouter()
 
-  const { data: userData, isLoading: isLoadingUser } = useQuery({
+  const { data: userData, isFetching: isLoadingUser } = useQuery({
     queryKey: authQueryKeys.me(),
     queryFn: async () => {
       try {
@@ -61,7 +65,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
         return null
       }
     },
-
+    initialData: initUserData,
     enabled: !!Cookies.get("access_token"),
   })
 
