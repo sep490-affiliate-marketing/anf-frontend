@@ -7,7 +7,6 @@ import { format } from "date-fns"
 import {
   ChevronRight,
   CreditCard,
-  ImageIcon,
   Landmark,
   Plus,
   Wallet,
@@ -274,7 +273,7 @@ export function ProfileSidebar() {
                       <Skeleton className="h-3 w-20" />
                     </div>
                   </div>
-                  <Skeleton className="h-4 w-4" />
+                  <Skeleton className="size-4" />
                 </div>
                 <div className="flex items-center justify-between rounded-lg px-3 py-2.5">
                   <div className="flex items-center space-x-3">
@@ -284,7 +283,7 @@ export function ProfileSidebar() {
                       <Skeleton className="h-3 w-20" />
                     </div>
                   </div>
-                  <Skeleton className="h-4 w-4" />
+                  <Skeleton className="size-4" />
                 </div>
               </>
             ) : linkedAccounts.length > 0 ? (
