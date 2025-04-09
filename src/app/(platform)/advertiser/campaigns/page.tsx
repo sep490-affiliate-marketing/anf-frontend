@@ -1,4 +1,7 @@
+import { Suspense } from "react"
+
 import CampaignDataTable from "@/components/advertiser/campaigns/data-table"
+import { Spinner } from "@/components/spinner"
 
 export default function Page() {
   return (
@@ -20,9 +23,9 @@ export default function Page() {
       {/* Search Section */}
 
       <section className="space-y-4">
-        {/* Table Section */}
-
-        <CampaignDataTable />
+        <Suspense fallback={<Spinner />}>
+          <CampaignDataTable />
+        </Suspense>
       </section>
     </div>
   )

@@ -70,8 +70,8 @@ export const offerQueryKeys = {
   global: {
     list: (page: number, limit: number) =>
       [...offerQueryKeys.origin, "global", "list", { page, limit }] as const,
-    details: (id: number) =>
-      [...offerQueryKeys.origin, "global", "details", id] as const,
+    details: (offerId: number) =>
+      [...offerQueryKeys.origin, "global", "details", offerId] as const,
     publisherInOffer: (offerId: number) =>
       [
         ...offerQueryKeys.origin,
