@@ -44,7 +44,7 @@ import { Spinner } from "@/components/spinner"
 
 interface OfferDetailParams {
   params: Promise<{
-    id: string
+    campaignId: string
     offerId: string
   }>
 }
@@ -155,7 +155,7 @@ export default function OfferDetailPage({
 
   // Unwrap params using React.use() as recommended by Next.js
   const params = React.use(paramsPromise)
-  const { id, offerId } = params
+  const { campaignId, offerId } = params
 
   const {
     data: offerResData,
@@ -188,7 +188,7 @@ export default function OfferDetailPage({
     <div className="space-y-6">
       {/* Header */}
       <div className="sticky top-0 z-10 flex items-center gap-4 border-b bg-white/95 px-6 py-4 backdrop-blur supports-[backdrop-filter]:bg-white/60">
-        <Link href={`/admin/campaigns/${id}`}>
+        <Link href={`/advertiser/campaigns/${campaignId}`}>
           <Button
             variant="ghost"
             size="sm"
