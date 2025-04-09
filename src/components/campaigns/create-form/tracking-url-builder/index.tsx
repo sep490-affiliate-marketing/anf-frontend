@@ -5,8 +5,6 @@ import { cn } from "@/lib/utils"
 
 import { useTrackingUrlBuilder } from "@/hooks/tracking-url"
 
-import { Label } from "@/components/ui/label"
-
 import AdvancedUrlBuilderForm from "./advanced-url-builder"
 
 type TrackingUrlBuilderProps = {

@@ -7,14 +7,7 @@ import { useRouter } from "next/navigation"
 import { CampaignStatusEnum } from "@/enums/campaign-status"
 import { format } from "date-fns"
 import { vi } from "date-fns/locale"
-import {
-  AlertCircle,
-  ArrowUpRight,
-  Clock,
-  CreditCard,
-  Loader2,
-  Tag,
-} from "lucide-react"
+import { AlertCircle, ArrowUpRight, Clock, CreditCard, Tag } from "lucide-react"
 import "yet-another-react-lightbox/styles.css"
 
 import { formatVNDCurrency } from "@/lib/utils"
