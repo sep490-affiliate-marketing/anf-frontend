@@ -1,3 +1,5 @@
+import { CampaignStatusEnum } from "@/enums/campaign-status"
+
 export interface ICreateCampaignSuccessResponse {
   isSuccess: true
   message: string
@@ -26,7 +28,7 @@ export interface ICampaign {
   rejectReason: string | null
   categoryId: number | null
   categoryName: string | null
-  status: string
+  status: CampaignStatusEnum
   offers: Array<{
     id: number
     campaignId: number

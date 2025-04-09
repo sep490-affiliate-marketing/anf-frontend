@@ -49,7 +49,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
-import { CampaignStatus } from "@/components/admin/campaigns/detail/campaign-status"
+import { CampaignStatusBadge } from "@/components/badge/campaign-status-badge"
 
 // Utility function to truncate text
 const truncateText = (text: string, maxLength: number) => {
@@ -185,7 +185,7 @@ function CampaignVerificationUI({ campaign }: { campaign: Campaign }) {
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
-              <CampaignStatus
+              <CampaignStatusBadge
                 status={campaign.status}
                 className="ml-2 shrink-0"
               />
