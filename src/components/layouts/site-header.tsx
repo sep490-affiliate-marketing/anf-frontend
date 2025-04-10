@@ -1,7 +1,5 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
-
 import Image from "next/image"
 import Link from "next/link"
 
@@ -17,21 +15,6 @@ import { NavLink } from "@/components/layouts/nav-link"
 
 import UserAvatarButton from "./user-avatar-button"
 
-const mapRange = (
-  num: number,
-  inMin: number,
-  inMax: number,
-  outMin: number,
-  outMax: number
-): number => {
-  const mappedValue =
-    ((num - inMin) * (outMax - outMin)) / (inMax - inMin) + outMin
-  return Math.min(
-    Math.max(mappedValue, Math.min(outMin, outMax)),
-    Math.max(outMin, outMax)
-  )
-}
-
 // Define the navigation item interface
 interface NavItem {
   title: string
@@ -41,124 +24,41 @@ interface NavItem {
 }
 
 export function SiteHeader() {
-  const [scrollState, setScrollState] = useState({ y: 0, isScrollingUp: false })
-  const lastScrollY = useRef(0)
   const { user, isLoadingUser } = useAuth()
-
-  const handleScroll = useCallback(() => {
-    const currentScrollY = window.scrollY
-    const isScrollingUp = currentScrollY < lastScrollY.current
-
-    setScrollState({ y: currentScrollY, isScrollingUp })
-    lastScrollY.current = currentScrollY
-  }, [])
-
-  useEffect(() => {
-    let rafId: number | null = null
-
-    const onScroll = () => {
-      if (!rafId) {
-        rafId = requestAnimationFrame(() => {
-          handleScroll()
-          rafId = null
-        })
-      }
-    }
-
-    window.addEventListener("scroll", onScroll, { passive: true })
-    return () => {
-      window.removeEventListener("scroll", onScroll)
-      if (rafId) cancelAnimationFrame(rafId)
-    }
-  }, [handleScroll])
-
-  const { y: scrollY, isScrollingUp } = scrollState
-
-  const headerOpacity = useMemo(
-    () => mapRange(scrollY, 0, isScrollingUp ? 40 : 60, 1, 0),
-    [scrollY, isScrollingUp]
-  )
-
-  const navX = useMemo(
-    () => mapRange(scrollY, 0, isScrollingUp ? 40 : 60, 0, 42),
-    [scrollY, isScrollingUp]
-  )
-
-  const logoOpacity = useMemo(
-    () =>
-      mapRange(scrollY, isScrollingUp ? 10 : 20, isScrollingUp ? 40 : 60, 0, 1),
-    [scrollY, isScrollingUp]
-  )
-
-  const topHeaderStyle = useMemo(
-    (): React.CSSProperties => ({
-      opacity: headerOpacity,
-      height: headerOpacity < 0.05 ? 0 : 56,
-      overflow: "hidden",
-      pointerEvents: headerOpacity < 0.1 ? "none" : "auto",
-    }),
-    [headerOpacity]
-  )
-
-  const navStyle = useMemo(
-    () => ({
-      transform: `translateX(${navX}px)`,
-      transition: "transform 0.2s ease-out",
-    }),
-    [navX]
-  )
-
-  const logoStyle = useMemo(
-    () => ({
-      opacity: logoOpacity,
-      transition: "opacity 0.2s ease-out",
-    }),
-    [logoOpacity]
-  )
-
   const accessibleRoutes = getAccessibleRoutes(user, isLoadingUser)
 
   return (
-    <div className="sticky top-0 z-50 flex w-full flex-col bg-white">
-      {/* Top Header */}
-      <div
-        className="flex items-center justify-between px-6 transition-all duration-200 will-change-[opacity,height]"
-        style={topHeaderStyle}
-      >
-        <div className="flex items-center space-x-4">
+    <header className="sticky top-0 z-50 w-full bg-white shadow-sm">
+      <div className="flex h-14 items-center justify-between px-6">
+        <div className="flex items-center space-x-6">
           <Link
-            href="#"
-            className="flex items-center space-x-2 transition-opacity hover:opacity-70"
+            href="/"
+            className="flex items-center transition-opacity hover:opacity-70"
           >
-            <Image src="/logo.png" alt="Logo" width={32} height={32} />
+            <Image src="/logo.png" alt="Logo" width={40} height={40} />
           </Link>
+
+          <nav className="flex h-full items-center">
+            {accessibleRoutes.map((item) => (
+              <NavLink
+                key={item.title}
+                href={item.url}
+                exact={false}
+                matchPattern={item.matchPattern}
+                roles={item.roles}
+                className=""
+              >
+                {item.title}
+              </NavLink>
+            ))}
+          </nav>
         </div>
-        <div className="flex items-center space-x-1">
+
+        <div className="flex items-center space-x-2">
           <Button
             variant="ghost"
             size="sm"
-            className="text-sm font-normal text-gray-600 transition-colors duration-200 hover:bg-gray-50 hover:text-black"
-          >
-            Feedback
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-sm font-normal text-gray-600 transition-colors duration-200 hover:bg-gray-50 hover:text-black"
-          >
-            Changelog
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-sm font-normal text-gray-600 transition-colors duration-200 hover:bg-gray-50 hover:text-black"
-          >
-            Help
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="flex items-center space-x-1 text-sm font-normal text-gray-600 transition-colors duration-200 hover:bg-gray-50 hover:text-black"
+            className="flex items-center space-x-1 text-sm font-normal text-gray-600 transition-colors hover:bg-gray-50 hover:text-black"
           >
             <span>Docs</span>
             <ExternalLink className="size-3" />
@@ -166,37 +66,15 @@ export function SiteHeader() {
           <Button
             variant="ghost"
             size="icon"
-            className="size-9 rounded-full text-gray-600 transition-colors duration-200 hover:bg-gray-50 hover:text-black"
+            className="size-9 rounded-full text-gray-600 transition-colors hover:bg-gray-50 hover:text-black"
           >
             <Bell className="size-5" />
           </Button>
           <UserAvatarButton />
         </div>
       </div>
-
-      {/* Secondary Navigation */}
-      <div className="flex h-12 items-center border-b border-gray-200 bg-white px-6">
-        <div
-          className="pointer-events-none absolute left-6 select-none"
-          style={logoStyle}
-        >
-          <Image src="/logo.png" alt="Logo" width={32} height={32} />
-        </div>
-        <div className="flex will-change-transform" style={navStyle}>
-          {accessibleRoutes.map((item) => (
-            <NavLink
-              key={item.title}
-              href={item.url}
-              exact={false}
-              matchPattern={item.matchPattern}
-              roles={item.roles}
-            >
-              {item.title}
-            </NavLink>
-          ))}
-        </div>
-      </div>
-    </div>
+      <div className="h-px w-full bg-gray-200"></div>
+    </header>
   )
 }
 
@@ -239,11 +117,7 @@ const getAccessibleRoutes = (
       url: "/tickets",
       matchPattern: "tickets",
     },
-    {
-      title: "Withdrawal Requests",
-      url: "/withdrawal-requests",
-      matchPattern: "withdrawal-requests",
-    },
+
     {
       title: "Settings",
       url: "/settings",

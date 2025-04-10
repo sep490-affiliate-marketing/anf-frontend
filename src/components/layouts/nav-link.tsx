@@ -89,7 +89,7 @@ export const NavLink = ({
     <Link
       href={roleBasedHref}
       className={cn(
-        "group relative flex h-12 items-center px-4 text-sm font-medium text-gray-600 transition-colors hover:text-primary",
+        "group relative flex h-14 items-center px-4 text-sm font-medium text-gray-600 transition-colors hover:text-primary",
         isActive &&
           "text-primary after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-full after:bg-primary",
         className
