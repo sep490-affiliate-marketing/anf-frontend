@@ -395,7 +395,7 @@ export function CampaignDetails({ campaignId }: { campaignId: number }) {
               // Generate tracking URL
               const trackingUrl =
                 env.NEXT_PUBLIC_BACKEND_URL +
-                "/api/tracking?offerId=" +
+                "/api/affiliate-network/tracking?offerId=" +
                 offer.id +
                 "&publisherCode=" +
                 user?.userCode
@@ -498,6 +498,24 @@ export function CampaignDetails({ campaignId }: { campaignId: number }) {
                         value={trackingUrl}
                         className="text-xs"
                       />
+                    </div>
+                  )}
+
+                  {offer.pubOfferStatus === 2 && (
+                    <div className="mt-6">
+                      <Separator className="mb-4" />
+                      <h4 className="mb-2 text-xs font-medium text-gray-900">
+                        Your Tracking URL
+                      </h4>
+                      <CopyToClipboardTextarea
+                        rows={2}
+                        value={trackingUrl}
+                        className="text-xs"
+                      />
+                      <p className="mt-2 text-xs text-gray-500">
+                        Use this URL in your marketing materials to track
+                        conversions.
+                      </p>
                     </div>
                   )}
 
