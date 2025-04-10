@@ -1,23 +1,23 @@
 "use client"
 
-import React, { useState } from "react"
+import { useEffect, useState } from "react"
 
 import Link from "next/link"
+import { useRouter, useSearchParams } from "next/navigation"
 
 import { format } from "date-fns"
 import { vi } from "date-fns/locale"
 import {
   ArrowRight,
-  CheckCircle,
+  BookmarkIcon,
   ChevronDown,
-  Clock,
   GridIcon,
-  Info,
   Layers,
   ListFilter,
   Megaphone,
   Search,
   SlidersHorizontal,
+  XCircle,
 } from "lucide-react"
 
 import { ICampaign } from "@/types/campaign.type"
@@ -54,6 +54,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
+import { Skeleton } from "@/components/ui/skeleton"
 import {
   Tooltip,
   TooltipContent,
@@ -71,45 +72,11 @@ const categories = [
   "Finance",
 ]
 const pricingModels = ["All", "CPA", "CPC", "CPL", "CPS"]
-const statusOptions = ["All", "Active", "Pending"]
-
-function CampaignStatus({ status }: { status: string }) {
-  const getStatusConfig = (status: string) => {
-    switch (status.toLowerCase()) {
-      case "active":
-        return {
-          color: "bg-emerald-50 text-emerald-700 border-emerald-200",
-          icon: CheckCircle,
-          text: "Active",
-        }
-      case "pending":
-        return {
-          color: "bg-amber-50 text-amber-700 border-amber-200",
-          icon: Clock,
-          text: "Pending",
-        }
-      default:
-        return {
-          color: "bg-gray-50 text-gray-700 border-gray-200",
-          icon: Info,
-          text: status,
-        }
-    }
-  }
-
-  const config = getStatusConfig(status)
-  const Icon = config.icon
-
-  return (
-    <Badge
-      variant="outline"
-      className={`${config.color} flex items-center gap-1.5 px-2.5 py-0.5 font-medium`}
-    >
-      <Icon className="size-3.5" />
-      {config.text}
-    </Badge>
-  )
-}
+const sortOptions = [
+  { label: "Recent first", value: "recent" },
+  { label: "Highest payout", value: "payout" },
+  { label: "Alphabetical", value: "alpha" },
+]
 
 function OfferBadge({ model }: { model: string }) {
   const colors: Record<string, string> = {
@@ -123,19 +90,13 @@ function OfferBadge({ model }: { model: string }) {
     <Badge
       variant="outline"
       className={cn(
+        "font-medium transition-colors",
         colors[model] || "border-gray-200 bg-gray-50 text-gray-700"
       )}
     >
       {model}
     </Badge>
   )
-}
-
-// Define campaign type for TypeScript
-type Offer = {
-  id: number
-  pricingModel: string
-  bid: number
 }
 
 interface CampaignWithJoinStatus extends ICampaign {
@@ -146,18 +107,27 @@ interface CampaignWithJoinStatus extends ICampaign {
 interface CampaignCardProps {
   campaign: CampaignWithJoinStatus
   onJoinToggle: (id: number) => void
+  isJoining?: boolean
 }
 
 interface CampaignListItemProps {
   campaign: CampaignWithJoinStatus
   onJoinToggle: (id: number) => void
+  isJoining?: boolean
 }
 
 // Component for campaign grid card
-function CampaignCard({ campaign, onJoinToggle }: CampaignCardProps) {
+function CampaignCard({
+  campaign,
+  onJoinToggle,
+  isJoining,
+}: CampaignCardProps) {
   return (
-    <Card key={campaign.id} className="overflow-hidden">
-      <div className="aspect-video w-full">
+    <Card
+      key={campaign.id}
+      className="group overflow-hidden transition-all hover:shadow-md"
+    >
+      <div className="relative aspect-video w-full overflow-hidden">
         <img
           src={
             (campaign.campImages && campaign.campImages.length > 0
@@ -165,8 +135,13 @@ function CampaignCard({ campaign, onJoinToggle }: CampaignCardProps) {
               : null) || "/placeholder-image.jpg"
           }
           alt={campaign.name}
-          className="size-full object-cover"
+          className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
         />
+        {campaign.joined && (
+          <div className="absolute right-3 top-3 rounded-full bg-primary p-1 text-primary-foreground shadow-sm">
+            <BookmarkIcon className="size-4" />
+          </div>
+        )}
       </div>
       <CardHeader className="p-4 pb-0">
         <div className="flex items-center justify-between">
@@ -208,10 +183,20 @@ function CampaignCard({ campaign, onJoinToggle }: CampaignCardProps) {
           <div className="flex w-full items-center gap-2">
             <Button
               variant="outline"
-              className="flex-1"
+              className="flex-1 transition-colors"
               onClick={() => onJoinToggle(campaign.id)}
+              disabled={isJoining}
             >
-              Leave Campaign
+              {isJoining ? (
+                <>
+                  <span className="mr-1">Processing</span>
+                  <span className="size-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                </>
+              ) : (
+                <>
+                  <XCircle className="mr-1.5 size-4" /> Leave Campaign
+                </>
+              )}
             </Button>
             <Link
               href={`/publisher/campaigns/${campaign.id}`}
@@ -233,10 +218,20 @@ function CampaignCard({ campaign, onJoinToggle }: CampaignCardProps) {
               </Button>
             </Link>
             <Button
-              className="flex-1 gap-1"
+              className="flex-1 gap-1 transition-colors"
               onClick={() => onJoinToggle(campaign.id)}
+              disabled={isJoining}
             >
-              Join Campaign <ArrowRight className="size-4" />
+              {isJoining ? (
+                <>
+                  <span className="mr-1">Processing</span>
+                  <span className="size-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                </>
+              ) : (
+                <>
+                  Join Campaign <ArrowRight className="size-4" />
+                </>
+              )}
             </Button>
           </div>
         )}
@@ -246,10 +241,14 @@ function CampaignCard({ campaign, onJoinToggle }: CampaignCardProps) {
 }
 
 // Component for campaign list item
-function CampaignListItem({ campaign, onJoinToggle }: CampaignListItemProps) {
+function CampaignListItem({
+  campaign,
+  onJoinToggle,
+  isJoining,
+}: CampaignListItemProps) {
   return (
-    <div className="flex flex-col overflow-hidden rounded-lg border sm:flex-row">
-      <div className="h-48 w-full sm:h-auto sm:w-48">
+    <div className="group flex flex-col overflow-hidden rounded-lg border transition-all hover:shadow-md sm:flex-row">
+      <div className="relative h-48 w-full sm:h-auto sm:w-48">
         <img
           src={
             (campaign.campImages && campaign.campImages.length > 0
@@ -257,8 +256,13 @@ function CampaignListItem({ campaign, onJoinToggle }: CampaignListItemProps) {
               : null) || "/placeholder-image.jpg"
           }
           alt={campaign.name}
-          className="size-full object-cover"
+          className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
         />
+        {campaign.joined && (
+          <div className="absolute right-3 top-3 rounded-full bg-primary p-1 text-primary-foreground shadow-sm">
+            <BookmarkIcon className="size-4" />
+          </div>
+        )}
       </div>
       <div className="flex flex-1 flex-col p-4">
         <div className="flex items-center justify-between">
@@ -305,8 +309,19 @@ function CampaignListItem({ campaign, onJoinToggle }: CampaignListItemProps) {
               <Button
                 variant="outline"
                 onClick={() => onJoinToggle(campaign.id)}
+                disabled={isJoining}
+                className="transition-colors"
               >
-                Leave
+                {isJoining ? (
+                  <>
+                    <span className="mr-1">Processing</span>
+                    <span className="size-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                  </>
+                ) : (
+                  <>
+                    <XCircle className="mr-1.5 size-4" /> Leave
+                  </>
+                )}
               </Button>
               <Link href={`/publisher/campaigns/${campaign.id}`}>
                 <Button className="gap-1">
@@ -320,10 +335,20 @@ function CampaignListItem({ campaign, onJoinToggle }: CampaignListItemProps) {
                 <Button variant="outline">View Details</Button>
               </Link>
               <Button
-                className="gap-1"
+                className="gap-1 transition-colors"
                 onClick={() => onJoinToggle(campaign.id)}
+                disabled={isJoining}
               >
-                Join Campaign <ArrowRight className="size-4" />
+                {isJoining ? (
+                  <>
+                    <span className="mr-1">Processing</span>
+                    <span className="size-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                  </>
+                ) : (
+                  <>
+                    Join Campaign <ArrowRight className="size-4" />
+                  </>
+                )}
               </Button>
             </div>
           )}
@@ -341,6 +366,8 @@ function CampaignFilters({
   onCategoryChange,
   selectedPricingModel,
   onPricingModelChange,
+  joinedFilter,
+  onJoinedFilterChange,
 }: {
   searchQuery: string
   onSearchChange: (value: string) => void
@@ -348,103 +375,200 @@ function CampaignFilters({
   onCategoryChange: (value: string) => void
   selectedPricingModel: string
   onPricingModelChange: (value: string) => void
+  joinedFilter: "all" | "joined" | "not-joined"
+  onJoinedFilterChange: (value: "all" | "joined" | "not-joined") => void
 }) {
   return (
-    <div className="flex flex-col gap-4 sm:flex-row">
-      <div className="flex-1">
-        <div className="relative">
-          <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
-          <Input
-            type="search"
-            placeholder="Search campaigns..."
-            className="pl-8"
-            value={searchQuery}
-            onChange={(e) => onSearchChange(e.target.value)}
-          />
+    <div className="">
+      <div className="flex flex-col gap-4 sm:flex-row">
+        <div className="flex-1">
+          <div className="relative">
+            <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
+            <Input
+              type="search"
+              placeholder="Search campaigns..."
+              className="pl-8"
+              value={searchQuery}
+              onChange={(e) => onSearchChange(e.target.value)}
+            />
+          </div>
         </div>
-      </div>
-      <div className="flex gap-2">
-        <Select value={selectedCategory} onValueChange={onCategoryChange}>
-          <SelectTrigger className="w-[140px]">
-            <SelectValue placeholder="Category" />
-          </SelectTrigger>
-          <SelectContent>
-            {categories.map((category) => (
-              <SelectItem key={category} value={category}>
-                {category}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className="flex gap-2">
+          <Select value={selectedCategory} onValueChange={onCategoryChange}>
+            <SelectTrigger className="w-[140px]">
+              <SelectValue placeholder="Category" />
+            </SelectTrigger>
+            <SelectContent>
+              {categories.map((category) => (
+                <SelectItem key={category} value={category}>
+                  {category}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
-        <Select
-          value={selectedPricingModel}
-          onValueChange={onPricingModelChange}
-        >
-          <SelectTrigger className="w-[140px]">
-            <SelectValue placeholder="Pricing Model" />
-          </SelectTrigger>
-          <SelectContent>
-            {pricingModels.map((model) => (
-              <SelectItem key={model} value={model}>
-                {model}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          <Select
+            value={selectedPricingModel}
+            onValueChange={onPricingModelChange}
+          >
+            <SelectTrigger className="w-[140px]">
+              <SelectValue placeholder="Pricing Model" />
+            </SelectTrigger>
+            <SelectContent>
+              {pricingModels.map((model) => (
+                <SelectItem key={model} value={model}>
+                  {model}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
-        <Sheet>
-          <SheetTrigger asChild>
-            <Button variant="outline" size="icon" className="shrink-0">
-              <SlidersHorizontal className="size-4" />
-            </Button>
-          </SheetTrigger>
-          <SheetContent>
-            <SheetHeader>
-              <SheetTitle>Filters</SheetTitle>
-              <SheetDescription>
-                Refine campaigns based on your preferences
-              </SheetDescription>
-            </SheetHeader>
-            <div className="py-6">
-              <div className="space-y-4">
-                <div>
-                  <h3 className="mb-2 text-sm font-medium">Joined Status</h3>
-                  <div className="flex flex-wrap gap-2">
-                    <Badge variant="outline" className="cursor-pointer">
-                      All
-                    </Badge>
-                    <Badge variant="outline" className="cursor-pointer">
-                      Joined
-                    </Badge>
-                    <Badge variant="outline" className="cursor-pointer">
-                      Not Joined
-                    </Badge>
-                  </div>
-                </div>
-                <Separator />
-                <div>
-                  <h3 className="mb-2 text-sm font-medium">Categories</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {categories.map((category) => (
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="outline" size="icon" className="shrink-0">
+                <SlidersHorizontal className="size-4" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent>
+              <SheetHeader>
+                <SheetTitle>Filters</SheetTitle>
+                <SheetDescription>
+                  Refine campaigns based on your preferences
+                </SheetDescription>
+              </SheetHeader>
+              <div className="py-6">
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="mb-2 text-sm font-medium">Joined Status</h3>
+                    <div className="flex flex-wrap gap-2">
                       <Badge
-                        key={category}
-                        variant={
-                          selectedCategory === category ? "default" : "outline"
-                        }
-                        className="cursor-pointer"
-                        onClick={() => onCategoryChange(category)}
+                        variant={joinedFilter === "all" ? "default" : "outline"}
+                        className="cursor-pointer transition-colors"
+                        onClick={() => onJoinedFilterChange("all")}
                       >
-                        {category}
+                        All
                       </Badge>
-                    ))}
+                      <Badge
+                        variant={
+                          joinedFilter === "joined" ? "default" : "outline"
+                        }
+                        className="cursor-pointer transition-colors"
+                        onClick={() => onJoinedFilterChange("joined")}
+                      >
+                        Joined
+                      </Badge>
+                      <Badge
+                        variant={
+                          joinedFilter === "not-joined" ? "default" : "outline"
+                        }
+                        className="cursor-pointer transition-colors"
+                        onClick={() => onJoinedFilterChange("not-joined")}
+                      >
+                        Not Joined
+                      </Badge>
+                    </div>
+                  </div>
+                  <Separator />
+                  <div>
+                    <h3 className="mb-2 text-sm font-medium">Categories</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {categories.map((category) => (
+                        <Badge
+                          key={category}
+                          variant={
+                            selectedCategory === category
+                              ? "default"
+                              : "outline"
+                          }
+                          className="cursor-pointer transition-colors"
+                          onClick={() => onCategoryChange(category)}
+                        >
+                          {category}
+                        </Badge>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </SheetContent>
-        </Sheet>
+            </SheetContent>
+          </Sheet>
+        </div>
       </div>
+
+      {(searchQuery ||
+        selectedCategory !== "All" ||
+        selectedPricingModel !== "All" ||
+        joinedFilter !== "all") && (
+        <div className="mt-3 flex flex-wrap items-center gap-2 border-t pt-3">
+          <span className="text-sm text-muted-foreground">Active filters:</span>
+          {searchQuery && (
+            <Badge variant="secondary" className="gap-1 pl-2">
+              &ldquo;{searchQuery}&rdquo;
+              <button
+                type="button"
+                className="ml-1 rounded-full p-0.5 hover:bg-primary-foreground"
+                onClick={() => onSearchChange("")}
+              >
+                <XCircle className="size-3" />
+              </button>
+            </Badge>
+          )}
+          {selectedCategory !== "All" && (
+            <Badge variant="secondary" className="gap-1 pl-2">
+              {selectedCategory}
+              <button
+                type="button"
+                className="ml-1 rounded-full p-0.5 hover:bg-primary-foreground"
+                onClick={() => onCategoryChange("All")}
+              >
+                <XCircle className="size-3" />
+              </button>
+            </Badge>
+          )}
+          {selectedPricingModel !== "All" && (
+            <Badge variant="secondary" className="gap-1 pl-2">
+              {selectedPricingModel}
+              <button
+                type="button"
+                className="ml-1 rounded-full p-0.5 hover:bg-primary-foreground"
+                onClick={() => onPricingModelChange("All")}
+              >
+                <XCircle className="size-3" />
+              </button>
+            </Badge>
+          )}
+          {joinedFilter !== "all" && (
+            <Badge variant="secondary" className="gap-1 pl-2">
+              {joinedFilter === "joined" ? "Joined Only" : "Not Joined Only"}
+              <button
+                type="button"
+                className="ml-1 rounded-full p-0.5 hover:bg-primary-foreground"
+                onClick={() => onJoinedFilterChange("all")}
+              >
+                <XCircle className="size-3" />
+              </button>
+            </Badge>
+          )}
+          {(searchQuery ||
+            selectedCategory !== "All" ||
+            selectedPricingModel !== "All" ||
+            joinedFilter !== "all") && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="ml-auto h-7 gap-1 text-xs"
+              onClick={() => {
+                onSearchChange("")
+                onCategoryChange("All")
+                onPricingModelChange("All")
+                onJoinedFilterChange("all")
+              }}
+            >
+              Clear all
+            </Button>
+          )}
+        </div>
+      )}
     </div>
   )
 }
@@ -454,16 +578,22 @@ function ViewControls({
   viewMode,
   setViewMode,
   resultsCount,
+  sortBy,
+  setSortBy,
 }: {
   viewMode: "grid" | "list"
   setViewMode: (mode: "grid" | "list") => void
   resultsCount: number
+  sortBy: string
+  setSortBy: (sort: string) => void
 }) {
   return (
     <div className="flex items-center justify-between">
       <p className="text-sm text-muted-foreground">
-        Showing <span className="font-medium">{resultsCount}</span> campaign
-        results
+        Showing{" "}
+        <span className="font-medium text-foreground">{resultsCount}</span>{" "}
+        campaign
+        {resultsCount !== 1 ? "s" : ""}
       </p>
       <div className="flex items-center gap-2">
         <TooltipProvider>
@@ -473,6 +603,7 @@ function ViewControls({
                 variant={viewMode === "grid" ? "default" : "outline"}
                 size="icon"
                 onClick={() => setViewMode("grid")}
+                className="h-9 w-9"
               >
                 <GridIcon className="size-4" />
               </Button>
@@ -485,6 +616,7 @@ function ViewControls({
                 variant={viewMode === "list" ? "default" : "outline"}
                 size="icon"
                 onClick={() => setViewMode("list")}
+                className="h-9 w-9"
               >
                 <Layers className="size-4" />
               </Button>
@@ -495,7 +627,7 @@ function ViewControls({
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm" className="ml-2 gap-1">
+            <Button variant="outline" size="sm" className="ml-2 h-9 gap-1">
               <ListFilter className="size-3.5" />
               Sort
               <ChevronDown className="size-3.5" />
@@ -504,11 +636,15 @@ function ViewControls({
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Sort by</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuCheckboxItem checked>
-              Recent first
-            </DropdownMenuCheckboxItem>
-            <DropdownMenuCheckboxItem>Highest payout</DropdownMenuCheckboxItem>
-            <DropdownMenuCheckboxItem>Alphabetical</DropdownMenuCheckboxItem>
+            {sortOptions.map((option) => (
+              <DropdownMenuCheckboxItem
+                key={option.value}
+                checked={sortBy === option.value}
+                onCheckedChange={() => setSortBy(option.value)}
+              >
+                {option.label}
+              </DropdownMenuCheckboxItem>
+            ))}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
@@ -519,24 +655,145 @@ function ViewControls({
 // Empty state component
 function EmptyState() {
   return (
-    <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-12">
-      <Megaphone className="mb-4 size-8 text-muted-foreground" />
+    <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16">
+      <Megaphone className="mb-4 size-12 text-muted-foreground opacity-80" />
       <h3 className="text-lg font-medium">No campaigns found</h3>
-      <p className="mt-1 text-sm text-muted-foreground">
-        Try adjusting your search or filter criteria
+      <p className="mt-1 max-w-md text-center text-sm text-muted-foreground">
+        Try adjusting your search or filter criteria to find campaigns that
+        match your interests
       </p>
+      <Button variant="outline" className="mt-4 gap-2">
+        <Search className="size-4" /> Browse all campaigns
+      </Button>
+    </div>
+  )
+}
+
+// Skeleton loader for campaigns
+function CampaignSkeletons({ viewMode }: { viewMode: "grid" | "list" }) {
+  return viewMode === "grid" ? (
+    <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3">
+      {Array.from({ length: 6 }).map((_, i) => (
+        <Card key={i} className="overflow-hidden">
+          <Skeleton className="aspect-video w-full" />
+          <CardHeader className="p-4 pb-0">
+            <Skeleton className="h-6 w-3/4" />
+            <Skeleton className="mt-2 h-16 w-full" />
+          </CardHeader>
+          <CardContent className="p-4 pt-3">
+            <div className="mt-2 flex gap-2">
+              <Skeleton className="h-6 w-16" />
+              <Skeleton className="h-6 w-16" />
+            </div>
+            <div className="mt-4 grid grid-cols-2 gap-4">
+              <div>
+                <Skeleton className="h-4 w-16" />
+                <Skeleton className="mt-1 h-5 w-20" />
+              </div>
+              <div>
+                <Skeleton className="h-4 w-16" />
+                <Skeleton className="mt-1 h-5 w-24" />
+              </div>
+            </div>
+          </CardContent>
+          <CardFooter className="border-t p-4">
+            <div className="flex w-full gap-2">
+              <Skeleton className="h-9 flex-1" />
+              <Skeleton className="h-9 flex-1" />
+            </div>
+          </CardFooter>
+        </Card>
+      ))}
+    </div>
+  ) : (
+    <div className="space-y-4">
+      {Array.from({ length: 3 }).map((_, i) => (
+        <div
+          key={i}
+          className="flex flex-col overflow-hidden rounded-lg border sm:flex-row"
+        >
+          <Skeleton className="h-48 w-full sm:h-auto sm:w-48" />
+          <div className="flex flex-1 flex-col p-4">
+            <Skeleton className="h-6 w-1/3" />
+            <Skeleton className="mt-2 h-16 w-full" />
+            <div className="mt-4 flex items-center justify-between">
+              <div className="flex gap-6">
+                <div>
+                  <Skeleton className="h-4 w-16" />
+                  <Skeleton className="mt-1 h-5 w-20" />
+                </div>
+                <div>
+                  <Skeleton className="h-4 w-16" />
+                  <Skeleton className="mt-1 h-5 w-32" />
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Skeleton className="h-9 w-24" />
+                <Skeleton className="h-9 w-28" />
+              </div>
+            </div>
+          </div>
+        </div>
+      ))}
     </div>
   )
 }
 
 // Main page component
 export default function PublisherCampaignsPage() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+
+  // State from URL or defaults
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("All")
   const [selectedPricingModel, setSelectedPricingModel] = useState("All")
+  const [joinedFilter, setJoinedFilter] = useState<
+    "all" | "joined" | "not-joined"
+  >("all")
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
-  const [page, setPage] = useState(1)
-  const [pageSize] = useState(10)
+  const [sortBy, setSortBy] = useState("recent")
+  const [joiningId, setJoiningId] = useState<number | null>(null)
+
+  // Sync URL params with state
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams)
+    setSearchQuery(params.get("search") || "")
+    setSelectedCategory(params.get("category") || "All")
+    setSelectedPricingModel(params.get("model") || "All")
+    setJoinedFilter(
+      (params.get("joined") as "all" | "joined" | "not-joined") || "all"
+    )
+    setViewMode((params.get("view") as "grid" | "list") || "grid")
+    setSortBy(params.get("sort") || "recent")
+  }, [searchParams])
+
+  // Update URL with state
+  const updateUrlParams = () => {
+    const params = new URLSearchParams()
+
+    if (searchQuery) params.set("search", searchQuery)
+    if (selectedCategory !== "All") params.set("category", selectedCategory)
+    if (selectedPricingModel !== "All")
+      params.set("model", selectedPricingModel)
+    if (joinedFilter !== "all") params.set("joined", joinedFilter)
+    if (viewMode !== "grid") params.set("view", viewMode)
+    if (sortBy !== "recent") params.set("sort", sortBy)
+
+    router.push(`?${params.toString()}`, { scroll: false })
+  }
+
+  // Update URL when filters change
+  useEffect(() => {
+    updateUrlParams()
+  }, [
+    searchQuery,
+    selectedCategory,
+    selectedPricingModel,
+    joinedFilter,
+    viewMode,
+    sortBy,
+  ])
 
   const { data: campaignsData, isLoading, error } = useGetActiveCampaigns()
   const campaigns: CampaignWithJoinStatus[] = campaignsData?.value?.data || []
@@ -557,39 +814,52 @@ export default function PublisherCampaignsPage() {
           (offer) => offer.pricingModel === selectedPricingModel
         )
 
-      return matchesSearch && matchesCategory && matchesPricingModel
+      const matchesJoinedFilter =
+        joinedFilter === "all" ||
+        (joinedFilter === "joined" && campaign.joined) ||
+        (joinedFilter === "not-joined" && !campaign.joined)
+
+      return (
+        matchesSearch &&
+        matchesCategory &&
+        matchesPricingModel &&
+        matchesJoinedFilter
+      )
     }
   )
 
+  // Sort campaigns
+  const sortedCampaigns = [...filteredCampaigns].sort((a, b) => {
+    if (sortBy === "recent") {
+      return new Date(b.startDate).getTime() - new Date(a.startDate).getTime()
+    }
+    if (sortBy === "payout") {
+      const maxPayoutA = Math.max(...a.offers.map((o) => o.bid))
+      const maxPayoutB = Math.max(...b.offers.map((o) => o.bid))
+      return maxPayoutB - maxPayoutA
+    }
+    if (sortBy === "alpha") {
+      return a.name.localeCompare(b.name)
+    }
+    return 0
+  })
+
   const handleJoinCampaign = (campaignId: number) => {
+    // Simulate API call with loading state
+    setJoiningId(campaignId)
+
     // TODO: Implement join campaign functionality with API
-    console.log("Joining campaign:", campaignId)
-  }
+    setTimeout(() => {
+      // Update local state until API is implemented
+      const updatedCampaigns = campaigns.map((camp) =>
+        camp.id === campaignId ? { ...camp, joined: !camp.joined } : camp
+      )
 
-  if (isLoading) {
-    return (
-      <div className="flex h-[50vh] items-center justify-center">
-        <div className="text-center">
-          <h3 className="text-lg font-medium">Loading campaigns...</h3>
-          <p className="text-sm text-muted-foreground">Please wait</p>
-        </div>
-      </div>
-    )
-  }
+      // Reset loading state
+      setJoiningId(null)
 
-  if (error) {
-    return (
-      <div className="flex h-[50vh] items-center justify-center">
-        <div className="text-center">
-          <h3 className="text-lg font-medium text-destructive">
-            Error loading campaigns
-          </h3>
-          <p className="text-sm text-muted-foreground">
-            Please try again later
-          </p>
-        </div>
-      </div>
-    )
+      console.log("Toggled campaign join status:", campaignId)
+    }, 800)
   }
 
   return (
@@ -610,6 +880,8 @@ export default function PublisherCampaignsPage() {
         onCategoryChange={setSelectedCategory}
         selectedPricingModel={selectedPricingModel}
         onPricingModelChange={setSelectedPricingModel}
+        joinedFilter={joinedFilter}
+        onJoinedFilterChange={setJoinedFilter}
       />
 
       {/* View Controls */}
@@ -617,30 +889,64 @@ export default function PublisherCampaignsPage() {
         viewMode={viewMode}
         setViewMode={setViewMode}
         resultsCount={filteredCampaigns.length}
+        sortBy={sortBy}
+        setSortBy={setSortBy}
       />
 
       {/* Campaigns Grid/List */}
-      {filteredCampaigns.length === 0 ? (
+      {isLoading ? (
+        <CampaignSkeletons viewMode={viewMode} />
+      ) : error ? (
+        <div className="flex h-[40vh] flex-col items-center justify-center rounded-lg border border-destructive/20 bg-destructive/5 p-6">
+          <XCircle className="mb-4 size-12 text-destructive opacity-80" />
+          <h3 className="text-lg font-medium text-destructive">
+            Error loading campaigns
+          </h3>
+          <p className="mt-2 text-center text-sm text-muted-foreground">
+            We couldn&apos;t load campaigns at this time. Please try again
+            later.
+          </p>
+          <Button
+            variant="outline"
+            className="mt-4"
+            onClick={() => window.location.reload()}
+          >
+            Retry
+          </Button>
+        </div>
+      ) : filteredCampaigns.length === 0 ? (
         <EmptyState />
       ) : viewMode === "grid" ? (
         <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3">
-          {filteredCampaigns.map((campaign) => (
+          {sortedCampaigns.map((campaign) => (
             <CampaignCard
               key={campaign.id}
               campaign={campaign}
               onJoinToggle={handleJoinCampaign}
+              isJoining={joiningId === campaign.id}
             />
           ))}
         </div>
       ) : (
         <div className="space-y-4">
-          {filteredCampaigns.map((campaign) => (
+          {sortedCampaigns.map((campaign) => (
             <CampaignListItem
               key={campaign.id}
               campaign={campaign}
               onJoinToggle={handleJoinCampaign}
+              isJoining={joiningId === campaign.id}
             />
           ))}
+        </div>
+      )}
+
+      {/* Pagination placeholder for future implementation */}
+      {filteredCampaigns.length > 0 && (
+        <div className="flex items-center justify-center pt-6">
+          <Button variant="outline" size="sm" className="gap-1">
+            <span>Load more campaigns</span>
+            <ChevronDown className="size-3.5" />
+          </Button>
         </div>
       )}
     </div>
