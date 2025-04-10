@@ -23,24 +23,25 @@ import { useJoinOffer } from "@/hooks/offer"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { Separator } from "@/components/ui/separator"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { CopyToClipboardTextarea } from "@/components/ui/textarea/copy-to-clipboard-textarea"
+import {
+  Timeline,
+  TimelineContent,
+  TimelineDate,
+  TimelineIcon,
+  TimelineItem,
+  TimelineTitle,
+} from "@/components/ui/timeline"
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+
+import Component from "@/components/comp-541"
 
 // Format currency helper
 const formatVNDCurrency = (amount: number) => {
@@ -268,6 +269,88 @@ function CampaignTimeline({ campaign }: { campaign: ExtendedCampaign }) {
   )
 }
 
+function CampaignTimelineHorizontal({
+  campaign,
+}: {
+  campaign: ExtendedCampaign
+}) {
+  // Generate timeline items based on campaign and offer dates
+  const now = new Date()
+
+  const timelineItems = [
+    {
+      date: format(new Date(campaign.startDate), "MMM d, yyyy"),
+      title: "Campaign Starts",
+      content: "Campaign officially begins",
+      isCompleted: now >= new Date(campaign.startDate),
+    },
+    ...campaign.offers.flatMap((offer, index) => [
+      {
+        date: format(new Date(offer.startDate), "MMM d, yyyy"),
+        title: `${offer.pricingModel} Offer Starts`,
+        content: `${offer.description} begins`,
+        isCompleted: now >= new Date(offer.startDate),
+      },
+      {
+        date: format(new Date(offer.endDate), "MMM d, yyyy"),
+        title: `${offer.pricingModel} Offer Ends`,
+        content: `${offer.description} concludes`,
+        isCompleted: now >= new Date(offer.endDate),
+      },
+    ]),
+    {
+      date: format(new Date(campaign.endDate), "MMM d, yyyy"),
+      title: "Campaign Ends",
+      content: "Campaign concludes",
+      isCompleted: now >= new Date(campaign.endDate),
+    },
+  ]
+
+  // Sort timeline items by date
+  timelineItems.sort(
+    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+  )
+
+  return (
+    <div className="rounded-lg border bg-white shadow-sm">
+      <div className="border-b px-6 py-5">
+        <h3 className="text-base font-medium text-gray-900">
+          Campaign Timeline
+        </h3>
+        <p className="mt-1 text-sm text-gray-500">
+          Key dates and milestones for this campaign
+        </p>
+      </div>
+      <div className="px-6 py-5">
+        <Timeline orientation="horizontal">
+          {timelineItems.map((item, index) => (
+            <TimelineItem
+              key={index}
+              isCompleted={item.isCompleted}
+              orientation="horizontal"
+              className="ml-0"
+            >
+              <TimelineIcon
+                isCompleted={item.isCompleted}
+                orientation="horizontal"
+              />
+              <TimelineDate className="text-sm text-gray-500">
+                {item.date}
+              </TimelineDate>
+              <TimelineTitle className="text-sm font-medium">
+                {item.title}
+              </TimelineTitle>
+              <TimelineContent className="text-sm text-gray-600">
+                {item.content}
+              </TimelineContent>
+            </TimelineItem>
+          ))}
+        </Timeline>
+      </div>
+    </div>
+  )
+}
+
 function OfferCard({
   offer,
   campaignId,
@@ -334,102 +417,109 @@ function OfferCard({
   const buttonConfig = getButtonConfig()
 
   return (
-    <Card>
-      <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
-          <OfferBadge model={offer.pricingModel} />
-          <div className="flex items-center gap-2">
+    <div className="rounded-lg border bg-white p-6 shadow-sm">
+      <div className="mb-4 flex items-center justify-between">
+        <OfferBadge model={offer.pricingModel} />
+        <div className="flex items-center gap-2">
+          {offer.approvalRate && (
             <Badge variant="outline" className="text-xs">
               {offer.approvalRate}% approval rate
             </Badge>
-            {offer.pubOfferStatus === 2 && (
-              <Badge
-                variant="secondary"
-                className="border-green-200 bg-green-100 text-xs text-green-700"
-              >
-                Joined
-              </Badge>
-            )}
-            {offer.pubOfferStatus === 1 && (
-              <Badge
-                variant="secondary"
-                className="border-yellow-200 bg-yellow-100 text-xs text-yellow-700"
-              >
-                Pending
-              </Badge>
-            )}
-            {offer.pubOfferStatus === 3 && (
-              <Badge
-                variant="secondary"
-                className="border-red-200 bg-red-100 text-xs text-red-700"
-              >
-                Rejected
-              </Badge>
-            )}
-          </div>
+          )}
+          {offer.pubOfferStatus === 2 && (
+            <Badge
+              variant="secondary"
+              className="border-green-200 bg-green-100 text-xs text-green-700"
+            >
+              Joined
+            </Badge>
+          )}
+          {offer.pubOfferStatus === 1 && (
+            <Badge
+              variant="secondary"
+              className="border-yellow-200 bg-yellow-100 text-xs text-yellow-700"
+            >
+              Pending
+            </Badge>
+          )}
+          {offer.pubOfferStatus === 3 && (
+            <Badge
+              variant="secondary"
+              className="border-red-200 bg-red-100 text-xs text-red-700"
+            >
+              Rejected
+            </Badge>
+          )}
         </div>
-        <CardTitle className="mt-2 text-lg">{offer.description}</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4 pb-3">
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-muted-foreground">Payout</p>
+      </div>
+      <h3 className="mb-4 text-lg font-medium">{offer.description}</h3>
+
+      <div className="mb-6 grid grid-cols-2 gap-4">
+        <div>
+          <p className="text-sm text-gray-500">Payout</p>
           <p className="font-medium">{formatVNDCurrency(offer.bid)}</p>
         </div>
-
-        <div className="space-y-2">
-          <p className="text-sm text-muted-foreground">Budget</p>
-          <Progress value={70} className="h-1.5" />
-          <div className="flex items-center justify-between text-xs">
-            <span>{formatVNDCurrency(offer.budget * 0.7)} used</span>
-            <span className="font-medium">
-              {formatVNDCurrency(offer.budget)}
-            </span>
-          </div>
+        <div>
+          <p className="text-sm text-gray-500">Budget</p>
+          <p className="font-medium">{formatVNDCurrency(offer.budget)}</p>
         </div>
+      </div>
 
-        {offer.conversionGoal && (
+      <div className="mb-6 space-y-1">
+        <div className="flex items-center justify-between text-sm">
+          <span className="text-gray-500">Budget usage</span>
+          <span className="font-medium">
+            {formatVNDCurrency(offer.budget * 0.7)} /{" "}
+            {formatVNDCurrency(offer.budget)}
+          </span>
+        </div>
+        <Progress value={70} className="h-1.5" />
+      </div>
+
+      {offer.conversionGoal && (
+        <div className="mb-6">
+          <p className="text-sm text-gray-500">Conversion Goal</p>
+          <p className="text-sm">{offer.conversionGoal}</p>
+        </div>
+      )}
+
+      {offer.pubOfferStatus === 1 && (
+        <>
+          <Separator className="my-4" />
           <div>
-            <p className="text-sm text-muted-foreground">Conversion Goal</p>
-            <p className="text-sm">{offer.conversionGoal}</p>
-          </div>
-        )}
-        {offer.pubOfferStatus === 1 && (
-          <>
-            <Separator className="my-4" />
-            <div>
-              <h3 className="text-base font-medium text-accent-foreground">
-                Tracking URL
-              </h3>
-              <p className="text-xs text-muted-foreground">
-                Copy the tracking URL to your app
-              </p>
+            <h3 className="mb-2 text-sm font-medium text-gray-900">
+              Tracking URL
+            </h3>
+            <p className="mb-3 text-xs text-gray-500">
+              Copy the tracking URL to your app
+            </p>
 
-              <div className="mt-3 w-full">
-                <CopyToClipboardTextarea
-                  rows={3}
-                  value={trackingUrl}
-                  className="mt-2"
-                />
-              </div>
+            <div className="w-full">
+              <CopyToClipboardTextarea
+                rows={2}
+                value={trackingUrl}
+                className="text-sm"
+              />
             </div>
-          </>
-        )}
-      </CardContent>
-      <CardFooter className="flex flex-col gap-4">
-        {offer.requirements && offer.requirements.length > 0 && (
-          <div className="w-full">
-            <p className="mb-2 text-sm font-medium">Requirements</p>
-            <ul className="space-y-1 text-xs text-muted-foreground">
-              {offer.requirements.map((req, index) => (
-                <li key={index} className="flex items-start gap-2">
-                  <div className="mt-0.5 size-1.5 shrink-0 rounded-full bg-primary" />
-                  <span>{req}</span>
-                </li>
-              ))}
-            </ul>
           </div>
-        )}
+        </>
+      )}
 
+      {offer.requirements && offer.requirements.length > 0 && (
+        <div className="mt-6">
+          <p className="mb-2 text-sm font-medium text-gray-900">Requirements</p>
+          <ul className="space-y-1 text-xs text-muted-foreground">
+            {offer.requirements.map((req, index) => (
+              <li key={index} className="flex items-start gap-2">
+                <div className="mt-0.5 size-1.5 shrink-0 rounded-full bg-primary" />
+                <span>{req}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      <div className="mt-6">
         <Button
           className="w-full"
           variant={buttonConfig.variant}
@@ -438,8 +528,8 @@ function OfferCard({
         >
           {buttonConfig.text}
         </Button>
-      </CardFooter>
-    </Card>
+      </div>
+    </div>
   )
 }
 
@@ -451,6 +541,19 @@ export function CampaignDetails({ campaignId }: { campaignId: number }) {
   } = useGetCampaignDetailForPublisher(campaignId)
 
   const campaign = campaignData?.value as ExtendedCampaign | undefined
+  const { user } = useAuth()
+  const { mutate: joinOffer, isPending } = useJoinOffer(campaignId)
+
+  const handleJoinOffer = (offerId: number) => {
+    joinOffer(offerId, {
+      onSuccess: () => {
+        toast.success("Successfully joined the offer")
+      },
+      onError: () => {
+        toast.error("Failed to join the offer. Please try again.")
+      },
+    })
+  }
 
   if (isLoading) {
     return (
@@ -485,157 +588,380 @@ export function CampaignDetails({ campaignId }: { campaignId: number }) {
     )
   }
 
-  return (
-    <div className="space-y-6 p-6">
-      {/* Breadcrumb */}
-      <div className="flex items-center gap-2">
-        <Link href="/publisher/campaigns">
-          <Button variant="outline" size="sm" className="gap-2">
-            <ChevronLeft className="size-4" />
-            Back to Campaigns
-          </Button>
-        </Link>
-        <CampaignStatus status={campaign.status} />
-      </div>
+  // Calculate days left and campaign progress
+  const startDate = new Date(campaign.startDate)
+  const endDate = new Date(campaign.endDate)
+  const now = new Date()
+  const daysLeft = Math.max(0, differenceInDays(endDate, now))
+  const totalDuration = differenceInDays(endDate, startDate)
+  const progressPercent = Math.min(
+    100,
+    Math.max(0, (differenceInDays(now, startDate) / totalDuration) * 100)
+  )
 
-      {/* Campaign Header */}
-      <div className="grid gap-6 md:grid-cols-2">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">{campaign.name}</h1>
-          <p className="mt-2 text-muted-foreground">{campaign.description}</p>
-          <div className="mt-4 flex flex-wrap items-center gap-4">
+  // Generate timeline items
+  const timelineItems = [
+    {
+      date: format(startDate, "MMM d, yyyy"),
+      title: "Campaign Starts",
+      content: "Campaign officially begins",
+      isCompleted: now >= startDate,
+    },
+    ...campaign.offers.flatMap((offer) => [
+      {
+        date: format(new Date(offer.startDate), "MMM d, yyyy"),
+        title: `${offer.pricingModel} Offer Starts`,
+        content: `${offer.description} begins`,
+        isCompleted: now >= new Date(offer.startDate),
+      },
+      {
+        date: format(new Date(offer.endDate), "MMM d, yyyy"),
+        title: `${offer.pricingModel} Offer Ends`,
+        content: `${offer.description} concludes`,
+        isCompleted: now >= new Date(offer.endDate),
+      },
+    ]),
+    {
+      date: format(endDate, "MMM d, yyyy"),
+      title: "Campaign Ends",
+      content: "Campaign concludes",
+      isCompleted: now >= endDate,
+    },
+  ].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+
+  return (
+    <div className="mx-auto max-w-6xl bg-white">
+      {/* Header Section */}
+      <div className="border-b">
+        <div className="mx-auto px-6 py-5">
+          <div className="mb-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Globe className="size-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">
-                {campaign.productUrl}
-              </span>
+              <Link href="/publisher/campaigns">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="gap-1.5 text-gray-500"
+                >
+                  <ChevronLeft className="size-3.5" />
+                  Campaigns
+                </Button>
+              </Link>
+              <CampaignStatus status={campaign.status} />
             </div>
             <div className="flex items-center gap-2">
-              <Calendar className="size-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">
-                {format(new Date(campaign.startDate), "dd MMM yyyy")} -{" "}
-                {format(new Date(campaign.endDate), "dd MMM yyyy")}
-              </span>
+              <Badge
+                variant="outline"
+                className="px-2 py-0.5 text-xs text-gray-500"
+              >
+                ID: {campaign.id}
+              </Badge>
+            </div>
+          </div>
+
+          <div className="grid gap-8 md:grid-cols-7">
+            <div className="md:col-span-5">
+              <h1 className="text-2xl font-semibold tracking-tight text-gray-900">
+                {campaign.name}
+              </h1>
+              <p className="mt-1 text-gray-500">{campaign.description}</p>
+
+              <div className="mt-5 grid grid-cols-2 gap-6">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <Calendar className="size-4 text-gray-400" />
+                    <p className="text-sm text-gray-500">
+                      {format(startDate, "MMM d, yyyy")} —{" "}
+                      {format(endDate, "MMM d, yyyy")}
+                    </p>
+                  </div>
+                  <div className="mt-4">
+                    <div className="mb-1 flex items-center justify-between text-xs">
+                      <span className="text-gray-500">Progress</span>
+                      <span>{daysLeft} days left</span>
+                    </div>
+                    <Progress value={progressPercent} className="h-1" />
+                  </div>
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <CreditCard className="size-4 text-gray-400" />
+                    <p className="text-sm text-gray-500">Budget</p>
+                  </div>
+                  <p className="mt-1 text-xl font-semibold text-gray-900">
+                    {formatVNDCurrency(campaign.balance)}
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-4">
+                <div className="flex items-center gap-2">
+                  <Globe className="size-4 text-gray-400" />
+                  <a
+                    href={campaign.productUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-primary hover:underline"
+                  >
+                    {campaign.productUrl}
+                  </a>
+                </div>
+              </div>
+            </div>
+            <div className="md:col-span-2">
+              <div className="aspect-video overflow-hidden rounded-lg">
+                {campaign.campImages?.[0] ? (
+                  <img
+                    src={campaign.campImages[0]}
+                    alt={campaign.name}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <div className="flex h-full items-center justify-center bg-gray-50">
+                    <ImageIcon className="size-8 text-gray-300" />
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Campaign Content */}
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2">
-          <Tabs defaultValue="offers" className="w-full">
-            <TabsList>
-              <TabsTrigger value="offers">Offers</TabsTrigger>
-              <TabsTrigger value="details">Campaign Details</TabsTrigger>
-              <TabsTrigger value="creatives">Creatives</TabsTrigger>
-            </TabsList>
-            <TabsContent value="offers" className="space-y-4">
-              {campaign.offers.map((offer) => (
-                <OfferCard
-                  key={offer.id}
-                  offer={offer}
-                  campaignId={campaignId}
-                />
-              ))}
-            </TabsContent>
-            <TabsContent value="details">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Campaign Information</CardTitle>
-                  <CardDescription>
-                    Detailed information about the campaign
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div>
-                    <h4 className="font-medium">Description</h4>
-                    <p className="text-sm text-muted-foreground">
-                      {campaign.description}
-                    </p>
-                  </div>
-                  <Separator />
-                  <div>
-                    <h3 className="mb-3 text-sm font-medium">Product URL</h3>
-                    <div className="flex items-center gap-2">
-                      <Globe className="size-4 text-muted-foreground" />
-                      <a
-                        href={campaign.productUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-sm text-primary hover:underline"
-                      >
-                        {campaign.productUrl}
-                      </a>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+      {/* Timeline Section */}
+      <div className="border-b px-6 py-8">
+        <h2 className="mb-6 text-base font-medium text-gray-900">
+          Campaign Timeline
+        </h2>
+        <Timeline orientation="horizontal">
+          {timelineItems.map((item, index) => (
+            <TimelineItem
+              key={index}
+              isCompleted={item.isCompleted}
+              orientation="horizontal"
+              className="ml-0"
+            >
+              <TimelineIcon
+                isCompleted={item.isCompleted}
+                orientation="horizontal"
+              />
+              <TimelineDate className="text-sm text-gray-500">
+                {item.date}
+              </TimelineDate>
+              <TimelineTitle className="text-sm font-medium">
+                {item.title}
+              </TimelineTitle>
+              <TimelineContent className="text-sm text-gray-600">
+                {item.content}
+              </TimelineContent>
+            </TimelineItem>
+          ))}
+        </Timeline>
+      </div>
 
-              {/* Budget Overview */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Budget Overview</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="flex items-center justify-between">
+      {/* Main Content */}
+      <div className="grid gap-8 px-6 py-8 md:grid-cols-3">
+        <div className="md:col-span-2">
+          <h2 className="mb-6 text-base font-medium text-gray-900">
+            Available Offers
+          </h2>
+          <div className="space-y-6">
+            {campaign.offers.map((offer) => {
+              // Generate tracking URL
+              const trackingUrl =
+                env.NEXT_PUBLIC_BACKEND_URL +
+                "/api/tracking?offerId=" +
+                offer.id +
+                "&publisherCode=" +
+                user?.userCode
+
+              // Define button configuration
+              const buttonConfig = {
+                text:
+                  offer.pubOfferStatus === 2
+                    ? "Joined"
+                    : offer.pubOfferStatus === 1
+                      ? "Pending Approval"
+                      : offer.pubOfferStatus === 3
+                        ? "Rejected"
+                        : isPending
+                          ? "Joining..."
+                          : "Join Offer",
+                disabled:
+                  offer.pubOfferStatus === 1 ||
+                  offer.pubOfferStatus === 2 ||
+                  offer.pubOfferStatus === 3 ||
+                  isPending,
+                variant:
+                  offer.pubOfferStatus === 2
+                    ? ("outline" as const)
+                    : offer.pubOfferStatus === 3
+                      ? ("destructive" as const)
+                      : ("default" as const),
+              }
+
+              return (
+                <div key={offer.id} className="rounded-lg border bg-white p-6">
+                  <div className="mb-4 flex items-center justify-between">
+                    <OfferBadge model={offer.pricingModel} />
+                    {offer.pubOfferStatus === 2 && (
+                      <Badge
+                        variant="secondary"
+                        className="border-green-200 bg-green-100 text-xs text-green-700"
+                      >
+                        Joined
+                      </Badge>
+                    )}
+                    {offer.pubOfferStatus === 1 && (
+                      <Badge
+                        variant="secondary"
+                        className="border-yellow-200 bg-yellow-100 text-xs text-yellow-700"
+                      >
+                        Pending
+                      </Badge>
+                    )}
+                    {offer.pubOfferStatus === 3 && (
+                      <Badge
+                        variant="secondary"
+                        className="border-red-200 bg-red-100 text-xs text-red-700"
+                      >
+                        Rejected
+                      </Badge>
+                    )}
+                  </div>
+
+                  <h3 className="mb-4 text-base font-medium">
+                    {offer.description}
+                  </h3>
+
+                  <div className="grid gap-6 md:grid-cols-2">
                     <div>
-                      <p className="text-sm text-muted-foreground">
-                        Total Budget
-                      </p>
-                      <p className="text-2xl font-bold">
-                        {formatVNDCurrency(campaign.balance)}
+                      <p className="text-xs text-gray-500">Payout</p>
+                      <p className="text-lg font-medium">
+                        {formatVNDCurrency(offer.bid)}
                       </p>
                     </div>
-                    <CreditCard className="size-10 text-muted-foreground" />
-                  </div>
-
-                  <Separator />
-
-                  <div className="space-y-4">
-                    <h3 className="text-sm font-medium">Budget Allocation</h3>
-                    {campaign.offers.map((offer) => (
-                      <div
-                        key={offer.id}
-                        className="flex items-center justify-between"
-                      >
-                        <div className="flex items-center gap-2">
-                          <OfferBadge model={offer.pricingModel} />
-                          <span className="text-sm">
-                            {offer.description.substring(0, 30)}...
-                          </span>
-                        </div>
-                        <span className="font-medium">
-                          {formatVNDCurrency(offer.budget)}
-                        </span>
+                    <div>
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-gray-500">Budget</span>
+                        <span>{formatVNDCurrency(offer.budget)}</span>
                       </div>
-                    ))}
+                      <Progress value={70} className="mb-1 mt-1.5 h-1" />
+                      <p className="text-right text-xs text-gray-500">
+                        70% used
+                      </p>
+                    </div>
                   </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-            <TabsContent value="creatives">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Campaign Creatives</CardTitle>
-                  <CardDescription>
-                    Images and creative materials for the campaign
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <CampaignGallery
-                    thumbnail={campaign.campImages?.[0] || null}
-                    images={(campaign.campImages || [])
-                      .map((img) => img || "")
-                      .filter(Boolean)}
-                  />
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
+
+                  {offer.stepInfo && (
+                    <div className="mt-4">
+                      <p className="text-xs text-gray-500">
+                        Implementation Steps
+                      </p>
+                      <p className="text-sm">{offer.stepInfo}</p>
+                    </div>
+                  )}
+
+                  {offer.pubOfferStatus === 1 && (
+                    <div className="mt-6">
+                      <Separator className="mb-4" />
+                      <h4 className="mb-2 text-xs font-medium text-gray-900">
+                        Tracking URL
+                      </h4>
+                      <CopyToClipboardTextarea
+                        rows={2}
+                        value={trackingUrl}
+                        className="text-xs"
+                      />
+                    </div>
+                  )}
+
+                  <div className="mt-6">
+                    <Button
+                      className="w-full"
+                      variant={buttonConfig.variant}
+                      disabled={buttonConfig.disabled}
+                      onClick={() => handleJoinOffer(offer.id)}
+                    >
+                      {buttonConfig.text}
+                    </Button>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
         </div>
-        <div className="space-y-6">
-          <CampaignTimeline campaign={campaign} />
+
+        <div>
+          <h2 className="mb-6 text-base font-medium text-gray-900">
+            Budget Allocation
+          </h2>
+          <div className="rounded-lg border bg-white p-6">
+            <div className="mb-6">
+              <p className="text-xs text-gray-500">Total Campaign Budget</p>
+              <p className="text-2xl font-semibold">
+                {formatVNDCurrency(campaign.balance)}
+              </p>
+            </div>
+
+            <Separator className="mb-6" />
+
+            <div className="space-y-4">
+              {campaign.offers.map((offer) => (
+                <div
+                  key={offer.id}
+                  className="flex items-center justify-between"
+                >
+                  <div className="flex items-center gap-2">
+                    <OfferBadge model={offer.pricingModel} />
+                    <span className="max-w-[150px] truncate text-sm">
+                      {offer.description}
+                    </span>
+                  </div>
+                  <span className="font-medium">
+                    {formatVNDCurrency(offer.budget)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-6 rounded-lg border bg-white p-6">
+            <h3 className="mb-4 text-sm font-medium text-gray-900">
+              Product Details
+            </h3>
+            <ul className="space-y-3">
+              <li className="flex items-start gap-2">
+                <Globe className="mt-0.5 size-3.5 text-gray-400" />
+                <div>
+                  <p className="text-xs text-gray-500">Website</p>
+                  <a
+                    href={campaign.productUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-primary hover:underline"
+                  >
+                    {campaign.productUrl}
+                  </a>
+                </div>
+              </li>
+              <li className="flex items-start gap-2">
+                <Calendar className="mt-0.5 size-3.5 text-gray-400" />
+                <div>
+                  <p className="text-xs text-gray-500">Campaign Period</p>
+                  <p className="text-sm">
+                    {format(startDate, "MMM d, yyyy")} —{" "}
+                    {format(endDate, "MMM d, yyyy")}
+                  </p>
+                </div>
+              </li>
+              <li className="flex items-start gap-2">
+                <Info className="mt-0.5 size-3.5 text-gray-400" />
+                <div>
+                  <p className="text-xs text-gray-500">Campaign ID</p>
+                  <p className="text-sm">{campaign.id}</p>
+                </div>
+              </li>
+            </ul>
+          </div>
         </div>
       </div>
     </div>
