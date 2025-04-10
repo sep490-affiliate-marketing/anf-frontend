@@ -22,7 +22,6 @@ import { formatVNDCurrency } from "@/lib/utils"
 
 import { useGetWalletHistory } from "@/hooks/wallet"
 
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,

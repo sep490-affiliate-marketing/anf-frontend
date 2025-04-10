@@ -10,7 +10,6 @@ import { format } from "date-fns"
 import { vi } from "date-fns/locale"
 import {
   ArrowRight,
-  BookmarkIcon,
   ChevronDown,
   GridIcon,
   Layers,
@@ -100,25 +99,17 @@ function OfferBadge({ model }: { model: string }) {
   )
 }
 
-interface CampaignWithJoinStatus extends ICampaign {
-  // Remove joined property
-}
-
-// Component type definitions
 interface CampaignCardProps {
-  campaign: CampaignWithJoinStatus
-  // Remove onJoinToggle and isJoining props
+  campaign: ICampaign
 }
 
 interface CampaignListItemProps {
-  campaign: CampaignWithJoinStatus
-  // Remove onJoinToggle and isJoining props
+  campaign: ICampaign
 }
 
 // Component for campaign grid card
 function CampaignCard({
   campaign,
-  // Remove onJoinToggle and isJoining props
 }: CampaignCardProps) {
   return (
     <Card
@@ -135,7 +126,6 @@ function CampaignCard({
           alt={campaign.name}
           className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
         />
-        {/* Remove joined badge */}
       </div>
       <CardHeader className="p-4 pb-0">
         <div className="flex items-center justify-between">
@@ -191,7 +181,6 @@ function CampaignCard({
 // Component for campaign list item
 function CampaignListItem({
   campaign,
-  // Remove onJoinToggle and isJoining props
 }: CampaignListItemProps) {
   return (
     <div className="group flex flex-col overflow-hidden rounded-lg border transition-all hover:shadow-md sm:flex-row">
@@ -205,7 +194,6 @@ function CampaignListItem({
           alt={campaign.name}
           className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
         />
-        {/* Remove joined badge */}
       </div>
       <div className="flex flex-1 flex-col p-4">
         <div className="flex items-center justify-between">
@@ -268,7 +256,6 @@ function CampaignFilters({
   onCategoryChange,
   selectedPricingModel,
   onPricingModelChange,
-  // Remove joinedFilter and onJoinedFilterChange props
 }: {
   searchQuery: string
   onSearchChange: (value: string) => void
@@ -276,7 +263,6 @@ function CampaignFilters({
   onCategoryChange: (value: string) => void
   selectedPricingModel: string
   onPricingModelChange: (value: string) => void
-  // Remove joinedFilter and onJoinedFilterChange props
 }) {
   return (
     <div className="">
@@ -338,7 +324,6 @@ function CampaignFilters({
               </SheetHeader>
               <div className="py-6">
                 <div className="space-y-4">
-                  {/* Remove Joined Status filter */}
                   <Separator />
                   <div>
                     <h3 className="mb-2 text-sm font-medium">Categories</h3>
@@ -604,10 +589,8 @@ function CampaignsContent() {
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("All")
   const [selectedPricingModel, setSelectedPricingModel] = useState("All")
-  // Remove joinedFilter state
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
   const [sortBy, setSortBy] = useState("recent")
-  // Remove joiningId state
 
   // Sync URL params with state
   useEffect(() => {
@@ -615,7 +598,6 @@ function CampaignsContent() {
     setSearchQuery(params.get("search") || "")
     setSelectedCategory(params.get("category") || "All")
     setSelectedPricingModel(params.get("model") || "All")
-    // Remove joinedFilter sync
     setViewMode((params.get("view") as "grid" | "list") || "grid")
     setSortBy(params.get("sort") || "recent")
   }, [searchParams])
@@ -628,7 +610,6 @@ function CampaignsContent() {
     if (selectedCategory !== "All") params.set("category", selectedCategory)
     if (selectedPricingModel !== "All")
       params.set("model", selectedPricingModel)
-    // Remove joinedFilter URL param
     if (viewMode !== "grid") params.set("view", viewMode)
     if (sortBy !== "recent") params.set("sort", sortBy)
 
@@ -642,17 +623,16 @@ function CampaignsContent() {
     searchQuery,
     selectedCategory,
     selectedPricingModel,
-    // Remove joinedFilter from dependencies
     viewMode,
     sortBy,
   ])
 
   const { data: campaignsData, isLoading, error } = useGetActiveCampaigns()
-  const campaigns: CampaignWithJoinStatus[] = campaignsData?.value?.data || []
+  const campaigns: ICampaign[] = campaignsData?.value?.data || []
 
   // Filter campaigns based on search query and filters
   const filteredCampaigns = campaigns.filter(
-    (campaign: CampaignWithJoinStatus) => {
+    (campaign: ICampaign) => {
       const matchesSearch =
         campaign.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         campaign.description.toLowerCase().includes(searchQuery.toLowerCase())
@@ -665,8 +645,6 @@ function CampaignsContent() {
         campaign.offers.some(
           (offer) => offer.pricingModel === selectedPricingModel
         )
-
-      // Remove joined filter logic
 
       return (
         matchesSearch &&
@@ -692,8 +670,6 @@ function CampaignsContent() {
     return 0
   })
 
-  // Remove handleJoinCampaign function
-
   return (
     <div className="space-y-6 p-6">
       {/* Header */}
@@ -712,7 +688,6 @@ function CampaignsContent() {
         onCategoryChange={setSelectedCategory}
         selectedPricingModel={selectedPricingModel}
         onPricingModelChange={setSelectedPricingModel}
-        // Remove joinedFilter props
       />
 
       {/* View Controls */}
@@ -753,7 +728,6 @@ function CampaignsContent() {
             <CampaignCard
               key={campaign.id}
               campaign={campaign}
-              // Remove onJoinToggle and isJoining props
             />
           ))}
         </div>
@@ -763,7 +737,6 @@ function CampaignsContent() {
             <CampaignListItem
               key={campaign.id}
               campaign={campaign}
-              // Remove onJoinToggle and isJoining props
             />
           ))}
         </div>

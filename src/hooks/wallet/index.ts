@@ -23,7 +23,7 @@ export const useAddCredit = () => {
         )
         return data
       } catch (error) {
-        return undefined
+        return null
       }
     },
     onSuccess: (resData) => {
