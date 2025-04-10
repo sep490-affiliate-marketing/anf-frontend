@@ -1,23 +1,99 @@
 "use client"
 
 import { useState } from "react"
+
 import { BarChart3, LineChart, PieChart, TrendingUp } from "lucide-react"
-import { AreaChart, BarChart, LineChart as RechartsLineChart, PieChart as RechartsPieChart, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, Area, Bar, Line, Cell, Pie } from "recharts"
+import {
+  Area,
+  AreaChart,
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  Pie,
+  PieChart as RechartsPieChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts"
 
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+
 import { ReportCard } from "@/components/reports/report-card"
 import { ReportDataTable } from "@/components/reports/report-data-table"
 import { ReportFilters } from "@/components/reports/report-filters"
 
 // Sample data - replace with actual API calls
 const campaignData = [
-  { id: "1", name: "Summer Sale", impressions: 125000, clicks: 7500, conversions: 450, spent: 3500, ctr: 6.0, cvr: 6.0, cpc: 0.47, revenue: 9000 },
-  { id: "2", name: "Back to School", impressions: 95000, clicks: 5200, conversions: 320, spent: 2800, ctr: 5.5, cvr: 6.2, cpc: 0.54, revenue: 6400 },
-  { id: "3", name: "Holiday Special", impressions: 150000, clicks: 9800, conversions: 620, spent: 4900, ctr: 6.5, cvr: 6.3, cpc: 0.50, revenue: 12400 },
-  { id: "4", name: "Spring Collection", impressions: 85000, clicks: 4300, conversions: 280, spent: 2100, ctr: 5.1, cvr: 6.5, cpc: 0.49, revenue: 5600 },
-  { id: "5", name: "Flash Sale", impressions: 65000, clicks: 3900, conversions: 210, spent: 1800, ctr: 6.0, cvr: 5.4, cpc: 0.46, revenue: 4200 },
+  {
+    id: "1",
+    name: "Summer Sale",
+    impressions: 125000,
+    clicks: 7500,
+    conversions: 450,
+    spent: 3500,
+    ctr: 6.0,
+    cvr: 6.0,
+    cpc: 0.47,
+    revenue: 9000,
+  },
+  {
+    id: "2",
+    name: "Back to School",
+    impressions: 95000,
+    clicks: 5200,
+    conversions: 320,
+    spent: 2800,
+    ctr: 5.5,
+    cvr: 6.2,
+    cpc: 0.54,
+    revenue: 6400,
+  },
+  {
+    id: "3",
+    name: "Holiday Special",
+    impressions: 150000,
+    clicks: 9800,
+    conversions: 620,
+    spent: 4900,
+    ctr: 6.5,
+    cvr: 6.3,
+    cpc: 0.5,
+    revenue: 12400,
+  },
+  {
+    id: "4",
+    name: "Spring Collection",
+    impressions: 85000,
+    clicks: 4300,
+    conversions: 280,
+    spent: 2100,
+    ctr: 5.1,
+    cvr: 6.5,
+    cpc: 0.49,
+    revenue: 5600,
+  },
+  {
+    id: "5",
+    name: "Flash Sale",
+    impressions: 65000,
+    clicks: 3900,
+    conversions: 210,
+    spent: 1800,
+    ctr: 6.0,
+    cvr: 5.4,
+    cpc: 0.46,
+    revenue: 4200,
+  },
 ]
 
 const performanceData = [
@@ -47,62 +123,78 @@ const columns = [
   {
     accessorKey: "impressions",
     header: "Impressions",
-    cell: ({ row }) => (
-      <div className="text-right">{row.getValue("impressions").toLocaleString()}</div>
+    cell: ({ row }: { row: any }) => (
+      <div className="text-right">
+        {row.getValue("impressions").toLocaleString()}
+      </div>
     ),
   },
   {
     accessorKey: "clicks",
     header: "Clicks",
-    cell: ({ row }) => (
-      <div className="text-right">{row.getValue("clicks").toLocaleString()}</div>
+    cell: ({ row }: { row: any }) => (
+      <div className="text-right">
+        {row.getValue("clicks").toLocaleString()}
+      </div>
     ),
   },
   {
     accessorKey: "conversions",
     header: "Conversions",
-    cell: ({ row }) => (
-      <div className="text-right">{row.getValue("conversions").toLocaleString()}</div>
+    cell: ({ row }: { row: any }) => (
+      <div className="text-right">
+        {row.getValue("conversions").toLocaleString()}
+      </div>
     ),
   },
   {
     accessorKey: "spent",
     header: "Spent",
-    cell: ({ row }) => (
+    cell: ({ row }: { row: any }) => (
       <div className="text-right">
-        ${row.getValue("spent").toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        $
+        {row
+          .getValue("spent")
+          .toLocaleString(undefined, {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })}
       </div>
     ),
   },
   {
     accessorKey: "ctr",
     header: "CTR",
-    cell: ({ row }) => (
+    cell: ({ row }: { row: any }) => (
       <div className="text-right">{row.getValue("ctr")}%</div>
     ),
   },
   {
     accessorKey: "cvr",
     header: "CVR",
-    cell: ({ row }) => (
+    cell: ({ row }: { row: any }) => (
       <div className="text-right">{row.getValue("cvr")}%</div>
     ),
   },
   {
     accessorKey: "cpc",
     header: "CPC",
-    cell: ({ row }) => (
-      <div className="text-right">
-        ${row.getValue("cpc").toFixed(2)}
-      </div>
+    cell: ({ row }: { row: any }) => (
+      <div className="text-right">${row.getValue("cpc").toFixed(2)}</div>
     ),
   },
   {
     accessorKey: "revenue",
     header: "Revenue",
-    cell: ({ row }) => (
+    cell: ({ row }: { row: any }) => (
       <div className="text-right">
-        ${row.getValue("revenue").toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        $
+        {row
+          .getValue("revenue")
+          .toLocaleString(undefined, {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })}
       </div>
     ),
   },
@@ -112,11 +204,26 @@ export default function CampaignReportPage() {
   const [activeTab, setActiveTab] = useState("overview")
 
   // Calculate totals for overview cards
-  const totalImpressions = campaignData.reduce((sum, campaign) => sum + campaign.impressions, 0)
-  const totalClicks = campaignData.reduce((sum, campaign) => sum + campaign.clicks, 0)
-  const totalConversions = campaignData.reduce((sum, campaign) => sum + campaign.conversions, 0)
-  const totalSpent = campaignData.reduce((sum, campaign) => sum + campaign.spent, 0)
-  const totalRevenue = campaignData.reduce((sum, campaign) => sum + campaign.revenue, 0)
+  const totalImpressions = campaignData.reduce(
+    (sum, campaign) => sum + campaign.impressions,
+    0
+  )
+  const totalClicks = campaignData.reduce(
+    (sum, campaign) => sum + campaign.clicks,
+    0
+  )
+  const totalConversions = campaignData.reduce(
+    (sum, campaign) => sum + campaign.conversions,
+    0
+  )
+  const totalSpent = campaignData.reduce(
+    (sum, campaign) => sum + campaign.spent,
+    0
+  )
+  const totalRevenue = campaignData.reduce(
+    (sum, campaign) => sum + campaign.revenue,
+    0
+  )
   const averageCTR = (totalClicks / totalImpressions) * 100
   const averageCVR = (totalConversions / totalClicks) * 100
   const roi = ((totalRevenue - totalSpent) / totalSpent) * 100
@@ -130,7 +237,9 @@ export default function CampaignReportPage() {
     <div className="space-y-6">
       <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Campaign Reports</h1>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Campaign Reports
+          </h1>
           <p className="text-muted-foreground">
             Analyze and track the performance of your campaigns
           </p>
@@ -147,12 +256,12 @@ export default function CampaignReportPage() {
         </div>
       </div>
 
-      <ReportFilters 
+      <ReportFilters
         showCampaignFilter={true}
         showSourceFilter={true}
         showCountryFilter={true}
         filterOptions={{
-          campaigns: campaignData.map(c => ({ id: c.id, name: c.name })),
+          campaigns: campaignData.map((c) => ({ id: c.id, name: c.name })),
           sources: [
             { id: "1", name: "Facebook" },
             { id: "2", name: "Google" },
@@ -222,13 +331,41 @@ export default function CampaignReportPage() {
                       margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
                     >
                       <defs>
-                        <linearGradient id="colorImpressions" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8} />
-                          <stop offset="95%" stopColor="#8884d8" stopOpacity={0} />
+                        <linearGradient
+                          id="colorImpressions"
+                          x1="0"
+                          y1="0"
+                          x2="0"
+                          y2="1"
+                        >
+                          <stop
+                            offset="5%"
+                            stopColor="#8884d8"
+                            stopOpacity={0.8}
+                          />
+                          <stop
+                            offset="95%"
+                            stopColor="#8884d8"
+                            stopOpacity={0}
+                          />
                         </linearGradient>
-                        <linearGradient id="colorClicks" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#82ca9d" stopOpacity={0.8} />
-                          <stop offset="95%" stopColor="#82ca9d" stopOpacity={0} />
+                        <linearGradient
+                          id="colorClicks"
+                          x1="0"
+                          y1="0"
+                          x2="0"
+                          y2="1"
+                        >
+                          <stop
+                            offset="5%"
+                            stopColor="#82ca9d"
+                            stopOpacity={0.8}
+                          />
+                          <stop
+                            offset="95%"
+                            stopColor="#82ca9d"
+                            stopOpacity={0}
+                          />
                         </linearGradient>
                       </defs>
                       <XAxis dataKey="date" />
@@ -274,10 +411,15 @@ export default function CampaignReportPage() {
                         outerRadius={80}
                         fill="#8884d8"
                         dataKey="value"
-                        label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                        label={({ name, percent }) =>
+                          `${name}: ${(percent * 100).toFixed(0)}%`
+                        }
                       >
                         {conversionByDeviceData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                          <Cell
+                            key={`cell-${index}`}
+                            fill={COLORS[index % COLORS.length]}
+                          />
                         ))}
                       </Pie>
                       <Tooltip />

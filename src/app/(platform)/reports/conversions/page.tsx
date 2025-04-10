@@ -1,23 +1,105 @@
 "use client"
 
 import { useState } from "react"
-import { BarChart3, CheckCircle, Download, LineChart, TrendingUp } from "lucide-react"
-import { AreaChart, BarChart, LineChart as RechartsLineChart, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, Area, Bar, Line, PieChart, Pie, Cell } from "recharts"
+
+import {
+  BarChart3,
+  CheckCircle,
+  Download,
+  LineChart,
+  TrendingUp,
+} from "lucide-react"
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  Line,
+  Pie,
+  PieChart,
+  LineChart as RechartsLineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts"
 
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+
 import { ReportCard } from "@/components/reports/report-card"
 import { ReportDataTable } from "@/components/reports/report-data-table"
 import { ReportFilters } from "@/components/reports/report-filters"
 
 // Sample data - replace with actual API calls
 const conversionData = [
-  { id: "1", date: "2023-06-01", campaign: "Summer Sale", source: "Facebook", country: "US", conversions: 45, revenue: 2250, cost: 900, conversionRate: 3.6, costPerConversion: 20 },
-  { id: "2", date: "2023-06-02", campaign: "Summer Sale", source: "Google", country: "US", conversions: 38, revenue: 1900, cost: 760, conversionRate: 4.2, costPerConversion: 20 },
-  { id: "3", date: "2023-06-03", campaign: "Back to School", source: "Facebook", country: "CA", conversions: 32, revenue: 1600, cost: 640, conversionRate: 5.1, costPerConversion: 20 },
-  { id: "4", date: "2023-06-04", campaign: "Holiday Special", source: "Direct", country: "UK", conversions: 55, revenue: 2750, cost: 1100, conversionRate: 5.0, costPerConversion: 20 },
-  { id: "5", date: "2023-06-05", campaign: "Spring Collection", source: "Instagram", country: "US", conversions: 28, revenue: 1400, cost: 560, conversionRate: 3.1, costPerConversion: 20 },
+  {
+    id: "1",
+    date: "2023-06-01",
+    campaign: "Summer Sale",
+    source: "Facebook",
+    country: "US",
+    conversions: 45,
+    revenue: 2250,
+    cost: 900,
+    conversionRate: 3.6,
+    costPerConversion: 20,
+  },
+  {
+    id: "2",
+    date: "2023-06-02",
+    campaign: "Summer Sale",
+    source: "Google",
+    country: "US",
+    conversions: 38,
+    revenue: 1900,
+    cost: 760,
+    conversionRate: 4.2,
+    costPerConversion: 20,
+  },
+  {
+    id: "3",
+    date: "2023-06-03",
+    campaign: "Back to School",
+    source: "Facebook",
+    country: "CA",
+    conversions: 32,
+    revenue: 1600,
+    cost: 640,
+    conversionRate: 5.1,
+    costPerConversion: 20,
+  },
+  {
+    id: "4",
+    date: "2023-06-04",
+    campaign: "Holiday Special",
+    source: "Direct",
+    country: "UK",
+    conversions: 55,
+    revenue: 2750,
+    cost: 1100,
+    conversionRate: 5.0,
+    costPerConversion: 20,
+  },
+  {
+    id: "5",
+    date: "2023-06-05",
+    campaign: "Spring Collection",
+    source: "Instagram",
+    country: "US",
+    conversions: 28,
+    revenue: 1400,
+    cost: 560,
+    conversionRate: 3.1,
+    costPerConversion: 20,
+  },
 ]
 
 const dailyConversionsData = [
@@ -67,39 +149,53 @@ const columns = [
   {
     accessorKey: "conversions",
     header: "Conversions",
-    cell: ({ row }) => (
-      <div className="text-right">{row.getValue("conversions").toLocaleString()}</div>
+    cell: ({ row }: { row: any }) => (
+      <div className="text-right">
+        {row.getValue("conversions").toLocaleString()}
+      </div>
     ),
   },
   {
     accessorKey: "revenue",
     header: "Revenue",
-    cell: ({ row }) => (
+    cell: ({ row }: { row: any }) => (
       <div className="text-right">
-        ${row.getValue("revenue").toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        $
+        {row
+          .getValue("revenue")
+          .toLocaleString(undefined, {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })}
       </div>
     ),
   },
   {
     accessorKey: "cost",
     header: "Cost",
-    cell: ({ row }) => (
+    cell: ({ row }: { row: any }) => (
       <div className="text-right">
-        ${row.getValue("cost").toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        $
+        {row
+          .getValue("cost")
+          .toLocaleString(undefined, {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })}
       </div>
     ),
   },
   {
     accessorKey: "conversionRate",
     header: "Conv. Rate",
-    cell: ({ row }) => (
+    cell: ({ row }: { row: any }) => (
       <div className="text-right">{row.getValue("conversionRate")}%</div>
     ),
   },
   {
     accessorKey: "costPerConversion",
     header: "Cost/Conv.",
-    cell: ({ row }) => (
+    cell: ({ row }: { row: any }) => (
       <div className="text-right">
         ${row.getValue("costPerConversion").toFixed(2)}
       </div>
@@ -111,10 +207,18 @@ export default function ConversionReportPage() {
   const [activeTab, setActiveTab] = useState("overview")
 
   // Calculate totals for overview cards
-  const totalConversions = conversionData.reduce((sum, item) => sum + item.conversions, 0)
-  const totalRevenue = conversionData.reduce((sum, item) => sum + item.revenue, 0)
+  const totalConversions = conversionData.reduce(
+    (sum, item) => sum + item.conversions,
+    0
+  )
+  const totalRevenue = conversionData.reduce(
+    (sum, item) => sum + item.revenue,
+    0
+  )
   const totalCost = conversionData.reduce((sum, item) => sum + item.cost, 0)
-  const averageConversionRate = conversionData.reduce((sum, item) => sum + item.conversionRate, 0) / conversionData.length
+  const averageConversionRate =
+    conversionData.reduce((sum, item) => sum + item.conversionRate, 0) /
+    conversionData.length
   const roi = ((totalRevenue - totalCost) / totalCost) * 100
 
   const handleExport = () => {
@@ -126,7 +230,9 @@ export default function ConversionReportPage() {
     <div className="space-y-6">
       <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Conversion Reports</h1>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Conversion Reports
+          </h1>
           <p className="text-muted-foreground">
             Analyze conversion performance and revenue metrics
           </p>
@@ -143,7 +249,7 @@ export default function ConversionReportPage() {
         </div>
       </div>
 
-      <ReportFilters 
+      <ReportFilters
         showCampaignFilter={true}
         showSourceFilter={true}
         showCountryFilter={true}
@@ -228,8 +334,16 @@ export default function ConversionReportPage() {
                     >
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="date" />
-                      <YAxis yAxisId="left" orientation="left" stroke="#8884d8" />
-                      <YAxis yAxisId="right" orientation="right" stroke="#82ca9d" />
+                      <YAxis
+                        yAxisId="left"
+                        orientation="left"
+                        stroke="#8884d8"
+                      />
+                      <YAxis
+                        yAxisId="right"
+                        orientation="right"
+                        stroke="#82ca9d"
+                      />
                       <Tooltip />
                       <Line
                         yAxisId="left"
@@ -270,10 +384,15 @@ export default function ConversionReportPage() {
                         outerRadius={80}
                         fill="#8884d8"
                         dataKey="value"
-                        label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                        label={({ name, percent }) =>
+                          `${name}: ${(percent * 100).toFixed(0)}%`
+                        }
                       >
                         {conversionsByDeviceData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                          <Cell
+                            key={`cell-${index}`}
+                            fill={COLORS[index % COLORS.length]}
+                          />
                         ))}
                       </Pie>
                       <Tooltip />
@@ -303,7 +422,11 @@ export default function ConversionReportPage() {
                       <XAxis dataKey="source" />
                       <YAxis />
                       <Tooltip />
-                      <Bar dataKey="conversions" fill="#8884d8" name="Conversions" />
+                      <Bar
+                        dataKey="conversions"
+                        fill="#8884d8"
+                        name="Conversions"
+                      />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -325,7 +448,11 @@ export default function ConversionReportPage() {
                       <XAxis dataKey="campaign" />
                       <YAxis />
                       <Tooltip />
-                      <Bar dataKey="conversionRate" fill="#82ca9d" name="Conversion Rate (%)" />
+                      <Bar
+                        dataKey="conversionRate"
+                        fill="#82ca9d"
+                        name="Conversion Rate (%)"
+                      />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -363,7 +490,8 @@ export default function ConversionReportPage() {
             <CardHeader>
               <CardTitle>Conversion Data</CardTitle>
               <CardDescription>
-                Detailed conversion metrics by date, campaign, source, and country
+                Detailed conversion metrics by date, campaign, source, and
+                country
               </CardDescription>
             </CardHeader>
             <CardContent>

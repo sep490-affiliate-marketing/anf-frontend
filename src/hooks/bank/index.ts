@@ -3,7 +3,7 @@ import { useMutation, useQuery } from "@tanstack/react-query"
 import axios from "axios"
 
 import apiClient from "@/lib/api/client"
-import { createApiError, showApiErrorToast } from "@/lib/api/error-handler"
+import { createApiError } from "@/lib/api/error-handler"
 
 export const useGetBankList = () => {
   return useQuery({
