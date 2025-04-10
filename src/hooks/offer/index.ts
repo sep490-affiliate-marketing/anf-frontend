@@ -65,3 +65,38 @@ export const useJoinOffer = (campaignId: number) => {
     },
   })
 }
+
+export const useApprovePublisherInOffer = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async ({
+      poId,
+      status,
+      rejectReason,
+    }: {
+      poId: number
+      status: number
+      rejectReason: string
+    }) => {
+      try {
+        const { data } = await apiClient.patch(
+          `/api/affiliate-network/offers/pubOffers/${poId}/status?status=${status}&rejectReason=${rejectReason}`
+        )
+        return data
+      } catch (error) {
+        return undefined
+      }
+    },
+    onSuccess: (data) => {
+      if (data.isSuccess) {
+        toast.success("Publisher approved successfully")
+        queryClient.invalidateQueries({
+          queryKey: ["publisherInOffer"],
+        })
+      } else {
+        toast.error(data.message || "Failed to approve publisher")
+      }
+    },
+  })
+}

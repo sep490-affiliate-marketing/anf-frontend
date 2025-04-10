@@ -161,5 +161,6 @@ export interface IGetPublisherInOfferResponse {
   lastName: string
   phoneNumber: string
   email: string
+  pubOfferStatus: number
   trafficSources: string[]
 }
