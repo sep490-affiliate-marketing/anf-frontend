@@ -12,7 +12,10 @@ export function TrackingParamSchema() {
       .string()
       .min(1, "Parameter name is required")
       .max(100, "Parameter name must be less than 100 characters")
-      .regex(/^[a-zA-Z0-9\-_]+$/, "Parameter name can only contain letters, numbers, hyphens, and underscores"),
+      .regex(
+        /^[a-zA-Z0-9\-_]+$/,
+        "Parameter name can only contain letters, numbers, hyphens, and underscores"
+      ),
   })
 }
 

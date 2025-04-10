@@ -17,7 +17,7 @@ export const useGetPublisherInOffer = (offerId: number) => {
         >(`/api/affiliate-network/offers/${offerId}/publishers`)
         return data.value
       } catch (error) {
-        return undefined
+        return null
       }
     },
   })
@@ -33,7 +33,7 @@ export const useGetOfferDetails = (offerId: number) => {
         )
         return data.value
       } catch (error) {
-        return undefined
+        return null
       }
     },
   })
@@ -50,7 +50,7 @@ export const useJoinOffer = (campaignId: number) => {
         )
         return data
       } catch (error) {
-        return undefined
+        return null
       }
     },
     onSuccess: (data) => {
@@ -85,7 +85,7 @@ export const useApprovePublisherInOffer = () => {
         )
         return data
       } catch (error) {
-        return undefined
+        return null
       }
     },
     onSuccess: (data) => {

@@ -1,3 +1,5 @@
+import { TransactionStatusEnum } from "@/enums/transaction-status"
+
 export interface IAddCreditResponse {
   isSuccess: boolean
   message: string
@@ -9,6 +11,8 @@ export interface IWalletTransaction {
   amount: number
   campaignId: number | null
   subscriptionId: number | null
+  isWithdrawal: boolean
+  status: TransactionStatusEnum
   createdAt: string
 }
 
