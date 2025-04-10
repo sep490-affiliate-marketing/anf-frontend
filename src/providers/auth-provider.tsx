@@ -20,8 +20,7 @@ import Cookies from "js-cookie"
 import { useForm, UseFormReturn } from "react-hook-form"
 import { toast } from "sonner"
 
-import { ILoginRes } from "@/types/auth.type"
-import { IUser } from "@/types/user.type"
+import { ILoginRes, IMeRes, IUserExtended } from "@/types/auth.type"
 
 import apiClient from "@/lib/api/client"
 
@@ -29,10 +28,11 @@ import LogoutDialog from "@/components/dialogs/logout-dialog"
 
 type AuthProviderProps = {
   children: React.ReactNode
+  initUserData?: IUserExtended | null
 }
 
 type AuthContextType = {
-  user: IUser | null
+  user: IUserExtended | null
   isLoadingUser: boolean
   logout: () => void
   isLoggingOut: boolean
@@ -46,15 +46,18 @@ type AuthContextType = {
 
 export const AuthContext = React.createContext<AuthContextType | null>(null)
 
-export default function AuthProvider({ children }: AuthProviderProps) {
+export default function AuthProvider({
+  children,
+  initUserData,
+}: AuthProviderProps) {
   const queryClient = useQueryClient()
   const router = useRouter()
 
-  const { data: userData, isLoading: isLoadingUser } = useQuery({
+  const { data: userData, isFetching: isLoadingUser } = useQuery({
     queryKey: authQueryKeys.me(),
     queryFn: async () => {
       try {
-        const { data } = await apiClient.get<IBackendRes<IUser>>(
+        const { data } = await apiClient.get<IMeRes>(
           "/api/affiliate-network/users/me"
         )
         return data.value
@@ -62,7 +65,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
         return null
       }
     },
-
+    initialData: initUserData,
     enabled: !!Cookies.get("access_token"),
   })
 

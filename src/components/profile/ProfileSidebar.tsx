@@ -1,60 +1,63 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 import { useAuth } from "@/providers/auth-provider"
 import { format } from "date-fns"
-import {
-  ChevronRight,
-  CreditCard,
-  ImageIcon,
-  Landmark,
-  Plus,
-  Wallet,
-} from "lucide-react"
+import { ChevronRight, CreditCard, Landmark, Plus, Wallet } from "lucide-react"
 
-import { BankingInfo } from "@/types/profile"
-
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
+import { Skeleton } from "@/components/ui/skeleton"
 
 import { AddCreditDialog } from "@/components/profile/dialogs/AddCreditDialog"
 
 import { AddBankAccountDialog } from "./dialogs/AddBankAccountDialog"
 
 export function ProfileSidebar() {
-  const { user } = useAuth()
+  const { user, isLoadingUser } = useAuth()
 
-  // Sample linked accounts data - this would normally come from your API
-  const [linkedAccounts, setLinkedAccounts] = useState<BankingInfo[]>([
+  // Transform bankResponses to expected BankingInfo format
+  const [linkedAccounts, setLinkedAccounts] = useState<
     {
-      id: "1",
-      accountHolderName: `${user?.firstName} ${user?.lastName}` || "",
-      accountNumber: "************1234",
-      bankName: "MB Bank",
-    },
-    {
-      id: "2",
-      accountHolderName: `${user?.firstName} ${user?.lastName}` || "",
-      accountNumber: "************5678",
-      bankName: "Techcombank",
-    },
-  ])
+      id: string
+      accountHolderName: string
+      accountNumber: string
+      bankName: string
+    }[]
+  >([])
 
-  const [selectedAccount, setSelectedAccount] = useState<BankingInfo | null>(
-    null
-  )
+  // Update linkedAccounts when user data changes
+  useEffect(() => {
+    if (user?.bankResponses?.length) {
+      const mappedAccounts = user.bankResponses.map((bank) => ({
+        id: bank.id.toString(),
+        accountHolderName: `${user?.firstName} ${user?.lastName}` || "",
+        accountNumber: bank.bankingNo,
+        bankName: bank.bankingProvider,
+      }))
+      setLinkedAccounts(mappedAccounts)
+    }
+  }, [user])
+
+  const [selectedAccount, setSelectedAccount] = useState<{
+    id: string
+    accountHolderName: string
+    accountNumber: string
+    bankName: string
+  } | null>(null)
   const [showAccountDetails, setShowAccountDetails] = useState(false)
 
-  const handleAccountClick = (account: BankingInfo) => {
+  const handleAccountClick = (account: {
+    id: string
+    accountHolderName: string
+    accountNumber: string
+    bankName: string
+  }) => {
     setSelectedAccount(account)
     setShowAccountDetails(true)
-  }
-
-  const handleAddAccount = (account: BankingInfo) => {
-    setLinkedAccounts([...linkedAccounts, account])
   }
 
   return (
@@ -67,39 +70,58 @@ export function ProfileSidebar() {
 
             <div className="absolute -bottom-12 left-6">
               <div className="relative">
-                <Avatar className="size-24 border-4 border-background shadow-md transition-all duration-300 group-hover:scale-105">
-                  {user?.imageUrl ? (
-                    // If user has an image URL, display it
-                    <img src={user.imageUrl} alt={user.firstName} />
-                  ) : (
-                    // Otherwise, use the fallback
-                    <AvatarFallback className="bg-primary text-3xl font-medium text-primary-foreground">
-                      {user?.firstName?.charAt(0)}
-                    </AvatarFallback>
-                  )}
-                </Avatar>
-                <div className="absolute -bottom-1 -right-1">
-                  <Button
-                    size="icon"
-                    variant="outline"
-                    className="size-7 rounded-full border-primary/20 bg-background shadow-sm"
-                  >
-                    <ImageIcon className="size-3 text-primary" />
-                  </Button>
-                </div>
+                {isLoadingUser ? (
+                  <Skeleton className="size-24 rounded-full" />
+                ) : (
+                  <Avatar className="size-24 border-4 border-background shadow-md transition-all duration-300 group-hover:scale-105">
+                    {user?.imageUrl ? (
+                      // If user has an image URL, display it
+                      <AvatarImage
+                        src={user.imageUrl}
+                        alt={user.firstName || "User"}
+                      />
+                    ) : (
+                      // Otherwise, use the fallback
+                      <AvatarFallback className="bg-primary text-3xl font-medium text-primary-foreground">
+                        {user?.firstName?.charAt(0) || "U"}
+                      </AvatarFallback>
+                    )}
+                  </Avatar>
+                )}
               </div>
             </div>
           </div>
-          <div className="px-5 pb-5 pt-16">
+          <div className="bg-white px-5 pb-5 pt-16">
             <div className="flex flex-col items-start">
               <div className="flex w-full items-center justify-between">
-                <h2 className="text-xl font-bold first-letter:uppercase">{`${user?.firstName} ${user?.lastName}`}</h2>
-                <Badge
-                  variant="outline"
-                  className="border-primary/20 bg-primary/10 font-medium text-primary transition-all duration-300 hover:border-primary/30 hover:bg-primary/15"
-                >
-                  {user?.role}
-                </Badge>
+                {isLoadingUser ? (
+                  <>
+                    <Skeleton className="h-7 w-40" />
+                    <Skeleton className="h-6 w-24" />
+                  </>
+                ) : user ? (
+                  <>
+                    <h2 className="text-xl font-bold first-letter:uppercase">
+                      {user.firstName} {user.lastName}
+                    </h2>
+                    <Badge
+                      variant="outline"
+                      className="border-primary/20 bg-primary/10 font-medium text-primary transition-all duration-300 hover:border-primary/30 hover:bg-primary/15"
+                    >
+                      {user.role}
+                    </Badge>
+                  </>
+                ) : (
+                  <>
+                    <h2 className="text-xl font-bold">User</h2>
+                    <Badge
+                      variant="outline"
+                      className="border-primary/20 bg-primary/10 font-medium text-primary transition-all duration-300 hover:border-primary/30 hover:bg-primary/15"
+                    >
+                      Guest
+                    </Badge>
+                  </>
+                )}
               </div>
 
               {/* User Information Section */}
@@ -109,42 +131,82 @@ export function ProfileSidebar() {
                 </h3>
 
                 <div className="space-y-4">
-                  <div className="flex items-baseline justify-between">
-                    <p className="text-[13px] text-gray-500">Phone Number</p>
-                    <p className="text-[13px] font-medium text-gray-900">
-                      {user?.phoneNumber || "-"}
-                    </p>
-                  </div>
+                  {isLoadingUser ? (
+                    <>
+                      {[1, 2, 3, 4, 5].map((i) => (
+                        <div
+                          key={i}
+                          className="flex items-baseline justify-between"
+                        >
+                          <Skeleton className="h-4 w-24" />
+                          <Skeleton className="h-4 w-32" />
+                        </div>
+                      ))}
+                    </>
+                  ) : user ? (
+                    <>
+                      <div className="flex items-baseline justify-between">
+                        <p className="text-[13px] text-gray-500">
+                          Phone Number
+                        </p>
+                        <p className="text-[13px] font-medium text-gray-900">
+                          {user.phoneNumber || "-"}
+                        </p>
+                      </div>
 
-                  <div className="flex items-baseline justify-between">
-                    <p className="text-[13px] text-gray-500">Email</p>
-                    <p className="text-[13px] font-medium text-gray-900">
-                      {user?.email || "-"}
-                    </p>
-                  </div>
+                      <div className="flex items-baseline justify-between">
+                        <p className="text-[13px] text-gray-500">Email</p>
+                        <p className="text-[13px] font-medium text-gray-900">
+                          {user.email || "-"}
+                        </p>
+                      </div>
 
-                  <div className="flex items-baseline justify-between">
-                    <p className="text-[13px] text-gray-500">Citizen ID</p>
-                    <p className="text-[13px] font-medium text-gray-900">
-                      {user?.citizenId || "-"}
-                    </p>
-                  </div>
+                      <div className="flex items-baseline justify-between">
+                        <p className="text-[13px] text-gray-500">Citizen ID</p>
+                        <p className="text-[13px] font-medium text-gray-900">
+                          {user.citizenId || "-"}
+                        </p>
+                      </div>
 
-                  <div className="flex items-baseline justify-between">
-                    <p className="text-[13px] text-gray-500">Date of Birth</p>
-                    <p className="text-[13px] font-medium text-gray-900">
-                      {user?.dateOfBirth
-                        ? format(new Date(user.dateOfBirth), "dd/MM/yyyy")
-                        : "-"}
-                    </p>
-                  </div>
+                      <div className="flex items-baseline justify-between">
+                        <p className="text-[13px] text-gray-500">
+                          Date of Birth
+                        </p>
+                        <p className="text-[13px] font-medium text-gray-900">
+                          {user.dateOfBirth
+                            ? format(new Date(user.dateOfBirth), "dd/MM/yyyy")
+                            : "-"}
+                        </p>
+                      </div>
 
-                  <div className="flex items-baseline justify-between">
-                    <p className="text-[13px] text-gray-500">Address</p>
-                    <p className="truncate text-[13px] font-medium text-gray-900">
-                      {user?.address || "-"}
-                    </p>
-                  </div>
+                      <div className="flex items-baseline justify-between">
+                        <p className="text-[13px] text-gray-500">Address</p>
+                        <p className="truncate text-[13px] font-medium text-gray-900">
+                          {user.address || "-"}
+                        </p>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      {[
+                        "Phone Number",
+                        "Email",
+                        "Citizen ID",
+                        "Date of Birth",
+                        "Address",
+                      ].map((label) => (
+                        <div
+                          key={label}
+                          className="flex items-baseline justify-between"
+                        >
+                          <p className="text-[13px] text-gray-500">{label}</p>
+                          <p className="text-[13px] font-medium text-gray-900">
+                            -
+                          </p>
+                        </div>
+                      ))}
+                    </>
+                  )}
                 </div>
               </div>
             </div>
@@ -194,26 +256,58 @@ export function ProfileSidebar() {
           </div>
 
           <div className="space-y-2">
-            {linkedAccounts.map((account) => (
-              <div
-                key={account.id}
-                className="flex cursor-pointer items-center justify-between rounded-lg px-3 py-2.5 transition-colors hover:bg-gray-50"
-                onClick={() => handleAccountClick(account)}
-              >
-                <div className="flex items-center space-x-3">
-                  <div className="flex size-10 items-center justify-center rounded-full bg-purple-50">
-                    <CreditCard className="size-5 text-purple-600" />
+            {isLoadingUser ? (
+              // Skeleton loaders for bank accounts while loading
+              <>
+                <div className="flex items-center justify-between rounded-lg px-3 py-2.5">
+                  <div className="flex items-center space-x-3">
+                    <Skeleton className="size-10 rounded-full" />
+                    <div>
+                      <Skeleton className="mb-1 h-4 w-28" />
+                      <Skeleton className="h-3 w-20" />
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm font-medium">{account.bankName}</p>
-                    <p className="text-xs text-muted-foreground">
-                      •••• {account.accountNumber.slice(-4)}
-                    </p>
-                  </div>
+                  <Skeleton className="size-4" />
                 </div>
-                <ChevronRight className="size-4 text-muted-foreground" />
+                <div className="flex items-center justify-between rounded-lg px-3 py-2.5">
+                  <div className="flex items-center space-x-3">
+                    <Skeleton className="size-10 rounded-full" />
+                    <div>
+                      <Skeleton className="mb-1 h-4 w-32" />
+                      <Skeleton className="h-3 w-20" />
+                    </div>
+                  </div>
+                  <Skeleton className="size-4" />
+                </div>
+              </>
+            ) : linkedAccounts.length > 0 ? (
+              // Actual bank accounts
+              linkedAccounts.map((account) => (
+                <div
+                  key={account.id}
+                  className="flex cursor-pointer items-center justify-between rounded-lg px-3 py-2.5 transition-colors hover:bg-gray-50"
+                  onClick={() => handleAccountClick(account)}
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className="flex size-10 items-center justify-center rounded-full bg-purple-50">
+                      <CreditCard className="size-5 text-purple-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">{account.bankName}</p>
+                      <p className="text-xs text-muted-foreground">
+                        •••• {account.accountNumber.slice(-4)}
+                      </p>
+                    </div>
+                  </div>
+                  <ChevronRight className="size-4 text-muted-foreground" />
+                </div>
+              ))
+            ) : (
+              // No bank accounts
+              <div className="py-2 text-center text-sm text-muted-foreground">
+                No bank accounts linked
               </div>
-            ))}
+            )}
           </div>
 
           <AddBankAccountDialog />
@@ -326,24 +420,6 @@ export function ProfileSidebar() {
                   </div>
                 </div>
               </div>
-            </div>
-
-            <div className="flex flex-col border-t border-gray-100">
-              <div className="h-px w-full bg-gray-100"></div>
-              <button
-                type="button"
-                className="p-4 text-sm font-medium text-red-600 transition-colors hover:bg-red-50"
-                onClick={() => {
-                  setLinkedAccounts(
-                    linkedAccounts.filter(
-                      (acc) => acc.id !== selectedAccount.id
-                    )
-                  )
-                  setShowAccountDetails(false)
-                }}
-              >
-                Remove Account
-              </button>
             </div>
           </DialogContent>
         </Dialog>

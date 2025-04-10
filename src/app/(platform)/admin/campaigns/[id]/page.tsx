@@ -2,24 +2,15 @@
 
 import React from "react"
 
-import Image from "next/image"
 import { useRouter } from "next/navigation"
 
 import { CampaignStatusEnum } from "@/enums/campaign-status"
 import { format } from "date-fns"
 import { vi } from "date-fns/locale"
-import {
-  AlertCircle,
-  ArrowUpRight,
-  Clock,
-  CreditCard,
-  Loader2,
-  Tag,
-  ZoomIn,
-} from "lucide-react"
+import { AlertCircle, ArrowUpRight, Clock, CreditCard, Tag } from "lucide-react"
 import "yet-another-react-lightbox/styles.css"
 
-import { cn, formatVNDCurrency } from "@/lib/utils"
+import { formatVNDCurrency } from "@/lib/utils"
 
 import { useGetCampaignById } from "@/hooks/campaign"
 
@@ -33,7 +24,7 @@ import {
 
 import { CampaignHeader } from "@/components/admin/campaigns/detail/campaign-header"
 import { CampaignGallery } from "@/components/admin/campaigns/detail/campaign-image-gallery"
-import { ImagePlaceholder } from "@/components/global/image-placeholder"
+import { Spinner } from "@/components/spinner"
 
 interface Offer {
   id: number
@@ -83,14 +74,17 @@ export default function CampaignDetailsPage({ params: paramsPromise }: Props) {
   const { id } = params
 
   // Use the campaign hook instead of mock data
-  const { data: campaignResponse, isLoading } = useGetCampaignById(id)
+  const {
+    data: campaignResponse,
+    isLoading,
+    isFetching,
+  } = useGetCampaignById(id)
 
-  if (isLoading) {
+  if (isLoading || isFetching) {
     return (
-      <div className="flex min-h-[400px] items-center justify-center">
-        <div className="flex items-center gap-2 text-muted-foreground">
-          <Loader2 className="size-5 animate-spin" />
-          <span>Loading campaign details...</span>
+      <div className="flex items-center justify-center py-8">
+        <div className="text-center">
+          <Spinner />
         </div>
       </div>
     )
@@ -457,36 +451,18 @@ export default function CampaignDetailsPage({ params: paramsPromise }: Props) {
           {campaign.offers.map((offer) => (
             <div
               key={offer.id}
-              className="group relative flex cursor-pointer gap-6 rounded-xl border p-4 transition-all hover:border-purple-100 hover:bg-gray-50/50 hover:shadow-sm"
+              className="group relative flex cursor-pointer gap-6 rounded-xl border p-4 transition-all hover:border-purple-100 hover:bg-purple-50/20 hover:shadow-sm"
               onClick={() => handleOfferClick(offer.id)}
             >
-              <div className="w-48 shrink-0">
-                {offer.imageUrl ? (
-                  <div
-                    className={cn(
-                      "group relative cursor-pointer overflow-hidden rounded-lg bg-gray-50"
-                    )}
-                  >
-                    <Image
-                      src={offer.imageUrl}
-                      alt={offer.description}
-                      className="size-full object-cover"
-                      fill
-                    />
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 transition-all group-hover:bg-black/20 group-hover:opacity-100">
-                      <ZoomIn className="size-6 text-white" />
-                    </div>
-                  </div>
-                ) : (
-                  <ImagePlaceholder className="aspect-video" />
-                )}
-              </div>
               <div className="flex-1 space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="font-medium text-gray-900">
+                    <Badge
+                      variant="outline"
+                      className="border-purple-200 bg-purple-50 font-medium text-purple-700"
+                    >
                       #{offer.id}
-                    </span>
+                    </Badge>
                     <Badge
                       variant="outline"
                       className="border-gray-200 bg-white text-gray-700"
@@ -504,8 +480,10 @@ export default function CampaignDetailsPage({ params: paramsPromise }: Props) {
                     })}
                   </div>
                 </div>
-                <p className="text-sm text-gray-600">{offer.description}</p>
-                <div className="flex items-center gap-6 text-sm">
+                <p className="text-sm leading-relaxed text-gray-600">
+                  {offer.description}
+                </p>
+                <div className="flex flex-wrap items-center gap-6 text-sm">
                   <div className="flex items-center gap-2">
                     <span className="text-gray-500">Bid:</span>
                     <span className="font-medium text-gray-900">
@@ -518,7 +496,18 @@ export default function CampaignDetailsPage({ params: paramsPromise }: Props) {
                       {formatVNDCurrency(offer.budget)}
                     </span>
                   </div>
+                  {offer.commissionRate && (
+                    <div className="flex items-center gap-2">
+                      <span className="text-gray-500">Commission:</span>
+                      <span className="font-medium text-gray-900">
+                        {offer.commissionRate}%
+                      </span>
+                    </div>
+                  )}
                 </div>
+              </div>
+              <div className="flex items-center text-purple-600 opacity-0 transition-opacity group-hover:opacity-100">
+                <ArrowUpRight className="size-5" />
               </div>
             </div>
           ))}

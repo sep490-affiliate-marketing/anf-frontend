@@ -5,12 +5,14 @@ import ApiProvider from "@/providers/api-provider"
 import AuthProvider from "@/providers/auth-provider"
 import { ReactQueryClientProvider } from "@/providers/react-query-provider"
 import { ThemeProvider } from "@/providers/theme-provider"
+import { getCurrentUser } from "@/server/actions/me"
 import NextTopLoader from "nextjs-toploader"
 import { NuqsAdapter } from "nuqs/adapters/next/app"
 import { Toaster } from "sonner"
 
 import { cn } from "@/lib/utils"
 
+import ScrollToTop from "@/components/layouts/scroll-to-top"
 import TailwindIndicator from "@/components/layouts/tailwind-indicator"
 
 import "@/styles/globals.css"
@@ -23,11 +25,14 @@ const jakarta = JakartaSans({
 
 export const metadata = constructMetadata()
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  // Fetch user data server-side
+  const userData = await getCurrentUser()
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={cn(jakarta.variable, "font-jakarta antialiased")}>
@@ -41,12 +46,13 @@ export default function RootLayout({
           >
             <NextTopLoader height={4} color="#7c3aed" showSpinner={false} />
             <ApiProvider>
-              <AuthProvider>
+              <AuthProvider initUserData={userData}>
                 <NuqsAdapter>
                   <Toaster />
                   <div className="relative flex min-h-svh flex-col bg-background">
                     {children}
                   </div>
+                  <ScrollToTop />
                 </NuqsAdapter>
               </AuthProvider>
             </ApiProvider>

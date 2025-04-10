@@ -1,7 +1,6 @@
 import { Suspense } from "react"
 
 import CampaignDataTable from "@/components/admin/campaigns/data-table"
-import { SearchInput } from "@/components/inputs/search-input"
 
 export default function Page() {
   return (
@@ -24,15 +23,6 @@ export default function Page() {
         {/* Search Section */}
 
         <section className="space-y-4">
-          <form className="flex w-[500px]">
-            <SearchInput
-              className="w-[500px] transition-all focus-within:ring-2 focus-within:ring-ring"
-              placeholder="Find campaign by name..."
-            />
-          </form>
-
-          {/* Table Section */}
-
           <CampaignDataTable />
         </section>
       </div>

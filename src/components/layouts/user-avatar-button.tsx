@@ -2,6 +2,7 @@
 
 import { useAuth } from "@/providers/auth-provider"
 import { BoltIcon, Layers2Icon, LogOutIcon, UserPenIcon } from "lucide-react"
+import { useRouter } from "nextjs-toploader/app"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
@@ -16,8 +17,9 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Skeleton } from "@/components/ui/skeleton"
 
-export default function UserAvatar() {
+export default function UserAvatarButton() {
   const { user, isLoadingUser, logout, isLoggingOut } = useAuth()
+  const router = useRouter()
 
   return (
     <DropdownMenu>
@@ -27,7 +29,7 @@ export default function UserAvatar() {
           className="bord2 rounded-full border p-0 hover:bg-transparent"
         >
           <Avatar>
-            <AvatarImage src="/logo.png" alt="Profile image" />
+            <AvatarImage src={user?.imageUrl || "/"} alt="Profile image" />
             <AvatarFallback>
               {user?.firstName?.charAt(0) || ""}
               {user?.lastName?.charAt(0) || ""}
@@ -66,7 +68,11 @@ export default function UserAvatar() {
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() =>
+              router.push(`${user?.role.toLocaleLowerCase()}/profile`)
+            }
+          >
             <UserPenIcon size={16} className="opacity-60" aria-hidden="true" />
             <span>Profile</span>
           </DropdownMenuItem>

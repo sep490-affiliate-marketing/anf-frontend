@@ -7,19 +7,14 @@ import Link from "next/link"
 import { format } from "date-fns"
 import { vi } from "date-fns/locale"
 import {
-  AlertCircle,
   ArrowLeft,
   BarChart3,
   Calendar,
-  CheckCircle,
   Clock,
   Copy,
   CreditCard,
   DollarSign,
-  ExternalLink,
   FileCode,
-  HelpCircle,
-  Image as ImageIcon,
   Info,
   Megaphone,
   PieChart,
@@ -27,6 +22,8 @@ import {
 } from "lucide-react"
 
 import { formatVNDCurrency } from "@/lib/utils"
+
+import { useGetOfferDetails } from "@/hooks/offer"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -39,6 +36,10 @@ import {
 } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
+import { OfferStatusBadge } from "@/components/badge/offer-status-badge"
+import { EmptyTable } from "@/components/data-table/empty-table"
+import { Spinner } from "@/components/spinner"
+
 interface OfferDetailParams {
   params: Promise<{
     id: string
@@ -46,84 +47,14 @@ interface OfferDetailParams {
   }>
 }
 
-// Mock data for the offer
-const mockOffer = {
-  id: 1,
-  campaignId: 1,
-  campaignName: "Baotangtruyentranh",
-  pricingModel: "CPA",
-  status: "Active",
-  description: "Offer enter a form in the home page",
-  stepInfo:
-    "1. Click to the banner and redirect to the page has form. 2. Fill the information 3. Submit the form",
-  startDate: "2025-05-01T00:00:00",
-  endDate: "2025-08-01T00:00:00",
-  bid: 100000,
-  budget: 10000000,
-  spent: 2500000,
-  commissionRate: null,
-  orderReturnTime: "30 days",
-  clicks: 3250,
-  conversions: 25,
-  impressions: 45000,
-  ctr: 7.22,
-  conversionRate: 0.77,
-  imageUrl:
-    "https://images.unsplash.com/photo-1552581234-26160f608093?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
+// Placeholder stats data that might not be in the API response
+const placeholderStats = {
+  spent: 0,
+  clicks: 0,
+  conversions: 0,
+  conversionRate: 0,
   trackingUrl:
     "https://backend.affiliate-network.com/tracking?aff_id={affiliate_id}&source={source}",
-  targetAudience: "All",
-  allowedTrafficSources: ["Search", "Social", "Display", "Email"],
-}
-
-function OfferStatusBadge({ status }: { status: string }) {
-  const getStatusConfig = (status: string) => {
-    switch (status.toLowerCase()) {
-      case "active":
-        return {
-          color: "bg-emerald-50 text-emerald-700 border-emerald-200",
-          icon: CheckCircle,
-          text: "Active",
-        }
-      case "paused":
-        return {
-          color: "bg-amber-50 text-amber-700 border-amber-200",
-          icon: Clock,
-          text: "Paused",
-        }
-      case "pending":
-        return {
-          color: "bg-blue-50 text-blue-700 border-blue-200",
-          icon: Clock,
-          text: "Pending",
-        }
-      case "rejected":
-        return {
-          color: "bg-red-50 text-red-700 border-red-200",
-          icon: AlertCircle,
-          text: "Rejected",
-        }
-      default:
-        return {
-          color: "bg-gray-50 text-gray-700 border-gray-200",
-          icon: HelpCircle,
-          text: status,
-        }
-    }
-  }
-
-  const config = getStatusConfig(status)
-  const Icon = config.icon
-
-  return (
-    <Badge
-      variant="outline"
-      className={`${config.color} flex items-center gap-1.5 px-2.5 py-0.5 font-medium`}
-    >
-      <Icon className="size-3.5" />
-      {config.text}
-    </Badge>
-  )
 }
 
 function StatCard({
@@ -166,8 +97,32 @@ export default function OfferDetailPage({
   const params = React.use(paramsPromise)
   const { id, offerId } = params
 
-  // In a real implementation, you would fetch the offer data
-  const offer = mockOffer
+  const {
+    data: offerResData,
+    isLoading,
+    isFetching,
+  } = useGetOfferDetails(Number(offerId))
+
+  // If data isn't loaded yet, use a loading state or fallback
+  if (isLoading || isFetching) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <div className="text-center">
+          <Spinner />
+        </div>
+      </div>
+    )
+  }
+
+  if (!offerResData) {
+    return (
+      <EmptyTable
+        title="Offer not found"
+        description={`The requested offer does not exist: ${offerId}`}
+        onRefresh={() => {}}
+      />
+    )
+  }
 
   return (
     <div className="space-y-6">
@@ -180,19 +135,19 @@ export default function OfferDetailPage({
             className="gap-2 text-gray-600 hover:text-gray-900"
           >
             <ArrowLeft className="size-4" />
-            Back to Campaign
+            Back
           </Button>
         </Link>
         <div className="h-4 w-px bg-border" />
         <div className="flex-1">
           <div className="flex items-center gap-3">
             <h1 className="text-xl font-semibold tracking-tight">
-              Offer #{offer.id}
+              Offer #{offerResData?.id}
             </h1>
-            <OfferStatusBadge status={offer.status} />
+            <OfferStatusBadge status={offerResData?.status} />
           </div>
           <p className="mt-1 text-sm text-muted-foreground">
-            {offer.description}
+            {offerResData?.description}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -252,30 +207,31 @@ export default function OfferDetailPage({
             {/* Key Stats */}
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               <StatCard
-                title="Total Spent"
-                value={formatVNDCurrency(offer.spent)}
+                title="Budget"
+                value={formatVNDCurrency(offerResData.budget)}
                 icon={<CreditCard className="size-4 text-gray-400" />}
-                description={`${Math.round((offer.spent / offer.budget) * 100)}% of budget`}
+                description="Total budget allocated"
               />
               <StatCard
-                title="Clicks"
-                value={offer.clicks.toLocaleString()}
-                icon={<ExternalLink className="size-4 text-gray-400" />}
+                title="Bid Amount"
+                value={formatVNDCurrency(offerResData.bid)}
+                icon={<DollarSign className="size-4 text-gray-400" />}
+                description={`Per ${offerResData.pricingModel} payout`}
               />
               <StatCard
-                title="Conversions"
-                value={offer.conversions.toLocaleString()}
-                icon={<CheckCircle className="size-4 text-gray-400" />}
+                title="Campaign ID"
+                value={offerResData.campaignId}
+                icon={<Megaphone className="size-4 text-gray-400" />}
               />
               <StatCard
-                title="Conversion Rate"
-                value={`${offer.conversionRate.toFixed(2)}%`}
+                title="Pricing Model"
+                value={offerResData.pricingModel || "N/A"}
                 icon={<PieChart className="size-4 text-gray-400" />}
               />
             </div>
 
             {/* Main Content */}
-            <div className="grid gap-6 md:grid-cols-3">
+            <div className="grid gap-6 md:grid-cols-1">
               {/* Offer Details Card */}
               <Card className="md:col-span-2">
                 <CardHeader>
@@ -289,18 +245,22 @@ export default function OfferDetailPage({
                   {/* Offer Description */}
                   <div className="space-y-2">
                     <h3 className="font-medium text-gray-900">Description</h3>
-                    <p className="text-sm text-gray-600">{offer.description}</p>
+                    <p className="text-sm text-gray-600">
+                      {offerResData.description}
+                    </p>
                   </div>
 
                   {/* Steps Information */}
-                  <div className="space-y-2">
-                    <h3 className="font-medium text-gray-900">
-                      Conversion Steps
-                    </h3>
-                    <div className="rounded-lg bg-gray-50 p-3 text-sm text-gray-600">
-                      {offer.stepInfo}
+                  {offerResData.stepInfo && (
+                    <div className="space-y-2">
+                      <h3 className="font-medium text-gray-900">
+                        Conversion Steps
+                      </h3>
+                      <div className="rounded-lg bg-gray-50 p-3 text-sm text-gray-600">
+                        {offerResData.stepInfo}
+                      </div>
                     </div>
-                  </div>
+                  )}
 
                   {/* Additional Details */}
                   <div className="grid gap-4 pt-4 sm:grid-cols-2">
@@ -311,13 +271,21 @@ export default function OfferDetailPage({
                       <div className="mt-1 flex items-center gap-2 text-sm">
                         <Calendar className="size-4 text-gray-400" />
                         <span>
-                          {format(new Date(offer.startDate), "dd/MM/yyyy", {
-                            locale: vi,
-                          })}{" "}
+                          {format(
+                            new Date(offerResData.startDate),
+                            "dd/MM/yyyy",
+                            {
+                              locale: vi,
+                            }
+                          )}{" "}
                           -{" "}
-                          {format(new Date(offer.endDate), "dd/MM/yyyy", {
-                            locale: vi,
-                          })}
+                          {format(
+                            new Date(offerResData.endDate),
+                            "dd/MM/yyyy",
+                            {
+                              locale: vi,
+                            }
+                          )}
                         </span>
                       </div>
                     </div>
@@ -328,7 +296,7 @@ export default function OfferDetailPage({
                       <div className="mt-1 flex items-center gap-2 text-sm">
                         <DollarSign className="size-4 text-gray-400" />
                         <Badge variant="outline" className="text-gray-700">
-                          {offer.pricingModel}
+                          {offerResData.pricingModel || "N/A"}
                         </Badge>
                       </div>
                     </div>
@@ -337,48 +305,23 @@ export default function OfferDetailPage({
                         Payout
                       </h4>
                       <div className="mt-1 flex items-center gap-2 text-sm font-medium">
-                        <span>{formatVNDCurrency(offer.bid)}</span>
-                        <span className="text-gray-400">per conversion</span>
+                        <span>{formatVNDCurrency(offerResData.bid)}</span>
+                        <span className="text-gray-400">
+                          per {offerResData.pricingModel}
+                        </span>
                       </div>
                     </div>
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-500">
-                        Return Time
-                      </h4>
-                      <div className="mt-1 flex items-center gap-2 text-sm">
-                        <Clock className="size-4 text-gray-400" />
-                        <span>{offer.orderReturnTime}</span>
+                    {offerResData.orderReturnTime && (
+                      <div>
+                        <h4 className="text-sm font-medium text-gray-500">
+                          Return Time
+                        </h4>
+                        <div className="mt-1 flex items-center gap-2 text-sm">
+                          <Clock className="size-4 text-gray-400" />
+                          <span>{offerResData.orderReturnTime}</span>
+                        </div>
                       </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Offer Image Card */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <ImageIcon className="size-5 text-purple-600" />
-                    Offer Media
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="overflow-hidden rounded-lg">
-                    <img
-                      src={offer.imageUrl}
-                      alt={offer.description}
-                      className="h-auto w-full object-cover transition-transform hover:scale-105"
-                    />
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="w-full gap-2"
-                    >
-                      <Copy className="size-4" />
-                      Download Assets
-                    </Button>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -399,7 +342,9 @@ export default function OfferDetailPage({
                 <div className="space-y-2">
                   <h3 className="font-medium text-gray-900">Tracking URL</h3>
                   <div className="flex items-center justify-between rounded-lg bg-gray-50 p-3 font-mono text-sm text-gray-600">
-                    <code className="break-all">{offer.trackingUrl}</code>
+                    <code className="break-all">
+                      {placeholderStats.trackingUrl}
+                    </code>
                     <Button variant="ghost" size="sm" className="size-8 p-0">
                       <Copy className="size-4" />
                     </Button>
@@ -424,7 +369,7 @@ export default function OfferDetailPage({
               </CardHeader>
               <CardContent className="space-y-4">
                 <p className="py-10 text-center text-gray-500">
-                  Statistics charts would be displayed here
+                  Statistics data not available yet
                 </p>
               </CardContent>
             </Card>
@@ -444,22 +389,38 @@ export default function OfferDetailPage({
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1">
                       <h4 className="text-sm font-medium text-gray-500">
-                        Target Audience
+                        Campaign ID
                       </h4>
-                      <p className="font-medium">{offer.targetAudience}</p>
+                      <p className="font-medium">{offerResData.campaignId}</p>
                     </div>
                     <div className="space-y-1">
                       <h4 className="text-sm font-medium text-gray-500">
-                        Allowed Traffic Sources
+                        Pricing Model
                       </h4>
-                      <div className="flex flex-wrap gap-2">
-                        {offer.allowedTrafficSources.map((source) => (
-                          <Badge key={source} variant="secondary">
-                            {source}
-                          </Badge>
-                        ))}
-                      </div>
+                      <p className="font-medium">
+                        {offerResData.pricingModel || "N/A"}
+                      </p>
                     </div>
+                    {offerResData.pubOfferStatus !== undefined && (
+                      <div className="space-y-1">
+                        <h4 className="text-sm font-medium text-gray-500">
+                          Publisher Offer Status
+                        </h4>
+                        <p className="font-medium">
+                          {offerResData.pubOfferStatus}
+                        </p>
+                      </div>
+                    )}
+                    {offerResData.rejectedReason && (
+                      <div className="space-y-1">
+                        <h4 className="text-sm font-medium text-gray-500">
+                          Rejection Reason
+                        </h4>
+                        <p className="font-medium">
+                          {offerResData.rejectedReason}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </div>
               </CardContent>

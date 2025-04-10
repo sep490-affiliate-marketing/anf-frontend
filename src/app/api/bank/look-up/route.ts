@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
 
-import { env } from "@/env"
-
 interface BankLookupResponse {
   success: boolean
   message: string

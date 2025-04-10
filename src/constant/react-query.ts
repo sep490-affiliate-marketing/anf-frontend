@@ -70,8 +70,8 @@ export const offerQueryKeys = {
   global: {
     list: (page: number, limit: number) =>
       [...offerQueryKeys.origin, "global", "list", { page, limit }] as const,
-    details: (id: number) =>
-      [...offerQueryKeys.origin, "global", "details", id] as const,
+    details: (offerId: number) =>
+      [...offerQueryKeys.origin, "global", "details", offerId] as const,
     publisherInOffer: (offerId: number) =>
       [
         ...offerQueryKeys.origin,
@@ -101,6 +101,12 @@ export const bankQueryKeys = {
 
 export const walletQueryKeys = {
   origin: ["wallets"] as const,
-  list: () => [...walletQueryKeys.origin, "list"] as const,
+  walletHistory: (userCode: string, page: number, limit: number) =>
+    [
+      ...walletQueryKeys.origin,
+      "walletHistory",
+      userCode,
+      { page, limit },
+    ] as const,
   deposit: () => [...walletQueryKeys.origin, "deposit"] as const,
 }

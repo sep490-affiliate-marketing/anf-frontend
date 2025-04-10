@@ -1,69 +1,27 @@
 "use client"
 
-import { useState } from "react"
-
 import Link from "next/link"
 
 import { useAuth } from "@/providers/auth-provider"
-import {
-  ColumnDef,
-  flexRender,
-  getCoreRowModel,
-  getSortedRowModel,
-  SortingState,
-  useReactTable,
-} from "@tanstack/react-table"
-import {
-  ArrowLeftToLineIcon,
-  ArrowRightToLineIcon,
-  ChevronDownIcon,
-  ChevronFirstIcon,
-  ChevronLastIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  ChevronUpIcon,
-  EllipsisIcon,
-  MoreHorizontalIcon,
-  PauseCircleIcon,
-  PinOffIcon,
-  PlayCircleIcon,
-  XCircleIcon,
-} from "lucide-react"
+import { format } from "date-fns"
+import { EllipsisIcon, PlusIcon } from "lucide-react"
+import { useRouter } from "nextjs-toploader/app"
+import { parseAsInteger, useQueryState } from "nuqs"
 
 import { ICampaign } from "@/types/campaign.type"
 
-import { cn } from "@/lib/utils"
+import { useGetCampaignsByAdvertiser } from "@/hooks/campaign"
 
-import {
-  useGetAdminCampaigns,
-  useGetCampaignsByAdvertiser,
-  useUpdateCampaignStatus,
-} from "@/hooks/campaign"
-
-import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
+import { Button, buttonVariants } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuSeparator,
+  DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Label } from "@/components/ui/label"
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-} from "@/components/ui/pagination"
 import {
   Select,
   SelectContent,
@@ -79,569 +37,282 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Textarea } from "@/components/ui/textarea"
 
-import { getPinningStyles } from "@/components/data-table/pinning-style"
-
-// CampaignActionCell component for the Actions column
-const CampaignActionCell = ({ campaign }: { campaign: ICampaign }) => {
-  const { mutate: updateStatus, isPending } = useUpdateCampaignStatus()
-  const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false)
-  const [rejectReason, setRejectReason] = useState("")
-
-  const handleUpdateStatus = (status: string) => {
-    updateStatus({
-      id: campaign.id,
-      campaignStatus: status,
-    })
-  }
-
-  const handleRejectSubmit = () => {
-    if (!rejectReason.trim()) return
-
-    updateStatus({
-      id: campaign.id,
-      campaignStatus: "Rejected",
-      rejectReason,
-    })
-
-    setIsRejectDialogOpen(false)
-    setRejectReason("")
-  }
-
-  return (
-    <div className="flex justify-end">
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            className="flex size-8 p-0 data-[state=open]:bg-muted"
-            disabled={isPending}
-          >
-            <MoreHorizontalIcon className="size-4" />
-            <span className="sr-only">Open menu</span>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-[160px]">
-          <DropdownMenuItem onSelect={() => handleUpdateStatus("Started")}>
-            <PlayCircleIcon className="mr-2 size-4 text-green-600" />
-            Start
-          </DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => handleUpdateStatus("Paused")}>
-            <PauseCircleIcon className="mr-2 size-4 text-amber-600" />
-            Pause
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <Dialog
-            open={isRejectDialogOpen}
-            onOpenChange={setIsRejectDialogOpen}
-          >
-            <DialogTrigger asChild>
-              <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                <XCircleIcon className="mr-2 size-4 text-red-600" />
-                Reject
-              </DropdownMenuItem>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Reject Campaign</DialogTitle>
-                <DialogDescription>
-                  Please provide a reason for rejecting this campaign.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="reject-reason">Rejection reason</Label>
-                  <Textarea
-                    id="reject-reason"
-                    value={rejectReason}
-                    onChange={(e) => setRejectReason(e.target.value)}
-                    placeholder="Enter the reason for rejection"
-                    className="min-h-[100px]"
-                  />
-                </div>
-              </div>
-              <DialogFooter>
-                <Button
-                  variant="outline"
-                  onClick={() => setIsRejectDialogOpen(false)}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  variant="destructive"
-                  onClick={handleRejectSubmit}
-                  disabled={!rejectReason.trim() || isPending}
-                >
-                  Reject Campaign
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem>Edit</DropdownMenuItem>
-          <DropdownMenuItem className="text-destructive focus:text-destructive">
-            Delete
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </div>
-  )
-}
-
-const columns: ColumnDef<ICampaign>[] = [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={table.getIsAllPageRowsSelected()}
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-        className="translate-y-[2px]"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-        className="translate-y-[2px]"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-    size: 40,
-    enablePinning: false,
-    enableResizing: false,
-  },
-  {
-    header: "Campaign Name",
-    accessorKey: "name",
-    cell: ({ row }) => (
-      <Link href={`/advertiser/campaigns/${row.original.id}`}>
-        <div className="truncate font-medium">{row.getValue("name")}</div>
-      </Link>
-    ),
-    size: 250,
-  },
-  {
-    header: "Start Date",
-    accessorKey: "startDate",
-    cell: ({ row }) => (
-      <div className="truncate">{row.getValue("startDate")}</div>
-    ),
-  },
-  {
-    header: "End Date",
-    accessorKey: "endDate",
-    cell: ({ row }) => (
-      <div className="truncate">{row.getValue("endDate")}</div>
-    ),
-  },
-  {
-    header: "Status",
-    accessorKey: "status",
-    cell: ({ row }) => {
-      const status = row.getValue("status") as string
-      return (
-        <div
-          className={cn(
-            "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium",
-            status === "Started"
-              ? "bg-green-50 text-green-700"
-              : "bg-red-50 text-red-700"
-          )}
-        >
-          {status}
-        </div>
-      )
-    },
-  },
-  {
-    header: "Balance",
-    accessorKey: "balance",
-    cell: ({ row }) => (
-      <div className="truncate">
-        {new Intl.NumberFormat("vi-VN", {
-          style: "currency",
-          currency: "VND",
-        }).format(row.getValue("balance"))}
-      </div>
-    ),
-  },
-  {
-    id: "actions",
-    header: "Actions",
-    cell: ({ row }) => <CampaignActionCell campaign={row.original} />,
-    enablePinning: false,
-    enableResizing: false,
-    size: 80,
-  },
-]
+import { CampaignStatusBadge } from "@/components/badge/campaign-status-badge"
+import { EmptyTable } from "@/components/data-table/empty-table"
+import { SearchInput } from "@/components/inputs/search-input"
+import { Spinner } from "@/components/spinner"
 
 export default function CampaignDataTable() {
-  const [pageSize, setPageSize] = useState(10)
-  const [pageNumber, setPageNumber] = useState(1)
-  const [sorting, setSorting] = useState<SortingState>([])
   const { user } = useAuth()
-  const { data, isLoading } = useGetCampaignsByAdvertiser(user?.userCode ?? "")
+  const router = useRouter()
 
-  const table = useReactTable({
-    data: data?.value?.data || [],
-    columns,
-    columnResizeMode: "onChange",
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    onSortingChange: setSorting,
-    state: {
-      sorting,
-      pagination: {
-        pageIndex: (data?.value?.pageNumber || 1) - 1,
-        pageSize: data?.value?.pageSize || 10,
-      },
-    },
-    pageCount: data?.value?.totalPages || 1,
-    manualPagination: true,
-    onPaginationChange: (updater) => {
-      if (typeof updater === "function") {
-        const newState = updater({
-          pageIndex: (data?.value?.pageNumber || 1) - 1,
-          pageSize: data?.value?.pageSize || 10,
-        })
-        setPageNumber(newState.pageIndex + 1)
-        setPageSize(newState.pageSize)
-      }
-    },
-    enableSortingRemoval: false,
-  })
+  const [currentPage, setCurrentPage] = useQueryState(
+    "page",
+    parseAsInteger.withDefault(1)
+  )
+  const [pageSize, setPageSize] = useQueryState(
+    "pageSize",
+    parseAsInteger.withDefault(10)
+  )
+
+  const { data, isLoading, isError, refetch } = useGetCampaignsByAdvertiser(
+    user?.userCode ?? "",
+    currentPage,
+    pageSize
+  )
+
+  // Extract data from the response
+  const campaigns = data?.value?.data || []
+  const paginationInfo = {
+    from: (currentPage - 1) * pageSize + 1,
+    to: Math.min(currentPage * pageSize, data?.value?.totalRecords || 0),
+    total: data?.value?.totalRecords || 0,
+    last_page: data?.value?.totalPages || 1,
+  }
+  const isDataEmpty = !campaigns || campaigns.length === 0
+
+  // Handle next page navigation - increment by 1
+  const handleNextPage = () => {
+    setCurrentPage((prev) => Math.min(paginationInfo.last_page, prev + 1))
+  }
+
+  // Handle previous page navigation - decrement by 1
+  const handlePreviousPage = () => {
+    setCurrentPage((prev) => Math.max(1, prev - 1))
+  }
+
+  // Handler for refresh button click
+  const handleRefresh = () => {
+    refetch()
+  }
 
   return (
-    <>
-      <div className="w-full">
-        <Table className="w-full table-fixed border-separate border-spacing-0 [&_td]:border-border [&_tfoot_td]:border-t [&_th]:border-b [&_th]:border-border [&_tr:not(:last-child)_td]:border-b [&_tr]:border-none">
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="bg-muted/50">
-                {headerGroup.headers.map((header) => {
-                  const { column } = header
-                  const isPinned = column.getIsPinned()
-                  const isLastLeftPinned =
-                    isPinned === "left" && column.getIsLastColumn("left")
-                  const isFirstRightPinned =
-                    isPinned === "right" && column.getIsFirstColumn("right")
+    <div className="flex min-h-[calc(100vh-200px)] flex-col">
+      {/* Filters Section */}
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <SearchInput
+            className="w-[500px] transition-all focus-within:ring-2 focus-within:ring-ring"
+            placeholder="Find campaign by name..."
+          />
+          <Link
+            href="/advertiser/campaigns/create"
+            className={buttonVariants({
+              variant: "default",
+            })}
+          >
+            <PlusIcon size={16} />
+            Create Campaign
+          </Link>
+        </div>
 
-                  return (
-                    <TableHead
-                      key={header.id}
-                      className="data-pinned:bg-muted/90 data-pinned:backdrop-blur-xs relative h-10 truncate border-t [&:not([data-pinned]):has(+[data-pinned])_div.cursor-col-resize:last-child]:opacity-0 [&[data-last-col=left]_div.cursor-col-resize:last-child]:opacity-0 [&[data-pinned=left][data-last-col=left]]:border-r [&[data-pinned=right]:last-child_div.cursor-col-resize:last-child]:opacity-0 [&[data-pinned=right][data-last-col=right]]:border-l [&[data-pinned][data-last-col]]:border-border"
-                      colSpan={header.colSpan}
-                      style={{
-                        ...getPinningStyles(column),
-                      }}
-                      data-pinned={isPinned || undefined}
-                      data-last-col={
-                        isLastLeftPinned
-                          ? "left"
-                          : isFirstRightPinned
-                            ? "right"
-                            : undefined
-                      }
-                      aria-sort={
-                        header.column.getIsSorted() === "asc"
-                          ? "ascending"
-                          : header.column.getIsSorted() === "desc"
-                            ? "descending"
-                            : "none"
-                      }
-                    >
-                      <div
-                        className={cn(
-                          "flex items-center justify-between gap-2",
-                          header.column.getCanSort() &&
-                            "cursor-pointer select-none"
-                        )}
-                        onClick={
-                          header.column.getCanSort()
-                            ? header.column.getToggleSortingHandler()
-                            : undefined
+        {/* Results Table or Empty State */}
+        <div className="mt-4 grow">
+          {isLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="text-center">
+                <Spinner />
+              </div>
+            </div>
+          ) : isError ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="text-center">
+                <p className="text-sm text-destructive">Error loading data</p>
+                <Button
+                  onClick={handleRefresh}
+                  variant="outline"
+                  className="mt-4"
+                >
+                  Retry
+                </Button>
+              </div>
+            </div>
+          ) : isDataEmpty ? (
+            <EmptyTable onRefresh={handleRefresh} />
+          ) : (
+            <div className="flex flex-col">
+              {/* Data Table Section */}
+              <div className="relative w-full">
+                <Table className="w-full">
+                  <TableHeader className="sticky top-0 z-10 bg-white">
+                    <TableRow className="border-b border-gray-200 hover:bg-white">
+                      <TableHead className="w-[80px] py-3 font-medium text-gray-700">
+                        ID
+                      </TableHead>
+                      <TableHead className="w-[180px] py-3 font-medium text-gray-700">
+                        Name
+                      </TableHead>
+                      <TableHead className="w-[180px] py-3 font-medium text-gray-700">
+                        Start Date
+                      </TableHead>
+                      <TableHead className="w-[130px] py-3 font-medium text-gray-700">
+                        End Date
+                      </TableHead>
+                      <TableHead className="w-[140px] py-3 font-medium text-gray-700">
+                        Status
+                      </TableHead>
+                      <TableHead className="w-[200px] py-3 font-medium text-gray-700">
+                        Product URL
+                      </TableHead>
+                      <TableHead className="w-[120px] py-3 font-medium text-gray-700">
+                        Balance
+                      </TableHead>
+                      <TableHead className="w-[100px] py-3 font-medium text-gray-700">
+                        Offers
+                      </TableHead>
+                      <TableHead className="py-3 text-right font-medium text-gray-700">
+                        <span className="sr-only">Actions</span>
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {campaigns.map((campaign: ICampaign) => (
+                      <TableRow
+                        onClick={() =>
+                          router.push(`/advertiser/campaigns/${campaign.id}`)
                         }
-                        onKeyDown={(e) => {
-                          if (
-                            header.column.getCanSort() &&
-                            (e.key === "Enter" || e.key === " ")
-                          ) {
-                            e.preventDefault()
-                            header.column.getToggleSortingHandler()?.(e)
-                          }
-                        }}
-                        tabIndex={header.column.getCanSort() ? 0 : undefined}
+                        key={campaign.id}
+                        className="cursor-pointer border-b border-gray-200 hover:bg-gray-50"
                       >
-                        <div className="flex items-center gap-1">
-                          <span className="truncate">
-                            {header.isPlaceholder
-                              ? null
-                              : flexRender(
-                                  header.column.columnDef.header,
-                                  header.getContext()
-                                )}
-                          </span>
-                          {header.column.getCanSort() && (
-                            <div className="flex items-center">
-                              {header.column.getIsSorted() === "asc" ? (
-                                <ChevronUpIcon className="size-4 shrink-0 opacity-60" />
-                              ) : header.column.getIsSorted() === "desc" ? (
-                                <ChevronDownIcon className="size-4 shrink-0 opacity-60" />
-                              ) : null}
-                            </div>
-                          )}
-                        </div>
-                        {/* Pin/Unpin column controls with enhanced accessibility */}
-                        {!header.isPlaceholder &&
-                          header.column.getCanPin() &&
-                          (header.column.getIsPinned() ? (
-                            <Button
-                              size="icon"
-                              variant="ghost"
-                              className="-mr-1 size-7 shadow-none"
-                              onClick={() => header.column.pin(false)}
-                              title={`Unpin ${
-                                header.column.columnDef.header as string
-                              } column`}
-                            >
-                              <PinOffIcon
-                                className="opacity-60"
-                                size={16}
-                                aria-hidden="true"
-                              />
-                            </Button>
-                          ) : (
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
+                        <TableCell className="py-3 text-sm font-medium text-muted-foreground">
+                          {campaign.id}
+                        </TableCell>
+                        <TableCell className="py-3 text-sm text-muted-foreground">
+                          {campaign.name}
+                        </TableCell>
+                        <TableCell className="py-3 text-muted-foreground">
+                          {format(new Date(campaign.startDate), "yyyy-MM-dd")}
+                        </TableCell>
+                        <TableCell className="py-3 text-muted-foreground">
+                          {format(new Date(campaign.endDate), "yyyy-MM-dd")}
+                        </TableCell>
+                        <TableCell className="py-3">
+                          <CampaignStatusBadge status={campaign.status} />
+                        </TableCell>
+                        <TableCell className="py-3 text-sm text-muted-foreground">
+                          <a
+                            href={campaign.productUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="block max-w-[180px] truncate text-blue-600 hover:underline"
+                          >
+                            {campaign.productUrl}
+                          </a>
+                        </TableCell>
+                        <TableCell className="py-3 text-sm text-muted-foreground">
+                          ${campaign.balance.toLocaleString()}
+                        </TableCell>
+                        <TableCell className="py-3 text-sm text-muted-foreground">
+                          {campaign.offers.length}
+                        </TableCell>
+                        <TableCell className="py-3 text-right">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <div className="flex justify-end">
                                 <Button
                                   size="icon"
                                   variant="ghost"
-                                  className="-mr-1 size-7 shadow-none"
+                                  className="shadow-none"
+                                  aria-label="Edit item"
                                 >
-                                  <EllipsisIcon
-                                    className="opacity-60"
-                                    size={16}
-                                    aria-hidden="true"
-                                  />
+                                  <EllipsisIcon size={16} aria-hidden="true" />
                                 </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
+                              </div>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuGroup>
                                 <DropdownMenuItem
-                                  onClick={() => header.column.pin("left")}
+                                  onClick={() =>
+                                    router.push(
+                                      `/advertiser/campaigns/${campaign.id}`
+                                    )
+                                  }
                                 >
-                                  <ArrowLeftToLineIcon
-                                    size={16}
-                                    className="opacity-60"
-                                    aria-hidden="true"
-                                  />
-                                  Stick to left
+                                  <span>View details</span>
+                                  <DropdownMenuShortcut>
+                                    ⌘E
+                                  </DropdownMenuShortcut>
                                 </DropdownMenuItem>
-                                <DropdownMenuItem
-                                  onClick={() => header.column.pin("right")}
-                                >
-                                  <ArrowRightToLineIcon
-                                    size={16}
-                                    className="opacity-60"
-                                    aria-hidden="true"
-                                  />
-                                  Stick to right
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          ))}
-                        {header.column.getCanResize() && (
-                          <div
-                            {...{
-                              onDoubleClick: () => header.column.resetSize(),
-                              onMouseDown: header.getResizeHandler(),
-                              onTouchStart: header.getResizeHandler(),
-                              className:
-                                "absolute top-0 h-full w-4 cursor-col-resize user-select-none touch-none -right-2 z-10 flex justify-center before:absolute before:w-px before:inset-y-0 before:bg-border before:-translate-x-px",
-                            }}
-                          />
-                        )}
-                      </div>
-                    </TableHead>
-                  )
-                })}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {isLoading ? (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  Loading...
-                </TableCell>
-              </TableRow>
-            ) : table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
-                  {row.getVisibleCells().map((cell) => {
-                    const { column } = cell
-                    const isPinned = column.getIsPinned()
-                    const isLastLeftPinned =
-                      isPinned === "left" && column.getIsLastColumn("left")
-                    const isFirstRightPinned =
-                      isPinned === "right" && column.getIsFirstColumn("right")
+                              </DropdownMenuGroup>
 
-                    return (
-                      <TableCell
-                        key={cell.id}
-                        className="data-pinned:bg-background/90 data-pinned:backdrop-blur-xs truncate [&[data-pinned=left][data-last-col=left]]:border-r [&[data-pinned=right][data-last-col=right]]:border-l [&[data-pinned][data-last-col]]:border-border"
-                        style={{
-                          ...getPinningStyles(column),
-                        }}
-                        data-pinned={isPinned || undefined}
-                        data-last-col={
-                          isLastLeftPinned
-                            ? "left"
-                            : isFirstRightPinned
-                              ? "right"
-                              : undefined
-                        }
-                      >
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
-                      </TableCell>
-                    )
-                  })}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem className="text-destructive focus:text-destructive">
+                                <span>Delete</span>
+                                <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
 
-      {/* Pagination */}
-      <div className="flex items-center justify-between gap-8">
-        {/* Results per page */}
-        <div className="flex items-center gap-3">
-          <Label htmlFor="rows-per-page" className="max-sm:sr-only">
-            Rows per page
-          </Label>
-          <Select
-            value={pageSize.toString()}
-            onValueChange={(value) => {
-              setPageSize(Number(value))
-              setPageNumber(1)
-            }}
-          >
-            <SelectTrigger
-              id="rows-per-page"
-              className="w-fit whitespace-nowrap"
-            >
-              <SelectValue placeholder="Select number of results" />
-            </SelectTrigger>
-            <SelectContent className="[&_*[role=option]>span]:end-2 [&_*[role=option]>span]:start-auto [&_*[role=option]]:pe-8 [&_*[role=option]]:ps-2">
-              {[5, 10, 25, 50].map((size) => (
-                <SelectItem key={size} value={size.toString()}>
-                  {size}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        {/* Page number information */}
-        <div className="flex grow justify-end whitespace-nowrap text-sm text-muted-foreground">
-          <p
-            className="whitespace-nowrap text-sm text-muted-foreground"
-            aria-live="polite"
-          >
-            <span className="text-foreground">
-              {data?.value ? (pageNumber - 1) * pageSize + 1 : 0}-
-              {data?.value
-                ? Math.min(pageNumber * pageSize, data.value.totalRecords)
-                : 0}
-            </span>{" "}
-            of{" "}
-            <span className="text-foreground">
-              {data?.value?.totalRecords || 0}
-            </span>
-          </p>
-        </div>
+              {/* Pagination Section - Fixed at bottom when scrolling */}
+              <div className="sticky bottom-0 mt-auto border-t border-gray-200 bg-white">
+                {/* Main pagination controls */}
+                <div className="flex items-center justify-between px-4 py-2">
+                  {/* Results per page */}
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-gray-600">Rows per page</span>
+                    <Select
+                      value={pageSize.toString()}
+                      onValueChange={(value) => setPageSize(Number(value))}
+                    >
+                      <SelectTrigger className="h-8 w-14 border-gray-200 text-sm">
+                        <SelectValue placeholder="10" />
+                      </SelectTrigger>
+                      <SelectContent className="text-sm">
+                        <SelectItem value="10">10</SelectItem>
+                        <SelectItem value="25">25</SelectItem>
+                        <SelectItem value="50">50</SelectItem>
+                        <SelectItem value="100">100</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-        {/* Pagination buttons */}
-        <div>
-          <Pagination>
-            <PaginationContent>
-              {/* First page button */}
-              <PaginationItem>
-                <Button
-                  size="icon"
-                  variant="outline"
-                  className="disabled:pointer-events-none disabled:opacity-50"
-                  onClick={() => setPageNumber(1)}
-                  disabled={pageNumber === 1 || isLoading}
-                  aria-label="Go to first page"
-                >
-                  <ChevronFirstIcon size={16} aria-hidden="true" />
-                </Button>
-              </PaginationItem>
-              {/* Previous page button */}
-              <PaginationItem>
-                <Button
-                  size="icon"
-                  variant="outline"
-                  className="disabled:pointer-events-none disabled:opacity-50"
-                  onClick={() => setPageNumber(pageNumber - 1)}
-                  disabled={pageNumber === 1 || isLoading}
-                  aria-label="Go to previous page"
-                >
-                  <ChevronLeftIcon size={16} aria-hidden="true" />
-                </Button>
-              </PaginationItem>
-              {/* Next page button */}
-              <PaginationItem>
-                <Button
-                  size="icon"
-                  variant="outline"
-                  className="disabled:pointer-events-none disabled:opacity-50"
-                  onClick={() => setPageNumber(pageNumber + 1)}
-                  disabled={!data?.value?.hasNextPage || isLoading}
-                  aria-label="Go to next page"
-                >
-                  <ChevronRightIcon size={16} aria-hidden="true" />
-                </Button>
-              </PaginationItem>
-              {/* Last page button */}
-              <PaginationItem>
-                <Button
-                  size="icon"
-                  variant="outline"
-                  className="disabled:pointer-events-none disabled:opacity-50"
-                  onClick={() => setPageNumber(data?.value?.totalPages || 1)}
-                  disabled={!data?.value?.hasNextPage || isLoading}
-                  aria-label="Go to last page"
-                >
-                  <ChevronLastIcon size={16} aria-hidden="true" />
-                </Button>
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
+                  {/* Pagination controls */}
+                  <div className="flex items-center gap-4">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-8 border-gray-200 px-4 text-sm font-medium text-gray-700"
+                      onClick={handlePreviousPage}
+                      disabled={currentPage === 1}
+                    >
+                      Previous
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-8 border-gray-200 px-4 text-sm font-medium text-gray-700"
+                      onClick={handleNextPage}
+                      disabled={currentPage === paginationInfo.last_page}
+                    >
+                      Next
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Bottom status line */}
+                <div className="flex items-center justify-between border-t border-gray-100 bg-gray-50 px-4 py-2 text-xs text-gray-500">
+                  <div>
+                    Viewing {paginationInfo.from || 1}-
+                    {paginationInfo.to ||
+                      Math.min(pageSize, paginationInfo.total || 0)}{" "}
+                    of {paginationInfo.total || 0} results
+                  </div>
+                  <div>
+                    Page {currentPage} of {paginationInfo.last_page || 1}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
-    </>
+    </div>
   )
 }

@@ -1,3 +1,5 @@
+import { OfferStatusEnum } from "@/enums/offfer-status"
+
 export interface IOffer {
   id: number
   campaignId: number
@@ -11,7 +13,7 @@ export interface IOffer {
   commissionRate: null
   orderReturnTime: null
   imageUrl: null
-  status: string
+  status: OfferStatusEnum
   rejectedReason: null
   pubOfferStatus: number
   campaign: null

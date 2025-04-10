@@ -247,13 +247,6 @@ const CampaignForm = () => {
       case 1:
         return (
           <div className="space-y-8">
-            <div>
-              <h2 className="text-2xl font-medium">Campaign Information</h2>
-              <p className="mt-1 text-muted-foreground">
-                Create a new campaign by providing the basic details below.
-              </p>
-            </div>
-
             <div className="space-y-6">
               <FormField
                 control={control}
@@ -344,14 +337,6 @@ const CampaignForm = () => {
       case 2:
         return (
           <div className="space-y-8">
-            <div>
-              <h2 className="text-2xl font-medium">Tracking URL</h2>
-              <p className="mt-1 text-muted-foreground">
-                Configure your tracking parameters to monitor campaign
-                performance effectively.
-              </p>
-            </div>
-
             <TrackingUrlBuilder form={form} />
 
             <div className="flex items-center justify-between pt-4">
@@ -398,10 +383,6 @@ const CampaignForm = () => {
                   </span>
                 </h3>
               </div>
-              <p className="mt-1 text-muted-foreground">
-                Set up the offers for your campaign including pricing, budgets,
-                and conditions.
-              </p>
             </div>
 
             <OfferList form={form} />
@@ -449,13 +430,6 @@ const CampaignForm = () => {
 
         return (
           <div className="space-y-8">
-            <div>
-              <h2 className="text-2xl font-medium">Review & Confirm</h2>
-              <p className="mt-1 text-muted-foreground">
-                Please review your campaign details before final submission.
-              </p>
-            </div>
-
             <div className="space-y-6">
               <div className="rounded-lg border bg-muted/20 p-6">
                 <h3 className="text-lg font-medium">Campaign Details</h3>
@@ -660,6 +634,18 @@ const CampaignForm = () => {
         }}
         className="space-y-10"
       >
+        <div className="border-b border-border pb-6">
+          <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+            <div className="space-y-1">
+              <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+                Create Campaign
+              </h1>
+              <p className="text-sm text-muted-foreground">
+                Create a new campaign by providing the basic details below.
+              </p>
+            </div>
+          </div>
+        </div>
         <div className="grid grid-cols-12 gap-12">
           {/* Stepper (Left Column) */}
           <div className="col-span-12 md:sticky md:top-24 md:col-span-4 md:h-fit md:self-start lg:col-span-3">
