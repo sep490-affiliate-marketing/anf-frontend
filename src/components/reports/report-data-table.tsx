@@ -161,7 +161,7 @@ export function ReportDataTable<TData, TValue>({
               size="sm"
               onClick={() => table.previousPage()}
               disabled={!table.getCanPreviousPage()}
-              className="h-8 w-8 p-0"
+              className="size-8 p-0"
             >
               <ChevronLeft className="size-4" />
             </Button>
@@ -174,7 +174,7 @@ export function ReportDataTable<TData, TValue>({
               size="sm"
               onClick={() => table.nextPage()}
               disabled={!table.getCanNextPage()}
-              className="h-8 w-8 p-0"
+              className="size-8 p-0"
             >
               <ChevronRight className="size-4" />
             </Button>

@@ -1,11 +1,15 @@
 "use client"
 
 import { useState } from "react"
+
 import { useRouter, useSearchParams } from "next/navigation"
-import { CalendarIcon, Filter, Search } from "lucide-react"
+
 import { format } from "date-fns"
+import { CalendarIcon, Filter, Search } from "lucide-react"
+import { DateRange } from "react-day-picker"
 
 import { cn } from "@/lib/utils"
+
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import { Input } from "@/components/ui/input"
@@ -21,7 +25,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { DateRange } from "react-day-picker"
 
 interface ReportFiltersProps {
   onFilterChange?: (filters: any) => void
@@ -130,13 +133,17 @@ export function ReportFilters({
       <div className="flex flex-col gap-4 md:flex-row">
         {/* Search */}
         <div className="flex-1">
-          <Input
-            placeholder="Search..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full"
-            icon={<Search className="size-4" />}
-          />
+          <div className="relative">
+            <Input
+              placeholder="Search..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="peer pe-9 ps-9"
+            />
+            <div className="pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3 text-muted-foreground/80 peer-disabled:opacity-50">
+              <Search className="size-4" />
+            </div>
+          </div>
         </div>
 
         {/* Date Range Picker */}

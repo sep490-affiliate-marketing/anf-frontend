@@ -1,10 +1,24 @@
 "use client"
 
 import Link from "next/link"
-import { BarChart3, CheckCircle, ExternalLink, LineChart, PieChart } from "lucide-react"
+
+import {
+  BarChart3,
+  CheckCircle,
+  ExternalLink,
+  LineChart,
+  PieChart,
+} from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 
 export default function ReportsPage() {
   const reportTypes = [
@@ -31,10 +45,16 @@ export default function ReportsPage() {
     },
     {
       title: "Custom Reports",
-      description: "Create customized reports with the metrics that matter to you",
+      description:
+        "Create customized reports with the metrics that matter to you",
       icon: <PieChart className="size-8 text-primary" />,
       link: "#",
-      metrics: ["Custom Metrics", "Data Export", "Scheduled Reports", "Visualizations"],
+      metrics: [
+        "Custom Metrics",
+        "Data Export",
+        "Scheduled Reports",
+        "Visualizations",
+      ],
       comingSoon: true,
     },
   ]
@@ -103,13 +123,16 @@ export default function ReportsPage() {
           <CardHeader>
             <CardTitle>Need Custom Reports?</CardTitle>
             <CardDescription>
-              We can help you create custom reports tailored to your specific needs
+              We can help you create custom reports tailored to your specific
+              needs
             </CardDescription>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground">
-              Our team can work with you to develop custom reports that provide the exact insights you need for your business. 
-              Contact us to discuss your requirements and we'll create a solution that works for you.
+              Our team can work with you to develop custom reports that provide
+              the exact insights you need for your business. Contact us to
+              discuss your requirements and we&apos;ll create a solution that
+              works for you.
             </p>
           </CardContent>
           <CardFooter>

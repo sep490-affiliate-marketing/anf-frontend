@@ -1,23 +1,93 @@
 "use client"
 
 import { useState } from "react"
+
 import { BarChart3, Download, ExternalLink, LineChart } from "lucide-react"
-import { AreaChart, BarChart, LineChart as RechartsLineChart, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, Area, Bar, Line } from "recharts"
+import {
+  Area,
+  AreaChart,
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Line,
+  LineChart as RechartsLineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts"
 
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+
 import { ReportCard } from "@/components/reports/report-card"
 import { ReportDataTable } from "@/components/reports/report-data-table"
 import { ReportFilters } from "@/components/reports/report-filters"
 
 // Sample data - replace with actual API calls
 const clickData = [
-  { id: "1", date: "2023-06-01", campaign: "Summer Sale", source: "Facebook", country: "US", clicks: 1250, uniqueClicks: 980, ctr: 3.2, cpc: 0.45 },
-  { id: "2", date: "2023-06-02", campaign: "Summer Sale", source: "Google", country: "US", clicks: 980, uniqueClicks: 820, ctr: 2.8, cpc: 0.52 },
-  { id: "3", date: "2023-06-03", campaign: "Back to School", source: "Facebook", country: "CA", clicks: 750, uniqueClicks: 620, ctr: 2.5, cpc: 0.48 },
-  { id: "4", date: "2023-06-04", campaign: "Holiday Special", source: "Direct", country: "UK", clicks: 1100, uniqueClicks: 950, ctr: 3.5, cpc: 0.42 },
-  { id: "5", date: "2023-06-05", campaign: "Spring Collection", source: "Instagram", country: "US", clicks: 890, uniqueClicks: 760, ctr: 2.9, cpc: 0.50 },
+  {
+    id: "1",
+    date: "2023-06-01",
+    campaign: "Summer Sale",
+    source: "Facebook",
+    country: "US",
+    clicks: 1250,
+    uniqueClicks: 980,
+    ctr: 3.2,
+    cpc: 0.45,
+  },
+  {
+    id: "2",
+    date: "2023-06-02",
+    campaign: "Summer Sale",
+    source: "Google",
+    country: "US",
+    clicks: 980,
+    uniqueClicks: 820,
+    ctr: 2.8,
+    cpc: 0.52,
+  },
+  {
+    id: "3",
+    date: "2023-06-03",
+    campaign: "Back to School",
+    source: "Facebook",
+    country: "CA",
+    clicks: 750,
+    uniqueClicks: 620,
+    ctr: 2.5,
+    cpc: 0.48,
+  },
+  {
+    id: "4",
+    date: "2023-06-04",
+    campaign: "Holiday Special",
+    source: "Direct",
+    country: "UK",
+    clicks: 1100,
+    uniqueClicks: 950,
+    ctr: 3.5,
+    cpc: 0.42,
+  },
+  {
+    id: "5",
+    date: "2023-06-05",
+    campaign: "Spring Collection",
+    source: "Instagram",
+    country: "US",
+    clicks: 890,
+    uniqueClicks: 760,
+    ctr: 2.9,
+    cpc: 0.5,
+  },
 ]
 
 const dailyClicksData = [
@@ -67,31 +137,33 @@ const columns = [
   {
     accessorKey: "clicks",
     header: "Clicks",
-    cell: ({ row }) => (
-      <div className="text-right">{row.getValue("clicks").toLocaleString()}</div>
+    cell: ({ row }: { row: any }) => (
+      <div className="text-right">
+        {row.getValue("clicks").toLocaleString()}
+      </div>
     ),
   },
   {
     accessorKey: "uniqueClicks",
     header: "Unique Clicks",
-    cell: ({ row }) => (
-      <div className="text-right">{row.getValue("uniqueClicks").toLocaleString()}</div>
+    cell: ({ row }: { row: any }) => (
+      <div className="text-right">
+        {row.getValue("uniqueClicks").toLocaleString()}
+      </div>
     ),
   },
   {
     accessorKey: "ctr",
     header: "CTR",
-    cell: ({ row }) => (
+    cell: ({ row }: { row: any }) => (
       <div className="text-right">{row.getValue("ctr")}%</div>
     ),
   },
   {
     accessorKey: "cpc",
     header: "CPC",
-    cell: ({ row }) => (
-      <div className="text-right">
-        ${row.getValue("cpc").toFixed(2)}
-      </div>
+    cell: ({ row }: { row: any }) => (
+      <div className="text-right">${row.getValue("cpc").toFixed(2)}</div>
     ),
   },
 ]
@@ -101,9 +173,14 @@ export default function ClickReportPage() {
 
   // Calculate totals for overview cards
   const totalClicks = clickData.reduce((sum, item) => sum + item.clicks, 0)
-  const totalUniqueClicks = clickData.reduce((sum, item) => sum + item.uniqueClicks, 0)
-  const averageCTR = clickData.reduce((sum, item) => sum + item.ctr, 0) / clickData.length
-  const averageCPC = clickData.reduce((sum, item) => sum + item.cpc, 0) / clickData.length
+  const totalUniqueClicks = clickData.reduce(
+    (sum, item) => sum + item.uniqueClicks,
+    0
+  )
+  const averageCTR =
+    clickData.reduce((sum, item) => sum + item.ctr, 0) / clickData.length
+  const averageCPC =
+    clickData.reduce((sum, item) => sum + item.cpc, 0) / clickData.length
 
   const handleExport = () => {
     console.log("Exporting data...")
@@ -131,7 +208,7 @@ export default function ClickReportPage() {
         </div>
       </div>
 
-      <ReportFilters 
+      <ReportFilters
         showCampaignFilter={true}
         showSourceFilter={true}
         showCountryFilter={true}
@@ -215,13 +292,41 @@ export default function ClickReportPage() {
                       margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
                     >
                       <defs>
-                        <linearGradient id="colorClicks" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8} />
-                          <stop offset="95%" stopColor="#8884d8" stopOpacity={0} />
+                        <linearGradient
+                          id="colorClicks"
+                          x1="0"
+                          y1="0"
+                          x2="0"
+                          y2="1"
+                        >
+                          <stop
+                            offset="5%"
+                            stopColor="#8884d8"
+                            stopOpacity={0.8}
+                          />
+                          <stop
+                            offset="95%"
+                            stopColor="#8884d8"
+                            stopOpacity={0}
+                          />
                         </linearGradient>
-                        <linearGradient id="colorUniqueClicks" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#82ca9d" stopOpacity={0.8} />
-                          <stop offset="95%" stopColor="#82ca9d" stopOpacity={0} />
+                        <linearGradient
+                          id="colorUniqueClicks"
+                          x1="0"
+                          y1="0"
+                          x2="0"
+                          y2="1"
+                        >
+                          <stop
+                            offset="5%"
+                            stopColor="#82ca9d"
+                            stopOpacity={0.8}
+                          />
+                          <stop
+                            offset="95%"
+                            stopColor="#82ca9d"
+                            stopOpacity={0}
+                          />
                         </linearGradient>
                       </defs>
                       <XAxis dataKey="date" />
@@ -303,9 +408,7 @@ export default function ClickReportPage() {
           <Card>
             <CardHeader>
               <CardTitle>Click Performance Metrics</CardTitle>
-              <CardDescription>
-                CTR and CPC by campaign
-              </CardDescription>
+              <CardDescription>CTR and CPC by campaign</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="h-[300px]">
@@ -317,7 +420,11 @@ export default function ClickReportPage() {
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="campaign" />
                     <YAxis yAxisId="left" orientation="left" stroke="#8884d8" />
-                    <YAxis yAxisId="right" orientation="right" stroke="#82ca9d" />
+                    <YAxis
+                      yAxisId="right"
+                      orientation="right"
+                      stroke="#82ca9d"
+                    />
                     <Tooltip />
                     <Line
                       yAxisId="left"

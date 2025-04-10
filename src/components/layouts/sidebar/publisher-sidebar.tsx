@@ -7,7 +7,6 @@ import {
   CreditCard,
   LayoutDashboard,
   LifeBuoy,
-  Search,
   Send,
   Settings,
 } from "lucide-react"
