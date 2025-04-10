@@ -119,9 +119,9 @@ const getAccessibleRoutes = (
     },
 
     {
-      title: "Settings",
-      url: "/settings",
-      matchPattern: "settings",
+      title: "Profile",
+      url: "/profile",
+      matchPattern: "profile",
     },
   ]
 

@@ -101,27 +101,24 @@ function OfferBadge({ model }: { model: string }) {
 }
 
 interface CampaignWithJoinStatus extends ICampaign {
-  joined?: boolean
+  // Remove joined property
 }
 
 // Component type definitions
 interface CampaignCardProps {
   campaign: CampaignWithJoinStatus
-  onJoinToggle: (id: number) => void
-  isJoining?: boolean
+  // Remove onJoinToggle and isJoining props
 }
 
 interface CampaignListItemProps {
   campaign: CampaignWithJoinStatus
-  onJoinToggle: (id: number) => void
-  isJoining?: boolean
+  // Remove onJoinToggle and isJoining props
 }
 
 // Component for campaign grid card
 function CampaignCard({
   campaign,
-  onJoinToggle,
-  isJoining,
+  // Remove onJoinToggle and isJoining props
 }: CampaignCardProps) {
   return (
     <Card
@@ -138,11 +135,7 @@ function CampaignCard({
           alt={campaign.name}
           className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
         />
-        {campaign.joined && (
-          <div className="absolute right-3 top-3 rounded-full bg-primary p-1 text-primary-foreground shadow-sm">
-            <BookmarkIcon className="size-4" />
-          </div>
-        )}
+        {/* Remove joined badge */}
       </div>
       <CardHeader className="p-4 pb-0">
         <div className="flex items-center justify-between">
@@ -180,62 +173,16 @@ function CampaignCard({
         </div>
       </CardContent>
       <CardFooter className="border-t p-4">
-        {campaign.joined ? (
-          <div className="flex w-full items-center gap-2">
-            <Button
-              variant="outline"
-              className="flex-1 transition-colors"
-              onClick={() => onJoinToggle(campaign.id)}
-              disabled={isJoining}
-            >
-              {isJoining ? (
-                <>
-                  <span className="mr-1">Processing</span>
-                  <span className="size-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                </>
-              ) : (
-                <>
-                  <XCircle className="mr-1.5 size-4" /> Leave Campaign
-                </>
-              )}
+        <div className="flex w-full items-center gap-2">
+          <Link
+            href={`/publisher/campaigns/${campaign.id}`}
+            className="flex-1"
+          >
+            <Button className="w-full gap-1">
+              View Details <ArrowRight className="size-4" />
             </Button>
-            <Link
-              href={`/publisher/campaigns/${campaign.id}`}
-              className="flex-1"
-            >
-              <Button className="w-full gap-1">
-                View Details <ArrowRight className="size-4" />
-              </Button>
-            </Link>
-          </div>
-        ) : (
-          <div className="flex w-full items-center gap-2">
-            <Link
-              href={`/publisher/campaigns/${campaign.id}`}
-              className="flex-1"
-            >
-              <Button variant="outline" className="w-full">
-                View Details
-              </Button>
-            </Link>
-            <Button
-              className="flex-1 gap-1 transition-colors"
-              onClick={() => onJoinToggle(campaign.id)}
-              disabled={isJoining}
-            >
-              {isJoining ? (
-                <>
-                  <span className="mr-1">Processing</span>
-                  <span className="size-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                </>
-              ) : (
-                <>
-                  Join Campaign <ArrowRight className="size-4" />
-                </>
-              )}
-            </Button>
-          </div>
-        )}
+          </Link>
+        </div>
       </CardFooter>
     </Card>
   )
@@ -244,8 +191,7 @@ function CampaignCard({
 // Component for campaign list item
 function CampaignListItem({
   campaign,
-  onJoinToggle,
-  isJoining,
+  // Remove onJoinToggle and isJoining props
 }: CampaignListItemProps) {
   return (
     <div className="group flex flex-col overflow-hidden rounded-lg border transition-all hover:shadow-md sm:flex-row">
@@ -259,11 +205,7 @@ function CampaignListItem({
           alt={campaign.name}
           className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
         />
-        {campaign.joined && (
-          <div className="absolute right-3 top-3 rounded-full bg-primary p-1 text-primary-foreground shadow-sm">
-            <BookmarkIcon className="size-4" />
-          </div>
-        )}
+        {/* Remove joined badge */}
       </div>
       <div className="flex flex-1 flex-col p-4">
         <div className="flex items-center justify-between">
@@ -305,54 +247,13 @@ function CampaignListItem({
               </p>
             </div>
           </div>
-          {campaign.joined ? (
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                onClick={() => onJoinToggle(campaign.id)}
-                disabled={isJoining}
-                className="transition-colors"
-              >
-                {isJoining ? (
-                  <>
-                    <span className="mr-1">Processing</span>
-                    <span className="size-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                  </>
-                ) : (
-                  <>
-                    <XCircle className="mr-1.5 size-4" /> Leave
-                  </>
-                )}
+          <div className="flex items-center gap-2">
+            <Link href={`/publisher/campaigns/${campaign.id}`}>
+              <Button className="gap-1">
+                View Details <ArrowRight className="size-4" />
               </Button>
-              <Link href={`/publisher/campaigns/${campaign.id}`}>
-                <Button className="gap-1">
-                  View Offers <ArrowRight className="size-4" />
-                </Button>
-              </Link>
-            </div>
-          ) : (
-            <div className="flex items-center gap-2">
-              <Link href={`/publisher/campaigns/${campaign.id}`}>
-                <Button variant="outline">View Details</Button>
-              </Link>
-              <Button
-                className="gap-1 transition-colors"
-                onClick={() => onJoinToggle(campaign.id)}
-                disabled={isJoining}
-              >
-                {isJoining ? (
-                  <>
-                    <span className="mr-1">Processing</span>
-                    <span className="size-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                  </>
-                ) : (
-                  <>
-                    Join Campaign <ArrowRight className="size-4" />
-                  </>
-                )}
-              </Button>
-            </div>
-          )}
+            </Link>
+          </div>
         </div>
       </div>
     </div>
@@ -367,8 +268,7 @@ function CampaignFilters({
   onCategoryChange,
   selectedPricingModel,
   onPricingModelChange,
-  joinedFilter,
-  onJoinedFilterChange,
+  // Remove joinedFilter and onJoinedFilterChange props
 }: {
   searchQuery: string
   onSearchChange: (value: string) => void
@@ -376,8 +276,7 @@ function CampaignFilters({
   onCategoryChange: (value: string) => void
   selectedPricingModel: string
   onPricingModelChange: (value: string) => void
-  joinedFilter: "all" | "joined" | "not-joined"
-  onJoinedFilterChange: (value: "all" | "joined" | "not-joined") => void
+  // Remove joinedFilter and onJoinedFilterChange props
 }) {
   return (
     <div className="">
@@ -439,36 +338,7 @@ function CampaignFilters({
               </SheetHeader>
               <div className="py-6">
                 <div className="space-y-4">
-                  <div>
-                    <h3 className="mb-2 text-sm font-medium">Joined Status</h3>
-                    <div className="flex flex-wrap gap-2">
-                      <Badge
-                        variant={joinedFilter === "all" ? "default" : "outline"}
-                        className="cursor-pointer transition-colors"
-                        onClick={() => onJoinedFilterChange("all")}
-                      >
-                        All
-                      </Badge>
-                      <Badge
-                        variant={
-                          joinedFilter === "joined" ? "default" : "outline"
-                        }
-                        className="cursor-pointer transition-colors"
-                        onClick={() => onJoinedFilterChange("joined")}
-                      >
-                        Joined
-                      </Badge>
-                      <Badge
-                        variant={
-                          joinedFilter === "not-joined" ? "default" : "outline"
-                        }
-                        className="cursor-pointer transition-colors"
-                        onClick={() => onJoinedFilterChange("not-joined")}
-                      >
-                        Not Joined
-                      </Badge>
-                    </div>
-                  </div>
+                  {/* Remove Joined Status filter */}
                   <Separator />
                   <div>
                     <h3 className="mb-2 text-sm font-medium">Categories</h3>
@@ -498,8 +368,7 @@ function CampaignFilters({
 
       {(searchQuery ||
         selectedCategory !== "All" ||
-        selectedPricingModel !== "All" ||
-        joinedFilter !== "all") && (
+        selectedPricingModel !== "All") && (
         <div className="mt-3 flex flex-wrap items-center gap-2 border-t pt-3">
           <span className="text-sm text-muted-foreground">Active filters:</span>
           {searchQuery && (
@@ -538,22 +407,9 @@ function CampaignFilters({
               </button>
             </Badge>
           )}
-          {joinedFilter !== "all" && (
-            <Badge variant="secondary" className="gap-1 pl-2">
-              {joinedFilter === "joined" ? "Joined Only" : "Not Joined Only"}
-              <button
-                type="button"
-                className="ml-1 rounded-full p-0.5 hover:bg-primary-foreground"
-                onClick={() => onJoinedFilterChange("all")}
-              >
-                <XCircle className="size-3" />
-              </button>
-            </Badge>
-          )}
           {(searchQuery ||
             selectedCategory !== "All" ||
-            selectedPricingModel !== "All" ||
-            joinedFilter !== "all") && (
+            selectedPricingModel !== "All") && (
             <Button
               variant="ghost"
               size="sm"
@@ -562,7 +418,6 @@ function CampaignFilters({
                 onSearchChange("")
                 onCategoryChange("All")
                 onPricingModelChange("All")
-                onJoinedFilterChange("all")
               }}
             >
               Clear all
@@ -749,12 +604,10 @@ function CampaignsContent() {
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("All")
   const [selectedPricingModel, setSelectedPricingModel] = useState("All")
-  const [joinedFilter, setJoinedFilter] = useState<
-    "all" | "joined" | "not-joined"
-  >("all")
+  // Remove joinedFilter state
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
   const [sortBy, setSortBy] = useState("recent")
-  const [joiningId, setJoiningId] = useState<number | null>(null)
+  // Remove joiningId state
 
   // Sync URL params with state
   useEffect(() => {
@@ -762,9 +615,7 @@ function CampaignsContent() {
     setSearchQuery(params.get("search") || "")
     setSelectedCategory(params.get("category") || "All")
     setSelectedPricingModel(params.get("model") || "All")
-    setJoinedFilter(
-      (params.get("joined") as "all" | "joined" | "not-joined") || "all"
-    )
+    // Remove joinedFilter sync
     setViewMode((params.get("view") as "grid" | "list") || "grid")
     setSortBy(params.get("sort") || "recent")
   }, [searchParams])
@@ -777,7 +628,7 @@ function CampaignsContent() {
     if (selectedCategory !== "All") params.set("category", selectedCategory)
     if (selectedPricingModel !== "All")
       params.set("model", selectedPricingModel)
-    if (joinedFilter !== "all") params.set("joined", joinedFilter)
+    // Remove joinedFilter URL param
     if (viewMode !== "grid") params.set("view", viewMode)
     if (sortBy !== "recent") params.set("sort", sortBy)
 
@@ -791,7 +642,7 @@ function CampaignsContent() {
     searchQuery,
     selectedCategory,
     selectedPricingModel,
-    joinedFilter,
+    // Remove joinedFilter from dependencies
     viewMode,
     sortBy,
   ])
@@ -815,16 +666,12 @@ function CampaignsContent() {
           (offer) => offer.pricingModel === selectedPricingModel
         )
 
-      const matchesJoinedFilter =
-        joinedFilter === "all" ||
-        (joinedFilter === "joined" && campaign.joined) ||
-        (joinedFilter === "not-joined" && !campaign.joined)
+      // Remove joined filter logic
 
       return (
         matchesSearch &&
         matchesCategory &&
-        matchesPricingModel &&
-        matchesJoinedFilter
+        matchesPricingModel
       )
     }
   )
@@ -845,23 +692,7 @@ function CampaignsContent() {
     return 0
   })
 
-  const handleJoinCampaign = (campaignId: number) => {
-    // Simulate API call with loading state
-    setJoiningId(campaignId)
-
-    // TODO: Implement join campaign functionality with API
-    setTimeout(() => {
-      // Update local state until API is implemented
-      const updatedCampaigns = campaigns.map((camp) =>
-        camp.id === campaignId ? { ...camp, joined: !camp.joined } : camp
-      )
-
-      // Reset loading state
-      setJoiningId(null)
-
-      console.log("Toggled campaign join status:", campaignId)
-    }, 800)
-  }
+  // Remove handleJoinCampaign function
 
   return (
     <div className="space-y-6 p-6">
@@ -869,7 +700,7 @@ function CampaignsContent() {
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Campaigns</h1>
         <p className="text-muted-foreground">
-          Browse and join advertising campaigns to monetize your traffic
+          Browse advertising campaigns to monetize your traffic
         </p>
       </div>
 
@@ -881,8 +712,7 @@ function CampaignsContent() {
         onCategoryChange={setSelectedCategory}
         selectedPricingModel={selectedPricingModel}
         onPricingModelChange={setSelectedPricingModel}
-        joinedFilter={joinedFilter}
-        onJoinedFilterChange={setJoinedFilter}
+        // Remove joinedFilter props
       />
 
       {/* View Controls */}
@@ -923,8 +753,7 @@ function CampaignsContent() {
             <CampaignCard
               key={campaign.id}
               campaign={campaign}
-              onJoinToggle={handleJoinCampaign}
-              isJoining={joiningId === campaign.id}
+              // Remove onJoinToggle and isJoining props
             />
           ))}
         </div>
@@ -934,8 +763,7 @@ function CampaignsContent() {
             <CampaignListItem
               key={campaign.id}
               campaign={campaign}
-              onJoinToggle={handleJoinCampaign}
-              isJoining={joiningId === campaign.id}
+              // Remove onJoinToggle and isJoining props
             />
           ))}
         </div>
