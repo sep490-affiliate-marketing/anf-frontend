@@ -1,9 +1,8 @@
 "use client"
 
+import { errorMessage } from "@/constant/error-message"
 import { AxiosError } from "axios"
 import { toast } from "sonner"
-
-import { errorMessage } from "@/constant/error-message"
 
 /**
  * Extracts error details from an API error
@@ -13,14 +12,14 @@ import { errorMessage } from "@/constant/error-message"
 export function extractApiError(error: unknown) {
   if (error instanceof AxiosError) {
     const errRes = error.response?.data as IBackendErrorRes | undefined
-    
+
     return {
       message: errRes?.message ?? errRes?.details ?? errorMessage.unknown,
       statusCode: errRes?.statusCode ?? error.response?.status ?? 500,
       details: errRes?.details ?? errRes?.message ?? errorMessage.unknown,
     }
   }
-  
+
   return {
     message: errorMessage.unknown,
     statusCode: 500,
@@ -34,13 +33,13 @@ export function extractApiError(error: unknown) {
  */
 export function showApiErrorToast(error: unknown) {
   const { message, statusCode, details } = extractApiError(error)
-  
+
   // Use details if available, otherwise use message
   const displayMessage = details !== errorMessage.unknown ? details : message
-  
+
   // Show toast with status code if available
   toast.error(`Error ${statusCode}: ${displayMessage}`)
-  
+
   return { message, statusCode, details }
 }
 
@@ -51,7 +50,7 @@ export function showApiErrorToast(error: unknown) {
  */
 export function createApiError(error: unknown) {
   const { message, statusCode, details } = extractApiError(error)
-  
+
   return new Error(details || message, {
     cause: {
       statusCode,

@@ -604,7 +604,7 @@ function ViewControls({
                 variant={viewMode === "grid" ? "default" : "outline"}
                 size="icon"
                 onClick={() => setViewMode("grid")}
-                className="h-9 w-9"
+                className="size-9"
               >
                 <GridIcon className="size-4" />
               </Button>
@@ -617,7 +617,7 @@ function ViewControls({
                 variant={viewMode === "list" ? "default" : "outline"}
                 size="icon"
                 onClick={() => setViewMode("list")}
-                className="h-9 w-9"
+                className="size-9"
               >
                 <Layers className="size-4" />
               </Button>

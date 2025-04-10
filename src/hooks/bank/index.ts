@@ -31,12 +31,12 @@ export const useAddBankAccount = () => {
         return data
       } catch (error) {
         // Create a standardized error and throw it
-        throw createApiError(error);
+        throw createApiError(error)
       }
     },
     onError: (error: unknown) => {
       // Show toast notification with error details
       // showApiErrorToast(error);
-    }
+    },
   })
 }

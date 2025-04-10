@@ -34,7 +34,12 @@ export function PersonalInfoTab() {
               <Label htmlFor="email" className="text-sm font-medium">
                 Email Address
               </Label>
-              <Input id="email" type="email" value={user?.email ?? ""} disabled />
+              <Input
+                id="email"
+                type="email"
+                value={user?.email ?? ""}
+                disabled
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="phoneNumber" className="text-sm font-medium">

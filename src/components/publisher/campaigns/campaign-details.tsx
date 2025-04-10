@@ -41,8 +41,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
-import Component from "@/components/comp-541"
-
 // Format currency helper
 const formatVNDCurrency = (amount: number) => {
   return new Intl.NumberFormat("vi-VN", {
@@ -713,7 +711,7 @@ export function CampaignDetails({ campaignId }: { campaignId: number }) {
                   <img
                     src={campaign.campImages[0]}
                     alt={campaign.name}
-                    className="h-full w-full object-cover"
+                    className="size-full object-cover"
                   />
                 ) : (
                   <div className="flex h-full items-center justify-center bg-gray-50">
