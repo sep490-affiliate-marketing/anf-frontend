@@ -67,7 +67,6 @@ export function OfferFormSchema() {
       stepInfo: z
         .string({ required_error: "Step information is required" })
         .min(1, "Step information is required"),
-      
     })
     .refine(
       (data) => {

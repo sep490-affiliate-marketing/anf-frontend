@@ -108,9 +108,7 @@ interface CampaignListItemProps {
 }
 
 // Component for campaign grid card
-function CampaignCard({
-  campaign,
-}: CampaignCardProps) {
+function CampaignCard({ campaign }: CampaignCardProps) {
   return (
     <Card
       key={campaign.id}
@@ -164,10 +162,7 @@ function CampaignCard({
       </CardContent>
       <CardFooter className="border-t p-4">
         <div className="flex w-full items-center gap-2">
-          <Link
-            href={`/publisher/campaigns/${campaign.id}`}
-            className="flex-1"
-          >
+          <Link href={`/publisher/campaigns/${campaign.id}`} className="flex-1">
             <Button className="w-full gap-1">
               View Details <ArrowRight className="size-4" />
             </Button>
@@ -179,9 +174,7 @@ function CampaignCard({
 }
 
 // Component for campaign list item
-function CampaignListItem({
-  campaign,
-}: CampaignListItemProps) {
+function CampaignListItem({ campaign }: CampaignListItemProps) {
   return (
     <div className="group flex flex-col overflow-hidden rounded-lg border transition-all hover:shadow-md sm:flex-row">
       <div className="relative h-48 w-full sm:h-auto sm:w-48">
@@ -619,40 +612,28 @@ function CampaignsContent() {
   // Update URL when filters change
   useEffect(() => {
     updateUrlParams()
-  }, [
-    searchQuery,
-    selectedCategory,
-    selectedPricingModel,
-    viewMode,
-    sortBy,
-  ])
+  }, [searchQuery, selectedCategory, selectedPricingModel, viewMode, sortBy])
 
   const { data: campaignsData, isLoading, error } = useGetActiveCampaigns()
   const campaigns: ICampaign[] = campaignsData?.value?.data || []
 
   // Filter campaigns based on search query and filters
-  const filteredCampaigns = campaigns.filter(
-    (campaign: ICampaign) => {
-      const matchesSearch =
-        campaign.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        campaign.description.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredCampaigns = campaigns.filter((campaign: ICampaign) => {
+    const matchesSearch =
+      campaign.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      campaign.description.toLowerCase().includes(searchQuery.toLowerCase())
 
-      const matchesCategory =
-        selectedCategory === "All" || campaign.categoryName === selectedCategory
+    const matchesCategory =
+      selectedCategory === "All" || campaign.categoryName === selectedCategory
 
-      const matchesPricingModel =
-        selectedPricingModel === "All" ||
-        campaign.offers.some(
-          (offer) => offer.pricingModel === selectedPricingModel
-        )
-
-      return (
-        matchesSearch &&
-        matchesCategory &&
-        matchesPricingModel
+    const matchesPricingModel =
+      selectedPricingModel === "All" ||
+      campaign.offers.some(
+        (offer) => offer.pricingModel === selectedPricingModel
       )
-    }
-  )
+
+    return matchesSearch && matchesCategory && matchesPricingModel
+  })
 
   // Sort campaigns
   const sortedCampaigns = [...filteredCampaigns].sort((a, b) => {
@@ -725,19 +706,13 @@ function CampaignsContent() {
       ) : viewMode === "grid" ? (
         <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3">
           {sortedCampaigns.map((campaign) => (
-            <CampaignCard
-              key={campaign.id}
-              campaign={campaign}
-            />
+            <CampaignCard key={campaign.id} campaign={campaign} />
           ))}
         </div>
       ) : (
         <div className="space-y-4">
           {sortedCampaigns.map((campaign) => (
-            <CampaignListItem
-              key={campaign.id}
-              campaign={campaign}
-            />
+            <CampaignListItem key={campaign.id} campaign={campaign} />
           ))}
         </div>
       )}

@@ -13,7 +13,13 @@ import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 
 type StatusConfig = {
-  variant: "failed" | "canceled" | "pending" | "approved" | "rejected" | "default"
+  variant:
+    | "failed"
+    | "canceled"
+    | "pending"
+    | "approved"
+    | "rejected"
+    | "default"
   icon: LucideIcon
   label: string
 }
@@ -92,4 +98,4 @@ export function TransactionStatusBadge({
       </Badge>
     </div>
   )
-} 
+}

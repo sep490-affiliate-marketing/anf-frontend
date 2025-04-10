@@ -42,6 +42,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { TabsContent } from "@/components/ui/tabs"
+
 import { TransactionStatusBadge } from "@/components/badge/transaction-status-badge"
 
 export function WalletHistoryTab() {
