@@ -1,5 +1,6 @@
 "use client"
 
+import { Suspense } from "react"
 import { useEffect, useState } from "react"
 
 import Link from "next/link"
@@ -739,10 +740,10 @@ function CampaignSkeletons({ viewMode }: { viewMode: "grid" | "list" }) {
   )
 }
 
-// Main page component
-export default function PublisherCampaignsPage() {
-  const router = useRouter()
+// Create a separate component that uses searchParams
+function CampaignsContent() {
   const searchParams = useSearchParams()
+  const router = useRouter()
 
   // State from URL or defaults
   const [searchQuery, setSearchQuery] = useState("")
@@ -950,5 +951,14 @@ export default function PublisherCampaignsPage() {
         </div>
       )}
     </div>
+  )
+}
+
+// Main page component with Suspense
+export default function PublisherCampaignsPage() {
+  return (
+    <Suspense fallback={<CampaignSkeletons viewMode="grid" />}>
+      <CampaignsContent />
+    </Suspense>
   )
 }
