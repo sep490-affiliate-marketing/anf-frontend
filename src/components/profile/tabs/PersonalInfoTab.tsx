@@ -22,19 +22,24 @@ export function PersonalInfoTab() {
               <Label htmlFor="firstName" className="text-sm font-medium">
                 First Name
               </Label>
-              <Input id="firstName" value={user?.firstName ?? ""} />
+              <Input id="firstName" value={user?.firstName ?? ""} readOnly />
             </div>
             <div className="space-y-2">
               <Label htmlFor="lastName" className="text-sm font-medium">
                 Last Name
               </Label>
-              <Input id="lastName" value={user?.lastName ?? ""} />
+              <Input id="lastName" value={user?.lastName ?? ""} readOnly />
             </div>
             <div className="space-y-2">
               <Label htmlFor="email" className="text-sm font-medium">
                 Email Address
               </Label>
-              <Input id="email" type="email" value={user?.email ?? ""} disabled />
+              <Input
+                id="email"
+                type="email"
+                value={user?.email ?? ""}
+                disabled
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="phoneNumber" className="text-sm font-medium">

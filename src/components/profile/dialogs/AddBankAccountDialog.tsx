@@ -8,10 +8,10 @@ import axios from "axios"
 import { Loader2, Plus } from "lucide-react"
 import { toast } from "sonner"
 
-import { showApiErrorToast } from "@/lib/api/error-handler"
-
 import { IBank } from "@/types/bank.type"
 import { BankingInfo } from "@/types/profile"
+
+import { showApiErrorToast } from "@/lib/api/error-handler"
 
 import { useAddBankAccount, useGetBankList } from "@/hooks/bank"
 
@@ -153,7 +153,8 @@ export function AddBankAccountDialog() {
           setIsOpen(false)
         } else if (data) {
           // If we have a response but isSuccess is false
-          const errorMessage = data.details || data.message || "Failed to add bank account"
+          const errorMessage =
+            data.details || data.message || "Failed to add bank account"
           toast.error(`Error ${data.statusCode || 400}: ${errorMessage}`)
           setAddBankAccountError(new Error(errorMessage))
         }

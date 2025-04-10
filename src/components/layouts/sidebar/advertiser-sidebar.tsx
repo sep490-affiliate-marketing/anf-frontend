@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+
 import {
   BarChart3,
   Command,
@@ -89,7 +90,9 @@ const advertiserNavData = {
   ],
 }
 
-export function AdvertiserSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AdvertiserSidebar({
+  ...props
+}: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar
       className="top-[--header-height] !h-[calc(100svh-var(--header-height))]"
@@ -117,7 +120,10 @@ export function AdvertiserSidebar({ ...props }: React.ComponentProps<typeof Side
       <SidebarContent>
         <NavMain items={advertiserNavData.navMain} />
         <NavReports />
-        <NavSecondary items={advertiserNavData.navSecondary} className="mt-auto" />
+        <NavSecondary
+          items={advertiserNavData.navSecondary}
+          className="mt-auto"
+        />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={advertiserNavData.user} />

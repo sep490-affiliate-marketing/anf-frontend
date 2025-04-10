@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+
 import {
   BarChart3,
   Command,
@@ -119,7 +120,9 @@ const adminNavData = {
   ],
 }
 
-export function AdminSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AdminSidebar({
+  ...props
+}: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar
       className="top-[--header-height] !h-[calc(100svh-var(--header-height))]"

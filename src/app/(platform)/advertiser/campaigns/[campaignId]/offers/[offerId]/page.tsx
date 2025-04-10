@@ -10,21 +10,31 @@ import {
   ArrowLeft,
   BarChart3,
   Calendar,
+  Check,
   Clock,
   Copy,
   CreditCard,
   DollarSign,
   FileCode,
   Info,
+  Loader2,
   Megaphone,
   PieChart,
   Settings,
+  User,
+  Users,
+  X,
 } from "lucide-react"
 
 import { formatVNDCurrency } from "@/lib/utils"
 
-import { useGetOfferDetails } from "@/hooks/offer"
+import {
+  useApprovePublisherInOffer,
+  useGetOfferDetails,
+  useGetPublisherInOffer,
+} from "@/hooks/offer"
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -34,7 +44,31 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { Skeleton } from "@/components/ui/skeleton"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Textarea } from "@/components/ui/textarea"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 import { OfferStatusBadge } from "@/components/badge/offer-status-badge"
 import { EmptyTable } from "@/components/data-table/empty-table"
@@ -92,6 +126,9 @@ export default function OfferDetailPage({
   params: paramsPromise,
 }: OfferDetailParams) {
   const [activeTab, setActiveTab] = useState("overview")
+  const [rejectDialogOpen, setRejectDialogOpen] = useState(false)
+  const [selectedPublisher, setSelectedPublisher] = useState<any>(null)
+  const [rejectReason, setRejectReason] = useState("")
 
   // Unwrap params using React.use() as recommended by Next.js
   const params = React.use(paramsPromise)
@@ -102,7 +139,37 @@ export default function OfferDetailPage({
     isLoading,
     isFetching,
   } = useGetOfferDetails(Number(offerId))
+  const { data: publisherList, isLoading: isLoadingPublishers } =
+    useGetPublisherInOffer(Number(offerId))
 
+  const { mutate: approvePublisher, isPending: isApproving } =
+    useApprovePublisherInOffer()
+
+  // Map publishers from API format to the format needed by the UI
+  const [publisherRequests, setPublisherRequests] = useState<any[]>([])
+
+  React.useEffect(() => {
+    if (publisherList) {
+      const formattedPublishers = publisherList.map((publisher) => ({
+        id: publisher.poNo.toString(), // Change this to use poNo
+        name: `${publisher.firstName} ${publisher.lastName}`,
+        requestDate: new Date().toISOString(),
+        email: publisher.email,
+        website: "",
+        status:
+          publisher.pubOfferStatus === 1
+            ? "pending"
+            : publisher.pubOfferStatus === 2
+              ? "approved"
+              : "rejected",
+        avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${publisher.publisherCode}`,
+        description: publisher.publisherCode,
+        trafficSources: publisher.trafficSources || ["Unknown"],
+        poNo: publisher.poNo, // Keep the original poNo for reference
+      }))
+      setPublisherRequests(formattedPublishers)
+    }
+  }, [publisherList])
   // If data isn't loaded yet, use a loading state or fallback
   if (isLoading || isFetching) {
     return (
@@ -121,6 +188,59 @@ export default function OfferDetailPage({
         description={`The requested offer does not exist: ${offerId}`}
         onRefresh={() => {}}
       />
+    )
+  }
+  const handlePublisherStatusChange = (
+    publisher: any,
+    newStatus: "approved" | "rejected"
+  ) => {
+    if (newStatus === "rejected") {
+      setSelectedPublisher(publisher)
+      setRejectDialogOpen(true)
+      return
+    }
+
+    approvePublisher(
+      {
+        poId: publisher.poNo, // Use poNo here
+        status: 2, // 2 for approved
+        rejectReason: "",
+      },
+      {
+        onSuccess: () => {
+          setPublisherRequests(
+            publisherRequests.map((pub) =>
+              pub.id === publisher.id ? { ...pub, status: "approved" } : pub
+            )
+          )
+        },
+      }
+    )
+  }
+
+  const handleRejectConfirm = () => {
+    if (!selectedPublisher || !rejectReason.trim()) return
+
+    approvePublisher(
+      {
+        poId: selectedPublisher.poNo, // Use poNo here
+        status: 3, // 3 for rejected
+        rejectReason: rejectReason,
+      },
+      {
+        onSuccess: () => {
+          setPublisherRequests(
+            publisherRequests.map((pub) =>
+              pub.id === selectedPublisher.id
+                ? { ...pub, status: "rejected" }
+                : pub
+            )
+          )
+          setRejectDialogOpen(false)
+          setRejectReason("")
+          setSelectedPublisher(null)
+        },
+      }
     )
   }
 
@@ -185,6 +305,14 @@ export default function OfferDetailPage({
                 <BarChart3 className="size-4" />
                 Statistics
               </TabsTrigger>
+              <TabsTrigger
+                value="publishers"
+                className="relative gap-2 rounded-none py-2 after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none data-[state=active]:after:bg-primary"
+              >
+                <Users className="size-4" />
+                Publishers
+              </TabsTrigger>
+
               <TabsTrigger
                 value="details"
                 className="relative gap-2 rounded-none py-2 after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none data-[state=active]:after:bg-primary"
@@ -453,8 +581,223 @@ export default function OfferDetailPage({
               </CardContent>
             </Card>
           </TabsContent>
+
+          <TabsContent value="publishers" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Users className="size-5 text-purple-600" />
+                  Publisher Requests
+                </CardTitle>
+                <CardDescription>
+                  Approve or reject publishers who want to join this campaign
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {isLoadingPublishers ? (
+                  <div className="space-y-4">
+                    <Skeleton className="h-12 w-full" />
+                    <Skeleton className="h-12 w-full" />
+                    <Skeleton className="h-12 w-full" />
+                  </div>
+                ) : publisherRequests.length === 0 ? (
+                  <div className="flex h-40 flex-col items-center justify-center space-y-3 rounded-lg border border-dashed">
+                    <div className="bg-primary-50 rounded-full p-3">
+                      <User className="size-6 text-primary" />
+                    </div>
+                    <div className="text-center">
+                      <p className="text-sm font-medium text-gray-900">
+                        No requests
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        There are no pending publisher requests for this
+                        campaign.
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="relative overflow-hidden rounded-lg border">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Publisher</TableHead>
+                          <TableHead>Request Date</TableHead>
+                          <TableHead>Traffic Sources</TableHead>
+                          <TableHead>Description</TableHead>
+                          <TableHead className="w-[100px] text-right">
+                            Actions
+                          </TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {publisherRequests.map((publisher) => (
+                          <TableRow key={publisher.id}>
+                            <TableCell>
+                              <div className="flex items-center gap-3">
+                                <Avatar className="size-8">
+                                  <AvatarImage
+                                    src={publisher.avatar}
+                                    alt={publisher.name}
+                                  />
+                                  <AvatarFallback>
+                                    {publisher.name.slice(0, 2)}
+                                  </AvatarFallback>
+                                </Avatar>
+                                <div>
+                                  <p className="font-medium">
+                                    {publisher.name}
+                                  </p>
+                                  <p className="text-xs text-muted-foreground">
+                                    {publisher.email}
+                                  </p>
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              {format(
+                                new Date(publisher.requestDate),
+                                "dd/MM/yyyy",
+                                {
+                                  locale: vi,
+                                }
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex flex-wrap gap-1">
+                                {publisher.trafficSources.map(
+                                  (source: string) => (
+                                    <Badge
+                                      key={source}
+                                      variant="secondary"
+                                      className="text-xs"
+                                    >
+                                      {source}
+                                    </Badge>
+                                  )
+                                )}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <span className="line-clamp-1">
+                                {publisher.description}
+                              </span>
+                            </TableCell>
+                            <TableCell className="text-right">
+                              {publisher.status === "pending" ? (
+                                <div className="flex justify-end gap-2">
+                                  <TooltipProvider>
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <Button
+                                          size="sm"
+                                          variant="outline"
+                                          className="size-8 p-0 text-red-600 hover:bg-red-50 hover:text-red-700"
+                                          onClick={() =>
+                                            handlePublisherStatusChange(
+                                              publisher,
+                                              "rejected"
+                                            )
+                                          }
+                                          disabled={isApproving}
+                                        >
+                                          <X className="size-4" />
+                                        </Button>
+                                      </TooltipTrigger>
+                                      <TooltipContent>
+                                        <p>Reject request</p>
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  </TooltipProvider>
+                                  <TooltipProvider>
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <Button
+                                          size="sm"
+                                          variant="outline"
+                                          className="size-8 p-0 text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700"
+                                          onClick={() =>
+                                            handlePublisherStatusChange(
+                                              publisher,
+                                              "approved"
+                                            )
+                                          }
+                                          disabled={isApproving}
+                                        >
+                                          {isApproving ? (
+                                            <Loader2 className="size-4 animate-spin" />
+                                          ) : (
+                                            <Check className="size-4" />
+                                          )}
+                                        </Button>
+                                      </TooltipTrigger>
+                                      <TooltipContent>
+                                        <p>Approve request</p>
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  </TooltipProvider>
+                                </div>
+                              ) : (
+                                <Badge
+                                  variant="outline"
+                                  className={
+                                    publisher.status === "approved"
+                                      ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                                      : "border-red-200 bg-red-50 text-red-700"
+                                  }
+                                >
+                                  {publisher.status}
+                                </Badge>
+                              )}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
         </Tabs>
       </div>
+      <Dialog open={rejectDialogOpen} onOpenChange={setRejectDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Reject Publisher</DialogTitle>
+            <DialogDescription>
+              Please provide a reason for rejecting this publisher. This will be
+              visible to the publisher.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <Textarea
+              placeholder="Enter rejection reason..."
+              value={rejectReason}
+              onChange={(e) => setRejectReason(e.target.value)}
+              className="min-h-[100px]"
+            />
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setRejectDialogOpen(false)
+                setRejectReason("")
+                setSelectedPublisher(null)
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleRejectConfirm}
+              disabled={!rejectReason.trim() || isApproving}
+            >
+              {isApproving ? "Rejecting..." : "Reject Publisher"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
