@@ -1,7 +1,9 @@
+"use client"
+
 import Footer from "@/components/layouts/footer"
 import { SiteHeader } from "@/components/layouts/site-header"
 
-export default async function PlatformLayout({
+export default function PlatformLayout({
   children,
 }: {
   children: React.ReactNode

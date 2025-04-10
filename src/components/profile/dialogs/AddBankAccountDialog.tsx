@@ -4,8 +4,11 @@ import { useEffect, useState } from "react"
 
 import Image from "next/image"
 
-import axios, { AxiosError } from "axios"
+import axios from "axios"
 import { Loader2, Plus } from "lucide-react"
+import { toast } from "sonner"
+
+import { showApiErrorToast } from "@/lib/api/error-handler"
 
 import { IBank } from "@/types/bank.type"
 import { BankingInfo } from "@/types/profile"
@@ -98,11 +101,11 @@ export function AddBankAccountDialog() {
 
       setAccountHolderName(data.data.ownerName)
     } catch (error) {
-      setLookupError(
-        error instanceof AxiosError
-          ? error.response?.data?.error
-          : "Failed to lookup account123"
-      )
+      // Show toast notification with error details
+      const { message } = showApiErrorToast(error)
+
+      // Set the error message for UI display
+      setLookupError(message)
     } finally {
       setIsLookingUpAccount(false)
     }
@@ -135,22 +138,34 @@ export function AddBankAccountDialog() {
         accountName: accountHolderName,
         bankingNo: bankingInfo.accountNumber,
         bankingCode: bankingInfo.bankName,
-        bankingName: selectedBank.name,
+        bankingName: selectedBank.short_name,
       },
     ]
 
     // Call the mutation to add the bank account
     addBankAccount(bankAccountData, {
-      onSuccess: () => {
-        // Close the dialog on success
-        setIsOpen(false)
+      onSuccess: (data) => {
+        // Check if the response indicates success
+        if (data?.isSuccess) {
+          // Show success toast
+          toast.success("Bank account added successfully")
+          // Close the dialog on success
+          setIsOpen(false)
+        } else if (data) {
+          // If we have a response but isSuccess is false
+          const errorMessage = data.details || data.message || "Failed to add bank account"
+          toast.error(`Error ${data.statusCode || 400}: ${errorMessage}`)
+          setAddBankAccountError(new Error(errorMessage))
+        }
       },
+      // Error handling is now done in the hook's onError callback
       onError: (error) => {
-        setAddBankAccountError(
-          error instanceof Error
-            ? error
-            : new Error("Failed to add bank account")
-        )
+        // Still set the local error state for UI display
+        if (error instanceof Error) {
+          setAddBankAccountError(error)
+        } else {
+          setAddBankAccountError(new Error("Failed to add bank account"))
+        }
       },
     })
   }

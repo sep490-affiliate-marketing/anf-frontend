@@ -22,19 +22,19 @@ export function PersonalInfoTab() {
               <Label htmlFor="firstName" className="text-sm font-medium">
                 First Name
               </Label>
-              <Input id="firstName" />
+              <Input id="firstName" value={user?.firstName ?? ""} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="lastName" className="text-sm font-medium">
                 Last Name
               </Label>
-              <Input id="lastName" />
+              <Input id="lastName" value={user?.lastName ?? ""} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="email" className="text-sm font-medium">
                 Email Address
               </Label>
-              <Input id="email" type="email" />
+              <Input id="email" type="email" value={user?.email ?? ""} disabled />
             </div>
             <div className="space-y-2">
               <Label htmlFor="phoneNumber" className="text-sm font-medium">
@@ -43,7 +43,7 @@ export function PersonalInfoTab() {
               <Input
                 id="phoneNumber"
                 type="tel"
-                value={user?.phoneNumber || ""}
+                value={user?.phoneNumber ?? ""}
                 placeholder="Enter your phone number"
                 readOnly
               />

@@ -3,6 +3,7 @@ import { useMutation, useQuery } from "@tanstack/react-query"
 import axios from "axios"
 
 import apiClient from "@/lib/api/client"
+import { createApiError } from "@/lib/api/error-handler"
 
 export const useGetBankList = () => {
   return useQuery({
@@ -29,8 +30,13 @@ export const useAddBankAccount = () => {
         )
         return data
       } catch (error) {
-        return undefined
+        // Create a standardized error and throw it
+        throw createApiError(error);
       }
     },
+    onError: (error: unknown) => {
+      // Show toast notification with error details
+      // showApiErrorToast(error);
+    }
   })
 }
