@@ -1,7 +1,5 @@
 "use client"
 
-import Image from "next/image"
-
 import { motion, useScroll, useTransform } from "framer-motion"
 import { ArrowRight, ArrowUpRight, CheckCircle2, Sparkles } from "lucide-react"
 import {
@@ -203,36 +201,6 @@ export default function HeroSection() {
                   <ArrowUpRight className="size-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
                 </motion.span>
               </Button>
-            </motion.div>
-
-            <motion.div className="mt-12 w-full sm:mt-20" variants={fadeInUp}>
-              <p className="mb-6 text-center text-xs font-medium text-gray-500 sm:mb-8 sm:text-left sm:text-sm">
-                Trusted by leading brands worldwide
-              </p>
-              <div className="mx-auto grid max-w-[280px] grid-cols-2 items-center justify-center gap-8 sm:mx-0 sm:max-w-none sm:grid-cols-4 sm:gap-x-12 sm:gap-y-8">
-                {[
-                  "samsung.png",
-                  "pierre-cardin.jpg",
-                  "pnj.png",
-                  "viettelpay.png",
-                ].map((logo, index) => (
-                  <motion.div
-                    key={logo}
-                    className="group relative mx-auto size-16 sm:mx-0 sm:h-16 sm:w-14"
-                    whileHover={{ y: -2 }}
-                  >
-                    <div className="absolute inset-0 rounded-lg bg-white/50 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                    <Image
-                      src={`/partners/${logo}`}
-                      alt={`Partner ${index + 1}`}
-                      className="object-contain mix-blend-luminosity transition-all duration-300 group-hover:mix-blend-normal"
-                      fill
-                      sizes="(max-width: 640px) 120px, 200px"
-                      priority={index < 2}
-                    />
-                  </motion.div>
-                ))}
-              </div>
             </motion.div>
           </motion.div>
 

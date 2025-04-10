@@ -12,16 +12,4 @@ export interface IWalletTransaction {
   createdAt: string
 }
 
-export interface IGetWalletHistoryResponse {
-  isSuccess: boolean
-  message: string
-  value: {
-    pageNumber: number
-    pageSize: number
-    totalPages: number
-    totalRecords: number
-    data: IWalletTransaction[]
-    hasNextPage: boolean
-    hasPreviousPage: boolean
-  }
-}
+export type IGetWalletHistoryResponse = IPaginationResponse<IWalletTransaction>
