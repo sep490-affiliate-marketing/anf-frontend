@@ -109,9 +109,9 @@ export default function ReportsPage() {
                   Coming Soon
                 </Button>
               ) : (
-                <Button asChild className="w-full">
-                  <Link href={report.link}>View Reports</Link>
-                </Button>
+                <Link href={report.link} className="w-full">
+                  <Button className="w-full">View Reports</Button>
+                </Link>
               )}
             </CardFooter>
           </Card>
