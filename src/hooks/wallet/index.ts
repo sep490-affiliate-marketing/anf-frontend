@@ -55,7 +55,7 @@ export const useGetWalletHistory = (
         )
         return data
       } catch (error) {
-        return undefined
+        return null
       }
     },
   })
