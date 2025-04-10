@@ -1,6 +1,9 @@
 "use client"
 
+import { Suspense } from "react"
 import { useState } from "react"
+
+import { useSearchParams } from "next/navigation"
 
 import {
   BarChart3,
@@ -161,12 +164,10 @@ const columns = [
     cell: ({ row }: { row: any }) => (
       <div className="text-right">
         $
-        {row
-          .getValue("revenue")
-          .toLocaleString(undefined, {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })}
+        {row.getValue("revenue").toLocaleString(undefined, {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })}
       </div>
     ),
   },
@@ -176,12 +177,10 @@ const columns = [
     cell: ({ row }: { row: any }) => (
       <div className="text-right">
         $
-        {row
-          .getValue("cost")
-          .toLocaleString(undefined, {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })}
+        {row.getValue("cost").toLocaleString(undefined, {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })}
       </div>
     ),
   },
@@ -203,7 +202,8 @@ const columns = [
   },
 ]
 
-export default function ConversionReportPage() {
+function ConversionReportContent() {
+  const searchParams = useSearchParams()
   const [activeTab, setActiveTab] = useState("overview")
 
   // Calculate totals for overview cards
@@ -505,5 +505,20 @@ export default function ConversionReportPage() {
         </TabsContent>
       </Tabs>
     </div>
+  )
+}
+
+export default function ConversionReportPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="animate-pulse space-y-6">
+          <div className="h-8 w-48 rounded bg-muted" />
+          <div className="h-[200px] rounded bg-muted" />
+        </div>
+      }
+    >
+      <ConversionReportContent />
+    </Suspense>
   )
 }

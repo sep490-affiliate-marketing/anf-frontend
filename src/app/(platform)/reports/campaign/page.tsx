@@ -1,6 +1,9 @@
 "use client"
 
+import { Suspense } from "react"
 import { useState } from "react"
+
+import { useSearchParams } from "next/navigation"
 
 import { BarChart3, LineChart, PieChart, TrendingUp } from "lucide-react"
 import {
@@ -153,12 +156,10 @@ const columns = [
     cell: ({ row }: { row: any }) => (
       <div className="text-right">
         $
-        {row
-          .getValue("spent")
-          .toLocaleString(undefined, {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })}
+        {row.getValue("spent").toLocaleString(undefined, {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })}
       </div>
     ),
   },
@@ -189,18 +190,17 @@ const columns = [
     cell: ({ row }: { row: any }) => (
       <div className="text-right">
         $
-        {row
-          .getValue("revenue")
-          .toLocaleString(undefined, {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })}
+        {row.getValue("revenue").toLocaleString(undefined, {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })}
       </div>
     ),
   },
 ]
 
-export default function CampaignReportPage() {
+function CampaignReportContent() {
+  const searchParams = useSearchParams()
   const [activeTab, setActiveTab] = useState("overview")
 
   // Calculate totals for overview cards
@@ -523,5 +523,26 @@ export default function CampaignReportPage() {
         </TabsContent>
       </Tabs>
     </div>
+  )
+}
+
+// Main page component with Suspense
+export default function CampaignReportPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="animate-pulse space-y-6">
+          <div className="h-8 w-48 rounded bg-muted" />
+          <div className="h-[200px] rounded bg-muted" />
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="h-32 rounded bg-muted" />
+            ))}
+          </div>
+        </div>
+      }
+    >
+      <CampaignReportContent />
+    </Suspense>
   )
 }
