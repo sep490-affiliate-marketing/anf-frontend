@@ -43,6 +43,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { TabsContent } from "@/components/ui/tabs"
+import { TransactionStatusBadge } from "@/components/badge/transaction-status-badge"
 
 export function WalletHistoryTab() {
   const { user } = useAuth()
@@ -58,7 +59,7 @@ export function WalletHistoryTab() {
 
   // Get transaction type based on amount
   const getTransactionType = (transaction: IWalletTransaction) => {
-    return transaction.amount >= 0 ? "credit" : "debit"
+    return transaction.isWithdrawal ? "withdrawal" : "deposit"
   }
 
   // Handle pagination
@@ -92,7 +93,7 @@ export function WalletHistoryTab() {
   return (
     <TabsContent value="walletHistory" className="mt-0 space-y-8 pb-6">
       {/* Summary Cards */}
-      <div className="grid gap-4 md:grid-cols-3">
+      {/* <div className="grid gap-4 md:grid-cols-3">
         <div className="rounded-lg bg-gradient-to-br from-white to-gray-50 p-6 shadow-sm">
           <div className="text-sm font-medium text-muted-foreground">
             Balance
@@ -132,7 +133,7 @@ export function WalletHistoryTab() {
             Processing transactions
           </div>
         </div>
-      </div>
+      </div> */}
 
       <div className="overflow-hidden rounded-xl bg-white shadow-sm">
         <div className="border-b px-6 py-5">
@@ -309,7 +310,7 @@ export function WalletHistoryTab() {
                     "h:mm a"
                   )
                   const type = getTransactionType(transaction)
-                  const isCredit = type === "credit"
+                  const isWithdrawal = transaction.isWithdrawal
 
                   return (
                     <TableRow
@@ -329,18 +330,18 @@ export function WalletHistoryTab() {
                           <div
                             className={cn(
                               "flex size-8 shrink-0 items-center justify-center rounded-full",
-                              isCredit ? "bg-green-50" : "bg-blue-50"
+                              isWithdrawal ? "bg-blue-50" : "bg-green-50"
                             )}
                           >
-                            {isCredit ? (
-                              <ArrowDownToLine className="size-4 text-green-600" />
-                            ) : (
+                            {isWithdrawal ? (
                               <ArrowUpFromLine className="size-4 text-blue-600" />
+                            ) : (
+                              <ArrowDownToLine className="size-4 text-green-600" />
                             )}
                           </div>
                           <div>
                             <div className="font-medium">
-                              {isCredit ? "Payment received" : "Payment sent"}
+                              {isWithdrawal ? "Withdrawal" : "Deposit"}
                             </div>
                             <div className="text-xs text-muted-foreground">
                               Transaction #{transaction.id}
@@ -351,20 +352,15 @@ export function WalletHistoryTab() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge
-                          variant="outline"
-                          className="border-0 bg-green-50 px-2 py-1 text-xs font-medium text-green-700"
-                        >
-                          Completed
-                        </Badge>
+                        <TransactionStatusBadge status={transaction.status} />
                       </TableCell>
                       <TableCell
                         className={cn(
                           "pr-6 text-right font-medium",
-                          isCredit ? "text-green-600" : "text-blue-600"
+                          isWithdrawal ? "text-blue-600" : "text-green-600"
                         )}
                       >
-                        {isCredit ? "+" : "-"}
+                        {isWithdrawal ? "-" : "+"}
                         {formatVNDCurrency(Math.abs(transaction.amount))}
                       </TableCell>
                     </TableRow>
