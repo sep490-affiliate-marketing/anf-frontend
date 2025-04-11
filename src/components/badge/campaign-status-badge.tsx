@@ -1,5 +1,13 @@
 import { CampaignStatusEnum } from "@/enums/campaign-status"
-import { AlertCircle, CheckCircle, Clock, HelpCircle } from "lucide-react"
+import {
+  AlertCircle,
+  CheckCircle,
+  Clock,
+  FileEdit,
+  HelpCircle,
+  PlayCircle,
+  TimerOff,
+} from "lucide-react"
 import { type LucideIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -7,17 +15,26 @@ import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 
 type StatusConfig = {
-  variant: "pending" | "active" | "rejected" | "default" | "verified"
+  variant:
+    | "pending"
+    | "started"
+    | "rejected"
+    | "default"
+    | "verified"
+    | "drafted"
+    | "ended"
   icon: LucideIcon
   label: string
 }
 
 const STATUS_VARIANTS = {
   pending: "bg-amber-50 text-amber-700 border-amber-200",
-  active: "bg-purple-50 text-purple-700 border-purple-200",
+  started: "bg-cyan-50 text-cyan-700 border-cyan-200",
   rejected: "bg-red-50 text-red-700 border-red-200",
   default: "bg-gray-50 text-gray-700 border-gray-200",
   verified: "bg-green-50 text-green-700 border-green-200",
+  drafted: "bg-blue-50 text-blue-700 border-blue-200",
+  ended: "bg-slate-50 text-slate-700 border-slate-200",
 } as const
 
 export function CampaignStatusBadge({
@@ -29,17 +46,29 @@ export function CampaignStatusBadge({
 }) {
   const getStatusConfig = (status: CampaignStatusEnum): StatusConfig => {
     switch (status) {
+      case CampaignStatusEnum.DRAFTED:
+        return {
+          variant: "drafted",
+          icon: FileEdit,
+          label: "Drafted",
+        }
       case CampaignStatusEnum.PENDING:
         return {
           variant: "pending",
           icon: Clock,
           label: "Pending",
         }
-      case CampaignStatusEnum.ACTIVE:
+      case CampaignStatusEnum.STARTED:
         return {
-          variant: "active",
-          icon: CheckCircle,
-          label: "Active",
+          variant: "started",
+          icon: PlayCircle,
+          label: "Started",
+        }
+      case CampaignStatusEnum.ENDED:
+        return {
+          variant: "ended",
+          icon: TimerOff,
+          label: "Ended",
         }
       case CampaignStatusEnum.REJECTED:
         return {

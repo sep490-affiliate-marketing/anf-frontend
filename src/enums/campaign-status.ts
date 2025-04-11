@@ -1,6 +1,8 @@
 export enum CampaignStatusEnum {
+  DRAFTED = "Drafted",
   PENDING = "Pending",
-  ACTIVE = "Active",
-  REJECTED = "Rejected",
   VERIFIED = "Verified",
+  STARTED = "Started",
+  ENDED = "Ended",
+  REJECTED = "Rejected",
 }
