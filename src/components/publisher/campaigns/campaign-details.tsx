@@ -173,9 +173,6 @@ export function CampaignDetails({ campaignId }: { campaignId: number }) {
 
   const handleJoinOffer = (offerId: number) => {
     joinOffer(offerId, {
-      onSuccess: () => {
-        toast.success("Successfully joined the offer")
-      },
       onError: () => {
         toast.error("Failed to join the offer. Please try again.")
       },

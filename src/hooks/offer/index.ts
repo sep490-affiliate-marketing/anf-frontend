@@ -1,4 +1,4 @@
-import { offerQueryKeys } from "@/constant/react-query"
+import { campaignQueryKeys, offerQueryKeys } from "@/constant/react-query"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 
@@ -57,7 +57,7 @@ export const useJoinOffer = (campaignId: number) => {
       if (data.isSuccess) {
         toast.success("Offer joined successfully")
         queryClient.invalidateQueries({
-          queryKey: ["campaignDetailForPublisher", campaignId],
+          queryKey: campaignQueryKeys.publisher.details(campaignId),
         })
       } else {
         toast.error(data.message || "Failed to join offer")
