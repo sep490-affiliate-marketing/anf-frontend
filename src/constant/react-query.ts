@@ -110,3 +110,37 @@ export const walletQueryKeys = {
     ] as const,
   deposit: () => [...walletQueryKeys.origin, "deposit"] as const,
 }
+
+export const statisticQueryKeys = {
+  origin: ["statistics"] as const,
+
+  advertiser: {
+    offerById: (offerId: string) =>
+      [...statisticQueryKeys.origin, "advertiser", "offer", offerId] as const,
+    offerByCode: (advertiserCode: string) =>
+      [
+        ...statisticQueryKeys.origin,
+        "advertiser",
+        advertiserCode,
+        "offer",
+      ] as const,
+  },
+
+  publisher: {
+    offerById: (publisherCode: string, offerId: string) =>
+      [
+        ...statisticQueryKeys.origin,
+        "publisher",
+        publisherCode,
+        "offer",
+        offerId,
+      ] as const,
+    offerByCode: (publisherCode: string) =>
+      [
+        ...statisticQueryKeys.origin,
+        "publisher",
+        publisherCode,
+        "offer",
+      ] as const,
+  },
+}
