@@ -391,11 +391,6 @@ export default function ReportsPage() {
                           axisLine={false}
                           stroke="hsl(var(--muted-foreground))"
                           fontSize={12}
-                          tickFormatter={(value) =>
-                            value.toString().length > 3
-                              ? `${value / 1000}k`
-                              : value
-                          }
                         />
                         <Tooltip
                           cursor={{ fill: "hsl(var(--muted))" }}
@@ -807,11 +802,6 @@ export default function ReportsPage() {
                             axisLine={false}
                             stroke="hsl(var(--muted-foreground))"
                             fontSize={12}
-                            tickFormatter={(value) =>
-                              value.toString().length > 3
-                                ? `${value / 1000}k`
-                                : value
-                            }
                           />
                           <Tooltip
                             cursor={{ fill: "hsl(var(--muted))" }}
