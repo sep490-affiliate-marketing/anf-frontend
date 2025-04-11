@@ -14,6 +14,7 @@ export interface IAdvertiserOfferStatistics {
   conversionCount: number
   conversionRate: number
   pullbackCount: number
+  publisherCount: number
   revenue: number
 }
 

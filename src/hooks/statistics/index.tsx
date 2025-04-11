@@ -24,7 +24,7 @@ export const useGetAdvertiserOfferStatistics = (offerId: string) => {
       try {
         const { data } =
           await apiClient.get<IGetAdvertiserOfferStatisticsResponse>(
-            `/api/statistic/advertiser/offer/${offerId}`
+            `/statistic/advertiser/offer/${offerId}`
           )
         return {
           isSuccess: true,
@@ -58,7 +58,7 @@ export const useGenerateAdvertiserOfferStatistics = () => {
     mutationFn: async (offerId: string) => {
       try {
         const { data } = await apiClient.post<IGenerateStatisticsResponse>(
-          `/api/statistic/advertiser/offer/${offerId}`
+          `/statistic/advertiser/offer/${offerId}`
         )
         return data
       } catch (error) {
@@ -98,7 +98,7 @@ export const useGetAdvertiserOfferStatisticsByCode = (
       try {
         const { data } =
           await apiClient.get<IGetAdvertiserOfferStatisticsResponse>(
-            `/api/statistic/advertiser/${advertiserCode}/offer`
+            `/statistic/advertiser/${advertiserCode}/offer`
           )
         return {
           isSuccess: true,
@@ -132,7 +132,7 @@ export const useGenerateAdvertiserOfferStatisticsByCode = () => {
     mutationFn: async (advertiserCode: string) => {
       try {
         const { data } = await apiClient.post<IGenerateStatisticsResponse>(
-          `/api/statistic/advertiser/${advertiserCode}/offer`
+          `/statistic/advertiser/${advertiserCode}/offer`
         )
         return data
       } catch (error) {
@@ -173,7 +173,7 @@ export const useGetPublisherOfferStatistics = (
       try {
         const { data } =
           await apiClient.get<IGetPublisherOfferStatisticsResponse>(
-            `/api/statistic/publisher/${publisherCode}/offer/${offerId}`
+            `/statistic/publisher/${publisherCode}/offer/${offerId}`
           )
         return {
           isSuccess: true,
@@ -213,7 +213,7 @@ export const useGeneratePublisherOfferStatistics = () => {
     }) => {
       try {
         const { data } = await apiClient.post<IGenerateStatisticsResponse>(
-          `/api/statistic/publisher/${publisherCode}/offer/${offerId}`
+          `/statistic/publisher/${publisherCode}/offer/${offerId}`
         )
         return { data, publisherCode, offerId }
       } catch (error) {
@@ -258,7 +258,7 @@ export const useGetPublisherOfferStatisticsByCode = (publisherCode: string) => {
       try {
         const { data } =
           await apiClient.get<IGetPublisherOfferStatisticsResponse>(
-            `/api/statistic/publisher/${publisherCode}/offer`
+            `/statistic/publisher/${publisherCode}/offer`
           )
         return {
           isSuccess: true,
@@ -292,7 +292,7 @@ export const useGeneratePublisherOfferStatisticsByCode = () => {
     mutationFn: async (publisherCode: string) => {
       try {
         const { data } = await apiClient.post<IGenerateStatisticsResponse>(
-          `/api/statistic/publisher/${publisherCode}/offer`
+          `/statistic/publisher/${publisherCode}/offer`
         )
         return { data, publisherCode }
       } catch (error) {
