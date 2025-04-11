@@ -5,6 +5,7 @@ import Link from "next/link"
 import { env } from "@/env"
 import { useAuth } from "@/providers/auth-provider"
 import { differenceInDays, format } from "date-fns"
+import { vi } from "date-fns/locale"
 import {
   Calendar,
   ChevronLeft,
@@ -42,7 +43,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { vi } from "date-fns/locale"
 
 interface ExtendedCampaign extends ICampaign {
   joined?: boolean
@@ -227,27 +227,27 @@ export function CampaignDetails({ campaignId }: { campaignId: number }) {
   // Generate timeline items
   const timelineItems = [
     {
-      date: format(startDate, "dd/mm/yyyy", { locale: vi, }),
+      date: format(startDate, "dd/MM/yyyy", { locale: vi }),
       title: "Campaign Starts",
       content: "Campaign officially begins",
       isCompleted: now >= startDate,
     },
     ...campaign.offers.flatMap((offer) => [
       {
-        date: format(new Date(offer.startDate), "dd/mm/yyyy", { locale: vi, }),
+        date: format(new Date(offer.startDate), "dd/MM/yyyy", { locale: vi }),
         title: `${offer.pricingModel} Offer Starts`,
         content: `${offer.description} begins`,
         isCompleted: now >= new Date(offer.startDate),
       },
       {
-        date: format(new Date(offer.endDate), "dd/mm/yyyy", { locale: vi, }),
+        date: format(new Date(offer.endDate), "dd/MM/yyyy", { locale: vi }),
         title: `${offer.pricingModel} Offer Ends`,
         content: `${offer.description} concludes`,
         isCompleted: now >= new Date(offer.endDate),
       },
     ]),
     {
-      date: format(endDate, "dd/mm/yyyy", { locale: vi, }),
+      date: format(endDate, "dd/MM/yyyy", { locale: vi }),
       title: "Campaign Ends",
       content: "Campaign concludes",
       isCompleted: now >= endDate,
@@ -295,8 +295,8 @@ export function CampaignDetails({ campaignId }: { campaignId: number }) {
                   <div className="flex items-center gap-2">
                     <Calendar className="size-4 text-gray-400" />
                     <p className="text-sm text-gray-500">
-                      {format(startDate, "dd/mm/yyyy", { locale: vi, })} —{" "}
-                      {format(endDate, "dd/mm/yyyy", { locale: vi, })}
+                      {format(startDate, "dd/MM/yyyy", { locale: vi })} —{" "}
+                      {format(endDate, "dd/MM/yyyy", { locale: vi })}
                     </p>
                   </div>
                   <div className="mt-4">
@@ -591,8 +591,8 @@ export function CampaignDetails({ campaignId }: { campaignId: number }) {
                 <div>
                   <p className="text-xs text-gray-500">Campaign Period</p>
                   <p className="text-sm">
-                    {format(startDate, "dd/mm/yyyy", { locale: vi, })} —{" "}
-                    {format(endDate, "dd/mm/yyyy", { locale: vi, })}
+                    {format(startDate, "dd/MM/yyyy", { locale: vi })} —{" "}
+                    {format(endDate, "dd/MM/yyyy", { locale: vi })}
                   </p>
                 </div>
               </li>

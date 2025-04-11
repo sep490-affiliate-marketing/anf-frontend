@@ -5,6 +5,7 @@ import Image from "next/image"
 import { env } from "@/env"
 import { useAuth } from "@/providers/auth-provider"
 import { format } from "date-fns"
+import { vi } from "date-fns/locale"
 
 import { useGetPublisherCampaigns } from "@/hooks/campaign"
 
@@ -19,8 +20,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { CopyToClipboardTextarea } from "@/components/ui/textarea/copy-to-clipboard-textarea"
-import { formatVNDCurrency } from '../../../../../lib/utils';
-import { vi } from "date-fns/locale"
+
+import { formatVNDCurrency } from "../../../../../lib/utils"
 
 export default function JoinedCampaignsPage() {
   const { user } = useAuth()
@@ -82,11 +83,23 @@ export default function JoinedCampaignsPage() {
                   </p>
                   <div className="flex flex-wrap gap-2">
                     <Badge variant="secondary">{offer.pricingModel}</Badge>
-                    <Badge variant="outline">Bid: {formatVNDCurrency(offer.bid ?? 0)}</Badge>
+                    <Badge variant="outline">
+                      Bid: {formatVNDCurrency(offer.bid ?? 0)}
+                    </Badge>
                   </div>
                   <div className="text-sm text-gray-500">
-                    <p>Start: {format(new Date(offer.startDate), "dd/mm/yyyy", { locale: vi, })}</p>
-                    <p>End: {format(new Date(offer.endDate), "dd/mm/yyyy", { locale: vi, })}</p>
+                    <p>
+                      Start:{" "}
+                      {format(new Date(offer.startDate), "dd/MM/yyyy", {
+                        locale: vi,
+                      })}
+                    </p>
+                    <p>
+                      End:{" "}
+                      {format(new Date(offer.endDate), "dd/MM/yyyy", {
+                        locale: vi,
+                      })}
+                    </p>
                   </div>
                   <div className="mt-2 flex items-center justify-between">
                     <Badge

@@ -4,6 +4,7 @@ import { useState } from "react"
 
 import { useAuth } from "@/providers/auth-provider"
 import { format } from "date-fns"
+import { vi } from "date-fns/locale"
 import {
   ArrowDownToLine,
   ArrowUpFromLine,
@@ -44,7 +45,6 @@ import {
 import { TabsContent } from "@/components/ui/tabs"
 
 import { TransactionStatusBadge } from "@/components/badge/transaction-status-badge"
-import { vi } from "date-fns/locale"
 
 export function WalletHistoryTab() {
   const { user } = useAuth()
@@ -304,7 +304,8 @@ export function WalletHistoryTab() {
                 transactions.map((transaction) => {
                   const formattedDate = format(
                     new Date(transaction.createdAt),
-                    "dd/mm/yyyy", {locale: vi,}
+                    "dd/MM/yyyy",
+                    { locale: vi }
                   )
                   const formattedTime = format(
                     new Date(transaction.createdAt),
