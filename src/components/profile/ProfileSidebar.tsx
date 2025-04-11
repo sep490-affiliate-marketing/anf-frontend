@@ -226,7 +226,10 @@ export function ProfileSidebar() {
           ) : (
             <>
               <span className="text-3xl font-bold tracking-tight text-gray-900">
-                {user?.balance?.toLocaleString() || "0"}
+                {user?.balance?.toLocaleString("en-US", {
+                  maximumFractionDigits: 0,
+                  useGrouping: true,
+                }) || "0"}
               </span>
               <span className="ml-1 text-xs text-muted-foreground">VND</span>
             </>
