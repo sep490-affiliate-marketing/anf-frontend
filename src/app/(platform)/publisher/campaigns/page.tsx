@@ -131,7 +131,7 @@ function CampaignCard({ campaign }: CampaignCardProps) {
             <h3 className="font-semibold">{campaign.name}</h3>
           </div>
         </div>
-        <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">
+        <p className="mt-2 line-clamp-2 h-10 text-sm text-muted-foreground">
           {campaign.description}
         </p>
       </CardHeader>
@@ -353,6 +353,7 @@ function CampaignFilters({
             <Badge variant="secondary" className="gap-1 pl-2">
               &ldquo;{searchQuery}&rdquo;
               <button
+                title="Clear search"
                 type="button"
                 className="ml-1 rounded-full p-0.5 hover:bg-primary-foreground"
                 onClick={() => onSearchChange("")}
@@ -365,6 +366,7 @@ function CampaignFilters({
             <Badge variant="secondary" className="gap-1 pl-2">
               {selectedCategory}
               <button
+                title="Clear category"
                 type="button"
                 className="ml-1 rounded-full p-0.5 hover:bg-primary-foreground"
                 onClick={() => onCategoryChange("All")}
@@ -377,6 +379,7 @@ function CampaignFilters({
             <Badge variant="secondary" className="gap-1 pl-2">
               {selectedPricingModel}
               <button
+                title="Clear pricing model"
                 type="button"
                 className="ml-1 rounded-full p-0.5 hover:bg-primary-foreground"
                 onClick={() => onPricingModelChange("All")}
