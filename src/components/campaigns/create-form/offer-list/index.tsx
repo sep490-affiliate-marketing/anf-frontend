@@ -194,29 +194,69 @@ const OfferList = ({
               name={`offers.${index}.bid`}
               render={({ field: { onChange, value, onBlur, ...field } }) => (
                 <FormItem>
-                  <Label className="text-lg font-semibold">Bid Amount</Label>
+                  <Label className="text-lg font-semibold">
+                    {form.watch(`offers.${index}.pricingModel`) === "CPS"
+                      ? "Commission Rate (%)"
+                      : "Bid Amount"}
+                  </Label>
                   <FormControl>
                     <div className="relative">
                       <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
-                        $
+                        {form.watch(`offers.${index}.pricingModel`) === "CPS"
+                          ? "%"
+                          : "₫"}
                       </span>
                       <Input
                         {...field}
                         type="text"
                         inputMode="decimal"
-                        placeholder="0.00"
+                        placeholder={
+                          form.watch(`offers.${index}.pricingModel`) === "CPS"
+                            ? "0.00"
+                            : "0.00"
+                        }
                         value={value ? formatCurrency(value.toString()) : ""}
+                        className="pl-8 pr-3 font-medium"
                         onChange={(e) => {
                           const input = e.target
                           const numericValue = input.value.replace(
                             /[^\d.]/g,
                             ""
-                          ) // Remove non-numeric characters except "."
+                          )
                           const parts = numericValue.split(".")
-                          if (parts.length > 3) parts.splice(3) // Remove extra dots
-                          if (parts[0].length > 6)
-                            parts[0] = parts[0].slice(0, 6) // Max 6 digits before decimal
-                          if (parts[1]) parts[1] = parts[1].slice(0, 3) // Max 3 digits after decimal
+
+                          if (parts.length > 2) parts.splice(2)
+
+                          const isCPS =
+                            form.watch(`offers.${index}.pricingModel`) === "CPS"
+
+                          // Handle integer part
+                          if (parts[0]) {
+                            if (isCPS) {
+                              // For CPS: limit to 3 digits and max 100
+                              if (parts[0].length > 3) {
+                                parts[0] = parts[0].slice(0, 3)
+                              }
+                              const numValue = parseInt(parts[0])
+                              if (numValue > 100) {
+                                parts[0] = "100"
+                              }
+                            } else {
+                              // For other pricing models: limit to 10 digits and min 300
+                              if (parts[0].length > 10) {
+                                parts[0] = parts[0].slice(0, 10)
+                              }
+                              const numValue = parseInt(parts[0])
+                              if (numValue < 300 && parts[0].length >= 3) {
+                                parts[0] = "300"
+                              }
+                            }
+                          }
+
+                          // Handle decimal part
+                          if (parts[1]) {
+                            parts[1] = parts[1].slice(0, 2)
+                          }
 
                           const finalValue = parts.join(".")
                           onChange(finalValue)
@@ -227,16 +267,44 @@ const OfferList = ({
                             .replace(/,/g, "")
                             .replace(/[^\d.]/g, "")
                           const parts = numericValue.split(".")
-                          if (parts.length > 3) parts.splice(3) // Remove extra dots
-                          if (parts[0].length > 6)
-                            parts[0] = parts[0].slice(0, 6) // Max 6 digits before decimal
-                          if (parts[1]) parts[1] = parts[1].slice(0, 3) // Max 3 digits after decimal
+
+                          if (parts.length > 2) parts.splice(2)
+
+                          const isCPS =
+                            form.watch(`offers.${index}.pricingModel`) === "CPS"
+
+                          // Handle integer part
+                          if (parts[0]) {
+                            if (isCPS) {
+                              // For CPS: limit to 3 digits and max 100
+                              if (parts[0].length > 3) {
+                                parts[0] = parts[0].slice(0, 3)
+                              }
+                              const numValue = parseInt(parts[0])
+                              if (numValue > 100) {
+                                parts[0] = "100"
+                              }
+                            } else {
+                              // For other pricing models: limit to 10 digits and min 300
+                              if (parts[0].length > 10) {
+                                parts[0] = parts[0].slice(0, 10)
+                              }
+                              const numValue = parseInt(parts[0])
+                              if (numValue < 300) {
+                                parts[0] = "300"
+                              }
+                            }
+                          }
+
+                          // Handle decimal part
+                          if (parts[1]) {
+                            parts[1] = parts[1].slice(0, 2)
+                          }
 
                           const finalValue = parts.join(".")
                           onChange(finalValue)
                           onBlur()
                         }}
-                        className="w-full pl-8"
                       />
                     </div>
                   </FormControl>
@@ -253,9 +321,9 @@ const OfferList = ({
                   <Label className="text-lg font-semibold">Budget</Label>
                   <FormControl>
                     <div className="relative">
-                      {/* <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
-                        VND
-                      </span> */}
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+                        ₫
+                      </span>
                       <Input
                         {...field}
                         type="text"
@@ -270,8 +338,8 @@ const OfferList = ({
                           ) // Remove non-numeric characters except "."
                           const parts = numericValue.split(".")
                           if (parts.length > 3) parts.splice(3) // Remove extra dots
-                          if (parts[0].length > 6)
-                            parts[0] = parts[0].slice(0, 6) // Max 6 digits before decimal
+                          if (parts[0].length > 10)
+                            parts[0] = parts[0].slice(0, 10) // Max 10 digits before decimal
                           if (parts[1]) parts[1] = parts[1].slice(0, 3) // Max 3 digits after decimal
 
                           const finalValue = parts.join(".")
@@ -284,8 +352,8 @@ const OfferList = ({
                             .replace(/[^\d.]/g, "")
                           const parts = numericValue.split(".")
                           if (parts.length > 3) parts.splice(3) // Remove extra dots
-                          if (parts[0].length > 6)
-                            parts[0] = parts[0].slice(0, 6) // Max 6 digits before decimal
+                          if (parts[0].length > 10)
+                            parts[0] = parts[0].slice(0, 10) // Max 10 digits before decimal
                           if (parts[1]) parts[1] = parts[1].slice(0, 3) // Max 3 digits after decimal
 
                           const finalValue = parts.join(".")

@@ -7,9 +7,12 @@ import Image from "next/image"
 import { useAuth } from "@/providers/auth-provider"
 import { ICreateCampaignForm } from "@/validations/campaign.validation"
 import { addDays, format } from "date-fns"
+import { vi } from "date-fns/locale"
 import { DateRange } from "react-day-picker"
 import { useFieldArray } from "react-hook-form"
 import { toast } from "sonner"
+
+import { formatVNDCurrency } from "@/lib/utils"
 
 import { useCreateCampaignForm } from "@/hooks/campaign"
 
@@ -38,8 +41,6 @@ import { DatePickerWithRange } from "./date-range-picker"
 import ImageUpload from "./image-upload"
 import OfferList from "./offer-list"
 import TrackingUrlBuilder from "./tracking-url-builder"
-import { vi } from "date-fns/locale"
-import { formatVNDCurrency } from "@/lib/utils"
 
 const steps = [
   {
@@ -136,12 +137,25 @@ const CampaignForm = () => {
   const onSubmit = async (data: ICreateCampaignForm) => {
     try {
       console.log("Form data before processing:", data)
+
+      // Transform offers data
+      const transformedOffers = data.offers.map((offer) => {
+        if (offer.pricingModel === "CPS") {
+          return {
+            ...offer,
+            commissionRate: offer.bid, // Use bid value as commissionRate
+            bid: "300", // Remove bid field for CPS
+          }
+        }
+        return offer
+      })
+
       const campaignData = {
         ...data,
         trackingParams: JSON.stringify(data.tracking_param),
         advertiserCode: user?.userCode,
         images: data.images,
-        offers: data.offers,
+        offers: transformedOffers,
         productUrl: data.baseUrl,
       }
 
@@ -450,7 +464,9 @@ const CampaignForm = () => {
                     </dt>
                     <dd className="text-sm font-medium">
                       {campaignStartDate
-                        ? format(new Date(campaignStartDate), "dd/MM/yyyy", {locale: vi,})
+                        ? format(new Date(campaignStartDate), "dd/MM/yyyy", {
+                            locale: vi,
+                          })
                         : "Not set"}
                     </dd>
                   </div>
@@ -458,7 +474,9 @@ const CampaignForm = () => {
                     <dt className="text-sm text-muted-foreground">End Date</dt>
                     <dd className="text-sm font-medium">
                       {campaignEndDate
-                        ? format(new Date(campaignEndDate), "dd/MM/yyyy", {locale: vi,})
+                        ? format(new Date(campaignEndDate), "dd/MM/yyyy", {
+                            locale: vi,
+                          })
                         : "Not set"}
                     </dd>
                   </div>
@@ -568,7 +586,7 @@ const CampaignForm = () => {
                                 Bid
                               </dt>
                               <dd className="text-sm">
-                                {formatVNDCurrency(Number(offer.bid ?? 0)) }
+                                {formatVNDCurrency(Number(offer.bid ?? 0))}
                               </dd>
                             </div>
                             {offer.budget && (
@@ -576,7 +594,9 @@ const CampaignForm = () => {
                                 <dt className="text-xs text-muted-foreground">
                                   Budget
                                 </dt>
-                                <dd className="text-sm">{formatVNDCurrency(Number(offer.budget ?? 0))}</dd>
+                                <dd className="text-sm">
+                                  {formatVNDCurrency(Number(offer.budget ?? 0))}
+                                </dd>
                               </div>
                             )}
                             {offer.description && (

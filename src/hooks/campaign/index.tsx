@@ -74,6 +74,7 @@ export const useCreateCampaignForm = () => {
           startDate: "",
           endDate: "",
           budget: "",
+          commissionRate: "",
         },
       ],
     },
@@ -284,9 +285,10 @@ export const useGetCampaignDetailForPublisher = (campaignId: number) => {
           )
         return data
       } catch (error) {
-        return undefined
+        return null
       }
     },
+    enabled: !!campaignId,
   })
 }
 
