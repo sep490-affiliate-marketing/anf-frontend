@@ -11,7 +11,6 @@ const ACCEPTED_IMAGE_TYPES = [
 export function OfferFormSchema() {
   return z
     .object({
-      // code: z.coerce.number(),
       pricingModel: z
         .string({ required_error: "Pricing model is required" })
         .min(1, "Pricing model is required"),
@@ -24,9 +23,9 @@ export function OfferFormSchema() {
         .refine(
           (value) => {
             const numValue = parseFloat(value)
-            return !isNaN(numValue) && numValue >= 1000
+            return !isNaN(numValue) && numValue > 0
           },
-          { message: "Bid must be at least 1000" }
+          { message: "Value must be greater than 0" }
         ),
       startDate: z
         .string()
@@ -64,6 +63,8 @@ export function OfferFormSchema() {
           },
           { message: "Budget must be at least 1000" }
         ),
+      commissionRate: z.string().optional(),
+
       stepInfo: z
         .string({ required_error: "Step information is required" })
         .min(1, "Step information is required"),

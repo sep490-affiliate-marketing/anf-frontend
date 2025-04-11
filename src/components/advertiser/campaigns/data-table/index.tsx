@@ -42,6 +42,7 @@ import { CampaignStatusBadge } from "@/components/badge/campaign-status-badge"
 import { EmptyTable } from "@/components/data-table/empty-table"
 import { SearchInput } from "@/components/inputs/search-input"
 import { Spinner } from "@/components/spinner"
+import { formatVNDCurrency } from "@/lib/utils"
 
 export default function CampaignDataTable() {
   const { user } = useAuth()
@@ -182,10 +183,10 @@ export default function CampaignDataTable() {
                           {campaign.name}
                         </TableCell>
                         <TableCell className="py-3 text-muted-foreground">
-                          {format(new Date(campaign.startDate), "yyyy-MM-dd")}
+                          {format(new Date(campaign.startDate), "dd/MM/yyyy")}
                         </TableCell>
                         <TableCell className="py-3 text-muted-foreground">
-                          {format(new Date(campaign.endDate), "yyyy-MM-dd")}
+                          {format(new Date(campaign.endDate), "dd/MM/yyyy")}
                         </TableCell>
                         <TableCell className="py-3">
                           <CampaignStatusBadge status={campaign.status} />
@@ -201,7 +202,7 @@ export default function CampaignDataTable() {
                           </a>
                         </TableCell>
                         <TableCell className="py-3 text-sm text-muted-foreground">
-                          ${campaign.balance.toLocaleString()}
+                          {formatVNDCurrency(campaign.balance)}
                         </TableCell>
                         <TableCell className="py-3 text-sm text-muted-foreground">
                           {campaign.offers.length}

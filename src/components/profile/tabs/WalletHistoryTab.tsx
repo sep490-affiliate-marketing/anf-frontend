@@ -4,6 +4,7 @@ import { useState } from "react"
 
 import { useAuth } from "@/providers/auth-provider"
 import { format } from "date-fns"
+import { vi } from "date-fns/locale"
 import {
   ArrowDownToLine,
   ArrowUpFromLine,
@@ -303,7 +304,8 @@ export function WalletHistoryTab() {
                 transactions.map((transaction) => {
                   const formattedDate = format(
                     new Date(transaction.createdAt),
-                    "MMM d, yyyy"
+                    "dd/MM/yyyy",
+                    { locale: vi }
                   )
                   const formattedTime = format(
                     new Date(transaction.createdAt),

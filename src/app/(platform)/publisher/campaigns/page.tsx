@@ -218,11 +218,11 @@ function CampaignListItem({ campaign }: CampaignListItemProps) {
             <div>
               <p className="text-xs text-muted-foreground">Duration</p>
               <p className="font-medium">
-                {format(new Date(campaign.startDate), "dd MMM", {
+                {format(new Date(campaign.startDate), "dd/mm/yyyy", {
                   locale: vi,
                 })}{" "}
                 -{" "}
-                {format(new Date(campaign.endDate), "dd MMM yyyy", {
+                {format(new Date(campaign.endDate), "dd/mm/yyyy", {
                   locale: vi,
                 })}
               </p>

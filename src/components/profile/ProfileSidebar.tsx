@@ -15,6 +15,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { AddCreditDialog } from "@/components/profile/dialogs/AddCreditDialog"
 
 import { AddBankAccountDialog } from "./dialogs/AddBankAccountDialog"
+import { formatVNDCurrency } from "@/lib/utils"
 
 export function ProfileSidebar() {
   const { user, isLoadingUser } = useAuth()
@@ -231,7 +232,7 @@ export function ProfileSidebar() {
                   useGrouping: true,
                 }) || "0"}
               </span>
-              <span className="ml-1 text-xs text-muted-foreground">VND</span>
+              {/* <span className="ml-1 text-xs text-muted-foreground">VND</span> */}
             </>
           )}
         </div>

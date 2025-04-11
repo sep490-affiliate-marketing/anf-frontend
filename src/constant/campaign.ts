@@ -23,11 +23,7 @@ export const CAMPAIGN_CATEGORIES = [
 
 export const PRICE_MODAL = [
   { id: 1, name: "CPC" },
-  { id: 2, name: "CPM" },
   { id: 3, name: "CPA" },
-  { id: 4, name: "CPV" },
-  { id: 5, name: "CPI" },
-  { id: 6, name: "CPL" },
   { id: 7, name: "CPS" },
 ]
 
