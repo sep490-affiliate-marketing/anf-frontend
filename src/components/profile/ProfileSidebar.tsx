@@ -221,10 +221,16 @@ export function ProfileSidebar() {
           <Wallet className="size-4 text-primary" />
         </div>
         <div className="mt-3 flex items-baseline">
-          <span className="text-3xl font-bold tracking-tight text-gray-900">
-            0.00
-          </span>
-          <span className="ml-1 text-xs text-muted-foreground">VND</span>
+          {isLoadingUser ? (
+            <Skeleton className="h-9 w-24" />
+          ) : (
+            <>
+              <span className="text-3xl font-bold tracking-tight text-gray-900">
+                {user?.balance?.toLocaleString() || "0"}
+              </span>
+              <span className="ml-1 text-xs text-muted-foreground">VND</span>
+            </>
+          )}
         </div>
         <div className="mt-4">
           <AddCreditDialog>
