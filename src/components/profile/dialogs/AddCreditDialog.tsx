@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { formatVNDCurrency } from "@/lib/utils"
 
 export function AddCreditDialog({ children }: { children: React.ReactNode }) {
   const [addCreditAmount, setAddCreditAmount] = useState<string>("")
@@ -126,13 +127,13 @@ export function AddCreditDialog({ children }: { children: React.ReactNode }) {
                     Amount to Add
                   </span>
                   <span className="font-medium">
-                    {formatNumber(addCreditAmount)} VND
+                    {formatVNDCurrency(Number(addCreditAmount) ?? 0)}
                   </span>
                 </div>
                 <div className="flex items-center justify-between py-1">
                   <span className="text-sm font-medium">New Balance</span>
                   <span className="font-medium text-primary">
-                    {formatNumber(addCreditAmount)} VND
+                    {formatVNDCurrency(Number(addCreditAmount) ?? 0)}
                   </span>
                 </div>
               </div>

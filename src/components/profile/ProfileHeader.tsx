@@ -2,8 +2,10 @@
 
 import { useAuth } from "@/providers/auth-provider"
 import { ChevronRight, Home } from "lucide-react"
+import { format } from "date-fns"
 
 import { Separator } from "@/components/ui/separator"
+import { vi } from "date-fns/locale"
 
 export function ProfileHeader() {
   const { user } = useAuth()
@@ -33,11 +35,7 @@ export function ProfileHeader() {
           <div className="text-right">
             <p className="text-sm font-medium">Last Login</p>
             <p className="text-sm text-muted-foreground">
-              {new Date().toLocaleDateString("en-US", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}
+              {format(new Date(), "dd/MM/yyyy", {locale: vi,})}
             </p>
           </div>
         </div>

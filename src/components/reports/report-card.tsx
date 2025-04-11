@@ -4,7 +4,7 @@ import { ReactNode } from "react"
 
 import { ArrowDown, ArrowUp, HelpCircle } from "lucide-react"
 
-import { cn } from "@/lib/utils"
+import { cn, formatVNDCurrency } from "@/lib/utils"
 
 import {
   Card,
@@ -63,7 +63,7 @@ export function ReportCard({
         {icon}
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold">{value}</div>
+        <div className="text-2xl font-bold">{formatVNDCurrency(Number(value) ?? 0)}</div>
         {(description || change !== undefined) && (
           <div className="flex items-center">
             {change !== undefined && (

@@ -38,6 +38,8 @@ import { DatePickerWithRange } from "./date-range-picker"
 import ImageUpload from "./image-upload"
 import OfferList from "./offer-list"
 import TrackingUrlBuilder from "./tracking-url-builder"
+import { vi } from "date-fns/locale"
+import { formatVNDCurrency } from "@/lib/utils"
 
 const steps = [
   {
@@ -448,7 +450,7 @@ const CampaignForm = () => {
                     </dt>
                     <dd className="text-sm font-medium">
                       {campaignStartDate
-                        ? format(new Date(campaignStartDate), "PPP")
+                        ? format(new Date(campaignStartDate), "dd/MM/yyyy", {locale: vi,})
                         : "Not set"}
                     </dd>
                   </div>
@@ -456,7 +458,7 @@ const CampaignForm = () => {
                     <dt className="text-sm text-muted-foreground">End Date</dt>
                     <dd className="text-sm font-medium">
                       {campaignEndDate
-                        ? format(new Date(campaignEndDate), "PPP")
+                        ? format(new Date(campaignEndDate), "dd/MM/yyyy", {locale: vi,})
                         : "Not set"}
                     </dd>
                   </div>
@@ -566,7 +568,7 @@ const CampaignForm = () => {
                                 Bid
                               </dt>
                               <dd className="text-sm">
-                                ${offer.bid || "0.00"}
+                                {formatVNDCurrency(Number(offer.bid ?? 0)) }
                               </dd>
                             </div>
                             {offer.budget && (
@@ -574,7 +576,7 @@ const CampaignForm = () => {
                                 <dt className="text-xs text-muted-foreground">
                                   Budget
                                 </dt>
-                                <dd className="text-sm">${offer.budget}</dd>
+                                <dd className="text-sm">{formatVNDCurrency(Number(offer.budget ?? 0))}</dd>
                               </div>
                             )}
                             {offer.description && (

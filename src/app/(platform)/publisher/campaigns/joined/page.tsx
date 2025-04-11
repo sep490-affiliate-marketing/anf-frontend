@@ -19,6 +19,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { CopyToClipboardTextarea } from "@/components/ui/textarea/copy-to-clipboard-textarea"
+import { formatVNDCurrency } from '../../../../../lib/utils';
+import { vi } from "date-fns/locale"
 
 export default function JoinedCampaignsPage() {
   const { user } = useAuth()
@@ -80,11 +82,11 @@ export default function JoinedCampaignsPage() {
                   </p>
                   <div className="flex flex-wrap gap-2">
                     <Badge variant="secondary">{offer.pricingModel}</Badge>
-                    <Badge variant="outline">Bid: ${offer.bid}</Badge>
+                    <Badge variant="outline">Bid: {formatVNDCurrency(offer.bid ?? 0)}</Badge>
                   </div>
                   <div className="text-sm text-gray-500">
-                    <p>Start: {format(new Date(offer.startDate), "PP")}</p>
-                    <p>End: {format(new Date(offer.endDate), "PP")}</p>
+                    <p>Start: {format(new Date(offer.startDate), "dd/mm/yyyy", { locale: vi, })}</p>
+                    <p>End: {format(new Date(offer.endDate), "dd/mm/yyyy", { locale: vi, })}</p>
                   </div>
                   <div className="mt-2 flex items-center justify-between">
                     <Badge

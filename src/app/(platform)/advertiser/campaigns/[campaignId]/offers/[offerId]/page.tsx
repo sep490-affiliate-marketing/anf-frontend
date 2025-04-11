@@ -153,7 +153,8 @@ export default function OfferDetailPage({
       const formattedPublishers = publisherList.map((publisher) => ({
         id: publisher.poNo.toString(), // Change this to use poNo
         name: `${publisher.firstName} ${publisher.lastName}`,
-        requestDate: new Date().toISOString(),
+        requestDate: format(new Date(), "dd/MM/yyyy", {
+          locale: vi,}),
         email: publisher.email,
         website: "",
         status:
@@ -337,13 +338,15 @@ export default function OfferDetailPage({
               <StatCard
                 title="Budget"
                 value={formatVNDCurrency(offerResData.budget)}
-                icon={<CreditCard className="size-4 text-gray-400" />}
+                //icon={<CreditCard className="size-4 text-gray-400" />}
+                icon={<></>}
                 description="Total budget allocated"
               />
               <StatCard
                 title="Bid Amount"
                 value={formatVNDCurrency(offerResData.bid)}
-                icon={<DollarSign className="size-4 text-gray-400" />}
+                //icon={<DollarSign className="size-4 text-gray-400" />}
+                icon={<></>}
                 description={`Per ${offerResData.pricingModel} payout`}
               />
               <StatCard

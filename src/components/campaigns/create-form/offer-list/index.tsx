@@ -8,7 +8,7 @@ import { Check, ChevronsUpDown, DollarSign, Trash2Icon } from "lucide-react"
 import { DateRange } from "react-day-picker"
 import { useFieldArray, UseFormReturn } from "react-hook-form"
 
-import { cn } from "@/lib/utils"
+import { cn, formatVNDCurrency } from "@/lib/utils"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -253,14 +253,14 @@ const OfferList = ({
                   <Label className="text-lg font-semibold">Budget</Label>
                   <FormControl>
                     <div className="relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
-                        $
-                      </span>
+                      {/* <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+                        VND
+                      </span> */}
                       <Input
                         {...field}
                         type="text"
                         inputMode="decimal"
-                        placeholder="0.00"
+                        placeholder={formatVNDCurrency(0)}
                         value={value ? formatCurrency(value.toString()) : ""}
                         onChange={(e) => {
                           const input = e.target

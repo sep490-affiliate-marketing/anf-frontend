@@ -35,6 +35,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
+import { formatVNDCurrency } from '../../../lib/utils';
 
 // Enhanced fake data for the dashboard
 const revenueData = [
@@ -135,7 +136,7 @@ export default function Page() {
             <DollarSign className="size-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">$45,231.89</div>
+            <div className="text-2xl font-bold">formatVNDCurrency(5435000)</div>
             <div className="flex items-center gap-1 text-xs">
               <span className="flex items-center text-green-500">
                 <ArrowUpRight className="size-3" />
@@ -266,7 +267,7 @@ export default function Page() {
                                 Revenue
                               </span>
                               <span className="font-bold text-muted-foreground">
-                                ${data.value.toLocaleString()}
+                                {formatVNDCurrency(data.value ?? 0)}
                               </span>
                             </div>
                             <div className="flex flex-col">

@@ -306,11 +306,11 @@ function CampaignVerificationUI({ campaign }: { campaign: Campaign }) {
                       <div className="flex items-center justify-between border-b border-gray-100 py-1.5">
                         <span className="text-sm text-gray-500">Timeline</span>
                         <span className="font-medium">
-                          {format(new Date(campaign.startDate), "dd MMM yyyy", {
+                          {format(new Date(campaign.startDate), "dd/MM/yyyy", {
                             locale: vi,
                           })}{" "}
                           -
-                          {format(new Date(campaign.endDate), "dd MMM yyyy", {
+                          {format(new Date(campaign.endDate), "dd/MM/yyyy", {
                             locale: vi,
                           })}
                         </span>
