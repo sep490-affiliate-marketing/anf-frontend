@@ -4,8 +4,6 @@ import React, { useState } from "react"
 
 import Link from "next/link"
 
-import { format } from "date-fns"
-import { vi } from "date-fns/locale"
 import {
   ArrowLeft,
   BarChart3,
@@ -27,6 +25,7 @@ import {
 } from "lucide-react"
 
 import { formatVNDCurrency } from "@/lib/utils"
+import { formatDate } from "@/lib/utils/date"
 
 import {
   useApprovePublisherInOffer,
@@ -153,8 +152,7 @@ export default function OfferDetailPage({
       const formattedPublishers = publisherList.map((publisher) => ({
         id: publisher.poNo.toString(), // Change this to use poNo
         name: `${publisher.firstName} ${publisher.lastName}`,
-        requestDate: format(new Date(), "dd/MM/yyyy", {
-          locale: vi,}),
+        requestDate: formatDate(new Date(), "dd/MM/yyyy"),
         email: publisher.email,
         website: "",
         status:
@@ -402,20 +400,14 @@ export default function OfferDetailPage({
                       <div className="mt-1 flex items-center gap-2 text-sm">
                         <Calendar className="size-4 text-gray-400" />
                         <span>
-                          {format(
+                          {formatDate(
                             new Date(offerResData.startDate),
-                            "dd/MM/yyyy",
-                            {
-                              locale: vi,
-                            }
+                            "dd/MM/yyyy"
                           )}{" "}
                           -{" "}
-                          {format(
+                          {formatDate(
                             new Date(offerResData.endDate),
-                            "dd/MM/yyyy",
-                            {
-                              locale: vi,
-                            }
+                            "dd/MM/yyyy"
                           )}
                         </span>
                       </div>
@@ -657,13 +649,10 @@ export default function OfferDetailPage({
                               </div>
                             </TableCell>
                             <TableCell>
-                              {format(
-                                new Date(publisher.requestDate),
-                                "dd/MM/yyyy",
-                                {
-                                  locale: vi,
-                                }
-                              )}
+                              {/* 
+                              add request date later
+                              */}
+                              {publisher?.requestDate || " "}
                             </TableCell>
                             <TableCell>
                               <div className="flex flex-wrap gap-1">
