@@ -485,7 +485,7 @@ export function CampaignDetails({ campaignId }: { campaignId: number }) {
                     </div>
                   )}
 
-                  {offer.pubOfferStatus === 1 && (
+                  {/* {offer.pubOfferStatus === 1 && (
                     <div className="mt-6">
                       <Separator className="mb-4" />
                       <h4 className="mb-2 text-xs font-medium text-gray-900">
@@ -497,7 +497,7 @@ export function CampaignDetails({ campaignId }: { campaignId: number }) {
                         className="text-xs"
                       />
                     </div>
-                  )}
+                  )} */}
 
                   {offer.pubOfferStatus === 2 && (
                     <div className="mt-6">
