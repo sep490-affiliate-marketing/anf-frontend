@@ -576,7 +576,8 @@ export default function OfferDetailPage({
               </CardContent>
             </Card>
           </TabsContent>
-
+          
+          {/* Publishers Tab */}
           <TabsContent value="publishers" className="space-y-6">
             <Card>
               <CardHeader>
