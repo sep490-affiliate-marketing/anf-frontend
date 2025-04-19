@@ -219,8 +219,8 @@ function CampaignVerificationUI({ campaign }: { campaign: Campaign }) {
           if (!isUpdating) setIsVerifying(open)
         }}
       >
-        <DialogContent className="max-h-[90vh] overflow-hidden sm:max-w-3xl">
-          <DialogHeader>
+        <DialogContent className="flex max-h-[90vh] flex-col gap-4 overflow-y-auto sm:max-w-3xl">
+          <DialogHeader className="shrink-0">
             <DialogTitle className="flex items-center gap-2 text-xl">
               {verificationAction === "approve" ? (
                 <TooltipProvider>
@@ -259,7 +259,7 @@ function CampaignVerificationUI({ campaign }: { campaign: Campaign }) {
             </DialogDescription>
           </DialogHeader>
 
-          <div className="h-[500px] py-4">
+          <div className="flex-1 overflow-y-auto px-1">
             <Tabs
               defaultValue="overview"
               value={reviewTabValue}
@@ -293,7 +293,7 @@ function CampaignVerificationUI({ campaign }: { campaign: Campaign }) {
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <span className="max-w-[120px] truncate font-medium sm:max-w-[240px]">
+                              <span className="max-w-[120px] truncate font-medium sm:max-w-[240px]">campaign 
                                 {campaign.name}
                               </span>
                             </TooltipTrigger>
@@ -505,17 +505,19 @@ function CampaignVerificationUI({ campaign }: { campaign: Campaign }) {
           </div>
 
           {verificationAction === "approve" && (
-            <div className="flex items-center rounded-lg border border-purple-100 bg-purple-50 px-4 py-3 text-purple-800">
-              <Info className="mr-3 size-5 text-purple-500" />
-              <p className="text-sm">
-                Approving will make this campaign active and visible to
-                publishers
-              </p>
+            <div className="shrink-0 items-center rounded-lg border border-purple-100 bg-purple-50 px-4 py-3 text-purple-800">
+              <div className="flex items-center">
+                <Info className="mr-2 size-5 text-purple-500" />
+                <p className="text-sm">
+                  Approving will make this campaign active and visible to
+                  publishers
+                </p>
+              </div>
             </div>
           )}
 
           {verificationAction === "reject" && (
-            <div className="flex items-center rounded-lg border border-red-100 bg-red-50 px-4 py-3 text-red-800">
+            <div className="shrink-0 items-center rounded-lg border border-red-100 bg-red-50 px-4 py-3 text-red-800">
               <Info className="mr-3 size-5 text-red-500" />
               <p className="text-sm">
                 {rejectReason.trim() === ""
@@ -525,7 +527,7 @@ function CampaignVerificationUI({ campaign }: { campaign: Campaign }) {
             </div>
           )}
 
-          <div className="mt-4 pt-3">
+          <div className="shrink-0 pt-3">
             <div className="mb-4 h-px w-full bg-gray-100"></div>
             <DialogFooter className="flex w-full flex-col-reverse gap-3 px-0 sm:flex-row sm:justify-end">
               {verificationAction === "approve" ? (
