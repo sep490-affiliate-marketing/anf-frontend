@@ -109,7 +109,7 @@ export default function CampaignDataTable() {
   const handleUpdateStatus = (campaign: ICampaign, status: string) => {
     updateStatus({
       id: campaign.id,
-      campaignStatus: status,
+      status,
     })
   }
 
@@ -118,7 +118,7 @@ export default function CampaignDataTable() {
 
     updateStatus({
       id: selectedCampaign.id,
-      campaignStatus: "Rejected",
+      status: "Rejected",
       rejectReason,
     })
 

@@ -13,6 +13,25 @@ body,
   width: 100%;
 }
 
+html body[data-scroll-locked] {
+  margin-right: 0 !important;
+}
+
+html {
+  scrollbar-gutter: stable;
+}
+
+body[style] {
+  margin: 0 auto !important;
+  
+}
+
+body[data-scroll-locked] {
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;

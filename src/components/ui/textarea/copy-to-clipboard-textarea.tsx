@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/tooltip"
 
 interface CopyToClipboardTextareaProps {
-  value: string
+  value: any
   id?: string
   className?: string
   rows?: number
@@ -29,6 +29,14 @@ export function CopyToClipboardTextarea({
 }: CopyToClipboardTextareaProps) {
   const [copied, setCopied] = useState<boolean>(false)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+
+  const stringValue = typeof value === 'string' 
+    ? value 
+    : (value === null || value === undefined)
+      ? ''
+      : typeof value === 'object' 
+        ? JSON.stringify(value, null, 2)
+        : String(value)
 
   const handleCopy = () => {
     if (textareaRef.current) {
@@ -45,7 +53,7 @@ export function CopyToClipboardTextarea({
         id={id}
         className={cn("pr-10", className)}
         rows={rows}
-        value={value}
+        value={stringValue}
         readOnly
         style={{ resize: "none" }}
       />

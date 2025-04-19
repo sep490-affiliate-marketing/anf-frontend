@@ -152,7 +152,7 @@ export default function OfferDetailPage({
       const formattedPublishers = publisherList.map((publisher) => ({
         id: publisher.poNo.toString(), // Change this to use poNo
         name: `${publisher.firstName} ${publisher.lastName}`,
-        requestDate: formatDate(new Date(), "dd/MM/yyyy"),
+        requestDate: "123",
         email: publisher.email,
         website: "",
         status:
@@ -576,7 +576,8 @@ export default function OfferDetailPage({
               </CardContent>
             </Card>
           </TabsContent>
-
+          
+          {/* Publishers Tab */}
           <TabsContent value="publishers" className="space-y-6">
             <Card>
               <CardHeader>
@@ -652,7 +653,7 @@ export default function OfferDetailPage({
                               {/* 
                               add request date later
                               */}
-                              {publisher?.requestDate || " "}
+                              {publisher?.requestDate || "123"}
                             </TableCell>
                             <TableCell>
                               <div className="flex flex-wrap gap-1">
