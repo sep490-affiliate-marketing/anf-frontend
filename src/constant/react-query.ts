@@ -144,3 +144,79 @@ export const statisticQueryKeys = {
       ] as const,
   },
 }
+
+export const subscriptionQueryKeys = {
+  origin: ["subscriptions"] as const,
+
+  global: {
+    details: (subscriptionId: string) =>
+      [...subscriptionQueryKeys.origin, "global", "details", subscriptionId] as const,
+    list: (page: number, limit: number) =>
+      [...subscriptionQueryKeys.origin, "global", "list", { page, limit }] as const,
+  },
+
+  admin: {
+    list: (page: number, limit: number) =>
+      [...subscriptionQueryKeys.origin, "admin", "list", { page, limit }] as const,
+    details: (id: string) =>
+      [...subscriptionQueryKeys.origin, "admin", "details", id] as const,
+    create: () =>
+      [...subscriptionQueryKeys.origin, "admin", "create"] as const,
+    update: (id: string) =>
+      [...subscriptionQueryKeys.origin, "admin", "update", id] as const,
+    delete: () =>
+      [...subscriptionQueryKeys.origin, "admin", "delete"] as const,
+  },
+
+  advertiser: {
+    list: (page: number, limit: number) =>
+      [...subscriptionQueryKeys.origin, "advertiser", "list", { page, limit }] as const,
+    details: (id: string) =>
+      [...subscriptionQueryKeys.origin, "advertiser", "details", id] as const,
+  },
+
+  publisher: {
+    list: (page: number, limit: number) =>
+      [...subscriptionQueryKeys.origin, "publisher", "list", { page, limit }] as const,
+    details: (id: number) =>
+      [...subscriptionQueryKeys.origin, "publisher", "details", id] as const,
+  },
+}
+
+export const policyQueryKeys = {
+  origin: ["policies"] as const,
+
+  global: {
+    details: (policyId: string) =>
+      [...policyQueryKeys.origin, "global", "details", policyId] as const,
+    list: (page: number, limit: number) =>
+      [...policyQueryKeys.origin, "global", "list", { page, limit }] as const,
+  },
+
+  admin: {
+    list: (page: number, limit: number) =>
+      [...policyQueryKeys.origin, "admin", "list", { page, limit }] as const,
+    details: (id: string) =>
+      [...policyQueryKeys.origin, "admin", "details", id] as const,
+    create: () =>
+      [...policyQueryKeys.origin, "admin", "create"] as const,
+    update: (id: string) =>
+      [...policyQueryKeys.origin, "admin", "update", id] as const,
+    delete: () =>
+      [...policyQueryKeys.origin, "admin", "delete"] as const,
+  },
+
+  advertiser: {
+    list: (page: number, limit: number) =>
+      [...policyQueryKeys.origin, "advertiser", "list", { page, limit }] as const,
+    details: (id: string) =>
+      [...policyQueryKeys.origin, "advertiser", "details", id] as const,
+  },
+
+  publisher: {
+    list: (page: number, limit: number) =>
+      [...policyQueryKeys.origin, "publisher", "list", { page, limit }] as const,
+    details: (id: number) =>
+      [...policyQueryKeys.origin, "publisher", "details", id] as const,
+  },
+}

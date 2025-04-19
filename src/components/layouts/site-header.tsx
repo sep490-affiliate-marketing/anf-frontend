@@ -99,6 +99,11 @@ const getAccessibleRoutes = (
       url: "/campaigns",
       matchPattern: "campaigns",
     },
+    {
+      title: "Subscriptions",
+      url: "/subscriptions",
+      matchPattern: "subscriptions",
+    },
     // Admin-only routes
     {
       title: "Carriers",
@@ -117,7 +122,12 @@ const getAccessibleRoutes = (
       url: "/tickets",
       matchPattern: "tickets",
     },
-
+    {
+      title: "Policies",
+      url: "/policies",
+      matchPattern: "policies",
+      roles: [UserRoleEnum.ADMIN],
+    },
     {
       title: "Profile",
       url: "/profile",

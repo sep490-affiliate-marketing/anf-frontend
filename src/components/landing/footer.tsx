@@ -26,7 +26,7 @@ const navigation = {
     { name: "Help Center", href: "#help" },
     { name: "Community", href: "#community" },
     { name: "Case Studies", href: "#cases" },
-    { name: "Webinars", href: "#webinars" },
+    { name: "Policy", href: "/policy" },
   ],
   legal: [
     { name: "Privacy", href: "#privacy" },
