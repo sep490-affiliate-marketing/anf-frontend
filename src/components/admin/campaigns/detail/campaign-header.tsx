@@ -145,7 +145,7 @@ function CampaignVerificationUI({ campaign }: { campaign: Campaign }) {
     updateStatus(
       {
         id: campaign.id,
-        campaignStatus: status,
+        status,
         rejectReason: reason,
       },
       {
