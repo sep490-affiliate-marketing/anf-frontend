@@ -298,18 +298,18 @@ export const useUpdateCampaignStatus = () => {
   return useMutation({
     mutationFn: async ({
       id,
-      campaignStatus,
+      status,
       rejectReason,
     }: {
       id: number
-      campaignStatus: string
+      status: string
       rejectReason?: string
     }) => {
       try {
         const { data } = await apiClient.patch(
           `/api/affiliate-network/campaigns/admin/${id}/status`,
           {
-            campaignStatus,
+            status,
             rejectReason,
           }
         )
