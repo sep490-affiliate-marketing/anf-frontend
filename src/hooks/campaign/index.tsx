@@ -332,10 +332,10 @@ export const useUpdateCampaignStatus = () => {
         toast.success("Campaign status updated successfully")
         // Invalidate relevant queries to refetch data
         queryClient.invalidateQueries({
-          queryKey: ["campaignsByAdvertiser"],
+          queryKey: campaignQueryKeys.global.details(id.toString()),
         })
         queryClient.invalidateQueries({
-          queryKey: ["campaign", `${id}`],
+          queryKey: campaignQueryKeys.admin.list(1, 10),
         })
       } else {
         toast.error(data.message || "Failed to update campaign status")
