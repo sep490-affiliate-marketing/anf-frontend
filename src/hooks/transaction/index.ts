@@ -7,7 +7,7 @@ import { toast } from "sonner"
 import {
   IAddCreditResponse,
   IGetWalletHistoryResponse,
-} from "@/types/wallet.type"
+} from "@/types/transaction.type"
 
 import apiClient from "@/lib/api/client"
 

@@ -14,7 +14,7 @@ import {
 
 import { cn, formatVNDCurrency } from "@/lib/utils"
 
-import { useGetWalletHistory } from "@/hooks/wallet"
+import { useGetWalletHistory } from "@/hooks/transaction"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
