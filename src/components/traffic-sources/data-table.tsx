@@ -113,8 +113,8 @@ export default function TrafficSourceDataTable() {
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <MoreHorizontal className="h-4 w-4" />
+              <Button variant="ghost" className="size-8 p-0">
+                <MoreHorizontal className="size-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -122,14 +122,14 @@ export default function TrafficSourceDataTable() {
                 onClick={() => handleEdit(source)}
                 className="cursor-pointer"
               >
-                <Edit2 className="mr-2 h-4 w-4" />
+                <Edit2 className="mr-2 size-4" />
                 Edit
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => handleDelete(source.id)}
                 className="cursor-pointer text-red-600"
               >
-                <Trash2 className="mr-2 h-4 w-4" />
+                <Trash2 className="mr-2 size-4" />
                 Delete
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -227,4 +227,3 @@ export default function TrafficSourceDataTable() {
     </div>
   )
 }
-

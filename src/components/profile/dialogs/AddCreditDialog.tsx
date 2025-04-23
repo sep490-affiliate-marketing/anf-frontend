@@ -2,7 +2,9 @@ import { useState } from "react"
 
 import { DollarSign, InfoIcon, Loader2 } from "lucide-react"
 
-import { useAddCredit } from "@/hooks/wallet"
+import { formatVNDCurrency } from "@/lib/utils"
+
+import { useAddCredit } from "@/hooks/transaction"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -15,7 +17,6 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { formatVNDCurrency } from "@/lib/utils"
 
 export function AddCreditDialog({ children }: { children: React.ReactNode }) {
   const [addCreditAmount, setAddCreditAmount] = useState<string>("")

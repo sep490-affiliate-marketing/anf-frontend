@@ -16,12 +16,12 @@ import {
   Search,
 } from "lucide-react"
 
-import { IWalletTransaction } from "@/types/wallet.type"
+import { IWalletTransaction } from "@/types/transaction.type"
 
 import { cn } from "@/lib/utils"
 import { formatVNDCurrency } from "@/lib/utils"
 
-import { useGetWalletHistory } from "@/hooks/wallet"
+import { useGetWalletHistory } from "@/hooks/transaction"
 
 import { Button } from "@/components/ui/button"
 import {

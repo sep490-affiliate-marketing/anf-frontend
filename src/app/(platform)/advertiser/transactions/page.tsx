@@ -1,0 +1,33 @@
+import { Suspense } from "react"
+
+import TransactionDataTable from "@/components/advertiser/transactions/data-table"
+import { WithdrawDialog } from "@/components/advertiser/transactions/withdraw-dialog"
+import { Spinner } from "@/components/spinner"
+
+export default function TransactionsPage() {
+  return (
+    <div className="space-y-8 px-4 py-8 sm:px-6 lg:px-8">
+      {/* Header Section */}
+      <div className="border-b border-border pb-6">
+        <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+          <div className="space-y-1">
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+              Transaction History
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              View your transaction history and manage withdrawals
+            </p>
+          </div>
+          <WithdrawDialog />
+        </div>
+      </div>
+
+      {/* Transaction History Section */}
+      <section className="space-y-4">
+        <Suspense fallback={<Spinner />}>
+          <TransactionDataTable />
+        </Suspense>
+      </section>
+    </div>
+  )
+}

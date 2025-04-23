@@ -68,7 +68,7 @@ export default function CreateTrafficSourceModal() {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button className="gap-2">
-          <Plus className="h-4 w-4" />
+          <Plus className="size-4" />
           Add Traffic Source
         </Button>
       </DialogTrigger>
@@ -152,4 +152,3 @@ export default function CreateTrafficSourceModal() {
     </Dialog>
   )
 }
-

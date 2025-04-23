@@ -30,13 +30,14 @@ export function CopyToClipboardTextarea({
   const [copied, setCopied] = useState<boolean>(false)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
-  const stringValue = typeof value === 'string' 
-    ? value 
-    : (value === null || value === undefined)
-      ? ''
-      : typeof value === 'object' 
-        ? JSON.stringify(value, null, 2)
-        : String(value)
+  const stringValue =
+    typeof value === "string"
+      ? value
+      : value === null || value === undefined
+        ? ""
+        : typeof value === "object"
+          ? JSON.stringify(value, null, 2)
+          : String(value)
 
   const handleCopy = () => {
     if (textareaRef.current) {
