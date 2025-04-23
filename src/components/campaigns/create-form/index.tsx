@@ -85,7 +85,7 @@ const CampaignForm = () => {
     from: string
     to: string
   }>({
-    from: addDays(new Date(), 1).toISOString(),
+    from: addDays(new Date(), 2).toISOString(),
     to: addDays(new Date(), 21).toISOString(),
   })
 
@@ -311,6 +311,7 @@ const CampaignForm = () => {
                 <div className="mt-1.5">
                   <DatePickerWithRange
                     defaultDateRange={getDateRangeForPicker()}
+                    disabledBefore={addDays(new Date(), 2).toISOString()}
                     onChange={handleDateChange}
                   />
                 </div>

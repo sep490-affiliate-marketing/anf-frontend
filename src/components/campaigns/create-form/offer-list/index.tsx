@@ -399,6 +399,28 @@ const OfferList = ({
               )}
             />
 
+            {form.watch(`offers.${index}.pricingModel`) === "CPS" && (
+              <FormField
+                control={form.control}
+                name={`offers.${index}.orderReturnTime`}
+                render={({ field }) => (
+                  <FormItem>
+                    <Label className="text-lg font-semibold">
+                      Order Return Time
+                    </Label>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        type="text"
+                        placeholder="Enter return time"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+
             <div className="space-y-2 md:col-span-1">
               <Label className="text-lg font-semibold">Offer Date Range</Label>
               <DatePickerWithRange
