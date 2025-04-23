@@ -10,23 +10,15 @@ body,
 }
 
 html body[data-scroll-locked] {
+  overflow: visible !important;
   margin-right: 0 !important;
-}
+} 
 
-html {
-  scrollbar-gutter: stable;
-}
-
-body[style] {
-  margin: 0 auto !important;
-  
-}
-
-body[data-scroll-locked] {
-  overflow: hidden;
-  position: fixed;
-  width: 100%;
-}
+/* global.css */
+html body[data-scroll-locked] {
+  --removed-body-scroll-bar-size: 0 !important;
+  margin-right: 0 !important;
+} 
 
 @layer base {
   :root {
