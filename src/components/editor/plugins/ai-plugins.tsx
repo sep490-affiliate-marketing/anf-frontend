@@ -1,14 +1,11 @@
-'use client';
+"use client"
 
-import React from 'react';
+import { AIChatPlugin, AIPlugin } from "@udecode/plate-ai/react"
 
-import { AIChatPlugin, AIPlugin } from '@udecode/plate-ai/react';
+import { markdownPlugin } from "@/components/editor/plugins/markdown-plugin"
 
-import { markdownPlugin } from '@/components/editor/plugins/markdown-plugin';
-import { AILoadingBar } from '@/components/plate-ui/ai-loading-bar';
-import { AIMenu } from '@/components/plate-ui/ai-menu';
+import { cursorOverlayPlugin } from "./cursor-overlay-plugin"
 
-import { cursorOverlayPlugin } from './cursor-overlay-plugin';
 const systemCommon = `\
 You are an advanced AI-powered note-taking assistant, designed to enhance productivity and creativity in note management.
 Respond directly to user prompts with clear, concise, and relevant content. Maintain a neutral, helpful tone.
@@ -21,7 +18,7 @@ Rules:
 - For INSTRUCTIONS: Follow the <Reminder> exactly. Provide ONLY the content to be inserted or replaced. No explanations or comments.
 - For QUESTIONS: Provide a helpful and concise answer. You may include brief explanations if necessary.
 - CRITICAL: Distinguish between INSTRUCTIONS and QUESTIONS. Instructions typically ask you to modify or add content. Questions ask for information or clarification.
-`;
+`
 
 const systemDefault = `\
 ${systemCommon}
@@ -31,7 +28,7 @@ ${systemCommon}
 <Block>
 {block}
 </Block>
-`;
+`
 
 const systemSelecting = `\
 ${systemCommon}
@@ -45,7 +42,7 @@ ${systemCommon}
 <Selection>
 {selection}
 </Selection>
-`;
+`
 
 const systemBlockSelecting = `\
 ${systemCommon}
@@ -56,12 +53,12 @@ ${systemCommon}
 <Selection>
 {block}
 </Selection>
-`;
+`
 
 const userDefault = `<Reminder>
 CRITICAL: NEVER write <Block>.
 </Reminder>
-{prompt}`;
+{prompt}`
 
 const userSelecting = `<Reminder>
 If this is a question, provide a helpful and concise answer about <Selection>.
@@ -69,7 +66,7 @@ If this is an instruction, provide ONLY the text to replace <Selection>. No expl
 Ensure it fits seamlessly within <Block>. If <Block> is empty, write ONE random sentence.
 NEVER write <Block> or <Selection>.
 </Reminder>
-{prompt} about <Selection>`;
+{prompt} about <Selection>`
 
 const userBlockSelecting = `<Reminder>
 If this is a question, provide a helpful and concise answer about <Selection>.
@@ -77,7 +74,7 @@ If this is an instruction, provide ONLY the content to replace the entire <Selec
 Maintain the overall structure unless instructed otherwise.
 NEVER write <Block> or <Selection>.
 </Reminder>
-{prompt} about <Selection>`;
+{prompt} about <Selection>`
 
 export const PROMPT_TEMPLATES = {
   systemBlockSelecting,
@@ -86,7 +83,7 @@ export const PROMPT_TEMPLATES = {
   userBlockSelecting,
   userDefault,
   userSelecting,
-};
+}
 
 export const aiPlugins = [
   cursorOverlayPlugin,
@@ -99,19 +96,15 @@ export const aiPlugins = [
           ? PROMPT_TEMPLATES.userBlockSelecting
           : isSelecting
             ? PROMPT_TEMPLATES.userSelecting
-            : PROMPT_TEMPLATES.userDefault;
+            : PROMPT_TEMPLATES.userDefault
       },
       systemTemplate: ({ isBlockSelecting, isSelecting }) => {
         return isBlockSelecting
           ? PROMPT_TEMPLATES.systemBlockSelecting
           : isSelecting
             ? PROMPT_TEMPLATES.systemSelecting
-            : PROMPT_TEMPLATES.systemDefault;
+            : PROMPT_TEMPLATES.systemDefault
       },
     },
-    render: {
-      afterContainer: () => <AILoadingBar />,
-      afterEditable: () => <AIMenu />,
-    },
   }),
-] as const;
+] as const

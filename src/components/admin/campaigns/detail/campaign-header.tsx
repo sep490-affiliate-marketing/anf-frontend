@@ -293,7 +293,8 @@ function CampaignVerificationUI({ campaign }: { campaign: Campaign }) {
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <span className="max-w-[120px] truncate font-medium sm:max-w-[240px]">campaign 
+                              <span className="max-w-[120px] truncate font-medium sm:max-w-[240px]">
+                                campaign
                                 {campaign.name}
                               </span>
                             </TooltipTrigger>

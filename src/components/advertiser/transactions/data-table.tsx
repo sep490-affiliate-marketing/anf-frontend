@@ -108,13 +108,13 @@ export default function TransactionDataTable() {
             className="h-10"
             disabled={isFetching || isRefreshing}
           >
-            <RefreshCw className="mr-2 h-4 w-4" />
+            <RefreshCw className="mr-2 size-4" />
             Refresh
           </Button>
         </div>
       </div>
 
-      <div className="mt-4 flex-grow">
+      <div className="mt-4 grow">
         {isFetching || isRefreshing ? (
           <div className="flex items-center justify-center py-8">
             <Spinner />

@@ -1,54 +1,53 @@
-'use client';
+"use client"
 
-import { useRef, useState } from 'react';
+import { useRef, useState } from "react"
 
-import type { TEquationElement } from '@udecode/plate-math';
-
-import { cn, withRef } from '@udecode/cn';
-import { useEquationElement } from '@udecode/plate-math/react';
+import { cn, withRef } from "@udecode/cn"
+import type { TEquationElement } from "@udecode/plate-math"
+import { useEquationElement } from "@udecode/plate-math/react"
 import {
   PlateElement,
   useEditorSelector,
   useElement,
   useSelected,
-} from '@udecode/plate/react';
-import { RadicalIcon } from 'lucide-react';
+} from "@udecode/plate/react"
+import { RadicalIcon } from "lucide-react"
 
-import { EquationPopoverContent } from './equation-popover';
-import { Popover, PopoverTrigger } from './popover';
+import { EquationPopoverContent } from "./equation-popover"
+import { Popover, PopoverTrigger } from "./popover"
 
 export const InlineEquationElement = withRef<typeof PlateElement>(
   ({ children, className, ...props }, ref) => {
-    const element = useElement<TEquationElement>();
-    const katexRef = useRef<HTMLDivElement | null>(null);
-    const selected = useSelected();
+    const element = useElement<TEquationElement>()
+    const katexRef = useRef<HTMLDivElement | null>(null)
+    const selected = useSelected()
     const isCollapsed = useEditorSelector(
       (editor) => editor.api.isCollapsed(),
       []
-    );
-    const [open, setOpen] = useState(selected && isCollapsed);
+    )
+    const [open, setOpen] = useState(selected && isCollapsed)
 
     useEquationElement({
       element,
       katexRef: katexRef,
       options: {
         displayMode: true,
-        errorColor: '#cc0000',
+        errorColor: "#cc0000",
         fleqn: false,
         leqno: false,
-        macros: { '\\f': '#1f(#2)' },
-        output: 'htmlAndMathml',
-        strict: 'warn',
+        macros: { "\\f": "#1f(#2)" },
+        output: "htmlAndMathml",
+        strict: "warn",
         throwOnError: false,
         trust: false,
       },
-    });
+    })
 
     return (
       <PlateElement
         ref={ref}
         className={cn(
-          'inline-block rounded-sm select-none [&_.katex-display]:my-0',
+          "inline-block select-none rounded-sm [&_.katex-display]:my-0",
           className
         )}
         {...props}
@@ -57,11 +56,11 @@ export const InlineEquationElement = withRef<typeof PlateElement>(
           <PopoverTrigger asChild>
             <div
               className={cn(
-                'after:absolute after:inset-0 after:-top-0.5 after:-left-1 after:z-1 after:h-[calc(100%)+4px] after:w-[calc(100%+8px)] after:rounded-sm after:content-[""]',
-                'h-6',
-                element.texExpression.length > 0 && open && 'after:bg-brand/15',
+                'after:z-1 after:absolute after:inset-0 after:-left-1 after:-top-0.5 after:h-[calc(100%)+4px] after:w-[calc(100%+8px)] after:rounded-sm after:content-[""]',
+                "h-6",
+                element.texExpression.length > 0 && open && "after:bg-brand/15",
                 element.texExpression.length === 0 &&
-                  'text-muted-foreground after:bg-neutral-500/10',
+                  "text-muted-foreground after:bg-neutral-500/10",
                 className
               )}
               contentEditable={false}
@@ -69,8 +68,8 @@ export const InlineEquationElement = withRef<typeof PlateElement>(
               <span
                 ref={katexRef}
                 className={cn(
-                  element.texExpression.length === 0 && 'hidden',
-                  'font-mono leading-none'
+                  element.texExpression.length === 0 && "hidden",
+                  "font-mono leading-none"
                 )}
               />
               {element.texExpression.length === 0 && (
@@ -93,6 +92,6 @@ export const InlineEquationElement = withRef<typeof PlateElement>(
 
         {children}
       </PlateElement>
-    );
+    )
   }
-);
+)

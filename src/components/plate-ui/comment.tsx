@@ -1,80 +1,79 @@
-'use client';
+"use client"
 
-import React, { useState } from 'react';
+import React, { useState } from "react"
 
-import type { Value } from '@udecode/plate';
-
-import { cn } from '@udecode/cn';
-import { CommentsPlugin } from '@udecode/plate-comments/react';
-import { Plate, useEditorPlugin, useStoreValue } from '@udecode/plate/react';
+import { cn } from "@udecode/cn"
+import type { Value } from "@udecode/plate"
+import { CommentsPlugin } from "@udecode/plate-comments/react"
+import { Plate, useEditorPlugin, useStoreValue } from "@udecode/plate/react"
 import {
   differenceInDays,
   differenceInHours,
   differenceInMinutes,
   format,
-} from 'date-fns';
+} from "date-fns"
 import {
   CheckIcon,
   MoreHorizontalIcon,
   PencilIcon,
   TrashIcon,
   XIcon,
-} from 'lucide-react';
+} from "lucide-react"
 
-import { Avatar, AvatarFallback, AvatarImage } from './avatar';
+import { Avatar, AvatarFallback, AvatarImage } from "./avatar"
 import {
   discussionStore,
   useFakeCurrentUserId,
   useFakeUserInfo,
-} from './block-discussion';
-import { Button } from './button';
-import { useCommentEditor } from './comment-create-form';
+} from "./block-discussion"
+import { Button } from "./button"
+import { useCommentEditor } from "./comment-create-form"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from './dropdown-menu';
-import { Editor, EditorContainer } from './editor';
+} from "./dropdown-menu"
+import { Editor, EditorContainer } from "./editor"
 
 export const formatCommentDate = (date: Date) => {
-  const now = new Date();
-  const diffMinutes = differenceInMinutes(now, date);
-  const diffHours = differenceInHours(now, date);
-  const diffDays = differenceInDays(now, date);
+  const now = new Date()
+  const diffMinutes = differenceInMinutes(now, date)
+  const diffHours = differenceInHours(now, date)
+  const diffDays = differenceInDays(now, date)
 
   if (diffMinutes < 60) {
-    return `${diffMinutes}m`;
+    return `${diffMinutes}m`
   }
   if (diffHours < 24) {
-    return `${diffHours}h`;
+    return `${diffHours}h`
   }
   if (diffDays < 2) {
-    return `${diffDays}d`;
+    return `${diffDays}d`
   }
 
-  return format(date, 'MM/dd/yyyy');
-};
+  return format(date, "MM/dd/yyyy")
+}
 
 export interface TComment {
-  id: string;
-  contentRich: Value;
-  createdAt: Date;
-  discussionId: string;
-  isEdited: boolean;
-  userId: string;
+  id: string
+  contentRich: Value
+  createdAt: Date
+  discussionId: string
+  isEdited: boolean
+  userId: string
 }
 
 export function Comment(props: {
-  comment: TComment;
-  discussionLength: number;
-  editingId: string | null;
-  index: number;
-  setEditingId: React.Dispatch<React.SetStateAction<string | null>>;
-  documentContent?: string;
-  showDocumentContent?: boolean;
-  onEditorClick?: () => void;
+  comment: TComment
+  discussionLength: number
+  editingId: string | null
+  index: number
+  setEditingId: React.Dispatch<React.SetStateAction<string | null>>
+  documentContent?: string
+  showDocumentContent?: boolean
+  onEditorClick?: () => void
 }) {
   const {
     comment,
@@ -85,35 +84,35 @@ export function Comment(props: {
     setEditingId,
     showDocumentContent = false,
     onEditorClick,
-  } = props;
+  } = props
   // const { user } = comment;
 
-  const discussions = useStoreValue(discussionStore, 'discussions');
-  const userInfo = useFakeUserInfo(comment.userId);
-  const currentUserId = useFakeCurrentUserId();
+  const discussions = useStoreValue(discussionStore, "discussions")
+  const userInfo = useFakeUserInfo(comment.userId)
+  const currentUserId = useFakeCurrentUserId()
 
   const resolveDiscussion = async (id: string) => {
     const updatedDiscussions = discussions.map((discussion) => {
       if (discussion.id === id) {
-        return { ...discussion, isResolved: true };
+        return { ...discussion, isResolved: true }
       }
-      return discussion;
-    });
-    discussionStore.set('discussions', updatedDiscussions);
-  };
+      return discussion
+    })
+    discussionStore.set("discussions", updatedDiscussions)
+  }
 
   const removeDiscussion = async (id: string) => {
     const updatedDiscussions = discussions.filter(
       (discussion: any) => discussion.id !== id
-    );
-    discussionStore.set('discussions', updatedDiscussions);
-  };
+    )
+    discussionStore.set("discussions", updatedDiscussions)
+  }
 
   const updateComment = async (input: {
-    id: string;
-    contentRich: any;
-    discussionId: string;
-    isEdited: boolean;
+    id: string
+    contentRich: any
+    discussionId: string
+    isEdited: boolean
   }) => {
     const updatedDiscussions = discussions.map((discussion) => {
       if (discussion.id === input.discussionId) {
@@ -124,23 +123,23 @@ export function Comment(props: {
               contentRich: input.contentRich,
               isEdited: true,
               updatedAt: new Date(),
-            };
+            }
           }
-          return comment;
-        });
-        return { ...discussion, comments: updatedComments };
+          return comment
+        })
+        return { ...discussion, comments: updatedComments }
       }
-      return discussion;
-    });
-    discussionStore.set('discussions', updatedDiscussions);
-  };
+      return discussion
+    })
+    discussionStore.set("discussions", updatedDiscussions)
+  }
 
-  const { tf } = useEditorPlugin(CommentsPlugin);
+  const { tf } = useEditorPlugin(CommentsPlugin)
 
   // Replace to your own backend or refer to potion
-  const isMyComment = currentUserId === comment.userId;
+  const isMyComment = currentUserId === comment.userId
 
-  const initialValue = comment.contentRich;
+  const initialValue = comment.contentRich
 
   const commentEditor = useCommentEditor(
     {
@@ -148,15 +147,15 @@ export function Comment(props: {
       value: initialValue,
     },
     [initialValue]
-  );
+  )
 
   const onCancel = () => {
-    setEditingId(null);
+    setEditingId(null)
     commentEditor.tf.replaceNodes(initialValue, {
       at: [],
       children: true,
-    });
-  };
+    })
+  }
 
   const onSave = () => {
     void updateComment({
@@ -164,21 +163,21 @@ export function Comment(props: {
       contentRich: commentEditor.children,
       discussionId: comment.discussionId,
       isEdited: true,
-    });
-    setEditingId(null);
-  };
+    })
+    setEditingId(null)
+  }
 
   const onResolveComment = () => {
-    void resolveDiscussion(comment.discussionId);
-    tf.comment.unsetMark({ id: comment.discussionId });
-  };
+    void resolveDiscussion(comment.discussionId)
+    tf.comment.unsetMark({ id: comment.discussionId })
+  }
 
-  const isFirst = index === 0;
-  const isLast = index === discussionLength - 1;
-  const isEditing = editingId && editingId === comment.id;
+  const isFirst = index === 0
+  const isLast = index === discussionLength - 1
+  const isEditing = editingId && editingId === comment.id
 
-  const [hovering, setHovering] = useState(false);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [hovering, setHovering] = useState(false)
+  const [dropdownOpen, setDropdownOpen] = useState(false)
 
   return (
     <div
@@ -190,7 +189,7 @@ export function Comment(props: {
           <AvatarImage alt={userInfo?.name} src={userInfo?.avatarUrl} />
           <AvatarFallback>{userInfo?.name?.[0]}</AvatarFallback>
         </Avatar>
-        <h4 className="mx-2 text-sm leading-none font-semibold">
+        <h4 className="mx-2 text-sm font-semibold leading-none">
           {/* Replace to your own backend or refer to potion */}
           {userInfo?.name}
         </h4>
@@ -203,7 +202,7 @@ export function Comment(props: {
         </div>
 
         {isMyComment && (hovering || dropdownOpen) && (
-          <div className="absolute top-0 right-0 flex space-x-1">
+          <div className="absolute right-0 top-0 flex space-x-1">
             {index === 0 && (
               <Button
                 variant="ghost"
@@ -218,13 +217,13 @@ export function Comment(props: {
             <CommentMoreDropdown
               onCloseAutoFocus={() => {
                 setTimeout(() => {
-                  commentEditor.tf.focus({ edge: 'endEditor' });
-                }, 0);
+                  commentEditor.tf.focus({ edge: "endEditor" })
+                }, 0)
               }}
               onRemoveComment={() => {
                 if (discussionLength === 1) {
-                  tf.comment.unsetMark({ id: comment.discussionId });
-                  void removeDiscussion(comment.discussionId);
+                  tf.comment.unsetMark({ id: comment.discussionId })
+                  void removeDiscussion(comment.discussionId)
                 }
               }}
               comment={comment}
@@ -239,7 +238,7 @@ export function Comment(props: {
       {isFirst && showDocumentContent && (
         <div className="text-subtle-foreground relative mt-1 flex pl-[32px] text-sm">
           {discussionLength > 1 && (
-            <div className="absolute top-[5px] left-3 h-full w-0.5 shrink-0 bg-muted" />
+            <div className="absolute left-3 top-[5px] h-full w-0.5 shrink-0 bg-muted" />
           )}
           <div className="my-px w-0.5 shrink-0 bg-highlight" />
           {documentContent && <div className="ml-2">{documentContent}</div>}
@@ -248,7 +247,7 @@ export function Comment(props: {
 
       <div className="relative my-1 pl-[26px]">
         {!isLast && (
-          <div className="absolute top-0 left-3 h-full w-0.5 shrink-0 bg-muted" />
+          <div className="absolute left-3 top-0 h-full w-0.5 shrink-0 bg-muted" />
         )}
         <Plate readOnly={!isEditing} editor={commentEditor}>
           <EditorContainer variant="comment">
@@ -265,8 +264,8 @@ export function Comment(props: {
                   variant="ghost"
                   className="size-[28px]"
                   onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-                    e.stopPropagation();
-                    void onCancel();
+                    e.stopPropagation()
+                    void onCancel()
                   }}
                 >
                   <div className="flex size-5 shrink-0 items-center justify-center rounded-[50%] bg-primary/40">
@@ -278,8 +277,8 @@ export function Comment(props: {
                   size="icon"
                   variant="ghost"
                   onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-                    e.stopPropagation();
-                    void onSave();
+                    e.stopPropagation()
+                    void onSave()
                   }}
                 >
                   <div className="flex size-5 shrink-0 items-center justify-center rounded-[50%] bg-brand">
@@ -292,15 +291,15 @@ export function Comment(props: {
         </Plate>
       </div>
     </div>
-  );
+  )
 }
 interface CommentMoreDropdownProps {
-  comment: TComment;
-  dropdownOpen: boolean;
-  setDropdownOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  setEditingId: React.Dispatch<React.SetStateAction<string | null>>;
-  onCloseAutoFocus?: () => void;
-  onRemoveComment?: () => void;
+  comment: TComment
+  dropdownOpen: boolean
+  setDropdownOpen: React.Dispatch<React.SetStateAction<boolean>>
+  setEditingId: React.Dispatch<React.SetStateAction<string | null>>
+  onCloseAutoFocus?: () => void
+  onRemoveComment?: () => void
 }
 
 export function CommentMoreDropdown(props: CommentMoreDropdownProps) {
@@ -311,27 +310,27 @@ export function CommentMoreDropdown(props: CommentMoreDropdownProps) {
     setEditingId,
     onCloseAutoFocus,
     onRemoveComment,
-  } = props;
+  } = props
 
-  const discussions = useStoreValue(discussionStore, 'discussions');
+  const discussions = useStoreValue(discussionStore, "discussions")
 
-  const selectedEditCommentRef = React.useRef<boolean>(false);
+  const selectedEditCommentRef = React.useRef<boolean>(false)
 
   const onDeleteComment = React.useCallback(() => {
     if (!comment.id)
-      return alert('You are operating too quickly, please try again later.');
+      return alert("You are operating too quickly, please try again later.")
 
     // Find and update the discussion
     const updatedDiscussions = discussions.map((discussion: any) => {
       if (discussion.id !== comment.discussionId) {
-        return discussion;
+        return discussion
       }
 
       const commentIndex = discussion.comments.findIndex(
         (c: any) => c.id === comment.id
-      );
+      )
       if (commentIndex === -1) {
-        return discussion;
+        return discussion
       }
 
       return {
@@ -340,22 +339,22 @@ export function CommentMoreDropdown(props: CommentMoreDropdownProps) {
           ...discussion.comments.slice(0, commentIndex),
           ...discussion.comments.slice(commentIndex + 1),
         ],
-      };
-    });
+      }
+    })
 
     // Save back to session storage
-    discussionStore.set('discussions', updatedDiscussions);
-    onRemoveComment?.();
-  }, [comment.discussionId, comment.id, discussions, onRemoveComment]);
+    discussionStore.set("discussions", updatedDiscussions)
+    onRemoveComment?.()
+  }, [comment.discussionId, comment.id, discussions, onRemoveComment])
 
   const onEditComment = React.useCallback(() => {
-    selectedEditCommentRef.current = true;
+    selectedEditCommentRef.current = true
 
     if (!comment.id)
-      return alert('You are operating too quickly, please try again later.');
+      return alert("You are operating too quickly, please try again later.")
 
-    setEditingId(comment.id);
-  }, [comment.id, setEditingId]);
+    setEditingId(comment.id)
+  }, [comment.id, setEditingId])
 
   return (
     <DropdownMenu
@@ -364,7 +363,7 @@ export function CommentMoreDropdown(props: CommentMoreDropdownProps) {
       modal={false}
     >
       <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-        <Button variant="ghost" className={cn('h-6 p-1 text-muted-foreground')}>
+        <Button variant="ghost" className={cn("h-6 p-1 text-muted-foreground")}>
           <MoreHorizontalIcon className="size-4" />
         </Button>
       </DropdownMenuTrigger>
@@ -372,11 +371,11 @@ export function CommentMoreDropdown(props: CommentMoreDropdownProps) {
         className="w-48"
         onCloseAutoFocus={(e) => {
           if (selectedEditCommentRef.current) {
-            onCloseAutoFocus?.();
-            selectedEditCommentRef.current = false;
+            onCloseAutoFocus?.()
+            selectedEditCommentRef.current = false
           }
 
-          return e.preventDefault();
+          return e.preventDefault()
         }}
       >
         <DropdownMenuGroup>
@@ -391,5 +390,5 @@ export function CommentMoreDropdown(props: CommentMoreDropdownProps) {
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>
-  );
+  )
 }

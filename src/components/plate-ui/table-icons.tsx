@@ -1,6 +1,6 @@
-'use client';
+"use client"
 
-import type { LucideProps } from 'lucide-react';
+import type { LucideProps } from "lucide-react"
 
 export const BorderAll = (props: LucideProps) => (
   <svg
@@ -27,7 +27,7 @@ export const BorderAll = (props: LucideProps) => (
     <rect fill="currentColor" height="1" rx=".5" width="1" x="7" y="9"></rect>
     <rect fill="currentColor" height="1" rx=".5" width="1" x="7" y="11"></rect>
   </svg>
-);
+)
 
 export const BorderBottom = (props: LucideProps) => (
   <svg
@@ -71,7 +71,7 @@ export const BorderBottom = (props: LucideProps) => (
     <rect fill="currentColor" height="1" rx=".5" width="1" x="1" y="9"></rect>
     <rect fill="currentColor" height="1" rx=".5" width="1" x="1" y="11"></rect>
   </svg>
-);
+)
 
 export const BorderLeft = (props: LucideProps) => (
   <svg
@@ -323,7 +323,7 @@ export const BorderLeft = (props: LucideProps) => (
       y="1"
     ></rect>
   </svg>
-);
+)
 
 export const BorderNone = (props: LucideProps) => (
   <svg
@@ -599,7 +599,7 @@ export const BorderNone = (props: LucideProps) => (
       y="11.025"
     ></rect>
   </svg>
-);
+)
 
 export const BorderRight = (props: LucideProps) => (
   <svg
@@ -799,7 +799,7 @@ export const BorderRight = (props: LucideProps) => (
       width="1"
     ></rect>
   </svg>
-);
+)
 
 export const BorderTop = (props: LucideProps) => (
   <svg
@@ -1051,4 +1051,4 @@ export const BorderTop = (props: LucideProps) => (
       y="4"
     ></rect>
   </svg>
-);
+)

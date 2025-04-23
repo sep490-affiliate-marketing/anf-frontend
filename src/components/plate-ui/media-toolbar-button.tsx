@@ -1,26 +1,25 @@
-'use client';
+"use client"
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState } from "react"
 
-import type { DropdownMenuProps } from '@radix-ui/react-dropdown-menu';
-
-import { isUrl } from '@udecode/plate';
+import type { DropdownMenuProps } from "@radix-ui/react-dropdown-menu"
+import { isUrl } from "@udecode/plate"
 import {
   AudioPlugin,
   FilePlugin,
   ImagePlugin,
   VideoPlugin,
-} from '@udecode/plate-media/react';
-import { useEditorRef } from '@udecode/plate/react';
+} from "@udecode/plate-media/react"
+import { useEditorRef } from "@udecode/plate/react"
 import {
   AudioLinesIcon,
   FileUpIcon,
   FilmIcon,
   ImageIcon,
   LinkIcon,
-} from 'lucide-react';
-import { toast } from 'sonner';
-import { useFilePicker } from 'use-file-picker';
+} from "lucide-react"
+import { toast } from "sonner"
+import { useFilePicker } from "use-file-picker"
 
 import {
   AlertDialog,
@@ -31,7 +30,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from './alert-dialog';
+} from "./alert-dialog"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -39,78 +38,78 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
   useOpenState,
-} from './dropdown-menu';
-import { FloatingInput } from './input';
+} from "./dropdown-menu"
+import { FloatingInput } from "./input"
 import {
   ToolbarSplitButton,
   ToolbarSplitButtonPrimary,
   ToolbarSplitButtonSecondary,
-} from './toolbar';
+} from "./toolbar"
 
 const MEDIA_CONFIG: Record<
   string,
   {
-    accept: string[];
-    icon: React.ReactNode;
-    title: string;
-    tooltip: string;
+    accept: string[]
+    icon: React.ReactNode
+    title: string
+    tooltip: string
   }
 > = {
   [AudioPlugin.key]: {
-    accept: ['audio/*'],
+    accept: ["audio/*"],
     icon: <AudioLinesIcon className="size-4" />,
-    title: 'Insert Audio',
-    tooltip: 'Audio',
+    title: "Insert Audio",
+    tooltip: "Audio",
   },
   [FilePlugin.key]: {
-    accept: ['*'],
+    accept: ["*"],
     icon: <FileUpIcon className="size-4" />,
-    title: 'Insert File',
-    tooltip: 'File',
+    title: "Insert File",
+    tooltip: "File",
   },
   [ImagePlugin.key]: {
-    accept: ['image/*'],
+    accept: ["image/*"],
     icon: <ImageIcon className="size-4" />,
-    title: 'Insert Image',
-    tooltip: 'Image',
+    title: "Insert Image",
+    tooltip: "Image",
   },
   [VideoPlugin.key]: {
-    accept: ['video/*'],
+    accept: ["video/*"],
     icon: <FilmIcon className="size-4" />,
-    title: 'Insert Video',
-    tooltip: 'Video',
+    title: "Insert Video",
+    tooltip: "Video",
   },
-};
+}
 
 export function MediaToolbarButton({
   children,
   nodeType,
   ...props
 }: DropdownMenuProps & { nodeType: string }) {
-  const currentConfig = MEDIA_CONFIG[nodeType];
+  const currentConfig = MEDIA_CONFIG[nodeType]
 
-  const editor = useEditorRef();
-  const openState = useOpenState();
-  const [dialogOpen, setDialogOpen] = useState(false);
+  const editor = useEditorRef()
+  const openState = useOpenState()
+  const [dialogOpen, setDialogOpen] = useState(false)
 
   const { openFilePicker } = useFilePicker({
     accept: currentConfig.accept,
     multiple: true,
     onFilesSelected: ({ plainFiles: updatedFiles }) => {
-      (editor as any).tf.insert.media(updatedFiles);
+      ;(editor as any).tf.insert.media(updatedFiles)
     },
-  });
+  })
 
   return (
     <>
       <ToolbarSplitButton
         onClick={() => {
-          openFilePicker();
+          openFilePicker()
         }}
         onKeyDown={(e) => {
-          if (e.key === 'ArrowDown') {
-            e.preventDefault();
-            openState.onOpenChange(true);
+          if (e.key === "ArrowDown") {
+            e.preventDefault()
+            openState.onOpenChange(true)
           }
         }}
         pressed={openState.open}
@@ -146,7 +145,7 @@ export function MediaToolbarButton({
       <AlertDialog
         open={dialogOpen}
         onOpenChange={(value) => {
-          setDialogOpen(value);
+          setDialogOpen(value)
         }}
       >
         <AlertDialogContent className="gap-6">
@@ -158,7 +157,7 @@ export function MediaToolbarButton({
         </AlertDialogContent>
       </AlertDialog>
     </>
-  );
+  )
 }
 
 function MediaUrlDialogContent({
@@ -166,24 +165,24 @@ function MediaUrlDialogContent({
   nodeType,
   setOpen,
 }: {
-  currentConfig: (typeof MEDIA_CONFIG)[string];
-  nodeType: string;
-  setOpen: (value: boolean) => void;
+  currentConfig: (typeof MEDIA_CONFIG)[string]
+  nodeType: string
+  setOpen: (value: boolean) => void
 }) {
-  const editor = useEditorRef();
-  const [url, setUrl] = useState('');
+  const editor = useEditorRef()
+  const [url, setUrl] = useState("")
 
   const embedMedia = useCallback(() => {
-    if (!isUrl(url)) return toast.error('Invalid URL');
+    if (!isUrl(url)) return toast.error("Invalid URL")
 
-    setOpen(false);
+    setOpen(false)
     editor.tf.insertNodes({
-      children: [{ text: '' }],
-      name: nodeType === FilePlugin.key ? url.split('/').pop() : undefined,
+      children: [{ text: "" }],
+      name: nodeType === FilePlugin.key ? url.split("/").pop() : undefined,
       type: nodeType,
       url,
-    });
-  }, [url, editor, nodeType, setOpen]);
+    })
+  }, [url, editor, nodeType, setOpen])
 
   return (
     <>
@@ -198,7 +197,7 @@ function MediaUrlDialogContent({
           value={url}
           onChange={(e) => setUrl(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === 'Enter') embedMedia();
+            if (e.key === "Enter") embedMedia()
           }}
           label="URL"
           placeholder=""
@@ -211,13 +210,13 @@ function MediaUrlDialogContent({
         <AlertDialogCancel>Cancel</AlertDialogCancel>
         <AlertDialogAction
           onClick={(e) => {
-            e.preventDefault();
-            embedMedia();
+            e.preventDefault()
+            embedMedia()
           }}
         >
           Accept
         </AlertDialogAction>
       </AlertDialogFooter>
     </>
-  );
+  )
 }

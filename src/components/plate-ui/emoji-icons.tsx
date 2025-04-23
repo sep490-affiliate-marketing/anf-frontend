@@ -1,7 +1,6 @@
-import type React from 'react';
+import type React from "react"
 
-import type { EmojiCategoryList } from '@udecode/plate-emoji';
-
+import type { EmojiCategoryList } from "@udecode/plate-emoji"
 import {
   AppleIcon,
   ClockIcon,
@@ -14,13 +13,13 @@ import {
   SmileIcon,
   StarIcon,
   XIcon,
-} from 'lucide-react';
+} from "lucide-react"
 
 export const emojiCategoryIcons: Record<
   EmojiCategoryList,
   {
-    outline: React.ReactElement<any>;
-    solid: React.ReactElement<any>; // Needed to add another solid variant - outline will be used for now
+    outline: React.ReactElement<any>
+    solid: React.ReactElement<any> // Needed to add another solid variant - outline will be used for now
   }
 > = {
   activity: {
@@ -104,9 +103,9 @@ export const emojiCategoryIcons: Record<
     outline: <MusicIcon className="size-full" />,
     solid: <MusicIcon className="size-full" />,
   },
-};
+}
 
 export const emojiSearchIcons = {
   delete: <XIcon className="size-4 text-current" />,
   loupe: <SearchIcon className="size-4 text-current" />,
-};
+}

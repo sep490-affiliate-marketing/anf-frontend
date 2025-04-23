@@ -1,26 +1,26 @@
-'use client';
+"use client"
 
-import React from 'react';
+import React from "react"
 
-import { getDraftCommentKey } from '@udecode/plate-comments';
-import { useEditorPlugin } from '@udecode/plate/react';
-import { MessageSquareTextIcon } from 'lucide-react';
+import { getDraftCommentKey } from "@udecode/plate-comments"
+import { useEditorPlugin } from "@udecode/plate/react"
+import { MessageSquareTextIcon } from "lucide-react"
 
-import { commentsPlugin } from '@/components/editor/plugins/comments-plugin';
+import { commentsPlugin } from "@/components/editor/plugins/comments-plugin"
 
-import { ToolbarButton } from './toolbar';
+import { ToolbarButton } from "./toolbar"
 
 export function CommentToolbarButton() {
-  const { editor, setOption, tf } = useEditorPlugin(commentsPlugin);
+  const { editor, setOption, tf } = useEditorPlugin(commentsPlugin)
 
   const onCommentToolbarButton = React.useCallback(() => {
-    if (!editor.selection) return;
+    if (!editor.selection) return
 
-    tf.comment.setDraft();
-    editor.tf.collapse();
-    setOption('activeId', getDraftCommentKey());
-    setOption('commentingBlock', editor.selection.focus.path.slice(0, 1));
-  }, [editor.selection, editor.tf, setOption, tf.comment]);
+    tf.comment.setDraft()
+    editor.tf.collapse()
+    setOption("activeId", getDraftCommentKey())
+    setOption("commentingBlock", editor.selection.focus.path.slice(0, 1))
+  }, [editor.selection, editor.tf, setOption, tf.comment])
 
   return (
     <ToolbarButton
@@ -30,5 +30,5 @@ export function CommentToolbarButton() {
     >
       <MessageSquareTextIcon />
     </ToolbarButton>
-  );
+  )
 }

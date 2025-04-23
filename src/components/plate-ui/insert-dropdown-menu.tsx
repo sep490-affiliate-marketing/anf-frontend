@@ -1,30 +1,26 @@
-'use client';
+"use client"
 
-import React from 'react';
+import React from "react"
 
-import type { DropdownMenuProps } from '@radix-ui/react-dropdown-menu';
-
-import { BlockquotePlugin } from '@udecode/plate-block-quote/react';
-import { CodeBlockPlugin } from '@udecode/plate-code-block/react';
-import { DatePlugin } from '@udecode/plate-date/react';
-import { ExcalidrawPlugin } from '@udecode/plate-excalidraw/react';
-import { HEADING_KEYS } from '@udecode/plate-heading';
-import { TocPlugin } from '@udecode/plate-heading/react';
-import { HorizontalRulePlugin } from '@udecode/plate-horizontal-rule/react';
-import { INDENT_LIST_KEYS, ListStyleType } from '@udecode/plate-indent-list';
-import { LinkPlugin } from '@udecode/plate-link/react';
+import type { DropdownMenuProps } from "@radix-ui/react-dropdown-menu"
+import { BlockquotePlugin } from "@udecode/plate-block-quote/react"
+import { CodeBlockPlugin } from "@udecode/plate-code-block/react"
+import { DatePlugin } from "@udecode/plate-date/react"
+import { ExcalidrawPlugin } from "@udecode/plate-excalidraw/react"
+import { HEADING_KEYS } from "@udecode/plate-heading"
+import { TocPlugin } from "@udecode/plate-heading/react"
+import { HorizontalRulePlugin } from "@udecode/plate-horizontal-rule/react"
+import { INDENT_LIST_KEYS, ListStyleType } from "@udecode/plate-indent-list"
+import { LinkPlugin } from "@udecode/plate-link/react"
+import { EquationPlugin, InlineEquationPlugin } from "@udecode/plate-math/react"
+import { ImagePlugin, MediaEmbedPlugin } from "@udecode/plate-media/react"
+import { TablePlugin } from "@udecode/plate-table/react"
+import { TogglePlugin } from "@udecode/plate-toggle/react"
 import {
-  EquationPlugin,
-  InlineEquationPlugin,
-} from '@udecode/plate-math/react';
-import { ImagePlugin, MediaEmbedPlugin } from '@udecode/plate-media/react';
-import { TablePlugin } from '@udecode/plate-table/react';
-import { TogglePlugin } from '@udecode/plate-toggle/react';
-import {
-  type PlateEditor,
   ParagraphPlugin,
+  type PlateEditor,
   useEditorRef,
-} from '@udecode/plate/react';
+} from "@udecode/plate/react"
 import {
   CalendarIcon,
   ChevronRightIcon,
@@ -47,12 +43,12 @@ import {
   SquareIcon,
   TableIcon,
   TableOfContentsIcon,
-} from 'lucide-react';
+} from "lucide-react"
 
 import {
   insertBlock,
   insertInlineElement,
-} from '@/components/editor/transforms';
+} from "@/components/editor/transforms"
 
 import {
   DropdownMenu,
@@ -61,186 +57,186 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
   useOpenState,
-} from './dropdown-menu';
-import { ToolbarButton } from './toolbar';
+} from "./dropdown-menu"
+import { ToolbarButton } from "./toolbar"
 
 type Group = {
-  group: string;
-  items: Item[];
-};
+  group: string
+  items: Item[]
+}
 
 interface Item {
-  icon: React.ReactNode;
-  value: string;
-  onSelect: (editor: PlateEditor, value: string) => void;
-  focusEditor?: boolean;
-  label?: string;
+  icon: React.ReactNode
+  value: string
+  onSelect: (editor: PlateEditor, value: string) => void
+  focusEditor?: boolean
+  label?: string
 }
 
 const groups: Group[] = [
   {
-    group: 'Basic blocks',
+    group: "Basic blocks",
     items: [
       {
         icon: <PilcrowIcon />,
-        label: 'Paragraph',
+        label: "Paragraph",
         value: ParagraphPlugin.key,
       },
       {
         icon: <Heading1Icon />,
-        label: 'Heading 1',
+        label: "Heading 1",
         value: HEADING_KEYS.h1,
       },
       {
         icon: <Heading2Icon />,
-        label: 'Heading 2',
+        label: "Heading 2",
         value: HEADING_KEYS.h2,
       },
       {
         icon: <Heading3Icon />,
-        label: 'Heading 3',
+        label: "Heading 3",
         value: HEADING_KEYS.h3,
       },
       {
         icon: <TableIcon />,
-        label: 'Table',
+        label: "Table",
         value: TablePlugin.key,
       },
       {
         icon: <FileCodeIcon />,
-        label: 'Code',
+        label: "Code",
         value: CodeBlockPlugin.key,
       },
       {
         icon: <QuoteIcon />,
-        label: 'Quote',
+        label: "Quote",
         value: BlockquotePlugin.key,
       },
       {
         icon: <MinusIcon />,
-        label: 'Divider',
+        label: "Divider",
         value: HorizontalRulePlugin.key,
       },
     ].map((item) => ({
       ...item,
       onSelect: (editor, value) => {
-        insertBlock(editor, value);
+        insertBlock(editor, value)
       },
     })),
   },
   {
-    group: 'Lists',
+    group: "Lists",
     items: [
       {
         icon: <ListIcon />,
-        label: 'Bulleted list',
+        label: "Bulleted list",
         value: ListStyleType.Disc,
       },
       {
         icon: <ListOrderedIcon />,
-        label: 'Numbered list',
+        label: "Numbered list",
         value: ListStyleType.Decimal,
       },
       {
         icon: <SquareIcon />,
-        label: 'To-do list',
+        label: "To-do list",
         value: INDENT_LIST_KEYS.todo,
       },
       {
         icon: <ChevronRightIcon />,
-        label: 'Toggle list',
+        label: "Toggle list",
         value: TogglePlugin.key,
       },
     ].map((item) => ({
       ...item,
       onSelect: (editor, value) => {
-        insertBlock(editor, value);
+        insertBlock(editor, value)
       },
     })),
   },
   {
-    group: 'Media',
+    group: "Media",
     items: [
       {
         icon: <ImageIcon />,
-        label: 'Image',
+        label: "Image",
         value: ImagePlugin.key,
       },
       {
         icon: <FilmIcon />,
-        label: 'Embed',
+        label: "Embed",
         value: MediaEmbedPlugin.key,
       },
       {
         icon: <PenToolIcon />,
-        label: 'Excalidraw',
+        label: "Excalidraw",
         value: ExcalidrawPlugin.key,
       },
     ].map((item) => ({
       ...item,
       onSelect: (editor, value) => {
-        insertBlock(editor, value);
+        insertBlock(editor, value)
       },
     })),
   },
   {
-    group: 'Advanced blocks',
+    group: "Advanced blocks",
     items: [
       {
         icon: <TableOfContentsIcon />,
-        label: 'Table of contents',
+        label: "Table of contents",
         value: TocPlugin.key,
       },
       {
         icon: <Columns3Icon />,
-        label: '3 columns',
-        value: 'action_three_columns',
+        label: "3 columns",
+        value: "action_three_columns",
       },
       {
         focusEditor: false,
         icon: <RadicalIcon />,
-        label: 'Equation',
+        label: "Equation",
         value: EquationPlugin.key,
       },
     ].map((item) => ({
       ...item,
       onSelect: (editor, value) => {
-        insertBlock(editor, value);
+        insertBlock(editor, value)
       },
     })),
   },
   {
-    group: 'Inline',
+    group: "Inline",
     items: [
       {
         icon: <Link2Icon />,
-        label: 'Link',
+        label: "Link",
         value: LinkPlugin.key,
       },
       {
         focusEditor: true,
         icon: <CalendarIcon />,
-        label: 'Date',
+        label: "Date",
         value: DatePlugin.key,
       },
       {
         focusEditor: false,
         icon: <RadicalIcon />,
-        label: 'Inline Equation',
+        label: "Inline Equation",
         value: InlineEquationPlugin.key,
       },
     ].map((item) => ({
       ...item,
       onSelect: (editor, value) => {
-        insertInlineElement(editor, value);
+        insertInlineElement(editor, value)
       },
     })),
   },
-];
+]
 
 export function InsertDropdownMenu(props: DropdownMenuProps) {
-  const editor = useEditorRef();
-  const openState = useOpenState();
+  const editor = useEditorRef()
+  const openState = useOpenState()
 
   return (
     <DropdownMenu modal={false} {...openState} {...props}>
@@ -261,8 +257,8 @@ export function InsertDropdownMenu(props: DropdownMenuProps) {
                 key={value}
                 className="min-w-[180px]"
                 onSelect={() => {
-                  onSelect(editor, value);
-                  editor.tf.focus();
+                  onSelect(editor, value)
+                  editor.tf.focus()
                 }}
               >
                 {icon}
@@ -273,5 +269,5 @@ export function InsertDropdownMenu(props: DropdownMenuProps) {
         ))}
       </DropdownMenuContent>
     </DropdownMenu>
-  );
+  )
 }

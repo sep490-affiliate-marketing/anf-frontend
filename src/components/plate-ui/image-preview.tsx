@@ -1,35 +1,35 @@
-'use client';
+"use client"
 
-import { cn } from '@udecode/cn';
+import { cn } from "@udecode/cn"
 import {
   PreviewImage,
   useImagePreview,
   useImagePreviewValue,
   useScaleInput,
-} from '@udecode/plate-media/react';
-import { useEditorRef } from '@udecode/plate/react';
-import { cva } from 'class-variance-authority';
-import { ArrowLeft, ArrowRight, Download, Minus, Plus, X } from 'lucide-react';
+} from "@udecode/plate-media/react"
+import { useEditorRef } from "@udecode/plate/react"
+import { cva } from "class-variance-authority"
+import { ArrowLeft, ArrowRight, Download, Minus, Plus, X } from "lucide-react"
 
-const toolButtonVariants = cva('rounded bg-[rgba(0,0,0,0.5)] px-1', {
+const toolButtonVariants = cva("rounded bg-[rgba(0,0,0,0.5)] px-1", {
   defaultVariants: {
-    variant: 'default',
+    variant: "default",
   },
   variants: {
     variant: {
-      default: 'text-white',
-      disabled: 'cursor-not-allowed text-gray-400',
+      default: "text-white",
+      disabled: "cursor-not-allowed text-gray-400",
     },
   },
-});
+})
 
-const SCROLL_SPEED = 4;
+const SCROLL_SPEED = 4
 
 export const ImagePreview = () => {
-  const editor = useEditorRef();
-  const isOpen = useImagePreviewValue('isOpen', editor.id);
-  const scale = useImagePreviewValue('scale');
-  const isEditingScale = useImagePreviewValue('isEditingScale');
+  const editor = useEditorRef()
+  const isOpen = useImagePreviewValue("isOpen", editor.id)
+  const scale = useImagePreviewValue("scale")
+  const isEditingScale = useImagePreviewValue("isEditingScale")
   const {
     closeProps,
     currentUrlIndex,
@@ -43,13 +43,13 @@ export const ImagePreview = () => {
     zoomInDisabled,
     zoomInProps,
     zoomOutDisabled,
-  } = useImagePreview({ scrollSpeed: SCROLL_SPEED });
+  } = useImagePreview({ scrollSpeed: SCROLL_SPEED })
 
   return (
     <div
       className={cn(
-        'fixed top-0 left-0 z-50 h-screen w-screen select-none',
-        !isOpen && 'hidden'
+        "fixed left-0 top-0 z-50 h-screen w-screen select-none",
+        !isOpen && "hidden"
       )}
       onContextMenu={(e) => e.stopPropagation()}
       {...maskLayerProps}
@@ -60,7 +60,7 @@ export const ImagePreview = () => {
         <div className="relative flex max-h-screen w-full items-center">
           <PreviewImage
             className={cn(
-              'mx-auto block max-h-[calc(100vh-4rem)] w-auto object-contain transition-transform'
+              "mx-auto block max-h-[calc(100vh-4rem)] w-auto object-contain transition-transform"
             )}
           />
           <div
@@ -72,7 +72,7 @@ export const ImagePreview = () => {
                 {...prevProps}
                 className={cn(
                   toolButtonVariants({
-                    variant: prevDisabled ? 'disabled' : 'default',
+                    variant: prevDisabled ? "disabled" : "default",
                   })
                 )}
                 type="button"
@@ -84,7 +84,7 @@ export const ImagePreview = () => {
                 {...nextProps}
                 className={cn(
                   toolButtonVariants({
-                    variant: nextDisabled ? 'disabled' : 'default',
+                    variant: nextDisabled ? "disabled" : "default",
                   })
                 )}
                 type="button"
@@ -96,7 +96,7 @@ export const ImagePreview = () => {
               <button
                 className={cn(
                   toolButtonVariants({
-                    variant: zoomOutDisabled ? 'disabled' : 'default',
+                    variant: zoomOutDisabled ? "disabled" : "default",
                   })
                 )}
                 {...zommOutProps}
@@ -107,17 +107,17 @@ export const ImagePreview = () => {
               <div className="mx-px">
                 {isEditingScale ? (
                   <>
-                    <ScaleInput className="w-10 rounded px-1 text-slate-500 outline" />{' '}
+                    <ScaleInput className="w-10 rounded px-1 text-slate-500 outline" />{" "}
                     <span>%</span>
                   </>
                 ) : (
-                  <span {...scaleTextProps}>{scale * 100 + '%'}</span>
+                  <span {...scaleTextProps}>{scale * 100 + "%"}</span>
                 )}
               </div>
               <button
                 className={cn(
                   toolButtonVariants({
-                    variant: zoomInDisabled ? 'disabled' : 'default',
+                    variant: zoomInDisabled ? "disabled" : "default",
                   })
                 )}
                 {...zoomInProps}
@@ -141,11 +141,11 @@ export const ImagePreview = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export function ScaleInput(props: React.ComponentProps<'input'>) {
-  const { props: scaleInputProps, ref } = useScaleInput();
+export function ScaleInput(props: React.ComponentProps<"input">) {
+  const { props: scaleInputProps, ref } = useScaleInput()
 
-  return <input {...scaleInputProps} {...props} ref={ref} />;
+  return <input {...scaleInputProps} {...props} ref={ref} />
 }

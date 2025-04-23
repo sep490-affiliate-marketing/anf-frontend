@@ -1,14 +1,14 @@
-'use client';
+"use client"
 
-import React from 'react';
+import React from "react"
 
 import {
   ListStyleType,
   someIndentList,
   toggleIndentList,
-} from '@udecode/plate-indent-list';
-import { useEditorRef, useEditorSelector } from '@udecode/plate/react';
-import { List, ListOrdered } from 'lucide-react';
+} from "@udecode/plate-indent-list"
+import { useEditorRef, useEditorSelector } from "@udecode/plate/react"
+import { List, ListOrdered } from "lucide-react"
 
 import {
   DropdownMenu,
@@ -17,16 +17,16 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
   useOpenState,
-} from './dropdown-menu';
+} from "./dropdown-menu"
 import {
   ToolbarSplitButton,
   ToolbarSplitButtonPrimary,
   ToolbarSplitButtonSecondary,
-} from './toolbar';
+} from "./toolbar"
 
 export function NumberedIndentListToolbarButton() {
-  const editor = useEditorRef();
-  const openState = useOpenState();
+  const editor = useEditorRef()
+  const openState = useOpenState()
 
   const pressed = useEditorSelector(
     (editor) =>
@@ -38,7 +38,7 @@ export function NumberedIndentListToolbarButton() {
         ListStyleType.UpperRoman,
       ]),
     []
-  );
+  )
 
   return (
     <ToolbarSplitButton pressed={openState.open}>
@@ -49,7 +49,7 @@ export function NumberedIndentListToolbarButton() {
             listStyleType: ListStyleType.Decimal,
           })
         }
-        data-state={pressed ? 'on' : 'off'}
+        data-state={pressed ? "on" : "off"}
         tooltip="Numbered List"
       >
         <ListOrdered className="size-4" />
@@ -111,12 +111,12 @@ export function NumberedIndentListToolbarButton() {
         </DropdownMenuContent>
       </DropdownMenu>
     </ToolbarSplitButton>
-  );
+  )
 }
 
 export function BulletedIndentListToolbarButton() {
-  const editor = useEditorRef();
-  const openState = useOpenState();
+  const editor = useEditorRef()
+  const openState = useOpenState()
 
   const pressed = useEditorSelector(
     (editor) =>
@@ -126,7 +126,7 @@ export function BulletedIndentListToolbarButton() {
         ListStyleType.Square,
       ]),
     []
-  );
+  )
 
   return (
     <ToolbarSplitButton pressed={openState.open}>
@@ -135,9 +135,9 @@ export function BulletedIndentListToolbarButton() {
         onClick={() => {
           toggleIndentList(editor, {
             listStyleType: ListStyleType.Disc,
-          });
+          })
         }}
-        data-state={pressed ? 'on' : 'off'}
+        data-state={pressed ? "on" : "off"}
         tooltip="Bulleted List"
       >
         <List className="size-4" />
@@ -190,5 +190,5 @@ export function BulletedIndentListToolbarButton() {
         </DropdownMenuContent>
       </DropdownMenu>
     </ToolbarSplitButton>
-  );
+  )
 }

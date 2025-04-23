@@ -12,13 +12,13 @@ body,
 html body[data-scroll-locked] {
   overflow: visible !important;
   margin-right: 0 !important;
-} 
+}
 
 /* global.css */
 html body[data-scroll-locked] {
   --removed-body-scroll-bar-size: 0 !important;
   margin-right: 0 !important;
-} 
+}
 
 @layer base {
   :root {
@@ -158,8 +158,6 @@ html body[data-scroll-locked] {
   }
 }
 
-
-
 @layer base {
   [data-registry="plate"] * {
     @apply border-border outline-ring/50;
@@ -168,12 +166,6 @@ html body[data-scroll-locked] {
     @apply bg-background text-foreground;
   }
 }
-
-
-
-
-
-
 
 @layer base {
   * {

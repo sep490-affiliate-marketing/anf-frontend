@@ -5,7 +5,6 @@ import {
   ArrowDownRight,
   ArrowUpRight,
   ChevronDown,
-  DollarSign,
   LineChart,
   Loader2,
   RefreshCcw,

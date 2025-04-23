@@ -1,19 +1,18 @@
-'use client';
+"use client"
 
-import React from 'react';
+import React from "react"
 
-import type { DropdownMenuProps } from '@radix-ui/react-dropdown-menu';
-
-import { setAlign } from '@udecode/plate-alignment';
-import { useEditorRef, useSelectionFragmentProp } from '@udecode/plate/react';
+import type { DropdownMenuProps } from "@radix-ui/react-dropdown-menu"
+import { setAlign } from "@udecode/plate-alignment"
+import { useEditorRef, useSelectionFragmentProp } from "@udecode/plate/react"
 import {
   AlignCenterIcon,
   AlignJustifyIcon,
   AlignLeftIcon,
   AlignRightIcon,
-} from 'lucide-react';
+} from "lucide-react"
 
-import { STRUCTURAL_TYPES } from '@/components/editor/transforms';
+import { STRUCTURAL_TYPES } from "@/components/editor/transforms"
 
 import {
   DropdownMenu,
@@ -22,39 +21,39 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
   useOpenState,
-} from './dropdown-menu';
-import { ToolbarButton } from './toolbar';
+} from "./dropdown-menu"
+import { ToolbarButton } from "./toolbar"
 
 const items = [
   {
     icon: AlignLeftIcon,
-    value: 'left',
+    value: "left",
   },
   {
     icon: AlignCenterIcon,
-    value: 'center',
+    value: "center",
   },
   {
     icon: AlignRightIcon,
-    value: 'right',
+    value: "right",
   },
   {
     icon: AlignJustifyIcon,
-    value: 'justify',
+    value: "justify",
   },
-];
+]
 
 export function AlignDropdownMenu({ children, ...props }: DropdownMenuProps) {
-  const editor = useEditorRef();
+  const editor = useEditorRef()
   const value = useSelectionFragmentProp({
-    defaultValue: 'start',
+    defaultValue: "start",
     structuralTypes: STRUCTURAL_TYPES,
     getProp: (node) => node.align,
-  });
+  })
 
-  const openState = useOpenState();
+  const openState = useOpenState()
   const IconValue =
-    items.find((item) => item.value === value)?.icon ?? AlignLeftIcon;
+    items.find((item) => item.value === value)?.icon ?? AlignLeftIcon
 
   return (
     <DropdownMenu modal={false} {...openState} {...props}>
@@ -68,8 +67,8 @@ export function AlignDropdownMenu({ children, ...props }: DropdownMenuProps) {
         <DropdownMenuRadioGroup
           value={value}
           onValueChange={(value: any) => {
-            setAlign(editor, { value: value });
-            editor.tf.focus();
+            setAlign(editor, { value: value })
+            editor.tf.focus()
           }}
         >
           {items.map(({ icon: Icon, value: itemValue }) => (
@@ -80,5 +79,5 @@ export function AlignDropdownMenu({ children, ...props }: DropdownMenuProps) {
         </DropdownMenuRadioGroup>
       </DropdownMenuContent>
     </DropdownMenu>
-  );
+  )
 }

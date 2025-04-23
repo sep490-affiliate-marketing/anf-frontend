@@ -1,35 +1,34 @@
-'use client';
+"use client"
 
-import { memo, useCallback } from 'react';
+import { memo, useCallback } from "react"
 
-import type { UseEmojiPickerType } from '@udecode/plate-emoji/react';
-
-import { cn } from '@udecode/cn';
-import { type Emoji, type GridRow, EmojiSettings } from '@udecode/plate-emoji';
+import { cn } from "@udecode/cn"
+import { type Emoji, EmojiSettings, type GridRow } from "@udecode/plate-emoji"
+import type { UseEmojiPickerType } from "@udecode/plate-emoji/react"
 
 export type EmojiButtonProps = {
-  emoji: Emoji;
-  index: number;
-  onMouseOver: (emoji?: Emoji) => void;
-  onSelect: (emoji: Emoji) => void;
-};
+  emoji: Emoji
+  index: number
+  onMouseOver: (emoji?: Emoji) => void
+  onSelect: (emoji: Emoji) => void
+}
 
 export type EmojiPickerContentProps = Pick<
   UseEmojiPickerType,
-  | 'emojiLibrary'
-  | 'i18n'
-  | 'isSearching'
-  | 'onMouseOver'
-  | 'onSelectEmoji'
-  | 'refs'
-  | 'searchResult'
-  | 'settings'
-  | 'visibleCategories'
->;
+  | "emojiLibrary"
+  | "i18n"
+  | "isSearching"
+  | "onMouseOver"
+  | "onSelectEmoji"
+  | "refs"
+  | "searchResult"
+  | "settings"
+  | "visibleCategories"
+>
 
 export type RowOfButtonsProps = {
-  row: GridRow;
-} & Pick<UseEmojiPickerType, 'emojiLibrary' | 'onMouseOver' | 'onSelectEmoji'>;
+  row: GridRow
+} & Pick<UseEmojiPickerType, "emojiLibrary" | "onMouseOver" | "onSelectEmoji">
 
 const Button = memo(
   ({ emoji, index, onMouseOver, onSelect }: EmojiButtonProps) => {
@@ -59,10 +58,10 @@ const Button = memo(
           {emoji.skins[0].native}
         </span>
       </button>
-    );
+    )
   }
-);
-Button.displayName = 'Button';
+)
+Button.displayName = "Button"
 
 const RowOfButtons = memo(
   ({ emojiLibrary, row, onMouseOver, onSelectEmoji }: RowOfButtonsProps) => (
@@ -78,8 +77,8 @@ const RowOfButtons = memo(
       ))}
     </div>
   )
-);
-RowOfButtons.displayName = 'RowOfButtons';
+)
+RowOfButtons.displayName = "RowOfButtons"
 
 export function EmojiPickerContent({
   emojiLibrary,
@@ -92,24 +91,24 @@ export function EmojiPickerContent({
   onMouseOver,
   onSelectEmoji,
 }: EmojiPickerContentProps) {
-  const getRowWidth = settings.perLine.value * settings.buttonSize.value;
+  const getRowWidth = settings.perLine.value * settings.buttonSize.value
 
   const isCategoryVisible = useCallback(
     (categoryId: any) => {
       return visibleCategories.has(categoryId)
         ? visibleCategories.get(categoryId)
-        : false;
+        : false
     },
     [visibleCategories]
-  );
+  )
 
   const EmojiList = useCallback(() => {
     return emojiLibrary
       .getGrid()
       .sections()
       .map(({ id: categoryId }) => {
-        const section = emojiLibrary.getGrid().section(categoryId);
-        const { buttonSize } = settings;
+        const section = emojiLibrary.getGrid().section(categoryId)
+        const { buttonSize } = settings
 
         return (
           <div
@@ -118,7 +117,7 @@ export function EmojiPickerContent({
             style={{ width: getRowWidth }}
             data-id={categoryId}
           >
-            <div className="sticky -top-px z-1 bg-popover/90 p-1 py-2 text-sm font-semibold backdrop-blur-xs">
+            <div className="z-1 backdrop-blur-xs sticky -top-px bg-popover/90 p-1 py-2 text-sm font-semibold">
               {i18n.categories[categoryId]}
             </div>
             <div
@@ -139,8 +138,8 @@ export function EmojiPickerContent({
                   ))}
             </div>
           </div>
-        );
-      });
+        )
+      })
   }, [
     emojiLibrary,
     getRowWidth,
@@ -149,12 +148,12 @@ export function EmojiPickerContent({
     onSelectEmoji,
     onMouseOver,
     settings,
-  ]);
+  ])
 
   const SearchList = useCallback(() => {
     return (
       <div style={{ width: getRowWidth }} data-id="search">
-        <div className="sticky -top-px z-1 bg-popover/90 p-1 py-2 text-sm font-semibold text-card-foreground backdrop-blur-xs">
+        <div className="z-1 backdrop-blur-xs sticky -top-px bg-popover/90 p-1 py-2 text-sm font-semibold text-card-foreground">
           {i18n.searchResult}
         </div>
         <div className="relative flex flex-wrap">
@@ -169,7 +168,7 @@ export function EmojiPickerContent({
           ))}
         </div>
       </div>
-    );
+    )
   }, [
     emojiLibrary,
     getRowWidth,
@@ -177,17 +176,17 @@ export function EmojiPickerContent({
     searchResult,
     onSelectEmoji,
     onMouseOver,
-  ]);
+  ])
 
   return (
     <div
       ref={refs.current.contentRoot}
       className={cn(
-        'h-full min-h-[50%] overflow-x-hidden overflow-y-auto px-2',
-        '[&::-webkit-scrollbar]:w-4',
-        '[&::-webkit-scrollbar-button]:hidden [&::-webkit-scrollbar-button]:size-0',
-        '[&::-webkit-scrollbar-thumb]:min-h-11 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-muted [&::-webkit-scrollbar-thumb]:hover:bg-muted-foreground/25',
-        '[&::-webkit-scrollbar-thumb]:border-4 [&::-webkit-scrollbar-thumb]:border-solid [&::-webkit-scrollbar-thumb]:border-popover [&::-webkit-scrollbar-thumb]:bg-clip-padding'
+        "h-full min-h-[50%] overflow-y-auto overflow-x-hidden px-2",
+        "[&::-webkit-scrollbar]:w-4",
+        "[&::-webkit-scrollbar-button]:hidden [&::-webkit-scrollbar-button]:size-0",
+        "[&::-webkit-scrollbar-thumb]:min-h-11 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-muted [&::-webkit-scrollbar-thumb]:hover:bg-muted-foreground/25",
+        "[&::-webkit-scrollbar-thumb]:border-4 [&::-webkit-scrollbar-thumb]:border-solid [&::-webkit-scrollbar-thumb]:border-popover [&::-webkit-scrollbar-thumb]:bg-clip-padding"
       )}
       data-id="scroll"
     >
@@ -195,5 +194,5 @@ export function EmojiPickerContent({
         {isSearching ? SearchList() : EmojiList()}
       </div>
     </div>
-  );
+  )
 }

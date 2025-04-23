@@ -63,7 +63,9 @@ export function ReportCard({
         {icon}
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold">{formatVNDCurrency(Number(value) ?? 0)}</div>
+        <div className="text-2xl font-bold">
+          {formatVNDCurrency(Number(value) ?? 0)}
+        </div>
         {(description || change !== undefined) && (
           <div className="flex items-center">
             {change !== undefined && (
