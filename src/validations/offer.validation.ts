@@ -64,6 +64,7 @@ export function OfferFormSchema() {
           { message: "Budget must be at least 1000" }
         ),
       commissionRate: z.string().optional(),
+      orderReturnTime: z.string().optional(),
 
       stepInfo: z
         .string({ required_error: "Step information is required" })
