@@ -5,14 +5,11 @@ import React from "react"
 import type { DropdownMenuProps } from "@radix-ui/react-dropdown-menu"
 import { BlockquotePlugin } from "@udecode/plate-block-quote/react"
 import { CodeBlockPlugin } from "@udecode/plate-code-block/react"
-import { DatePlugin } from "@udecode/plate-date/react"
 import { ExcalidrawPlugin } from "@udecode/plate-excalidraw/react"
 import { HEADING_KEYS } from "@udecode/plate-heading"
 import { TocPlugin } from "@udecode/plate-heading/react"
 import { HorizontalRulePlugin } from "@udecode/plate-horizontal-rule/react"
-import { INDENT_LIST_KEYS, ListStyleType } from "@udecode/plate-indent-list"
-import { LinkPlugin } from "@udecode/plate-link/react"
-import { EquationPlugin, InlineEquationPlugin } from "@udecode/plate-math/react"
+import { ListStyleType } from "@udecode/plate-indent-list"
 import { ImagePlugin, MediaEmbedPlugin } from "@udecode/plate-media/react"
 import { TablePlugin } from "@udecode/plate-table/react"
 import { TogglePlugin } from "@udecode/plate-toggle/react"
@@ -22,7 +19,6 @@ import {
   useEditorRef,
 } from "@udecode/plate/react"
 import {
-  CalendarIcon,
   ChevronRightIcon,
   Columns3Icon,
   FileCodeIcon,
@@ -31,7 +27,6 @@ import {
   Heading2Icon,
   Heading3Icon,
   ImageIcon,
-  Link2Icon,
   ListIcon,
   ListOrderedIcon,
   MinusIcon,
@@ -39,16 +34,11 @@ import {
   PilcrowIcon,
   PlusIcon,
   QuoteIcon,
-  RadicalIcon,
-  SquareIcon,
   TableIcon,
   TableOfContentsIcon,
 } from "lucide-react"
 
-import {
-  insertBlock,
-  insertInlineElement,
-} from "@/components/editor/transforms"
+import { insertBlock } from "@/components/editor/transforms"
 
 import {
   DropdownMenu,
@@ -138,11 +128,6 @@ const groups: Group[] = [
         value: ListStyleType.Decimal,
       },
       {
-        icon: <SquareIcon />,
-        label: "To-do list",
-        value: INDENT_LIST_KEYS.todo,
-      },
-      {
         icon: <ChevronRightIcon />,
         label: "Toggle list",
         value: TogglePlugin.key,
@@ -192,43 +177,10 @@ const groups: Group[] = [
         label: "3 columns",
         value: "action_three_columns",
       },
-      {
-        focusEditor: false,
-        icon: <RadicalIcon />,
-        label: "Equation",
-        value: EquationPlugin.key,
-      },
     ].map((item) => ({
       ...item,
       onSelect: (editor, value) => {
         insertBlock(editor, value)
-      },
-    })),
-  },
-  {
-    group: "Inline",
-    items: [
-      {
-        icon: <Link2Icon />,
-        label: "Link",
-        value: LinkPlugin.key,
-      },
-      {
-        focusEditor: true,
-        icon: <CalendarIcon />,
-        label: "Date",
-        value: DatePlugin.key,
-      },
-      {
-        focusEditor: false,
-        icon: <RadicalIcon />,
-        label: "Inline Equation",
-        value: InlineEquationPlugin.key,
-      },
-    ].map((item) => ({
-      ...item,
-      onSelect: (editor, value) => {
-        insertInlineElement(editor, value)
       },
     })),
   },

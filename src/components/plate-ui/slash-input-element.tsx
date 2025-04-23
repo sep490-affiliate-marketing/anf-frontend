@@ -3,20 +3,19 @@
 import React from "react"
 
 import { withRef } from "@udecode/cn"
-import { AIChatPlugin } from "@udecode/plate-ai/react"
 import { BlockquotePlugin } from "@udecode/plate-block-quote/react"
 import { CodeBlockPlugin } from "@udecode/plate-code-block/react"
-import { DatePlugin } from "@udecode/plate-date/react"
 import { HEADING_KEYS } from "@udecode/plate-heading"
 import { TocPlugin } from "@udecode/plate-heading/react"
-import { INDENT_LIST_KEYS, ListStyleType } from "@udecode/plate-indent-list"
-import { EquationPlugin, InlineEquationPlugin } from "@udecode/plate-math/react"
+import { ListStyleType } from "@udecode/plate-indent-list"
 import { TablePlugin } from "@udecode/plate-table/react"
 import { TogglePlugin } from "@udecode/plate-toggle/react"
-import { ParagraphPlugin, type PlateEditor } from "@udecode/plate/react"
-import { PlateElement } from "@udecode/plate/react"
 import {
-  CalendarIcon,
+  ParagraphPlugin,
+  type PlateEditor,
+  PlateElement,
+} from "@udecode/plate/react"
+import {
   ChevronRightIcon,
   Code2,
   Columns3Icon,
@@ -27,17 +26,11 @@ import {
   ListOrdered,
   PilcrowIcon,
   Quote,
-  RadicalIcon,
-  SparklesIcon,
-  Square,
   Table,
   TableOfContentsIcon,
 } from "lucide-react"
 
-import {
-  insertBlock,
-  insertInlineElement,
-} from "@/components/editor/transforms"
+import { insertBlock } from "@/components/editor/transforms"
 
 import {
   InlineCombobox,
@@ -67,19 +60,6 @@ interface Item {
 }
 
 const groups: Group[] = [
-  {
-    group: "AI",
-    items: [
-      {
-        focusEditor: false,
-        icon: <SparklesIcon />,
-        value: "AI",
-        onSelect: (editor) => {
-          editor.getApi(AIChatPlugin).aiChat.show()
-        },
-      },
-    ],
-  },
   {
     group: "Basic blocks",
     items: [
@@ -118,12 +98,6 @@ const groups: Group[] = [
         keywords: ["ordered", "ol", "1"],
         label: "Numbered list",
         value: ListStyleType.Decimal,
-      },
-      {
-        icon: <Square />,
-        keywords: ["checklist", "task", "checkbox", "[]"],
-        label: "To-do list",
-        value: INDENT_LIST_KEYS.todo,
       },
       {
         icon: <ChevronRightIcon />,
@@ -169,39 +143,10 @@ const groups: Group[] = [
         label: "3 columns",
         value: "action_three_columns",
       },
-      {
-        focusEditor: false,
-        icon: <RadicalIcon />,
-        label: "Equation",
-        value: EquationPlugin.key,
-      },
     ].map((item) => ({
       ...item,
       onSelect: (editor, value) => {
         insertBlock(editor, value)
-      },
-    })),
-  },
-  {
-    group: "Inline",
-    items: [
-      {
-        focusEditor: true,
-        icon: <CalendarIcon />,
-        keywords: ["time"],
-        label: "Date",
-        value: DatePlugin.key,
-      },
-      {
-        focusEditor: false,
-        icon: <RadicalIcon />,
-        label: "Inline Equation",
-        value: InlineEquationPlugin.key,
-      },
-    ].map((item) => ({
-      ...item,
-      onSelect: (editor, value) => {
-        insertInlineElement(editor, value)
       },
     })),
   },

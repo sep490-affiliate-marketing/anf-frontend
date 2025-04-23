@@ -1,7 +1,5 @@
 "use client"
 
-import React from "react"
-
 import {
   BoldPlugin,
   CodePlugin,
@@ -22,7 +20,6 @@ import {
 } from "@udecode/plate-media/react"
 import { useEditorReadOnly } from "@udecode/plate/react"
 import {
-  ArrowUpToLineIcon,
   BaselineIcon,
   BoldIcon,
   Code2Icon,
@@ -31,25 +28,17 @@ import {
   PaintBucketIcon,
   StrikethroughIcon,
   UnderlineIcon,
-  WandSparklesIcon,
 } from "lucide-react"
 
-import { MoreDropdownMenu } from "@/components/plate-ui/more-dropdown-menu"
-
-import { AIToolbarButton } from "./ai-toolbar-button"
 import { AlignDropdownMenu } from "./align-dropdown-menu"
 import { ColorDropdownMenu } from "./color-dropdown-menu"
-import { CommentToolbarButton } from "./comment-toolbar-button"
 import { EmojiDropdownMenu } from "./emoji-dropdown-menu"
-import { ExportToolbarButton } from "./export-toolbar-button"
 import { FontSizeToolbarButton } from "./font-size-toolbar-button"
 import { RedoToolbarButton, UndoToolbarButton } from "./history-toolbar-button"
-import { ImportToolbarButton } from "./import-toolbar-button"
 import {
   BulletedIndentListToolbarButton,
   NumberedIndentListToolbarButton,
 } from "./indent-list-toolbar-button"
-import { IndentTodoToolbarButton } from "./indent-todo-toolbar-button"
 import { IndentToolbarButton } from "./indent-toolbar-button"
 import { InsertDropdownMenu } from "./insert-dropdown-menu"
 import { LineHeightDropdownMenu } from "./line-height-dropdown-menu"
@@ -73,20 +62,6 @@ export function FixedToolbarButtons() {
           <ToolbarGroup>
             <UndoToolbarButton />
             <RedoToolbarButton />
-          </ToolbarGroup>
-
-          <ToolbarGroup>
-            <AIToolbarButton tooltip="AI commands">
-              <WandSparklesIcon />
-            </AIToolbarButton>
-          </ToolbarGroup>
-
-          <ToolbarGroup>
-            <ExportToolbarButton>
-              <ArrowUpToLineIcon />
-            </ExportToolbarButton>
-
-            <ImportToolbarButton />
           </ToolbarGroup>
 
           <ToolbarGroup>
@@ -145,7 +120,6 @@ export function FixedToolbarButtons() {
 
             <NumberedIndentListToolbarButton />
             <BulletedIndentListToolbarButton />
-            <IndentTodoToolbarButton />
             <ToggleToolbarButton />
           </ToolbarGroup>
 
@@ -167,10 +141,6 @@ export function FixedToolbarButtons() {
             <OutdentToolbarButton />
             <IndentToolbarButton />
           </ToolbarGroup>
-
-          <ToolbarGroup>
-            <MoreDropdownMenu />
-          </ToolbarGroup>
         </>
       )}
 
@@ -180,7 +150,6 @@ export function FixedToolbarButtons() {
         <MarkToolbarButton nodeType={HighlightPlugin.key} tooltip="Highlight">
           <HighlighterIcon />
         </MarkToolbarButton>
-        <CommentToolbarButton />
       </ToolbarGroup>
 
       <ToolbarGroup>
