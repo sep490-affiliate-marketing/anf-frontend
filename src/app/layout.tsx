@@ -20,7 +20,7 @@ import "@/styles/globals.css"
 const jakarta = JakartaSans({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
-  variable: "--font-sans",
+  variable: "--font-jakarta",
 })
 
 export const metadata = constructMetadata()
