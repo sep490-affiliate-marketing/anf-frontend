@@ -116,7 +116,9 @@ export const useCreateCampaignForm = () => {
         form.reset()
         router.push("/advertiser/campaigns")
       } else {
-        toast.error(resData.message)
+        toast.error(resData.message, {
+          description: resData.details,
+        })
       }
     },
   })

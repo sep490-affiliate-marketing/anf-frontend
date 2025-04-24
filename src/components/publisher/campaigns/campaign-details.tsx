@@ -467,11 +467,38 @@ export function CampaignDetails({ campaignId }: { campaignId: number }) {
                     <div>
                       <div className="flex items-center justify-between text-xs">
                         <span className="text-gray-500">Budget</span>
-                        <span>{formatVNDCurrency(offer.budget)}</span>
+                        <span>
+                          {formatVNDCurrency(
+                            campaign.offers.reduce(
+                              (sum, offer) => sum + offer.budget,
+                              0
+                            )
+                          )}
+                        </span>
                       </div>
-                      <Progress value={70} className="mb-1 mt-1.5 h-1" />
+                      <Progress
+                        value={
+                          100 -
+                          (campaign.balance /
+                            campaign.offers.reduce(
+                              (sum, offer) => sum + offer.budget,
+                              0
+                            )) *
+                            100
+                        }
+                        className="mb-1 mt-1.5 h-1"
+                      />
                       <p className="text-right text-xs text-gray-500">
-                        70% used
+                        {(
+                          100 -
+                          (campaign.balance /
+                            campaign.offers.reduce(
+                              (sum, offer) => sum + offer.budget,
+                              0
+                            )) *
+                            100
+                        ).toFixed(0)}
+                        % used
                       </p>
                     </div>
                   </div>
@@ -572,9 +599,9 @@ export function CampaignDetails({ campaignId }: { campaignId: number }) {
               Product Details
             </h3>
             <ul className="space-y-3">
-              <li className="flex items-start gap-2">
+              <li className="flex items-start gap-2 overflow-hidden">
                 <Globe className="mt-0.5 size-3.5 text-gray-400" />
-                <div>
+                <div className="truncate">
                   <p className="text-xs text-gray-500">Website</p>
                   <a
                     href={campaign.productUrl}
