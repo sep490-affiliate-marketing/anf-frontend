@@ -2,6 +2,7 @@ import { useRouter } from "next/navigation"
 
 import { errorMessage } from "@/constant/error-message"
 import { campaignQueryKeys } from "@/constant/react-query"
+import { useAuth } from "@/providers/auth-provider"
 import {
   CreateCampaignFormSchema,
   ICreateCampaignForm,
@@ -55,6 +56,7 @@ export const useGetCampaignById = (campaignId: string) => {
 export const useCreateCampaignForm = () => {
   const queryClient = useQueryClient()
   const router = useRouter()
+  const { user } = useAuth()
 
   const form = useForm<ICreateCampaignForm>({
     mode: "onChange",
@@ -111,7 +113,11 @@ export const useCreateCampaignForm = () => {
       if (resData.isSuccess === true) {
         toast.success("Campaign created successfully")
         queryClient.invalidateQueries({
-          queryKey: campaignQueryKeys.advertiser.list,
+          queryKey: campaignQueryKeys.advertiser.list(
+            user?.userCode ?? "",
+            1,
+            10
+          ),
         })
         form.reset()
         router.push("/advertiser/campaigns")
