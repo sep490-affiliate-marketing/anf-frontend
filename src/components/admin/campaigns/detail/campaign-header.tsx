@@ -293,7 +293,8 @@ function CampaignVerificationUI({ campaign }: { campaign: Campaign }) {
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <span className="max-w-[120px] truncate font-medium sm:max-w-[240px]">campaign 
+                              <span className="max-w-[120px] truncate font-medium sm:max-w-[240px]">
+                                campaign
                                 {campaign.name}
                               </span>
                             </TooltipTrigger>
@@ -517,7 +518,7 @@ function CampaignVerificationUI({ campaign }: { campaign: Campaign }) {
           )}
 
           {verificationAction === "reject" && (
-            <div className="shrink-0 items-center rounded-lg border border-red-100 bg-red-50 px-4 py-3 text-red-800">
+            <div className="flex shrink-0 items-center rounded-lg border border-red-100 bg-red-50 px-4 py-3 text-red-800">
               <Info className="mr-3 size-5 text-red-500" />
               <p className="text-sm">
                 {rejectReason.trim() === ""

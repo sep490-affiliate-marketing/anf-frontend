@@ -23,7 +23,7 @@ import { toast } from "sonner"
 import { ILoginRes, IMeRes, IUserExtended } from "@/types/auth.type"
 
 import apiClient from "@/lib/api/client"
-import { notificationHub } from "@/lib/signalr/notification-hub"
+import { initNotificationHub } from "@/lib/signalr/notification-hub"
 
 import LogoutDialog from "@/components/dialogs/logout-dialog"
 
@@ -73,12 +73,12 @@ export default function AuthProvider({
   // Initialize SignalR connection when user is authenticated
   useEffect(() => {
     if (userData) {
-      notificationHub.startConnection()
+      initNotificationHub(queryClient).startConnection()
       return () => {
-        notificationHub.stopConnection()
+        initNotificationHub(queryClient).stopConnection()
       }
     }
-  }, [userData])
+  }, [userData, queryClient])
 
   const { mutateAsync: logout, isPending: isLoggingOut } = useMutation({
     mutationKey: authQueryKeys.logout(),

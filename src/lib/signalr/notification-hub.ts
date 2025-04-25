@@ -1,8 +1,11 @@
+import { campaignQueryKeys } from "@/constant/react-query"
 import {
   HubConnection,
   HubConnectionBuilder,
   LogLevel,
 } from "@microsoft/signalr"
+import { QueryClient } from "@tanstack/react-query"
+import Cookies from "js-cookie"
 import { toast } from "sonner"
 
 import {
@@ -15,19 +18,25 @@ import {
 class NotificationHub {
   private connection: HubConnection | null = null
   private readonly hubUrl: string
+  private queryClient: QueryClient
 
-  constructor() {
-    // Replace with your actual SignalR hub URL
+  constructor(queryClient: QueryClient) {
     this.hubUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}/notiHub`
+    this.queryClient = queryClient
   }
 
   public async startConnection(): Promise<void> {
     try {
+      const accessToken = Cookies.get("access_token")
+      if (!accessToken) {
+        console.error("No access token found")
+        return
+      }
+
       this.connection = new HubConnectionBuilder()
         .withUrl(this.hubUrl, {
           withCredentials: true,
-          accessTokenFactory: () =>
-            "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwcmltYXJ5c2lkIjoiNTE4MDExMDM1MyIsIm5hbWVpZCI6IkMxOTM0NUJCMEEiLCJlbWFpbCI6ImFkdmVydGlzZXJAZ21haWwuY29tIiwicm9sZSI6IkFkdmVydGlzZXIiLCJuYmYiOjE3NDU0Njk1MTQsImV4cCI6MTc0NTQ3MzExNCwiaWF0IjoxNzQ1NDY5NTE0LCJpc3MiOiJiZS5sM29uLmlkLnZuIiwiYXVkIjoiZGV2Lmwzb24uaWQudm4ifQ.rLNj8faMpfd8RqV0D1T4Rorg3s4seqRsVXgCXXF4Zmw",
+          accessTokenFactory: () => accessToken,
         })
         .withAutomaticReconnect()
         .configureLogging(LogLevel.Information)
@@ -72,6 +81,20 @@ class NotificationHub {
         toast.info("Campaign Update", {
           description,
           duration: 5000,
+          action: {
+            label: "View Details",
+            onClick: () => {
+              window.location.href = `/advertiser/campaigns/${message.campaignId}`
+            },
+          },
+        })
+
+        this.queryClient.invalidateQueries({
+          queryKey: campaignQueryKeys.advertiser.list(
+            message?.userCode ?? "",
+            1,
+            10
+          ),
         })
       }
     )
@@ -139,5 +162,11 @@ class NotificationHub {
   }
 }
 
-// Export a singleton instance
-export const notificationHub = new NotificationHub()
+let notificationHubInstance: NotificationHub | null = null
+
+export function initNotificationHub(queryClient: QueryClient) {
+  if (!notificationHubInstance) {
+    notificationHubInstance = new NotificationHub(queryClient)
+  }
+  return notificationHubInstance
+}
