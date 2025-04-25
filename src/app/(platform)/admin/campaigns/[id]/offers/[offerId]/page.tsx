@@ -150,7 +150,7 @@ export default function OfferDetailPage({
             {offerResData?.description}
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        {/* <div className="flex items-center gap-2">
           <Button variant="outline" className="gap-2">
             <Settings className="size-4" />
             Settings
@@ -159,7 +159,7 @@ export default function OfferDetailPage({
             <Megaphone className="size-4" />
             Promote
           </Button>
-        </div>
+        </div> */}
       </div>
 
       <div className="container mx-auto px-6">
