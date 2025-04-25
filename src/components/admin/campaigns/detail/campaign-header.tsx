@@ -2,6 +2,8 @@
 
 import { useState } from "react"
 
+import Link from "next/link"
+
 import { CampaignStatusEnum } from "@/enums/campaign-status"
 import { format } from "date-fns"
 import { vi } from "date-fns/locale"
@@ -162,14 +164,16 @@ function CampaignVerificationUI({ campaign }: { campaign: Campaign }) {
       {/* Campaign Action Bar - Persistent at top of page */}
       <div className="sticky top-0 z-10 flex w-full flex-col border-b bg-gradient-to-r from-white to-white/90 px-4 py-3 backdrop-blur-sm sm:flex-row sm:items-center sm:justify-between sm:px-6">
         <div className="flex items-center gap-4 overflow-hidden">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="shrink-0 gap-2 text-gray-600 hover:text-gray-900"
-          >
-            <ChevronLeft className="size-4" />
-            Back
-          </Button>
+          <Link href="/admin/campaigns">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="shrink-0 gap-2 text-gray-600 hover:text-gray-900"
+            >
+              <ChevronLeft className="size-4" />
+              Back
+            </Button>
+          </Link>
           <div className="h-5 w-px shrink-0 bg-gray-200"></div>
           <div className="min-w-0 flex-1 overflow-hidden">
             <div className="flex items-center gap-3">
@@ -518,7 +522,7 @@ function CampaignVerificationUI({ campaign }: { campaign: Campaign }) {
           )}
 
           {verificationAction === "reject" && (
-            <div className="shrink-0 items-center rounded-lg border border-red-100 bg-red-50 px-4 py-3 text-red-800">
+            <div className="flex shrink-0 items-center rounded-lg border border-red-100 bg-red-50 px-4 py-3 text-red-800">
               <Info className="mr-3 size-5 text-red-500" />
               <p className="text-sm">
                 {rejectReason.trim() === ""

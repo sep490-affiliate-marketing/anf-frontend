@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useContext } from "react"
+import React, { useContext, useEffect } from "react"
 
 import { useRouter } from "next/navigation"
 
@@ -23,6 +23,7 @@ import { toast } from "sonner"
 import { ILoginRes, IMeRes, IUserExtended } from "@/types/auth.type"
 
 import apiClient from "@/lib/api/client"
+import { initNotificationHub } from "@/lib/signalr/notification-hub"
 
 import LogoutDialog from "@/components/dialogs/logout-dialog"
 
@@ -68,6 +69,16 @@ export default function AuthProvider({
     initialData: initUserData,
     enabled: !!Cookies.get("access_token"),
   })
+
+  // Initialize SignalR connection when user is authenticated
+  useEffect(() => {
+    if (userData) {
+      initNotificationHub(queryClient).startConnection()
+      return () => {
+        initNotificationHub(queryClient).stopConnection()
+      }
+    }
+  }, [userData, queryClient])
 
   const { mutateAsync: logout, isPending: isLoggingOut } = useMutation({
     mutationKey: authQueryKeys.logout(),

@@ -443,6 +443,9 @@ const CampaignForm = () => {
           bid?: string
           budget?: string
           description?: string
+          startDate?: string
+          endDate?: string
+          targetUrl?: string
         }
 
         return (
@@ -451,7 +454,7 @@ const CampaignForm = () => {
               <div className="rounded-lg border bg-muted/20 p-6">
                 <h3 className="text-lg font-medium">Campaign Details</h3>
                 <dl className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  <div>
+                  <div className="col-span-full">
                     <dt className="text-sm text-muted-foreground">
                       Campaign Name
                     </dt>
@@ -558,7 +561,7 @@ const CampaignForm = () => {
 
               <div className="rounded-lg border bg-muted/20 p-6">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-medium">Offers</h3>
+                  <h3 className="text-lg font-medium">Campaign Offers</h3>
                   <span className="rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">
                     {offers?.length || 0} offers
                   </span>
@@ -566,46 +569,108 @@ const CampaignForm = () => {
                 {offers && offers.length > 0 ? (
                   <div className="mt-4 space-y-4">
                     {offers.map((offerItem, index) => {
-                      // Safely cast to our display interface
                       const offer: OfferDisplay = offerItem || {}
                       return (
-                        <div key={index} className="rounded-md border p-4">
-                          <div className="mb-2 text-sm font-medium">
-                            Offer {index + 1}
+                        <div
+                          key={index}
+                          className="rounded-md border bg-background p-4"
+                        >
+                          <div className="mb-4 flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <span className="flex size-8 items-center justify-center rounded-full bg-primary/10 text-sm font-medium text-primary">
+                                {index + 1}
+                              </span>
+                              <h4 className="font-medium">Offer Details</h4>
+                            </div>
+                            <span className="rounded-md bg-muted px-2.5 py-1 text-xs font-medium">
+                              {offer.pricingModel}
+                            </span>
                           </div>
-                          <dl className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                          <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             <div>
-                              <dt className="text-xs text-muted-foreground">
-                                Pricing Model
+                              <dt className="text-xs font-medium text-muted-foreground">
+                                {offer.pricingModel === "CPS"
+                                  ? "Commission Rate"
+                                  : "Bid Amount"}
                               </dt>
-                              <dd className="text-sm">
-                                {offer.pricingModel || "Not set"}
+                              <dd className="mt-1 text-sm font-medium">
+                                {offer.pricingModel === "CPS"
+                                  ? `${Number(offer.bid ?? 0)}%`
+                                  : formatVNDCurrency(Number(offer.bid ?? 0))}
                               </dd>
                             </div>
                             <div>
-                              <dt className="text-xs text-muted-foreground">
-                                Bid
+                              <dt className="text-xs font-medium text-muted-foreground">
+                                Budget
                               </dt>
-                              <dd className="text-sm">
-                                {formatVNDCurrency(Number(offer.bid ?? 0))}
+                              <dd className="mt-1 text-sm font-medium">
+                                {offer.budget
+                                  ? formatVNDCurrency(Number(offer.budget))
+                                  : "Unlimited"}
                               </dd>
                             </div>
-                            {offer.budget && (
-                              <div>
-                                <dt className="text-xs text-muted-foreground">
-                                  Budget
+                            <div>
+                              <dt className="text-xs font-medium text-muted-foreground">
+                                Start Date
+                              </dt>
+                              <dd className="mt-1 text-sm">
+                                {offer.startDate
+                                  ? format(
+                                      new Date(offer.startDate),
+                                      "dd/MM/yyyy",
+                                      {
+                                        locale: vi,
+                                      }
+                                    )
+                                  : format(
+                                      new Date(campaignStartDate),
+                                      "dd/MM/yyyy",
+                                      {
+                                        locale: vi,
+                                      }
+                                    )}
+                              </dd>
+                            </div>
+                            <div>
+                              <dt className="text-xs font-medium text-muted-foreground">
+                                End Date
+                              </dt>
+                              <dd className="mt-1 text-sm">
+                                {offer.endDate
+                                  ? format(
+                                      new Date(offer.endDate),
+                                      "dd/MM/yyyy",
+                                      {
+                                        locale: vi,
+                                      }
+                                    )
+                                  : format(
+                                      new Date(campaignEndDate),
+                                      "dd/MM/yyyy",
+                                      {
+                                        locale: vi,
+                                      }
+                                    )}
+                              </dd>
+                            </div>
+                            {offer.description && (
+                              <div className="col-span-full">
+                                <dt className="text-xs font-medium text-muted-foreground">
+                                  Description
                                 </dt>
-                                <dd className="text-sm">
-                                  {formatVNDCurrency(Number(offer.budget ?? 0))}
+                                <dd className="mt-1 whitespace-pre-wrap rounded-md bg-muted p-3 text-sm">
+                                  {offer.description}
                                 </dd>
                               </div>
                             )}
-                            {offer.description && (
+                            {offer.targetUrl && (
                               <div className="col-span-full">
-                                <dt className="text-xs text-muted-foreground">
-                                  Description
+                                <dt className="text-xs font-medium text-muted-foreground">
+                                  Target URL
                                 </dt>
-                                <dd className="text-sm">{offer.description}</dd>
+                                <dd className="mt-1 break-all rounded-md bg-muted p-3 font-mono text-xs">
+                                  {offer.targetUrl}
+                                </dd>
                               </div>
                             )}
                           </dl>
@@ -614,9 +679,11 @@ const CampaignForm = () => {
                     })}
                   </div>
                 ) : (
-                  <p className="mt-2 text-sm text-muted-foreground">
-                    No offers have been added to this campaign.
-                  </p>
+                  <div className="mt-4 rounded-md border border-dashed p-6 text-center">
+                    <p className="text-sm text-muted-foreground">
+                      No offers have been added to this campaign yet.
+                    </p>
+                  </div>
                 )}
               </div>
             </div>
