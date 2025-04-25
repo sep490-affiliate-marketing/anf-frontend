@@ -14,6 +14,8 @@ import { parseAsInteger, useQueryState } from "nuqs"
 
 import { ICampaign } from "@/types/campaign.type"
 
+import { formatVNDCurrency } from "@/lib/utils"
+
 import { useGetAdminCampaigns, useUpdateCampaignStatus } from "@/hooks/campaign"
 
 import { Button } from "@/components/ui/button"
@@ -55,7 +57,6 @@ import { CampaignStatusBadge } from "@/components/badge/campaign-status-badge"
 import { EmptyTable } from "@/components/data-table/empty-table"
 import { SearchInput } from "@/components/inputs/search-input"
 import { Spinner } from "@/components/spinner"
-import { formatVNDCurrency } from "@/lib/utils"
 
 export default function CampaignDataTable() {
   const router = useRouter()

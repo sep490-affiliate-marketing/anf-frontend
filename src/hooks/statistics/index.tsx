@@ -5,7 +5,6 @@ import { AxiosError } from "axios"
 import { toast } from "sonner"
 
 import {
-  IAdvertiserOfferStatistics,
   IGenerateStatisticsErrorResponse,
   IGenerateStatisticsResponse,
   IGetAdvertiserOfferStatisticsErrorResponse,

@@ -65,6 +65,10 @@ export default async function middleware(request: NextRequest) {
   const { nextUrl } = request
   const normalizedPath = pathname.toLowerCase()
 
+  if (request.nextUrl.pathname.startsWith("/api/uploadthing")) {
+    return
+  }
+
   // Skip middleware for API authentication routes
   const isApiAuthRoute = apiAuthPrefix.some((path) =>
     normalizedPath.startsWith(path)

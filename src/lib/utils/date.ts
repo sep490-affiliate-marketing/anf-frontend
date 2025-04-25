@@ -1,7 +1,10 @@
 import { format } from "date-fns"
 import { vi } from "date-fns/locale"
 
-export const formatDate = (date: Date | string, pattern: string = "dd/MM/yyyy") => {
+export const formatDate = (
+  date: Date | string,
+  pattern: string = "dd/MM/yyyy"
+) => {
   if (!date) return ""
   return format(new Date(date), pattern, { locale: vi })
 }
