@@ -5,7 +5,7 @@ import { useState } from "react"
 import { useAuth } from "@/providers/auth-provider"
 import { format } from "date-fns"
 import { vi } from "date-fns/locale"
-import { RefreshCw, Search } from "lucide-react"
+import { Search } from "lucide-react"
 
 import { formatVNDCurrency } from "@/lib/utils"
 
@@ -107,14 +107,6 @@ export default function WithdrawRequestsTable() {
     }
   }
 
-  const handleRefresh = async () => {
-    setIsRefreshing(true)
-    // In a real app, this would refetch data
-    setTimeout(() => {
-      setIsRefreshing(false)
-    }, 1000)
-  }
-
   return (
     <div className="space-y-6">
       <div className="flex items-end justify-between">
@@ -139,17 +131,6 @@ export default function WithdrawRequestsTable() {
               }}
             />
           </div>
-        </div>
-        <div className="flex justify-end">
-          <Button
-            onClick={handleRefresh}
-            variant="outline"
-            className="h-10"
-            disabled={isLoading || isRefreshing}
-          >
-            <RefreshCw className="mr-2 size-4" />
-            Refresh
-          </Button>
         </div>
       </div>
 

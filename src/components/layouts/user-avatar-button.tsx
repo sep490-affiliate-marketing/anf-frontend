@@ -58,7 +58,10 @@ export default function UserAvatarButton() {
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>
-        <button className="flex items-center gap-3 rounded-full border border-border bg-background px-3 py-1 pr-4 text-sm font-medium transition-colors hover:bg-muted focus:outline-none">
+        <button
+          type="button"
+          className="flex items-center gap-3 rounded-full border border-border bg-background px-3 py-1 pr-4 text-sm font-medium transition-colors hover:bg-muted focus:outline-none"
+        >
           <Avatar className="h-8 w-8 border border-border">
             <AvatarImage
               src={user?.imageUrl || "/placeholder.svg"}
