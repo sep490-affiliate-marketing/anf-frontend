@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 
 import Image from "next/image"
 
-import axios from "axios"
+import axios, { AxiosError } from "axios"
 import { Loader2, Plus } from "lucide-react"
 import { toast } from "sonner"
 
@@ -89,7 +89,7 @@ export function AddBankAccountDialog() {
 
   const handleLookupAccount = async () => {
     if (!bankingInfo.bankName || !bankingInfo.accountNumber) return
-
+    setAccountHolderName("")
     setIsLookingUpAccount(true)
     setLookupError(null)
 
@@ -101,11 +101,10 @@ export function AddBankAccountDialog() {
 
       setAccountHolderName(data.data.ownerName)
     } catch (error) {
-      // Show toast notification with error details
-      const { message } = showApiErrorToast(error)
+      const errRes = error instanceof AxiosError ? error.response?.data : null
 
       // Set the error message for UI display
-      setLookupError(message)
+      setLookupError(errRes?.error ?? "Failed to lookup account")
     } finally {
       setIsLookingUpAccount(false)
     }
