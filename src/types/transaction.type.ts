@@ -17,3 +17,16 @@ export interface IWalletTransaction {
 }
 
 export type IGetWalletHistoryResponse = IPaginationResponse<IWalletTransaction>
+
+export interface IWithdrawRequestResponse {
+  isSuccess: boolean
+  message: string
+  value?: any
+}
+
+export interface IWithdrawRequestErrorResponse {
+  isSuccess: false
+  statusCode: number
+  message: string
+  details: string
+}

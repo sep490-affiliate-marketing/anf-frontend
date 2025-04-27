@@ -1,15 +1,23 @@
 import { useRouter } from "next/navigation"
 
 import { walletQueryKeys } from "@/constant/react-query"
+import {
+  IWithdrawRequestForm,
+  WithdrawRequestSchema,
+} from "@/validations/withdraw.validation"
+import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation, useQuery } from "@tanstack/react-query"
+import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 
 import {
   IAddCreditResponse,
   IGetWalletHistoryResponse,
+  IWithdrawRequestResponse,
 } from "@/types/transaction.type"
 
 import apiClient from "@/lib/api/client"
+import { extractApiError } from "@/lib/api/error-handler"
 
 export const useAddCredit = () => {
   const router = useRouter()
@@ -59,4 +67,48 @@ export const useGetWalletHistory = (
       }
     },
   })
+}
+
+export const useWithdrawRequest = () => {
+  const withDrawResquestForm = useForm<IWithdrawRequestForm>({
+    resolver: zodResolver(WithdrawRequestSchema),
+    defaultValues: {
+      amount: 0,
+      bankingNo: "",
+      beneficiaryBankCode: "",
+      beneficiaryBankName: "",
+    },
+  })
+
+  const { mutateAsync: withdrawRequestMutation, isPending } = useMutation({
+    mutationKey: walletQueryKeys.withdraw(),
+    mutationFn: async (formData: IWithdrawRequestForm) => {
+      try {
+        const { data } = await apiClient.post<IWithdrawRequestResponse>(
+          "/api/affiliate-network/users/withdrawal-request",
+          formData
+        )
+        return data
+      } catch (error) {
+        const errRes = extractApiError(error)
+
+        return {
+          isSuccess: false,
+          message: errRes?.message ?? "Failed to submit withdrawal request",
+          details: errRes?.details ?? "An unexpected error occurred",
+        }
+      }
+    },
+    onSuccess: (resData) => {
+      if (resData?.isSuccess === true) {
+        toast.success("Withdrawal request submitted successfully")
+      }
+    },
+  })
+
+  return {
+    withDrawResquestForm,
+    withdrawRequestMutation,
+    isPending,
+  }
 }

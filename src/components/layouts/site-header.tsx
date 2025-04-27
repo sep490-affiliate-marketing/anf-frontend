@@ -5,7 +5,7 @@ import Link from "next/link"
 
 import { UserRoleEnum } from "@/enums/user-role"
 import { useAuth } from "@/providers/auth-provider"
-import { Bell, ExternalLink } from "lucide-react"
+import { Bell } from "lucide-react"
 
 import { IUser } from "@/types/user.type"
 
@@ -20,7 +20,7 @@ interface NavItem {
   title: string
   url: string
   matchPattern?: string
-  roles?: UserRoleEnum[] // Optional array of roles that can see this item
+  roles?: UserRoleEnum[]
 }
 
 export function SiteHeader() {
@@ -55,14 +55,6 @@ export function SiteHeader() {
         </div>
 
         <div className="flex items-center space-x-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="flex items-center space-x-1 text-sm font-normal text-gray-600 transition-colors hover:bg-gray-50 hover:text-black"
-          >
-            <span>Docs</span>
-            <ExternalLink className="size-3" />
-          </Button>
           <Button
             variant="ghost"
             size="icon"
@@ -111,6 +103,12 @@ const getAccessibleRoutes = (
       url: "/countries",
       matchPattern: "countries",
       roles: [UserRoleEnum.ADMIN],
+    },
+    {
+      title: "Transactions",
+      url: "/transactions",
+      matchPattern: "transactions",
+      roles: [UserRoleEnum.ADVERTISER, UserRoleEnum.PUBLISHER],
     },
     {
       title: "Tickets",
