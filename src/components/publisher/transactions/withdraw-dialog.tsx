@@ -131,7 +131,7 @@ export function WithdrawDialog() {
 
         {errorMessage && (
           <Alert variant="destructive" className="mb-4">
-            <AlertCircle className="h-4 w-4" />
+            <AlertCircle className="size-4" />
             <AlertDescription>{errorMessage}</AlertDescription>
           </Alert>
         )}
@@ -239,4 +239,3 @@ export function WithdrawDialog() {
     </Dialog>
   )
 }
-

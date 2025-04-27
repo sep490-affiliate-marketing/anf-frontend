@@ -5,7 +5,7 @@ import Link from "next/link"
 
 import { UserRoleEnum } from "@/enums/user-role"
 import { useAuth } from "@/providers/auth-provider"
-import { Bell, ExternalLink } from "lucide-react"
+import { Bell } from "lucide-react"
 
 import { IUser } from "@/types/user.type"
 

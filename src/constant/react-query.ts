@@ -145,4 +145,3 @@ export const statisticQueryKeys = {
       ] as const,
   },
 }
-

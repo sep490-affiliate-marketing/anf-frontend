@@ -30,4 +30,3 @@ export interface IWithdrawRequestErrorResponse {
   message: string
   details: string
 }
-

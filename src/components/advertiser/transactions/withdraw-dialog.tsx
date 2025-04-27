@@ -4,7 +4,6 @@ import { useEffect, useState } from "react"
 
 import { useAuth } from "@/providers/auth-provider"
 import { AlertCircle } from "lucide-react"
-import { toast } from "sonner"
 
 import { formatVNDCurrency } from "@/lib/utils"
 
@@ -132,7 +131,7 @@ export function WithdrawDialog() {
 
         {errorMessage && (
           <Alert variant="destructive" className="mb-4">
-            <AlertCircle className="h-4 w-4" />
+            <AlertCircle className="size-4" />
             <AlertDescription>{errorMessage}</AlertDescription>
           </Alert>
         )}
@@ -240,4 +239,3 @@ export function WithdrawDialog() {
     </Dialog>
   )
 }
-

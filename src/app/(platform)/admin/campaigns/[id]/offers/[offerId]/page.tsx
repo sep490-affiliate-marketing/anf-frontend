@@ -18,7 +18,6 @@ import {
   Info,
   Megaphone,
   PieChart,
-  Settings,
 } from "lucide-react"
 
 import { formatVNDCurrency } from "@/lib/utils"

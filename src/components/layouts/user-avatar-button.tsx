@@ -62,7 +62,7 @@ export default function UserAvatarButton() {
           type="button"
           className="flex items-center gap-3 rounded-full border border-border bg-background px-3 py-1 pr-4 text-sm font-medium transition-colors hover:bg-muted focus:outline-none"
         >
-          <Avatar className="h-8 w-8 border border-border">
+          <Avatar className="size-8 border border-border">
             <AvatarImage
               src={user?.imageUrl || "/placeholder.svg"}
               alt={`${user?.firstName} ${user?.lastName}`}
@@ -88,7 +88,7 @@ export default function UserAvatarButton() {
 
           <ChevronDown
             className={cn(
-              "h-4 w-4 text-muted-foreground transition-transform",
+              "size-4 text-muted-foreground transition-transform",
               isOpen && "rotate-180"
             )}
           />
@@ -104,7 +104,7 @@ export default function UserAvatarButton() {
           {isLoadingUser ? (
             <div className="space-y-3">
               <div className="flex items-center gap-3">
-                <Skeleton className="h-10 w-10 rounded-full" />
+                <Skeleton className="size-10 rounded-full" />
                 <div className="space-y-1.5">
                   <Skeleton className="h-4 w-24" />
                   <Skeleton className="h-3 w-32" />
@@ -115,7 +115,7 @@ export default function UserAvatarButton() {
           ) : (
             <>
               <div className="flex items-center gap-3">
-                <Avatar className="h-10 w-10 border border-border">
+                <Avatar className="size-10 border border-border">
                   <AvatarImage
                     src={user?.imageUrl || "/placeholder.svg"}
                     alt="Profile image"
@@ -158,7 +158,7 @@ export default function UserAvatarButton() {
             onClick={() => router.push(getRoleBasedRoute("/"))}
           >
             <Layers2Icon
-              className="h-4 w-4 text-muted-foreground"
+              className="size-4 text-muted-foreground"
               aria-hidden="true"
             />
             <span>Dashboard</span>
@@ -169,7 +169,7 @@ export default function UserAvatarButton() {
             onClick={() => router.push(getRoleBasedRoute("/profile"))}
           >
             <UserPenIcon
-              className="h-4 w-4 text-muted-foreground"
+              className="size-4 text-muted-foreground"
               aria-hidden="true"
             />
             <span>Profile</span>
@@ -187,7 +187,7 @@ export default function UserAvatarButton() {
               isLoggingOut && "cursor-not-allowed opacity-70"
             )}
           >
-            <LogOutIcon className="h-4 w-4" aria-hidden="true" />
+            <LogOutIcon className="size-4" aria-hidden="true" />
             <span>{isLoggingOut ? "Logging out..." : "Logout"}</span>
           </DropdownMenuItem>
         </div>

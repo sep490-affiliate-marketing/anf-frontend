@@ -15,6 +15,8 @@ import { withTooltip } from "./tooltip"
 
 /* eslint-disable react/display-name */
 
+/* eslint-disable react/display-name */
+
 export const Toolbar = withCn(
   ToolbarPrimitive.Root,
   "relative flex items-center select-none"

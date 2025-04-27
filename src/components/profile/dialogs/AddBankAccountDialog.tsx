@@ -11,8 +11,6 @@ import { toast } from "sonner"
 import { IBank } from "@/types/bank.type"
 import { BankingInfo } from "@/types/profile"
 
-import { showApiErrorToast } from "@/lib/api/error-handler"
-
 import { useAddBankAccount, useGetBankList } from "@/hooks/bank"
 
 import { Button } from "@/components/ui/button"
