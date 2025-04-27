@@ -109,6 +109,7 @@ export const walletQueryKeys = {
       { page, limit },
     ] as const,
   deposit: () => [...walletQueryKeys.origin, "deposit"] as const,
+  withdraw: () => [...walletQueryKeys.origin, "withdraw"] as const,
 }
 
 export const statisticQueryKeys = {
@@ -144,3 +145,4 @@ export const statisticQueryKeys = {
       ] as const,
   },
 }
+

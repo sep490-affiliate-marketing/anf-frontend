@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 import TransactionDataTable from "@/components/advertiser/transactions/data-table"
 import { WithdrawDialog } from "@/components/advertiser/transactions/withdraw-dialog"
+import WithdrawRequestsTable from "@/components/advertiser/transactions/withdraw-requests-table"
 import { Spinner } from "@/components/spinner"
 
 export default function TransactionsPage() {
@@ -57,12 +58,7 @@ export default function TransactionsPage() {
           <TabsContent value="withdrawRequests" className="mt-0">
             <section className="space-y-4">
               <Suspense fallback={<Spinner />}>
-                {/* Replace with WithdrawRequestsTable component when available */}
-                <div className="rounded-md border p-4 text-center">
-                  <p className="text-muted-foreground">
-                    Withdraw requests will appear here
-                  </p>
-                </div>
+                <WithdrawRequestsTable />
               </Suspense>
             </section>
           </TabsContent>
@@ -71,3 +67,4 @@ export default function TransactionsPage() {
     </div>
   )
 }
+
