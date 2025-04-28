@@ -48,7 +48,7 @@ export default async function RootLayout({
             <ApiProvider>
               <AuthProvider initUserData={userData}>
                 <NuqsAdapter>
-                  <Toaster />
+                  <Toaster position="top-right" />
                   <div className="relative flex min-h-svh flex-col bg-background">
                     {children}
                   </div>

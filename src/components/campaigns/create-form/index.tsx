@@ -72,10 +72,11 @@ const CampaignForm = () => {
 
   const {
     control,
-    formState: {},
+    formState: { errors },
     handleSubmit,
     watch,
     setValue,
+    trigger,
   } = form
   const campaignStartDate = watch("startDate")
   const campaignEndDate = watch("endDate")
@@ -257,6 +258,77 @@ const CampaignForm = () => {
     }
   }, [currentStep, form, previewImage])
 
+  // Validate step fields before proceeding to next step
+  const validateStep = async (stepNumber: number): Promise<boolean> => {
+    let isValid = false
+
+    switch (stepNumber) {
+      case 1:
+        // Validate Campaign Information fields
+        isValid = await trigger([
+          "name",
+          "description",
+          "startDate",
+          "endDate",
+          "images",
+        ] as const)
+        if (!isValid) {
+          toast.error(
+            "Please fill in all required campaign information fields correctly"
+          )
+        }
+        break
+      case 2:
+        // Validate Tracking URL fields
+        isValid = await trigger(["baseUrl", "tracking_param"] as const)
+        if (!isValid) {
+          toast.error("Please provide a valid tracking URL")
+        }
+        break
+      case 3:
+        // Validate Offers fields
+        const offerCount = fields.length
+        if (offerCount === 0) {
+          toast.error("Please add at least one offer")
+          return false
+        }
+
+        // Validate each offer's required fields
+        const offerFields: string[] = []
+        for (let i = 0; i < offerCount; i++) {
+          offerFields.push(
+            `offers.${i}.pricingModel`,
+            `offers.${i}.bid`,
+            `offers.${i}.budget`,
+            `offers.${i}.description`
+          )
+        }
+
+        isValid = await trigger(offerFields as any)
+        if (!isValid) {
+          toast.error("Please complete all required offer fields")
+        }
+        break
+      case 4:
+        // Final review step, no validation needed to proceed
+        isValid = true
+        break
+      default:
+        isValid = false
+    }
+
+    return isValid
+  }
+
+  // Handler for moving to next step with validation
+  const handleNextStep = async (nextStep: number) => {
+    const isCurrentStepValid = await validateStep(currentStep)
+
+    if (isCurrentStepValid) {
+      setCurrentStep(nextStep)
+    }
+  }
+
   // Render the content based on the current step
   const renderStepContent = () => {
     switch (currentStep) {
@@ -335,14 +407,7 @@ const CampaignForm = () => {
                 type="button"
                 onClick={(e) => {
                   e.preventDefault()
-                  // Log before transition
-                  console.log(
-                    "Transitioning from step 1 to 2. Form images:",
-                    form.getValues("images"),
-                    "Preview:",
-                    previewImage
-                  )
-                  setCurrentStep(2)
+                  handleNextStep(2)
                 }}
                 className="h-11 px-6"
               >
@@ -362,13 +427,6 @@ const CampaignForm = () => {
                 variant="outline"
                 onClick={(e) => {
                   e.preventDefault()
-                  // Log before transition
-                  console.log(
-                    "Transitioning from step 2 to 1. Form images:",
-                    form.getValues("images"),
-                    "Preview:",
-                    previewImage
-                  )
                   setCurrentStep(1)
                 }}
                 className="h-11"
@@ -379,7 +437,7 @@ const CampaignForm = () => {
                 type="button"
                 onClick={(e) => {
                   e.preventDefault()
-                  setCurrentStep(3)
+                  handleNextStep(3)
                 }}
                 className="h-11 px-6"
               >
@@ -420,14 +478,7 @@ const CampaignForm = () => {
                 type="button"
                 onClick={(e) => {
                   e.preventDefault()
-                  // Log before transition to step 4
-                  console.log(
-                    "Transitioning from step 3 to 4. Form images:",
-                    form.getValues("images"),
-                    "Preview:",
-                    previewImage
-                  )
-                  setCurrentStep(4)
+                  handleNextStep(4)
                 }}
                 className="h-11 px-6"
               >
@@ -700,7 +751,22 @@ const CampaignForm = () => {
               >
                 Back
               </Button>
-              <Button type="submit" disabled={isPending} className="h-11 px-6">
+              <Button
+                type="submit"
+                disabled={isPending}
+                className="h-11 px-6"
+                onClick={async (e) => {
+                  // Validate all form fields before final submission
+                  const isFormValid = await trigger()
+                  if (!isFormValid) {
+                    e.preventDefault()
+                    toast.error(
+                      "Please complete all required fields before submitting"
+                    )
+                    return false
+                  }
+                }}
+              >
                 {isPending ? "Creating..." : "Create Campaign"}
               </Button>
             </div>
@@ -741,7 +807,15 @@ const CampaignForm = () => {
           <div className="col-span-12 md:sticky md:top-24 md:col-span-4 md:h-fit md:self-start lg:col-span-3">
             <Stepper
               value={currentStep}
-              onValueChange={setCurrentStep}
+              onValueChange={(step) => {
+                // When clicking on a step in the stepper, validate only if going forward
+                if (step > currentStep) {
+                  handleNextStep(step)
+                } else {
+                  // Allow going back without validation
+                  setCurrentStep(step)
+                }
+              }}
               orientation="vertical"
               className="max-h-[calc(100vh-8rem)] overflow-y-auto pb-4"
             >
