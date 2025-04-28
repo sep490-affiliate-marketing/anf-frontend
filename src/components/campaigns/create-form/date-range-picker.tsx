@@ -86,6 +86,17 @@ export function DatePickerWithRange({
     }
   }
 
+  // Format date for display
+  const formatDisplayDate = (date: Date): string => {
+    return format(date, "dd/MM/yyyy")
+  }
+
+  // Get display value
+  const displayValue =
+    defaultDateRange?.from && defaultDateRange?.to
+      ? `${formatDisplayDate(defaultDateRange.from)} - ${formatDisplayDate(defaultDateRange.to)}`
+      : undefined
+
   return (
     <DateRangePicker
       className={cn("w-full", className)}
@@ -102,18 +113,7 @@ export function DatePickerWithRange({
           </span>
           <DateInput slot="end" unstyled />
         </Group>
-        <Button className="data-focus-visible:ring-ring/50 data-focus-visible:ring-2 absolute right-0 z-10 flex h-full w-9 items-center justify-center rounded-e-md text-muted-foreground/80 outline-none transition-colors hover:text-foreground">
-          <CalendarIcon size={16} />
-        </Button>
       </div>
-      <Popover
-        className="data-entering:animate-in data-exiting:animate-out z-50 rounded-md border bg-background p-4 text-popover-foreground shadow-md outline-none data-[entering]:fade-in-0 data-[exiting]:fade-out-0 data-[entering]:zoom-in-95 data-[exiting]:zoom-out-95 data-[placement=bottom]:slide-in-from-top-2 data-[placement=left]:slide-in-from-right-2 data-[placement=right]:slide-in-from-left-2 data-[placement=top]:slide-in-from-bottom-2"
-        offset={4}
-      >
-        <Dialog className="max-h-[inherit] overflow-auto p-2">
-          <RangeCalendar />
-        </Dialog>
-      </Popover>
     </DateRangePicker>
   )
 }

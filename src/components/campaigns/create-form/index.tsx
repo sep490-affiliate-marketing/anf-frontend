@@ -376,47 +376,45 @@ const CampaignForm = () => {
                 )}
               />
 
-              <FormField
-                control={control}
-                name="startDate"
-                render={({ field: startDateField }) => (
-                  <FormField
-                    control={control}
-                    name="endDate"
-                    render={({ field: endDateField }) => (
-                      <FormItem>
-                        <FormLabel className="text-base font-medium">
-                          Campaign date range
-                        </FormLabel>
-                        <FormControl>
-                          <div className="mt-1.5">
-                            <DatePickerWithRange
-                              defaultDateRange={getDateRangeForPicker()}
-                              disabledBefore={addDays(
-                                new Date(),
-                                2
-                              ).toISOString()}
-                              onChange={(dates) => {
-                                handleDateChange(dates)
-                                if (dates.startDate) {
-                                  startDateField.onChange(dates.startDate)
-                                  startDateField.onBlur()
-                                }
-                                if (dates.endDate) {
-                                  endDateField.onChange(dates.endDate)
-                                  endDateField.onBlur()
-                                }
-                              }}
-                              className="w-full"
-                            />
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+              <div>
+                <FormLabel className="text-base font-medium">
+                  Campaign date range
+                </FormLabel>
+                <div className="mt-1.5">
+                  <DatePickerWithRange
+                    defaultDateRange={getDateRangeForPicker()}
+                    disabledBefore={addDays(new Date(), 2).toISOString()}
+                    onChange={(dates) => {
+                      // Update date range state
+                      handleDateChange(dates)
+
+                      // Update form values with validation
+                      if (dates.startDate) {
+                        setValue("startDate", dates.startDate, {
+                          shouldValidate: true,
+                          shouldDirty: true,
+                          shouldTouch: true,
+                        })
+                      }
+
+                      if (dates.endDate) {
+                        setValue("endDate", dates.endDate, {
+                          shouldValidate: true,
+                          shouldDirty: true,
+                          shouldTouch: true,
+                        })
+                      }
+
+                      // Explicitly trigger validation
+                      trigger(["startDate", "endDate"])
+                    }}
+                    className="w-full"
                   />
-                )}
-              />
+                  <div className="mt-2 text-sm font-medium text-destructive">
+                    {errors.startDate?.message || errors.endDate?.message || ""}
+                  </div>
+                </div>
+              </div>
 
               <FormField
                 control={control}
@@ -489,7 +487,18 @@ const CampaignForm = () => {
               </div>
             </div>
 
-            <OfferList form={form} />
+            <OfferList
+              form={form}
+              disabledBefore={addDays(new Date(), 2).toISOString()}
+              defaultDateRange={
+                campaignStartDate && campaignEndDate
+                  ? {
+                      from: new Date(campaignStartDate),
+                      to: new Date(campaignEndDate),
+                    }
+                  : undefined
+              }
+            />
 
             <div className="flex items-center justify-between pt-4">
               <Button
