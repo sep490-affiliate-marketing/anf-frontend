@@ -336,25 +336,65 @@ const CampaignForm = () => {
         return (
           <div className="space-y-8">
             <div className="space-y-6">
-              <FormField
-                control={control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-base font-medium">
-                      Campaign name
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Enter campaign name"
-                        className="h-11"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                <FormField
+                  control={control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-base font-medium">
+                        Campaign name
+                      </FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter campaign name" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div>
+                  <FormLabel className="text-base font-medium">
+                    Campaign date range
+                  </FormLabel>
+                  <div className="mt-2">
+                    <DatePickerWithRange
+                      defaultDateRange={getDateRangeForPicker()}
+                      disabledBefore={addDays(new Date(), 2).toISOString()}
+                      onChange={(dates) => {
+                        // Update date range state
+                        handleDateChange(dates)
+
+                        // Update form values with validation
+                        if (dates.startDate) {
+                          setValue("startDate", dates.startDate, {
+                            shouldValidate: true,
+                            shouldDirty: true,
+                            shouldTouch: true,
+                          })
+                        }
+
+                        if (dates.endDate) {
+                          setValue("endDate", dates.endDate, {
+                            shouldValidate: true,
+                            shouldDirty: true,
+                            shouldTouch: true,
+                          })
+                        }
+
+                        // Explicitly trigger validation
+                        trigger(["startDate", "endDate"])
+                      }}
+                      className="w-full"
+                    />
+                    <div className="mt-2 text-sm font-medium text-destructive">
+                      {errors.startDate?.message ||
+                        errors.endDate?.message ||
+                        ""}
+                    </div>
+                  </div>
+                </div>
+              </div>
 
               <FormField
                 control={control}
@@ -375,46 +415,6 @@ const CampaignForm = () => {
                   </FormItem>
                 )}
               />
-
-              <div>
-                <FormLabel className="text-base font-medium">
-                  Campaign date range
-                </FormLabel>
-                <div className="mt-1.5">
-                  <DatePickerWithRange
-                    defaultDateRange={getDateRangeForPicker()}
-                    disabledBefore={addDays(new Date(), 2).toISOString()}
-                    onChange={(dates) => {
-                      // Update date range state
-                      handleDateChange(dates)
-
-                      // Update form values with validation
-                      if (dates.startDate) {
-                        setValue("startDate", dates.startDate, {
-                          shouldValidate: true,
-                          shouldDirty: true,
-                          shouldTouch: true,
-                        })
-                      }
-
-                      if (dates.endDate) {
-                        setValue("endDate", dates.endDate, {
-                          shouldValidate: true,
-                          shouldDirty: true,
-                          shouldTouch: true,
-                        })
-                      }
-
-                      // Explicitly trigger validation
-                      trigger(["startDate", "endDate"])
-                    }}
-                    className="w-full"
-                  />
-                  <div className="mt-2 text-sm font-medium text-destructive">
-                    {errors.startDate?.message || errors.endDate?.message || ""}
-                  </div>
-                </div>
-              </div>
 
               <FormField
                 control={control}
@@ -895,3 +895,4 @@ const CampaignForm = () => {
 }
 
 export default CampaignForm
+
