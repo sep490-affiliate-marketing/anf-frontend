@@ -3,7 +3,12 @@ import { z } from "zod"
 import { OfferFormSchema } from "./offer.validation"
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
-const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"]
+const ACCEPTED_IMAGE_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/jpg",
+]
 
 export function TrackingParamSchema() {
   return z.object({
@@ -73,7 +78,16 @@ export function CreateCampaignFormSchema() {
       tracking_param: z.array(TrackingParamSchema()).optional(),
       trackingParams: z.string().optional(),
       offers: z.array(OfferFormSchema()),
-      images: z.array(z.any()).optional().default([]),
+      images: z
+        .array(z.any())
+        .min(1, { message: "At least one campaign image is required" })
+        .refine(
+          (files) => {
+            if (files.length === 0) return false
+            return true
+          },
+          { message: "Campaign image is required" }
+        ),
     })
     .refine(
       (data) => {

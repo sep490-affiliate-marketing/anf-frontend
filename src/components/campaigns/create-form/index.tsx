@@ -283,10 +283,26 @@ const CampaignForm = () => {
         isValid = await trigger([
           "name",
           "description",
+          "category",
           "startDate",
           "endDate",
           "images",
         ] as const)
+
+        // Check specifically for images validation
+        const formImages = form.getValues("images")
+        if (!formImages || formImages.length === 0) {
+          form.setError("images", {
+            type: "manual",
+            message: "Campaign image is required",
+          })
+          toast.error("Campaign image is required", {
+            description: "Please upload an image before proceeding",
+            duration: 3000,
+          })
+          return false
+        }
+
         if (!isValid) {
           toast.error(
             "Please fill in all required campaign information fields correctly"
@@ -504,7 +520,7 @@ const CampaignForm = () => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-base font-medium">
-                      Campaign Image
+                      Campaign Image <span className="text-destructive">*</span>
                     </FormLabel>
                     <FormControl>
                       <ImageUpload
