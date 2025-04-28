@@ -150,7 +150,6 @@ export default function ImageUpload({
 
   return (
     <FormItem className="space-y-4">
-      <FormLabel className="text-base font-medium">Campaign image</FormLabel>
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[2fr_1fr]">
         <div
           className={`group relative flex h-48 w-full cursor-pointer flex-col items-center justify-center overflow-hidden rounded-lg border-2 ${

@@ -4,19 +4,29 @@ import { useEffect, useRef, useState } from "react"
 
 import Image from "next/image"
 
+import { CAMPAIGN_CATEGORIES } from "@/constant/campaign"
 import { useAuth } from "@/providers/auth-provider"
 import { ICreateCampaignForm } from "@/validations/campaign.validation"
 import { addDays, format } from "date-fns"
 import { vi } from "date-fns/locale"
+import { Check, ChevronsUpDown } from "lucide-react"
 import { DateRange } from "react-day-picker"
 import { useFieldArray } from "react-hook-form"
 import { toast } from "sonner"
 
-import { formatVNDCurrency } from "@/lib/utils"
+import { cn, formatVNDCurrency } from "@/lib/utils"
 
 import { useCreateCampaignForm } from "@/hooks/campaign"
 
 import { Button } from "@/components/ui/button"
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command"
 import {
   Form,
   FormControl,
@@ -26,6 +36,11 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 import {
   Stepper,
   StepperDescription,
@@ -336,23 +351,25 @@ const CampaignForm = () => {
         return (
           <div className="space-y-8">
             <div className="space-y-6">
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                <FormField
-                  control={control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-base font-medium">
-                        Campaign name
-                      </FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter campaign name" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+              {/* Campaign name in a full row */}
+              <FormField
+                control={control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem className="col-span-full">
+                    <FormLabel className="text-base font-medium">
+                      Campaign name
+                    </FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter campaign name" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
+              {/* Date and Category in one row */}
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <div>
                   <FormLabel className="text-base font-medium">
                     Campaign date range
@@ -394,6 +411,71 @@ const CampaignForm = () => {
                     </div>
                   </div>
                 </div>
+
+                <FormField
+                  control={control}
+                  name="category"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-base font-medium">
+                        Campaign Category
+                      </FormLabel>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant="outline"
+                              role="combobox"
+                              className={cn(
+                                "w-full justify-between",
+                                !field.value && "text-muted-foreground"
+                              )}
+                            >
+                              {field.value
+                                ? CAMPAIGN_CATEGORIES.find(
+                                    (category) => category.value === field.value
+                                  )?.label
+                                : "Select category..."}
+                              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-full p-0">
+                          <Command>
+                            <CommandInput placeholder="Search category..." />
+                            <CommandList>
+                              <CommandEmpty>No category found.</CommandEmpty>
+                              <CommandGroup>
+                                {CAMPAIGN_CATEGORIES.map((category) => (
+                                  <CommandItem
+                                    key={category.value}
+                                    value={category.value}
+                                    onSelect={() => {
+                                      setValue("category", category.value, {
+                                        shouldValidate: true,
+                                      })
+                                    }}
+                                  >
+                                    <Check
+                                      className={cn(
+                                        "mr-2 h-4 w-4",
+                                        category.value === field.value
+                                          ? "opacity-100"
+                                          : "opacity-0"
+                                      )}
+                                    />
+                                    {category.label}
+                                  </CommandItem>
+                                ))}
+                              </CommandGroup>
+                            </CommandList>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
 
               <FormField
@@ -419,12 +501,20 @@ const CampaignForm = () => {
               <FormField
                 control={control}
                 name="images"
-                render={() => (
-                  <ImageUpload
-                    form={form}
-                    previewImage={previewImage}
-                    setPreviewImage={setPreviewImage}
-                  />
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-base font-medium">
+                      Campaign Image
+                    </FormLabel>
+                    <FormControl>
+                      <ImageUpload
+                        form={form}
+                        previewImage={previewImage}
+                        setPreviewImage={setPreviewImage}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
               />
             </div>

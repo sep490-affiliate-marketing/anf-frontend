@@ -1,30 +1,26 @@
+"use client"
+
 export const CAMPAIGN_CATEGORIES = [
-  { id: 1, name: "Finance" },
-  { id: 2, name: "E-commerce" },
-  { id: 3, name: "Dating Mainstream" },
-  { id: 4, name: "Travel" },
-  { id: 5, name: "Tech" },
-  { id: 6, name: "Sweepstake" },
-  { id: 7, name: "News & Entertainment" },
-  { id: 8, name: "Casino" },
-  { id: 9, name: "Mobile Apps & Games" },
-  { id: 10, name: "Health & Fitness" },
-  { id: 11, name: "Mobile Subscriptions" },
-  { id: 12, name: "Branding" },
-  { id: 13, name: "Dating Adult" },
-  { id: 14, name: "Crypto" },
-  { id: 15, name: "Gambling" },
-  { id: 16, name: "Betting" },
-  { id: 17, name: "Anti-virus" },
-  { id: 18, name: "VPN" },
-  { id: 19, name: "Loans" },
-  { id: 20, name: "Other" },
+  { value: "fashion", label: "Fashion & Apparel" },
+  { value: "electronics", label: "Electronics & Tech" },
+  { value: "beauty", label: "Beauty & Personal Care" },
+  { value: "health", label: "Health & Wellness" },
+  { value: "home", label: "Home & Furniture" },
+  { value: "travel", label: "Travel & Hospitality" },
+  { value: "food", label: "Food & Beverage" },
+  { value: "education", label: "Education & Learning" },
+  { value: "finance", label: "Finance & Insurance" },
+  { value: "sports", label: "Sports & Fitness" },
+  { value: "gaming", label: "Gaming & Entertainment" },
+  { value: "other", label: "Other" },
 ]
 
 export const PRICE_MODAL = [
-  { id: 1, name: "CPC" },
-  { id: 3, name: "CPA" },
-  { id: 7, name: "CPS" },
+  { id: "cpc", name: "CPC" },
+  { id: "cpm", name: "CPM" },
+  { id: "cps", name: "CPS" },
+  { id: "cpl", name: "CPL" },
+  { id: "cpi", name: "CPI" },
 ]
 
 export const AFFILIATE_SOURCE = [
@@ -79,3 +75,4 @@ export const TRACKING_PARAMS = [
   { id: 16, name: "userAge" },
   { id: 17, name: "reach" },
 ]
+

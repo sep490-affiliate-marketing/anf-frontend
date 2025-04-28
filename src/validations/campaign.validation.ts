@@ -35,6 +35,9 @@ export function CreateCampaignFormSchema() {
       description: z
         .string({ message: "Description is required" })
         .min(1, { message: "Description is required" }),
+      category: z
+        .string({ message: "Category is required" })
+        .min(1, { message: "Category is required" }),
       startDate: z
         .string({ message: "Start date is required" })
         .min(1, { message: "Start date is required" })
@@ -157,3 +160,4 @@ export function UpdateCampaignFormSchema() {
 export type IUpdateCampaignForm = z.infer<
   ReturnType<typeof UpdateCampaignFormSchema>
 >
+
