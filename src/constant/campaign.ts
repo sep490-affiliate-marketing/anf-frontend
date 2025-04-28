@@ -17,10 +17,8 @@ export const CAMPAIGN_CATEGORIES = [
 
 export const PRICE_MODAL = [
   { id: "cpc", name: "CPC" },
-  { id: "cpm", name: "CPM" },
   { id: "cps", name: "CPS" },
-  { id: "cpl", name: "CPL" },
-  { id: "cpi", name: "CPI" },
+  { id: "cpa", name: "CPA" },
 ]
 
 export const AFFILIATE_SOURCE = [

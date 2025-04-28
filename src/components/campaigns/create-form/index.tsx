@@ -97,6 +97,23 @@ const CampaignForm = () => {
   const campaignEndDate = watch("endDate")
   const offers = watch("offers")
 
+  // Add a safe date formatting function to handle any potential invalid dates
+  const safeFormatDate = (dateString: string | undefined): string => {
+    if (!dateString) return "Not set"
+
+    try {
+      const date = new Date(dateString)
+      // Check if date is valid
+      if (isNaN(date.getTime())) {
+        return "Invalid date"
+      }
+      return format(date, "dd/MM/yyyy", { locale: vi })
+    } catch (error) {
+      console.error("Error formatting date:", error)
+      return "Invalid date"
+    }
+  }
+
   const [dateRange, setDateRange] = useState<{
     from: string
     to: string
@@ -154,13 +171,14 @@ const CampaignForm = () => {
     try {
       console.log("Form data before processing:", data)
 
-      // Transform offers data
+      // Transform offers data for commission handling
       const transformedOffers = data.offers.map((offer) => {
+        // Handle commission for CPS model
         if (offer.pricingModel === "CPS") {
           return {
             ...offer,
             commissionRate: offer.bid, // Use bid value as commissionRate
-            bid: "300", // Remove bid field for CPS
+            bid: "300", // Default bid value for CPS
           }
         }
         return offer
@@ -170,12 +188,12 @@ const CampaignForm = () => {
         ...data,
         trackingParams: JSON.stringify(data.tracking_param),
         advertiserCode: user?.userCode,
-        images: data.images,
+        images: data.images, // Keep the images array
         offers: transformedOffers,
         productUrl: data.baseUrl,
       }
 
-      console.log("Campaign data:", campaignData)
+      console.log("Campaign data before submission:", campaignData)
 
       await onCreateCampaign(campaignData)
     } catch (error) {
@@ -662,21 +680,13 @@ const CampaignForm = () => {
                       Start Date
                     </dt>
                     <dd className="text-sm font-medium">
-                      {campaignStartDate
-                        ? format(new Date(campaignStartDate), "dd/MM/yyyy", {
-                            locale: vi,
-                          })
-                        : "Not set"}
+                      {safeFormatDate(campaignStartDate)}
                     </dd>
                   </div>
                   <div>
                     <dt className="text-sm text-muted-foreground">End Date</dt>
                     <dd className="text-sm font-medium">
-                      {campaignEndDate
-                        ? format(new Date(campaignEndDate), "dd/MM/yyyy", {
-                            locale: vi,
-                          })
-                        : "Not set"}
+                      {safeFormatDate(campaignEndDate)}
                     </dd>
                   </div>
                   <div className="col-span-full">
@@ -810,20 +820,8 @@ const CampaignForm = () => {
                               </dt>
                               <dd className="mt-1 text-sm">
                                 {offer.startDate
-                                  ? format(
-                                      new Date(offer.startDate),
-                                      "dd/MM/yyyy",
-                                      {
-                                        locale: vi,
-                                      }
-                                    )
-                                  : format(
-                                      new Date(campaignStartDate),
-                                      "dd/MM/yyyy",
-                                      {
-                                        locale: vi,
-                                      }
-                                    )}
+                                  ? safeFormatDate(offer.startDate)
+                                  : safeFormatDate(campaignStartDate)}
                               </dd>
                             </div>
                             <div>
@@ -832,20 +830,8 @@ const CampaignForm = () => {
                               </dt>
                               <dd className="mt-1 text-sm">
                                 {offer.endDate
-                                  ? format(
-                                      new Date(offer.endDate),
-                                      "dd/MM/yyyy",
-                                      {
-                                        locale: vi,
-                                      }
-                                    )
-                                  : format(
-                                      new Date(campaignEndDate),
-                                      "dd/MM/yyyy",
-                                      {
-                                        locale: vi,
-                                      }
-                                    )}
+                                  ? safeFormatDate(offer.endDate)
+                                  : safeFormatDate(campaignEndDate)}
                               </dd>
                             </div>
                             {offer.description && (
