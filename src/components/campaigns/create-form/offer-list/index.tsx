@@ -422,28 +422,63 @@ const OfferList = ({
             )}
 
             <div className="space-y-2 md:col-span-1">
-              <Label className="text-lg font-semibold">Offer Date Range</Label>
-              <DatePickerWithRange
-                className="w-full"
-                onChange={(dates: {
-                  startDate: string
-                  endDate: string | null
-                }) =>
-                  setDateRange({
-                    from: new Date(dates.startDate),
-                    to: dates.endDate ? new Date(dates.endDate) : undefined,
-                  })
-                }
-                disabledBefore={disabledBefore}
-                disabledAfter={disabledAfter}
+              <FormField
+                control={form.control}
+                name={`offers.${index}.startDate`}
+                render={({ field: startDateField }) => (
+                  <FormField
+                    control={form.control}
+                    name={`offers.${index}.endDate`}
+                    render={({ field: endDateField }) => (
+                      <FormItem>
+                        <Label className="text-lg font-semibold">
+                          Offer Date Range
+                        </Label>
+                        <FormControl>
+                          <DatePickerWithRange
+                            className="w-full"
+                            onChange={(dates: {
+                              startDate: string
+                              endDate: string | null
+                            }) => {
+                              if (dates.startDate) {
+                                setDateRange({
+                                  from: new Date(dates.startDate),
+                                  to: dates.endDate
+                                    ? new Date(dates.endDate)
+                                    : undefined,
+                                })
+                                startDateField.onChange(dates.startDate)
+                                startDateField.onBlur()
+                                if (dates.endDate) {
+                                  endDateField.onChange(dates.endDate)
+                                  endDateField.onBlur()
+                                }
+                              }
+                            }}
+                            disabledBefore={disabledBefore}
+                            disabledAfter={disabledAfter}
+                            defaultDateRange={
+                              dateRange.from || dateRange.to
+                                ? {
+                                    from: dateRange.from,
+                                    to: dateRange.to,
+                                  }
+                                : undefined
+                            }
+                          />
+                        </FormControl>
+                        <FormMessage>
+                          {form.formState.errors.offers?.[index]?.startDate
+                            ?.message ||
+                            form.formState.errors.offers?.[index]?.endDate
+                              ?.message}
+                        </FormMessage>
+                      </FormItem>
+                    )}
+                  />
+                )}
               />
-              {(form.formState.errors.offers?.[index]?.startDate?.message ||
-                form.formState.errors.offers?.[index]?.endDate?.message) && (
-                <FormMessage>
-                  {form.formState.errors.offers?.[index]?.startDate?.message ||
-                    form.formState.errors.offers?.[index]?.endDate?.message}
-                </FormMessage>
-              )}
             </div>
           </div>
 

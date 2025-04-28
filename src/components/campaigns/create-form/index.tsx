@@ -376,18 +376,47 @@ const CampaignForm = () => {
                 )}
               />
 
-              <div>
-                <FormLabel className="text-base font-medium">
-                  Campaign date range
-                </FormLabel>
-                <div className="mt-1.5">
-                  <DatePickerWithRange
-                    defaultDateRange={getDateRangeForPicker()}
-                    disabledBefore={addDays(new Date(), 2).toISOString()}
-                    onChange={handleDateChange}
+              <FormField
+                control={control}
+                name="startDate"
+                render={({ field: startDateField }) => (
+                  <FormField
+                    control={control}
+                    name="endDate"
+                    render={({ field: endDateField }) => (
+                      <FormItem>
+                        <FormLabel className="text-base font-medium">
+                          Campaign date range
+                        </FormLabel>
+                        <FormControl>
+                          <div className="mt-1.5">
+                            <DatePickerWithRange
+                              defaultDateRange={getDateRangeForPicker()}
+                              disabledBefore={addDays(
+                                new Date(),
+                                2
+                              ).toISOString()}
+                              onChange={(dates) => {
+                                handleDateChange(dates)
+                                if (dates.startDate) {
+                                  startDateField.onChange(dates.startDate)
+                                  startDateField.onBlur()
+                                }
+                                if (dates.endDate) {
+                                  endDateField.onChange(dates.endDate)
+                                  endDateField.onBlur()
+                                }
+                              }}
+                              className="w-full"
+                            />
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
-                </div>
-              </div>
+                )}
+              />
 
               <FormField
                 control={control}

@@ -9,6 +9,12 @@ const ACCEPTED_IMAGE_TYPES = [
 ]
 
 export function OfferFormSchema() {
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+
+  const tomorrow = new Date(today)
+  tomorrow.setDate(today.getDate() + 1)
+
   return z
     .object({
       pricingModel: z
@@ -32,26 +38,22 @@ export function OfferFormSchema() {
         .min(1, { message: "Start date is required" })
         .refine(
           (startDate) => {
-            const today = new Date()
             const start = new Date(startDate)
-            today.setHours(0, 0, 0, 0)
             start.setHours(0, 0, 0, 0)
-            return start >= today
+            return start >= tomorrow
           },
-          { message: "Start date cannot be in the past" }
+          { message: "Start date must be at least tomorrow or later" }
         ),
       endDate: z
         .string()
         .min(1, { message: "End date is required" })
         .refine(
           (endDate) => {
-            const today = new Date()
             const end = new Date(endDate)
-            today.setHours(0, 0, 0, 0)
             end.setHours(0, 0, 0, 0)
-            return end >= today
+            return end > today
           },
-          { message: "End date cannot be in the past" }
+          { message: "End date must be in the future" }
         ),
       budget: z
         .string({ required_error: "Budget is required" })
