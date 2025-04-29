@@ -1,0 +1,48 @@
+.ql-editor {
+	min-height: 700px !important;
+	max-height: 800px;
+	overflow: hidden;
+	overflow-y: scroll;
+	overflow-x: scroll;
+}
+
+/* Preview mode styling */
+.ql-editor.preview {
+	border: 1px solid #e2e8f0;
+	border-radius: 0.375rem;
+	padding: 1rem;
+	min-height: 300px !important;
+}
+
+/* Make images responsive in preview */
+.ql-editor.preview img {
+	max-width: 100%;
+	height: auto;
+}
+
+/* Style links in preview to match editor */
+.ql-editor.preview a {
+	color: #2563eb;
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+.ql-editor.preview a:hover {
+	color: #1d4ed8;
+}
+
+/* Style blockquotes in preview */
+.ql-editor.preview blockquote {
+	border-left: 4px solid #e2e8f0;
+	padding-left: 1rem;
+	color: #4a5568;
+	font-style: italic;
+}
+
+/* Style code blocks in preview */
+.ql-editor.preview pre {
+	background-color: #f7fafc;
+	border-radius: 0.25rem;
+	padding: 1rem;
+	overflow-x: auto;
+}
