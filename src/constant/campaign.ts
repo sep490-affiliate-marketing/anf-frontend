@@ -73,4 +73,3 @@ export const TRACKING_PARAMS = [
   { id: 16, name: "userAge" },
   { id: 17, name: "reach" },
 ]
-

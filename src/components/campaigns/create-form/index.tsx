@@ -50,7 +50,6 @@ import {
   StepperTitle,
   StepperTrigger,
 } from "@/components/ui/stepper"
-import { Textarea } from "@/components/ui/textarea"
 
 import { Editor } from "@/components/editor"
 
@@ -502,7 +501,7 @@ const CampaignForm = () => {
                                     (category) => category.value === field.value
                                   )?.label
                                 : "Select category..."}
-                              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                              <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
                             </Button>
                           </FormControl>
                         </PopoverTrigger>
@@ -524,7 +523,7 @@ const CampaignForm = () => {
                                   >
                                     <Check
                                       className={cn(
-                                        "mr-2 h-4 w-4",
+                                        "mr-2 size-4",
                                         category.value === field.value
                                           ? "opacity-100"
                                           : "opacity-0"
@@ -1067,4 +1066,3 @@ const CampaignForm = () => {
 }
 
 export default CampaignForm
-

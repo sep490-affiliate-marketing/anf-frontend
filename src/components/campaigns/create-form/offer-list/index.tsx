@@ -637,4 +637,3 @@ const OfferList = ({
 }
 
 export default OfferList
-

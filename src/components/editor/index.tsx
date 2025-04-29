@@ -139,6 +139,7 @@ export const Editor = ({ onChange, value, preview = false }: EditorProps) => {
         <div className="mb-2 rounded border border-red-200 bg-red-50 p-2 text-red-600">
           Upload error: {uploadError}
           <button
+            type="button"
             className="ml-2 text-xs underline"
             onClick={() => setUploadError(null)}
           >
@@ -197,4 +198,3 @@ export const Editor = ({ onChange, value, preview = false }: EditorProps) => {
     </div>
   )
 }
-
