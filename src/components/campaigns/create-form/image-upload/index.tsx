@@ -51,7 +51,14 @@ export default function ImageUpload({
     setPreviewImage(previewUrl)
 
     // Update form state - replace the entire images array to avoid duplicates
-    form.setValue("images", [file], { shouldValidate: true })
+    form.setValue("images", [file], {
+      shouldValidate: true,
+      shouldDirty: true,
+      shouldTouch: true,
+    })
+
+    // Clear any existing errors for the images field
+    form.clearErrors("images")
 
     // Show success toast
     toast.success("Image uploaded successfully", {
@@ -150,13 +157,14 @@ export default function ImageUpload({
 
   return (
     <FormItem className="space-y-4">
-      <FormLabel className="text-base font-medium">Campaign image</FormLabel>
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[2fr_1fr]">
         <div
           className={`group relative flex h-48 w-full cursor-pointer flex-col items-center justify-center overflow-hidden rounded-lg border-2 ${
             isDragging
               ? "border-primary bg-primary/5"
-              : "border-dashed border-gray-300 bg-gray-50/50 hover:border-primary/50 hover:bg-gray-50/80"
+              : form.formState.errors.images
+                ? "border-dashed border-destructive bg-destructive/5"
+                : "border-dashed border-gray-300 bg-gray-50/50 hover:border-primary/50 hover:bg-gray-50/80"
           } transition-all dark:border-gray-700 dark:bg-gray-900/50 dark:hover:border-primary/50 dark:hover:bg-gray-900/60 sm:h-56 md:h-64`}
           onClick={() => fileInputRef.current?.click()}
           onDragEnter={handleDragEnter}
@@ -199,6 +207,13 @@ export default function ImageUpload({
                     setPreviewImage(null)
                     form.setValue("images", [], {
                       shouldValidate: true,
+                      shouldDirty: true,
+                      shouldTouch: true,
+                    })
+                    // Set validation error for required image
+                    form.setError("images", {
+                      type: "manual",
+                      message: "Campaign image is required",
                     })
                   }}
                 >
@@ -219,6 +234,11 @@ export default function ImageUpload({
               <p className="mt-2 text-xs text-muted-foreground/70">
                 Recommended: 1920×1080px (16:9), max 5MB
               </p>
+              {form.formState.errors.images && (
+                <p className="mt-2 text-sm font-medium text-destructive">
+                  {form.formState.errors.images.message}
+                </p>
+              )}
             </div>
           )}
         </div>
@@ -262,7 +282,6 @@ export default function ImageUpload({
           />
         </div>
       </div>
-      <FormMessage />
     </FormItem>
   )
 }

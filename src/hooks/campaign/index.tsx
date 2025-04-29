@@ -143,20 +143,40 @@ export const useCreateCampaignForm = () => {
         })
       }
 
+      // Format dates to YYYY-MM-DD for proper MySQL compatibility
+      const formatDateToYYYYMMDD = (dateStr: string): string => {
+        const date = new Date(dateStr)
+        return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`
+      }
+
+      // Create a deep copy of the data with properly formatted dates
+      const processedData = {
+        ...data,
+        startDate: formatDateToYYYYMMDD(data.startDate),
+        endDate: formatDateToYYYYMMDD(data.endDate),
+        offers: data.offers.map((offer) => ({
+          ...offer,
+          startDate: offer.startDate
+            ? formatDateToYYYYMMDD(offer.startDate)
+            : formatDateToYYYYMMDD(data.startDate),
+          endDate: offer.endDate
+            ? formatDateToYYYYMMDD(offer.endDate)
+            : formatDateToYYYYMMDD(data.endDate),
+        })),
+      }
+
       // Append all other fields except "images" and "offers"
-      Object.entries(data).forEach(([key, value]) => {
+      Object.entries(processedData).forEach(([key, value]) => {
         if (key !== "offers" && key !== "images") {
-          if (value instanceof Date) {
-            formData.append(key, value.toISOString())
-          } else if (value !== null && value !== undefined) {
+          if (value !== null && value !== undefined) {
             formData.append(key, String(value))
           }
         }
       })
 
       // Append offers if present
-      if (Array.isArray(data.offers)) {
-        data.offers.forEach((offer, index) => {
+      if (Array.isArray(processedData.offers)) {
+        processedData.offers.forEach((offer, index) => {
           Object.entries(offer).forEach(([key, value]) => {
             if (value !== null && value !== undefined) {
               formData.append(`offers[${index}][${key}]`, String(value))

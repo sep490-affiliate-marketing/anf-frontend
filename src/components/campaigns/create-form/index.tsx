@@ -4,19 +4,29 @@ import { useEffect, useRef, useState } from "react"
 
 import Image from "next/image"
 
+import { CAMPAIGN_CATEGORIES } from "@/constant/campaign"
 import { useAuth } from "@/providers/auth-provider"
 import { ICreateCampaignForm } from "@/validations/campaign.validation"
 import { addDays, format } from "date-fns"
 import { vi } from "date-fns/locale"
+import { Check, ChevronsUpDown } from "lucide-react"
 import { DateRange } from "react-day-picker"
 import { useFieldArray } from "react-hook-form"
 import { toast } from "sonner"
 
-import { formatVNDCurrency } from "@/lib/utils"
+import { cn, formatVNDCurrency } from "@/lib/utils"
 
 import { useCreateCampaignForm } from "@/hooks/campaign"
 
 import { Button } from "@/components/ui/button"
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command"
 import {
   Form,
   FormControl,
@@ -26,6 +36,11 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 import {
   Stepper,
   StepperDescription,
@@ -72,14 +87,32 @@ const CampaignForm = () => {
 
   const {
     control,
-    formState: {},
+    formState: { errors },
     handleSubmit,
     watch,
     setValue,
+    trigger,
   } = form
   const campaignStartDate = watch("startDate")
   const campaignEndDate = watch("endDate")
   const offers = watch("offers")
+
+  // Add a safe date formatting function to handle any potential invalid dates
+  const safeFormatDate = (dateString: string | undefined): string => {
+    if (!dateString) return "Not set"
+
+    try {
+      const date = new Date(dateString)
+      // Check if date is valid
+      if (isNaN(date.getTime())) {
+        return "Invalid date"
+      }
+      return format(date, "dd/MM/yyyy", { locale: vi })
+    } catch (error) {
+      console.error("Error formatting date:", error)
+      return "Invalid date"
+    }
+  }
 
   const [dateRange, setDateRange] = useState<{
     from: string
@@ -138,13 +171,14 @@ const CampaignForm = () => {
     try {
       console.log("Form data before processing:", data)
 
-      // Transform offers data
+      // Transform offers data for commission handling
       const transformedOffers = data.offers.map((offer) => {
+        // Handle commission for CPS model
         if (offer.pricingModel === "CPS") {
           return {
             ...offer,
             commissionRate: offer.bid, // Use bid value as commissionRate
-            bid: "300", // Remove bid field for CPS
+            bid: "300", // Default bid value for CPS
           }
         }
         return offer
@@ -154,12 +188,12 @@ const CampaignForm = () => {
         ...data,
         trackingParams: JSON.stringify(data.tracking_param),
         advertiserCode: user?.userCode,
-        images: data.images,
+        images: data.images, // Keep the images array
         offers: transformedOffers,
         productUrl: data.baseUrl,
       }
 
-      console.log("Campaign data:", campaignData)
+      console.log("Campaign data before submission:", campaignData)
 
       await onCreateCampaign(campaignData)
     } catch (error) {
@@ -257,6 +291,93 @@ const CampaignForm = () => {
     }
   }, [currentStep, form, previewImage])
 
+  // Validate step fields before proceeding to next step
+  const validateStep = async (stepNumber: number): Promise<boolean> => {
+    let isValid = false
+
+    switch (stepNumber) {
+      case 1:
+        // Validate Campaign Information fields
+        isValid = await trigger([
+          "name",
+          "description",
+          "category",
+          "startDate",
+          "endDate",
+          "images",
+        ] as const)
+
+        // Check specifically for images validation
+        const formImages = form.getValues("images")
+        if (!formImages || formImages.length === 0) {
+          form.setError("images", {
+            type: "manual",
+            message: "Campaign image is required",
+          })
+          toast.error("Campaign image is required", {
+            description: "Please upload an image before proceeding",
+            duration: 3000,
+          })
+          return false
+        }
+
+        if (!isValid) {
+          toast.error(
+            "Please fill in all required campaign information fields correctly"
+          )
+        }
+        break
+      case 2:
+        // Validate Tracking URL fields
+        isValid = await trigger(["baseUrl", "tracking_param"] as const)
+        if (!isValid) {
+          toast.error("Please provide a valid tracking URL")
+        }
+        break
+      case 3:
+        // Validate Offers fields
+        const offerCount = fields.length
+        if (offerCount === 0) {
+          toast.error("Please add at least one offer")
+          return false
+        }
+
+        // Validate each offer's required fields
+        const offerFields: string[] = []
+        for (let i = 0; i < offerCount; i++) {
+          offerFields.push(
+            `offers.${i}.pricingModel`,
+            `offers.${i}.bid`,
+            `offers.${i}.budget`,
+            `offers.${i}.description`
+          )
+        }
+
+        isValid = await trigger(offerFields as any)
+        if (!isValid) {
+          toast.error("Please complete all required offer fields")
+        }
+        break
+      case 4:
+        // Final review step, no validation needed to proceed
+        isValid = true
+        break
+      default:
+        isValid = false
+    }
+
+    return isValid
+  }
+
+  // Handler for moving to next step with validation
+  const handleNextStep = async (nextStep: number) => {
+    const isCurrentStepValid = await validateStep(currentStep)
+
+    if (isCurrentStepValid) {
+      setCurrentStep(nextStep)
+    }
+  }
+
   // Render the content based on the current step
   const renderStepContent = () => {
     switch (currentStep) {
@@ -264,25 +385,132 @@ const CampaignForm = () => {
         return (
           <div className="space-y-8">
             <div className="space-y-6">
+              {/* Campaign name in a full row */}
               <FormField
                 control={control}
                 name="name"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="col-span-full">
                     <FormLabel className="text-base font-medium">
                       Campaign name
                     </FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="Enter campaign name"
-                        className="h-11"
-                        {...field}
-                      />
+                      <Input placeholder="Enter campaign name" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
+
+              {/* Date and Category in one row */}
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                <div>
+                  <FormLabel className="text-base font-medium">
+                    Campaign date range
+                  </FormLabel>
+                  <div className="mt-2">
+                    <DatePickerWithRange
+                      defaultDateRange={getDateRangeForPicker()}
+                      disabledBefore={addDays(new Date(), 2).toISOString()}
+                      onChange={(dates) => {
+                        // Update date range state
+                        handleDateChange(dates)
+
+                        // Update form values with validation
+                        if (dates.startDate) {
+                          setValue("startDate", dates.startDate, {
+                            shouldValidate: true,
+                            shouldDirty: true,
+                            shouldTouch: true,
+                          })
+                        }
+
+                        if (dates.endDate) {
+                          setValue("endDate", dates.endDate, {
+                            shouldValidate: true,
+                            shouldDirty: true,
+                            shouldTouch: true,
+                          })
+                        }
+
+                        // Explicitly trigger validation
+                        trigger(["startDate", "endDate"])
+                      }}
+                      className="w-full"
+                    />
+                    <div className="mt-2 text-sm font-medium text-destructive">
+                      {errors.startDate?.message ||
+                        errors.endDate?.message ||
+                        ""}
+                    </div>
+                  </div>
+                </div>
+
+                <FormField
+                  control={control}
+                  name="category"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-base font-medium">
+                        Campaign Category
+                      </FormLabel>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant="outline"
+                              role="combobox"
+                              className={cn(
+                                "w-full justify-between",
+                                !field.value && "text-muted-foreground"
+                              )}
+                            >
+                              {field.value
+                                ? CAMPAIGN_CATEGORIES.find(
+                                    (category) => category.value === field.value
+                                  )?.label
+                                : "Select category..."}
+                              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-full p-0">
+                          <Command>
+                            <CommandInput placeholder="Search category..." />
+                            <CommandList>
+                              <CommandEmpty>No category found.</CommandEmpty>
+                              <CommandGroup>
+                                {CAMPAIGN_CATEGORIES.map((category) => (
+                                  <CommandItem
+                                    key={category.value}
+                                    value={category.value}
+                                    onSelect={() => {
+                                      setValue("category", category.value, {
+                                        shouldValidate: true,
+                                      })
+                                    }}
+                                  >
+                                    <Check
+                                      className={cn(
+                                        "mr-2 h-4 w-4",
+                                        category.value === field.value
+                                          ? "opacity-100"
+                                          : "opacity-0"
+                                      )}
+                                    />
+                                    {category.label}
+                                  </CommandItem>
+                                ))}
+                              </CommandGroup>
+                            </CommandList>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
               <FormField
                 control={control}
@@ -304,28 +532,23 @@ const CampaignForm = () => {
                 )}
               />
 
-              <div>
-                <FormLabel className="text-base font-medium">
-                  Campaign date range
-                </FormLabel>
-                <div className="mt-1.5">
-                  <DatePickerWithRange
-                    defaultDateRange={getDateRangeForPicker()}
-                    disabledBefore={addDays(new Date(), 2).toISOString()}
-                    onChange={handleDateChange}
-                  />
-                </div>
-              </div>
-
               <FormField
                 control={control}
                 name="images"
-                render={() => (
-                  <ImageUpload
-                    form={form}
-                    previewImage={previewImage}
-                    setPreviewImage={setPreviewImage}
-                  />
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-base font-medium">
+                      Campaign Image <span className="text-destructive">*</span>
+                    </FormLabel>
+                    <FormControl>
+                      <ImageUpload
+                        form={form}
+                        previewImage={previewImage}
+                        setPreviewImage={setPreviewImage}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
               />
             </div>
@@ -335,14 +558,7 @@ const CampaignForm = () => {
                 type="button"
                 onClick={(e) => {
                   e.preventDefault()
-                  // Log before transition
-                  console.log(
-                    "Transitioning from step 1 to 2. Form images:",
-                    form.getValues("images"),
-                    "Preview:",
-                    previewImage
-                  )
-                  setCurrentStep(2)
+                  handleNextStep(2)
                 }}
                 className="h-11 px-6"
               >
@@ -362,13 +578,6 @@ const CampaignForm = () => {
                 variant="outline"
                 onClick={(e) => {
                   e.preventDefault()
-                  // Log before transition
-                  console.log(
-                    "Transitioning from step 2 to 1. Form images:",
-                    form.getValues("images"),
-                    "Preview:",
-                    previewImage
-                  )
                   setCurrentStep(1)
                 }}
                 className="h-11"
@@ -379,7 +588,7 @@ const CampaignForm = () => {
                 type="button"
                 onClick={(e) => {
                   e.preventDefault()
-                  setCurrentStep(3)
+                  handleNextStep(3)
                 }}
                 className="h-11 px-6"
               >
@@ -402,7 +611,18 @@ const CampaignForm = () => {
               </div>
             </div>
 
-            <OfferList form={form} />
+            <OfferList
+              form={form}
+              disabledBefore={addDays(new Date(), 2).toISOString()}
+              defaultDateRange={
+                campaignStartDate && campaignEndDate
+                  ? {
+                      from: new Date(campaignStartDate),
+                      to: new Date(campaignEndDate),
+                    }
+                  : undefined
+              }
+            />
 
             <div className="flex items-center justify-between pt-4">
               <Button
@@ -420,14 +640,7 @@ const CampaignForm = () => {
                 type="button"
                 onClick={(e) => {
                   e.preventDefault()
-                  // Log before transition to step 4
-                  console.log(
-                    "Transitioning from step 3 to 4. Form images:",
-                    form.getValues("images"),
-                    "Preview:",
-                    previewImage
-                  )
-                  setCurrentStep(4)
+                  handleNextStep(4)
                 }}
                 className="h-11 px-6"
               >
@@ -467,21 +680,13 @@ const CampaignForm = () => {
                       Start Date
                     </dt>
                     <dd className="text-sm font-medium">
-                      {campaignStartDate
-                        ? format(new Date(campaignStartDate), "dd/MM/yyyy", {
-                            locale: vi,
-                          })
-                        : "Not set"}
+                      {safeFormatDate(campaignStartDate)}
                     </dd>
                   </div>
                   <div>
                     <dt className="text-sm text-muted-foreground">End Date</dt>
                     <dd className="text-sm font-medium">
-                      {campaignEndDate
-                        ? format(new Date(campaignEndDate), "dd/MM/yyyy", {
-                            locale: vi,
-                          })
-                        : "Not set"}
+                      {safeFormatDate(campaignEndDate)}
                     </dd>
                   </div>
                   <div className="col-span-full">
@@ -615,20 +820,8 @@ const CampaignForm = () => {
                               </dt>
                               <dd className="mt-1 text-sm">
                                 {offer.startDate
-                                  ? format(
-                                      new Date(offer.startDate),
-                                      "dd/MM/yyyy",
-                                      {
-                                        locale: vi,
-                                      }
-                                    )
-                                  : format(
-                                      new Date(campaignStartDate),
-                                      "dd/MM/yyyy",
-                                      {
-                                        locale: vi,
-                                      }
-                                    )}
+                                  ? safeFormatDate(offer.startDate)
+                                  : safeFormatDate(campaignStartDate)}
                               </dd>
                             </div>
                             <div>
@@ -637,20 +830,8 @@ const CampaignForm = () => {
                               </dt>
                               <dd className="mt-1 text-sm">
                                 {offer.endDate
-                                  ? format(
-                                      new Date(offer.endDate),
-                                      "dd/MM/yyyy",
-                                      {
-                                        locale: vi,
-                                      }
-                                    )
-                                  : format(
-                                      new Date(campaignEndDate),
-                                      "dd/MM/yyyy",
-                                      {
-                                        locale: vi,
-                                      }
-                                    )}
+                                  ? safeFormatDate(offer.endDate)
+                                  : safeFormatDate(campaignEndDate)}
                               </dd>
                             </div>
                             {offer.description && (
@@ -700,7 +881,22 @@ const CampaignForm = () => {
               >
                 Back
               </Button>
-              <Button type="submit" disabled={isPending} className="h-11 px-6">
+              <Button
+                type="submit"
+                disabled={isPending}
+                className="h-11 px-6"
+                onClick={async (e) => {
+                  // Validate all form fields before final submission
+                  const isFormValid = await trigger()
+                  if (!isFormValid) {
+                    e.preventDefault()
+                    toast.error(
+                      "Please complete all required fields before submitting"
+                    )
+                    return false
+                  }
+                }}
+              >
                 {isPending ? "Creating..." : "Create Campaign"}
               </Button>
             </div>
@@ -741,7 +937,15 @@ const CampaignForm = () => {
           <div className="col-span-12 md:sticky md:top-24 md:col-span-4 md:h-fit md:self-start lg:col-span-3">
             <Stepper
               value={currentStep}
-              onValueChange={setCurrentStep}
+              onValueChange={(step) => {
+                // When clicking on a step in the stepper, validate only if going forward
+                if (step > currentStep) {
+                  handleNextStep(step)
+                } else {
+                  // Allow going back without validation
+                  setCurrentStep(step)
+                }
+              }}
               orientation="vertical"
               className="max-h-[calc(100vh-8rem)] overflow-y-auto pb-4"
             >
@@ -783,3 +987,4 @@ const CampaignForm = () => {
 }
 
 export default CampaignForm
+

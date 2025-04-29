@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 
 import { PRICE_MODAL } from "@/constant/campaign"
 import { ICreateCampaignForm } from "@/validations/campaign.validation"
+import { addDays } from "date-fns"
 import { Check, ChevronsUpDown, DollarSign, Trash2Icon } from "lucide-react"
 import { DateRange } from "react-day-picker"
 import { useFieldArray, UseFormReturn } from "react-hook-form"
@@ -58,21 +59,80 @@ const OfferList = ({
     Record<number, boolean>
   >({})
 
-  const [dateRange, setDateRange] = useState<DateRange>(
-    defaultDateRange || {
+  // Get campaign start and end dates
+  const campaignStartDate = form.watch("startDate")
+  const campaignEndDate = form.watch("endDate")
+
+  // Initialize date range state using campaign dates
+  const [dateRange, setDateRange] = useState<DateRange>(() => {
+    // If defaultDateRange is provided, use it
+    if (defaultDateRange?.from && defaultDateRange?.to) {
+      return defaultDateRange
+    }
+
+    // Otherwise, try to use campaign start/end dates
+    if (campaignStartDate && campaignEndDate) {
+      return {
+        from: new Date(campaignStartDate),
+        to: new Date(campaignEndDate),
+      }
+    }
+
+    // Fallback to empty state
+    return {
       from: undefined,
       to: undefined,
     }
-  )
+  })
 
+  // Update offer dates whenever campaign dates or dateRange changes
   useEffect(() => {
     fields.forEach((field, index) => {
       if (dateRange.from && dateRange.to) {
-        form.setValue(`offers.${index}.startDate`, dateRange.from.toISOString())
-        form.setValue(`offers.${index}.endDate`, dateRange.to.toISOString())
+        form.setValue(
+          `offers.${index}.startDate`,
+          dateRange.from.toISOString(),
+          {
+            shouldValidate: true,
+          }
+        )
+        form.setValue(`offers.${index}.endDate`, dateRange.to.toISOString(), {
+          shouldValidate: true,
+        })
+      } else if (campaignStartDate && campaignEndDate) {
+        // If dateRange is not set but campaign dates are available, use those
+        form.setValue(`offers.${index}.startDate`, campaignStartDate, {
+          shouldValidate: true,
+        })
+        form.setValue(`offers.${index}.endDate`, campaignEndDate, {
+          shouldValidate: true,
+        })
+
+        // Update dateRange to match campaign dates
+        setDateRange({
+          from: new Date(campaignStartDate),
+          to: new Date(campaignEndDate),
+        })
       }
     })
-  }, [dateRange, form, fields])
+  }, [dateRange, form, fields, campaignStartDate, campaignEndDate])
+
+  // Always ensure new offers get the campaign dates
+  useEffect(() => {
+    if (fields.length > 0 && campaignStartDate && campaignEndDate) {
+      const latestIndex = fields.length - 1
+      const hasStartDate = form.getValues(`offers.${latestIndex}.startDate`)
+
+      if (!hasStartDate) {
+        form.setValue(`offers.${latestIndex}.startDate`, campaignStartDate, {
+          shouldValidate: true,
+        })
+        form.setValue(`offers.${latestIndex}.endDate`, campaignEndDate, {
+          shouldValidate: true,
+        })
+      }
+    }
+  }, [fields.length, campaignStartDate, campaignEndDate, form])
 
   const formatNumber = (n: string) => {
     return n.replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ",")
@@ -428,22 +488,56 @@ const OfferList = ({
                 onChange={(dates: {
                   startDate: string
                   endDate: string | null
-                }) =>
-                  setDateRange({
-                    from: new Date(dates.startDate),
-                    to: dates.endDate ? new Date(dates.endDate) : undefined,
-                  })
+                }) => {
+                  if (dates.startDate) {
+                    // Update date range state
+                    setDateRange({
+                      from: new Date(dates.startDate),
+                      to: dates.endDate ? new Date(dates.endDate) : undefined,
+                    })
+
+                    // Update form values and force validation
+                    form.setValue(
+                      `offers.${index}.startDate`,
+                      dates.startDate,
+                      {
+                        shouldValidate: true,
+                        shouldDirty: true,
+                        shouldTouch: true,
+                      }
+                    )
+
+                    if (dates.endDate) {
+                      form.setValue(`offers.${index}.endDate`, dates.endDate, {
+                        shouldValidate: true,
+                        shouldDirty: true,
+                        shouldTouch: true,
+                      })
+                    }
+
+                    // Trigger validation for these fields
+                    form.trigger(`offers.${index}.startDate`)
+                    form.trigger(`offers.${index}.endDate`)
+                  }
+                }}
+                disabledBefore={
+                  disabledBefore || addDays(new Date(), 1).toISOString()
                 }
-                disabledBefore={disabledBefore}
                 disabledAfter={disabledAfter}
+                defaultDateRange={
+                  dateRange.from || dateRange.to
+                    ? {
+                        from: dateRange.from,
+                        to: dateRange.to,
+                      }
+                    : undefined
+                }
               />
-              {(form.formState.errors.offers?.[index]?.startDate?.message ||
-                form.formState.errors.offers?.[index]?.endDate?.message) && (
-                <FormMessage>
-                  {form.formState.errors.offers?.[index]?.startDate?.message ||
-                    form.formState.errors.offers?.[index]?.endDate?.message}
-                </FormMessage>
-              )}
+              <div className="mt-2 text-sm font-medium text-destructive">
+                {form.formState.errors.offers?.[index]?.startDate?.message ||
+                  form.formState.errors.offers?.[index]?.endDate?.message ||
+                  ""}
+              </div>
             </div>
           </div>
 
@@ -484,3 +578,4 @@ const OfferList = ({
 }
 
 export default OfferList
+
