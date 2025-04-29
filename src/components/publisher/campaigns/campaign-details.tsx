@@ -180,7 +180,7 @@ export function CampaignDetails({ campaignId }: { campaignId: number }) {
       },
     })
   }
-
+  console.log(campaign)
   if (isLoading) {
     return (
       <div className="flex h-[50vh] items-center justify-center">
