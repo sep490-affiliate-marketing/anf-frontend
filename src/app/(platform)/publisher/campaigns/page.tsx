@@ -112,9 +112,9 @@ function CampaignCard({ campaign }: CampaignCardProps) {
   return (
     <Card
       key={campaign.id}
-      className="group overflow-hidden transition-all hover:shadow-md"
+      className="group flex h-[500px] flex-col overflow-hidden transition-all hover:shadow-md"
     >
-      <div className="relative aspect-video w-full overflow-hidden">
+      <div className="relative h-[200px] w-full overflow-hidden">
         <img
           src={
             (campaign.campImages && campaign.campImages.length > 0
@@ -122,26 +122,26 @@ function CampaignCard({ campaign }: CampaignCardProps) {
               : null) || "/placeholder-image.jpg"
           }
           alt={campaign.name}
-          className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
+          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
         />
       </div>
-      <CardHeader className="p-4 pb-0">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <h3 className="font-semibold">{campaign.name}</h3>
+      <CardHeader className="flex-none space-y-2 p-4">
+        <div className="flex items-start justify-between gap-2">
+          <div>
+            <h3 className="line-clamp-1 font-semibold">{campaign.name}</h3>
+            <p className="mt-1.5 line-clamp-2 text-sm text-muted-foreground">
+              {campaign.description}
+            </p>
           </div>
         </div>
-        <p className="mt-2 line-clamp-2 h-10 text-sm text-muted-foreground">
-          {campaign.description}
-        </p>
       </CardHeader>
-      <CardContent className="p-4 pt-3">
-        <div className="mt-2 flex flex-wrap gap-2">
+      <CardContent className="flex-1 space-y-4 p-4 pt-0">
+        <div className="flex flex-wrap gap-1.5">
           {campaign.offers.map((offer) => (
             <OfferBadge key={offer.id} model={offer.pricingModel} />
           ))}
         </div>
-        <div className="mt-4 grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-4">
           <div>
             <p className="text-xs text-muted-foreground">Highest Payout</p>
             <p className="font-medium">
@@ -160,14 +160,12 @@ function CampaignCard({ campaign }: CampaignCardProps) {
           </div>
         </div>
       </CardContent>
-      <CardFooter className="border-t p-4">
-        <div className="flex w-full items-center gap-2">
-          <Link href={`/publisher/campaigns/${campaign.id}`} className="flex-1">
-            <Button className="w-full gap-1">
-              View Details <ArrowRight className="size-4" />
-            </Button>
-          </Link>
-        </div>
+      <CardFooter className="flex-none border-t p-4">
+        <Link href={`/publisher/campaigns/${campaign.id}`} className="w-full">
+          <Button className="w-full gap-1">
+            View Details <ArrowRight className="size-4" />
+          </Button>
+        </Link>
       </CardFooter>
     </Card>
   )
