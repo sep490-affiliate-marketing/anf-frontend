@@ -1,6 +1,5 @@
 import { Suspense } from "react"
 
-import AdminWithdrawRequestsTable from "@/components/admin/withdraw-requests/withdraw-requests-table"
 import { Spinner } from "@/components/spinner"
 
 export default function WithdrawRequestsPage() {
@@ -22,9 +21,9 @@ export default function WithdrawRequestsPage() {
 
       {/* Withdraw Requests Table */}
       <section className="space-y-4">
-        <Suspense fallback={<Spinner />}>
+        {/* <Suspense fallback={<Spinner />}>
           <AdminWithdrawRequestsTable />
-        </Suspense>
+        </Suspense> */}
       </section>
     </div>
   )
