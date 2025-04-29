@@ -8,18 +8,10 @@ import {
   today,
 } from "@internationalized/date"
 import { format } from "date-fns"
-import { CalendarIcon } from "lucide-react"
-import {
-  Button,
-  DateRangePicker,
-  Dialog,
-  Group,
-  Popover,
-} from "react-aria-components"
+import { DateRangePicker, Group } from "react-aria-components"
 
 import { cn } from "@/lib/utils"
 
-import { RangeCalendar } from "@/components/ui/calendar-rac"
 import { DateInput, dateInputStyle } from "@/components/ui/datefield-rac"
 
 export interface DatePickerWithRangeProps {
@@ -117,4 +109,3 @@ export function DatePickerWithRange({
     </DateRangePicker>
   )
 }
-

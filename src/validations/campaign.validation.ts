@@ -10,6 +10,14 @@ const ACCEPTED_IMAGE_TYPES = [
   "image/jpg",
 ]
 
+// Helper function to validate HTML content (rich text editor)
+const hasValidHtmlContent = (htmlContent: string): boolean => {
+  if (!htmlContent) return false
+  // Strip HTML tags and check if there's actual content
+  const textContent = htmlContent.replace(/<[^>]*>/g, "").trim()
+  return textContent.length > 0
+}
+
 export function TrackingParamSchema() {
   return z.object({
     param_value: z.string().min(1, "Parameter value is required"),
@@ -39,7 +47,10 @@ export function CreateCampaignFormSchema() {
         .min(1, { message: "Campaign name is required" }),
       description: z
         .string({ message: "Description is required" })
-        .min(1, { message: "Description is required" }),
+        .min(1, { message: "Description is required" })
+        .refine(hasValidHtmlContent, {
+          message: "Description must contain actual text content",
+        }),
       category: z
         .string({ message: "Category is required" })
         .min(1, { message: "Category is required" }),
@@ -121,6 +132,9 @@ export function UpdateCampaignFormSchema() {
       description: z
         .string({ message: "Description is required" })
         .min(1, { message: "Description is required" })
+        .refine(hasValidHtmlContent, {
+          message: "Description must contain actual text content",
+        })
         .optional(),
       start_date: z
         .string({ message: "Start date is required" })
@@ -174,4 +188,3 @@ export function UpdateCampaignFormSchema() {
 export type IUpdateCampaignForm = z.infer<
   ReturnType<typeof UpdateCampaignFormSchema>
 >
-

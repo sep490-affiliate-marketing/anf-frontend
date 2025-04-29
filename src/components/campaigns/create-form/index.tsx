@@ -50,7 +50,8 @@ import {
   StepperTitle,
   StepperTrigger,
 } from "@/components/ui/stepper"
-import { Textarea } from "@/components/ui/textarea"
+
+import { Editor } from "@/components/editor"
 
 import { DatePickerWithRange } from "./date-range-picker"
 import ImageUpload from "./image-upload"
@@ -124,6 +125,7 @@ const CampaignForm = () => {
 
   const [currentStep, setCurrentStep] = useState(1)
   const [previewImage, setPreviewImage] = useState<string | null>(null)
+  const [showDescriptionPreview, setShowDescriptionPreview] = useState(false)
 
   const { fields } = useFieldArray({
     control: form.control,
@@ -307,6 +309,19 @@ const CampaignForm = () => {
           "images",
         ] as const)
 
+        // Check if description is empty or just contains HTML tags without actual content
+        const descriptionValue = watch("description")
+        if (
+          !descriptionValue ||
+          descriptionValue.replace(/<[^>]*>/g, "").trim() === ""
+        ) {
+          form.setError("description", {
+            type: "manual",
+            message: "Campaign description is required",
+          })
+          isValid = false
+        }
+
         // Check specifically for images validation
         const formImages = form.getValues("images")
         if (!formImages || formImages.length === 0) {
@@ -354,6 +369,22 @@ const CampaignForm = () => {
         }
 
         isValid = await trigger(offerFields as any)
+
+        // Check if offer descriptions contain actual content
+        for (let i = 0; i < offerCount; i++) {
+          const descriptionValue = watch(`offers.${i}.description`)
+          if (
+            !descriptionValue ||
+            descriptionValue.replace(/<[^>]*>/g, "").trim() === ""
+          ) {
+            form.setError(`offers.${i}.description`, {
+              type: "manual",
+              message: "Offer description is required",
+            })
+            isValid = false
+          }
+        }
+
         if (!isValid) {
           toast.error("Please complete all required offer fields")
         }
@@ -470,7 +501,7 @@ const CampaignForm = () => {
                                     (category) => category.value === field.value
                                   )?.label
                                 : "Select category..."}
-                              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                              <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
                             </Button>
                           </FormControl>
                         </PopoverTrigger>
@@ -492,7 +523,7 @@ const CampaignForm = () => {
                                   >
                                     <Check
                                       className={cn(
-                                        "mr-2 h-4 w-4",
+                                        "mr-2 size-4",
                                         category.value === field.value
                                           ? "opacity-100"
                                           : "opacity-0"
@@ -517,17 +548,35 @@ const CampaignForm = () => {
                 name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-base font-medium">
-                      Campaign description
-                    </FormLabel>
+                    <div className="mb-2 flex items-center justify-between">
+                      <FormLabel className="text-base font-medium">
+                        Campaign description
+                      </FormLabel>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          setShowDescriptionPreview(!showDescriptionPreview)
+                        }
+                      >
+                        {showDescriptionPreview
+                          ? "Edit Content"
+                          : "Show Preview"}
+                      </Button>
+                    </div>
                     <FormControl>
-                      <Textarea
-                        placeholder="Briefly describe your campaign"
-                        className="min-h-[100px] resize-none"
-                        {...field}
+                      <Editor
+                        value={field.value}
+                        onChange={(value) => {
+                          field.onChange(value)
+                          // Trigger validation after value changes
+                          trigger("description")
+                        }}
+                        preview={showDescriptionPreview}
                       />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="mt-2 block" />
                   </FormItem>
                 )}
               />
@@ -659,6 +708,7 @@ const CampaignForm = () => {
           startDate?: string
           endDate?: string
           targetUrl?: string
+          stepInfo?: string
         }
 
         return (
@@ -694,7 +744,16 @@ const CampaignForm = () => {
                       Description
                     </dt>
                     <dd className="whitespace-pre-wrap text-sm font-medium">
-                      {watch("description") || "No description provided"}
+                      {watch("description") ? (
+                        <div
+                          className="ql-editor preview"
+                          dangerouslySetInnerHTML={{
+                            __html: watch("description"),
+                          }}
+                        />
+                      ) : (
+                        "No description provided"
+                      )}
                     </dd>
                   </div>
                   {/* Show campaign image if available */}
@@ -840,7 +899,27 @@ const CampaignForm = () => {
                                   Description
                                 </dt>
                                 <dd className="mt-1 whitespace-pre-wrap rounded-md bg-muted p-3 text-sm">
-                                  {offer.description}
+                                  <div
+                                    className="ql-editor preview"
+                                    dangerouslySetInnerHTML={{
+                                      __html: offer.description,
+                                    }}
+                                  />
+                                </dd>
+                              </div>
+                            )}
+                            {offer.stepInfo && (
+                              <div className="col-span-full">
+                                <dt className="text-xs font-medium text-muted-foreground">
+                                  Step Information
+                                </dt>
+                                <dd className="mt-1 whitespace-pre-wrap rounded-md bg-muted p-3 text-sm">
+                                  <div
+                                    className="ql-editor preview"
+                                    dangerouslySetInnerHTML={{
+                                      __html: offer.stepInfo,
+                                    }}
+                                  />
                                 </dd>
                               </div>
                             )}
@@ -987,4 +1066,3 @@ const CampaignForm = () => {
 }
 
 export default CampaignForm
-

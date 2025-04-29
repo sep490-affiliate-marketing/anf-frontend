@@ -7,7 +7,7 @@ import { UseFormReturn } from "react-hook-form"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
-import { FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { FormItem } from "@/components/ui/form"
 
 interface ImageUploadProps {
   form: UseFormReturn<ICreateCampaignForm>

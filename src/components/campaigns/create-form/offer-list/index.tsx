@@ -34,6 +34,8 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 
+import { Editor } from "@/components/editor"
+
 import { DatePickerWithRange } from "../date-range-picker"
 
 interface OfferListProps {
@@ -56,6 +58,13 @@ const OfferList = ({
   })
 
   const [isPriceModalOpen, setIsPriceModalOpen] = useState<
+    Record<number, boolean>
+  >({})
+
+  const [showStepInfoPreview, setShowStepInfoPreview] = useState<
+    Record<number, boolean>
+  >({})
+  const [showDescriptionPreview, setShowDescriptionPreview] = useState<
     Record<number, boolean>
   >({})
 
@@ -429,58 +438,6 @@ const OfferList = ({
               )}
             />
 
-            <FormField
-              control={form.control}
-              name={`offers.${index}.stepInfo`}
-              render={({ field }) => (
-                <FormItem>
-                  <Label className="text-lg font-semibold">
-                    Step Information
-                  </Label>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name={`offers.${index}.description`}
-              render={({ field }) => (
-                <FormItem>
-                  <Label className="text-lg font-semibold">Description</Label>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {form.watch(`offers.${index}.pricingModel`) === "CPS" && (
-              <FormField
-                control={form.control}
-                name={`offers.${index}.orderReturnTime`}
-                render={({ field }) => (
-                  <FormItem>
-                    <Label className="text-lg font-semibold">
-                      Order Return Time
-                    </Label>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        type="text"
-                        placeholder="Enter return time"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
-
             <div className="space-y-2 md:col-span-1">
               <Label className="text-lg font-semibold">Offer Date Range</Label>
               <DatePickerWithRange
@@ -539,6 +496,108 @@ const OfferList = ({
                   ""}
               </div>
             </div>
+
+            <FormField
+              control={form.control}
+              name={`offers.${index}.stepInfo`}
+              render={({ field }) => (
+                <FormItem className="col-span-2">
+                  <div className="mb-2 flex items-center justify-between">
+                    <Label className="text-lg font-semibold">
+                      Step Information
+                    </Label>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setShowStepInfoPreview((prev) => ({
+                          ...prev,
+                          [index]: !prev[index],
+                        }))
+                      }}
+                    >
+                      {showStepInfoPreview[index]
+                        ? "Edit Content"
+                        : "Show Preview"}
+                    </Button>
+                  </div>
+                  <FormControl>
+                    <Editor
+                      value={field.value}
+                      onChange={(value) => {
+                        field.onChange(value)
+                        // Trigger validation after value changes
+                        form.trigger(`offers.${index}.stepInfo`)
+                      }}
+                      preview={showStepInfoPreview[index] || false}
+                    />
+                  </FormControl>
+                  <FormMessage className="mt-2 block" />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name={`offers.${index}.description`}
+              render={({ field }) => (
+                <FormItem className="col-span-2">
+                  <div className="mb-2 flex items-center justify-between">
+                    <Label className="text-lg font-semibold">Description</Label>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setShowDescriptionPreview((prev) => ({
+                          ...prev,
+                          [index]: !prev[index],
+                        }))
+                      }}
+                    >
+                      {showDescriptionPreview[index]
+                        ? "Edit Content"
+                        : "Show Preview"}
+                    </Button>
+                  </div>
+                  <FormControl>
+                    <Editor
+                      value={field.value}
+                      onChange={(value) => {
+                        field.onChange(value)
+                        // Trigger validation after value changes
+                        form.trigger(`offers.${index}.description`)
+                      }}
+                      preview={showDescriptionPreview[index] || false}
+                    />
+                  </FormControl>
+                  <FormMessage className="mt-2 block" />
+                </FormItem>
+              )}
+            />
+
+            {form.watch(`offers.${index}.pricingModel`) === "CPS" && (
+              <FormField
+                control={form.control}
+                name={`offers.${index}.orderReturnTime`}
+                render={({ field }) => (
+                  <FormItem>
+                    <Label className="text-lg font-semibold">
+                      Order Return Time
+                    </Label>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        type="text"
+                        placeholder="Enter return time"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
           </div>
 
           {index > 0 && (
@@ -578,4 +637,3 @@ const OfferList = ({
 }
 
 export default OfferList
-
