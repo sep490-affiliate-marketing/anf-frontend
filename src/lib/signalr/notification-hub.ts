@@ -128,25 +128,25 @@ class NotificationHub {
     // Handle connection closed
     this.connection.onclose((error) => {
       console.log("SignalR Connection Closed:", error)
-      toast.error("Notification connection lost", {
-        description: "Attempting to reconnect...",
-      })
+      // toast.error("Notification connection lost", {
+      //   description: "Attempting to reconnect...",
+      // })
     })
 
     // Handle reconnecting
     this.connection.onreconnecting((error) => {
       console.log("SignalR Reconnecting:", error)
-      toast.loading("Reconnecting to notification service...", {
-        duration: 0, // Show until manually dismissed
-      })
+      // toast.loading("Reconnecting to notification service...", {
+      //   duration: 0, // Show until manually dismissed
+      // })
     })
 
     // Handle reconnected
     this.connection.onreconnected((connectionId) => {
       console.log("SignalR Reconnected:", connectionId)
-      toast.success("Reconnected to notification service", {
-        description: "You will continue receiving real-time updates",
-      })
+      // toast.success("Reconnected to notification service", {
+      //   description: "You will continue receiving real-time updates",
+      // })
     })
   }
 
