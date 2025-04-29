@@ -49,6 +49,7 @@ interface ExtendedCampaign extends ICampaign {
   publisherCount?: number
   conversionRate?: number
   terms?: string
+  totalBudget?: number
 }
 
 function CampaignStatus({ status }: { status: string | undefined | null }) {
@@ -570,6 +571,35 @@ export function CampaignDetails({ campaignId }: { campaignId: number }) {
               <p className="text-2xl font-semibold">
                 {formatVNDCurrency(campaign.balance)}
               </p>
+            </div>
+            <div className="mt-4">
+              <div className="mb-1 flex items-center justify-between text-xs">
+                <span className="text-gray-500">Budget Usage</span>
+                <span>
+                  {(
+                    100 -
+                    (campaign.balance /
+                      campaign.offers.reduce(
+                        (sum, offer) => sum + offer.budget,
+                        0
+                      )) *
+                      100
+                  ).toFixed(0)}
+                  % used
+                </span>
+              </div>
+              <Progress
+                value={
+                  100 -
+                  (campaign.balance /
+                    campaign.offers.reduce(
+                      (sum, offer) => sum + offer.budget,
+                      0
+                    )) *
+                    100
+                }
+                className="h-1"
+              />
             </div>
 
             <Separator className="mb-6" />
