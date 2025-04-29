@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
 import dynamic from "next/dynamic"
 
@@ -18,6 +18,25 @@ interface EditorProps {
 export const Editor = ({ onChange, value, preview = false }: EditorProps) => {
   const [isUploading, setIsUploading] = useState(false)
   const [uploadError, setUploadError] = useState<string | null>(null)
+  const [internalValue, setInternalValue] = useState(value)
+  const [editorFocused, setEditorFocused] = useState(false)
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  // Update internal value when external value changes, but only when not focused
+  useEffect(() => {
+    if (!editorFocused) {
+      setInternalValue(value)
+    }
+  }, [value, editorFocused])
+
+  // Clear any pending timeouts on unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current)
+      }
+    }
+  }, [])
 
   const ReactQuill = useMemo(
     () => dynamic(() => import("react-quill-new"), { ssr: false }),
@@ -48,8 +67,16 @@ export const Editor = ({ onChange, value, preview = false }: EditorProps) => {
         const imageHtml = `<img src="${imageUrl}" alt="Uploaded image" />`
 
         // Insert at cursor position by appending to current content
-        // This is a simplified approach that works reliably
-        onChange(value + imageHtml)
+        const newValue = internalValue + imageHtml
+        setInternalValue(newValue)
+
+        // Notify parent without losing focus
+        if (timeoutRef.current) {
+          clearTimeout(timeoutRef.current)
+        }
+        timeoutRef.current = setTimeout(() => {
+          onChange(newValue)
+        }, 0)
       } catch (error) {
         console.error("Error uploading image:", error)
         setUploadError(
@@ -59,7 +86,35 @@ export const Editor = ({ onChange, value, preview = false }: EditorProps) => {
         setIsUploading(false)
       }
     }
-  }, [onChange, value])
+  }, [onChange, internalValue])
+
+  // Handle change with focus preservation
+  const handleChange = useCallback(
+    (newValue: string) => {
+      setInternalValue(newValue)
+
+      // Debounce the onChange to avoid focus loss and excessive validations
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current)
+      }
+
+      timeoutRef.current = setTimeout(() => {
+        onChange(newValue)
+      }, 300)
+    },
+    [onChange]
+  )
+
+  // Handle focus events
+  const handleFocus = useCallback(() => {
+    setEditorFocused(true)
+  }, [])
+
+  const handleBlur = useCallback(() => {
+    // When editor loses focus, sync final value with parent
+    setEditorFocused(false)
+    onChange(internalValue)
+  }, [onChange, internalValue])
 
   if (preview) {
     return (
@@ -94,8 +149,10 @@ export const Editor = ({ onChange, value, preview = false }: EditorProps) => {
 
       <ReactQuill
         theme="snow"
-        value={value}
-        onChange={onChange}
+        value={internalValue}
+        onChange={handleChange}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
         modules={{
           toolbar: {
             container: [

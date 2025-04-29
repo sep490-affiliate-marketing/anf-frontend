@@ -8,6 +8,14 @@ const ACCEPTED_IMAGE_TYPES = [
   "image/webp",
 ]
 
+// Helper function to validate HTML content (rich text editor)
+const hasValidHtmlContent = (htmlContent: string): boolean => {
+  if (!htmlContent) return false
+  // Strip HTML tags and check if there's actual content
+  const textContent = htmlContent.replace(/<[^>]*>/g, "").trim()
+  return textContent.length > 0
+}
+
 export function OfferFormSchema() {
   const today = new Date()
   today.setHours(0, 0, 0, 0)
@@ -22,7 +30,10 @@ export function OfferFormSchema() {
         .min(1, "Pricing model is required"),
       description: z
         .string({ required_error: "Description is required" })
-        .min(1, "Description is required"),
+        .min(1, "Description is required")
+        .refine(hasValidHtmlContent, {
+          message: "Description must contain actual text content",
+        }),
       bid: z
         .string({ required_error: "Bid amount is required" })
         .min(1, "Bid amount is required")
@@ -70,7 +81,10 @@ export function OfferFormSchema() {
 
       stepInfo: z
         .string({ required_error: "Step information is required" })
-        .min(1, "Step information is required"),
+        .min(1, "Step information is required")
+        .refine(hasValidHtmlContent, {
+          message: "Step information must contain actual text content",
+        }),
     })
     .refine(
       (data) => {
@@ -85,3 +99,4 @@ export function OfferFormSchema() {
 }
 
 export type IOfferForm = z.infer<ReturnType<typeof OfferFormSchema>>
+
