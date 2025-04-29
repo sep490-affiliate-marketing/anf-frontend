@@ -30,7 +30,11 @@ jobs:
           NEXT_PUBLIC_BACKEND_URL: 'http://localhost:5272'
           JWT_SECRET: '123123123123123123'
           BANK_LOOKUP_API_KEY: '0yuBbEMK8LdtPsWQR0Kh6gdTmY5j6x'
-          BANK_LOOKUP_SECRET: '0yuBbEMK8LdtPsWQR0Kh6gdTmY5j6x'
+          BANK_LOOKUP_SECRET: '0yuBbEMK8LdtPsWQR0Kh6gdTmY5j6xk'
+          CLOUDINARY_CLOUD_NAME: 'fsdf34g34'
+          CLOUDINARY_API_KEY: '123123'
+          CLOUDINARY_API_SECRET: '3323dfsd-RsH-DMyo'
+
       
       # - name: Test
       #   run: pnpm test
