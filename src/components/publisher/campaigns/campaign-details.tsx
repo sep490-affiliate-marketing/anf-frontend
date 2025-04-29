@@ -464,7 +464,7 @@ export function CampaignDetails({ campaignId }: { campaignId: number }) {
                         {formatVNDCurrency(offer.bid)}
                       </p>
                     </div>
-                    <div>
+                    {/* <div>
                       <div className="flex items-center justify-between text-xs">
                         <span className="text-gray-500">Budget</span>
                         <span>
@@ -500,7 +500,7 @@ export function CampaignDetails({ campaignId }: { campaignId: number }) {
                         ).toFixed(0)}
                         % used
                       </p>
-                    </div>
+                    </div> */}
                   </div>
 
                   {offer.stepInfo && (
