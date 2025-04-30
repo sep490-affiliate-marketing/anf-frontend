@@ -30,3 +30,14 @@ export interface IWithdrawRequestErrorResponse {
   message: string
   details: string
 }
+
+export interface IGetWithdrawRequestListResponse
+  extends IPaginationResponse<{
+    id: number
+    userCode: string
+    walletId: number
+    amount: number
+    reason: string
+    createdAt: string
+    currentBankingNo: string
+  }> {}
