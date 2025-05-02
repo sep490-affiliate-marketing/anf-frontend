@@ -7,8 +7,8 @@ import Image from "next/image"
 import { CAMPAIGN_CATEGORIES } from "@/constant/campaign"
 import { useAuth } from "@/providers/auth-provider"
 import { IUpdateCampaignForm } from "@/validations/campaign.validation"
-import { addDays, format, set } from "date-fns"
-import { ca, vi } from "date-fns/locale"
+import { addDays, format} from "date-fns"
+import { vi } from "date-fns/locale"
 import { AlertCircle, Check, ChevronsUpDown } from "lucide-react"
 import { DateRange } from "react-day-picker"
 import { toast } from "sonner"
@@ -550,7 +550,7 @@ const EditCampaignForm = ({ campaignId }: Props) => {
               <FormField
                 control={control}
                 name="images"
-                render={({ field }) => (
+                render={({ }) => (
                   <FormItem>
                     <FormLabel className="text-base font-medium">
                       Campaign Image <span className="text-destructive">*</span>
