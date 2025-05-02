@@ -91,19 +91,6 @@ const getAccessibleRoutes = (
       url: "/campaigns",
       matchPattern: "campaigns",
     },
-    // Admin-only routes
-    {
-      title: "Carriers",
-      url: "/carriers",
-      matchPattern: "carriers",
-      roles: [UserRoleEnum.ADMIN],
-    },
-    {
-      title: "Countries",
-      url: "/countries",
-      matchPattern: "countries",
-      roles: [UserRoleEnum.ADMIN],
-    },
     {
       title: "Transactions",
       url: "/transactions",

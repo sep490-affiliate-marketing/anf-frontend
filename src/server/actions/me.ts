@@ -20,7 +20,7 @@ export async function getCurrentUser(): Promise<IUserExtended | null> {
       return null
     }
 
-    // Make API request directly
+    // Make API request directly with improved caching and error handling
     const response = await fetch(
       `${env.NEXT_PUBLIC_BACKEND_URL}/api/affiliate-network/users/me`,
       {
@@ -29,15 +29,40 @@ export async function getCurrentUser(): Promise<IUserExtended | null> {
           "Content-Type": "application/json",
           Accept: "application/json",
         },
+        // Using no-store in middleware context to ensure we always get fresh data
+        // This is important for auth checks
+        cache: "no-store",
+        next: {
+          // But allow revalidation after 30 seconds for performance
+          revalidate: 30,
+        },
       }
     )
 
+    // Handle different error scenarios
     if (!response.ok) {
+      if (response.status === 401 || response.status === 403) {
+        // Authentication or authorization error
+        console.error(`Auth error: ${response.status}`)
+        return null
+      }
+
+      // Other API errors
+      console.error(`API error: ${response.status}`)
       return null
     }
 
     const data = await response.json()
-    return data.isSuccess ? data.value : null
+
+    if (!data.isSuccess) {
+      console.error(
+        "API returned unsuccessful response:",
+        data.message || "Unknown error"
+      )
+      return null
+    }
+
+    return data.value
   } catch (error) {
     console.error("Error fetching user data:", error)
     return null

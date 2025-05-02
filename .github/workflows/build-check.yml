@@ -1,7 +1,6 @@
 name: Build Check
 
-on:
-  push
+on: push
 
 jobs:
   build-check:
@@ -24,7 +23,6 @@ jobs:
       - name: Build
         run: pnpm build
         env:
-          NEXT_PUBLIC_BACKEND_URL: 'http://localhost:5272'
-          JWT_SECRET: '0yWqXf87FN3E26134S1575irUOmihSLZ'
-          BANK_LOOKUP_API_KEY: '0yuBbEMK8LdtPsWQR0Kh6gdTmY5j6x'
-          BANK_LOOKUP_SECRET: '0yuBbEMK8LdtPsWQR0Kh6gdTmY5j6x'
+          NEXT_PUBLIC_BACKEND_URL: "http://localhost:5272"
+          BANK_LOOKUP_API_KEY: "0yuBbEMK8LdtPsWQR0Kh6gdTmY5j6x"
+          BANK_LOOKUP_SECRET: "0yuBbEMK8LdtPsWQR0Kh6gdTmY5j6x"
