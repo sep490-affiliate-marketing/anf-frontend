@@ -92,9 +92,11 @@ function CampaignVerificationUI({ campaign }: { campaign: Campaign }) {
                 className="ml-2 shrink-0"
               />
             </div>
-            <p className="mt-1 truncate text-sm text-muted-foreground">
-              {truncateText(campaign.description, 120)}
-            </p>
+            <div
+              className="mt-1 line-clamp-3 text-sm text-muted-foreground"
+              dangerouslySetInnerHTML={{ __html: campaign.description }}
+            />
+
           </div>
         </div>
       </div>

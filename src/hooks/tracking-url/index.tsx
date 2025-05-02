@@ -42,12 +42,12 @@ export const useUpdateTrackingUrlBuilder = ({
 }: UseUpdateTrackingUrlBuilderProps) => {
   const generateUrl = useCallback(() => {
     try {
-      const { baseUrl, tracking_params = [] } = form.watch()
-      if (!baseUrl) return ""
+      const { productUrl, tracking_params = [] } = form.watch()
+      if (!productUrl) return ""
 
       const url =
-        encodeUrlSafely(baseUrl) +
-        (baseUrl.includes("?") ? "&" : "?") +
+        encodeUrlSafely(productUrl) +
+        (productUrl.includes("?") ? "&" : "?") +
         tracking_params
           ?.map((p) => `${p.param_name}={${p.param_value}}`)
           .join("&")
