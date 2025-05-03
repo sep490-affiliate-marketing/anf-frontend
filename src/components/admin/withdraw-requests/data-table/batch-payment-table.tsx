@@ -38,6 +38,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 
+import { EmptyTable } from "@/components/data-table/empty-table"
 import { Spinner } from "@/components/spinner"
 
 interface BatchPaymentTableProps {
@@ -261,32 +262,10 @@ export function BatchPaymentTable({
           <Spinner />
         </div>
       ) : isBatchDataEmpty ? (
-        <div className="flex items-center justify-center py-10 text-center">
-          <div className="flex flex-col items-center space-y-3">
-            <div className="rounded-full bg-muted p-3">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="size-6 text-muted-foreground"
-              >
-                <path d="M20.42 12c0-4.1-3.33-7.42-7.42-7.42-3.94 0-7.16 3.08-7.42 6.96-2.62.67-4.58 3.06-4.58 5.91 0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.65-2.05-4.79-4.58-4.96z"></path>
-              </svg>
-            </div>
-            <div className="text-base font-medium">
-              No batch payment data available
-            </div>
-            <p className="text-sm text-muted-foreground">
-              No data is available for export during the selected time period.
-            </p>
-          </div>
-        </div>
+        <EmptyTable
+          title="No batch payment data available"
+          description="No data is available for export during the selected time period."
+        />
       ) : (
         <div className="flex flex-col">
           <div className="relative w-full overflow-auto">

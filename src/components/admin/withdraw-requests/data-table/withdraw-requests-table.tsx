@@ -3,7 +3,7 @@
 import { format } from "date-fns"
 import { vi } from "date-fns/locale"
 import { CalendarIcon, Search } from "lucide-react"
-import { parseAsInteger, parseAsString, useQueryState } from "nuqs"
+import { parseAsInteger, useQueryState } from "nuqs"
 
 import { formatVNDCurrency } from "@/lib/utils"
 
@@ -56,21 +56,18 @@ export function WithdrawRequestsTable({
     parseAsInteger.withDefault(10)
   )
 
-  const [searchTerm, setSearchTerm] = useQueryState(
-    "searchTerm",
-    parseAsString.withDefault("")
-  )
+  const [searchTerm, setSearchTerm] = useQueryState("search")
 
   const {
     data: withdrawRequestList,
     isLoading: isFetching,
-    error,
     isError,
   } = useAdminWithdrawRequestList(page || 1, pageSize || 10, startDate, endDate)
 
   const withdrawRequests = withdrawRequestList?.value.data || []
   const totalRequests = withdrawRequestList?.value.totalRecords || 0
   const totalPages = withdrawRequestList?.value.totalPages || 0
+  const isDataEmpty = withdrawRequests.length === 0
 
   // Handle pagination
   const handlePreviousPage = () => {
@@ -83,14 +80,6 @@ export function WithdrawRequestsTable({
     if (withdrawRequestList?.value.hasNextPage) {
       setPage((page || 1) + 1)
     }
-  }
-
-  if (isFetching) {
-    return <Spinner />
-  }
-
-  if (isError) {
-    return <EmptyTable description={error.message} />
   }
 
   return (
@@ -183,140 +172,156 @@ export function WithdrawRequestsTable({
       </div>
 
       <div className="mt-4 grow">
-        <div className="flex flex-col">
-          <div className="relative w-full overflow-auto">
-            <Table className="w-full">
-              <TableHeader className="sticky top-0 z-10 bg-white">
-                <TableRow className="border-b border-gray-200 hover:bg-white">
-                  <TableHead className="w-[160px] py-3 font-medium text-gray-700">
-                    Date
-                  </TableHead>
-                  <TableHead className="w-[140px] py-3 font-medium text-gray-700">
-                    User Code
-                  </TableHead>
-                  <TableHead className="py-3 font-medium text-gray-700">
-                    Bank Account
-                  </TableHead>
-                  <TableHead className="py-3 font-medium text-gray-700">
-                    Reason
-                  </TableHead>
-                  <TableHead className="w-[150px] py-3 text-right font-medium text-gray-700">
-                    Amount
-                  </TableHead>
-                  <TableHead className="w-[180px] py-3 text-right font-medium text-gray-700">
-                    Actions
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {withdrawRequests.map((request) => {
-                  const formattedDate = format(
-                    new Date(request.createdAt),
-                    "dd/MM/yyyy",
-                    { locale: vi }
-                  )
-                  const formattedTime = format(
-                    new Date(request.createdAt),
-                    "h:mm a"
-                  )
+        {isFetching ? (
+          <div className="flex items-center justify-center py-8">
+            <Spinner />
+          </div>
+        ) : isError ? (
+          <EmptyTable
+            description="No data is available for the selected time period"
+            title="No withdrawal requests available"
+          />
+        ) : isDataEmpty ? (
+          <EmptyTable
+            description="No data is available for the selected time period"
+            title="No withdrawal requests available"
+          />
+        ) : (
+          <div className="flex flex-col">
+            <div className="relative w-full overflow-auto">
+              <Table className="w-full">
+                <TableHeader className="sticky top-0 z-10 bg-white">
+                  <TableRow className="border-b border-gray-200 hover:bg-white">
+                    <TableHead className="w-[160px] py-3 font-medium text-gray-700">
+                      Date
+                    </TableHead>
+                    <TableHead className="w-[140px] py-3 font-medium text-gray-700">
+                      User Code
+                    </TableHead>
+                    <TableHead className="py-3 font-medium text-gray-700">
+                      Bank Account
+                    </TableHead>
+                    <TableHead className="py-3 font-medium text-gray-700">
+                      Reason
+                    </TableHead>
+                    <TableHead className="w-[150px] py-3 text-right font-medium text-gray-700">
+                      Amount
+                    </TableHead>
+                    <TableHead className="w-[180px] py-3 text-right font-medium text-gray-700">
+                      Actions
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {withdrawRequests.map((request) => {
+                    const formattedDate = format(
+                      new Date(request.createdAt),
+                      "dd/MM/yyyy",
+                      { locale: vi }
+                    )
+                    const formattedTime = format(
+                      new Date(request.createdAt),
+                      "h:mm a"
+                    )
 
-                  return (
-                    <TableRow
-                      key={request.id}
-                      className="border-b border-gray-200 hover:bg-gray-50"
-                    >
-                      <TableCell className="py-3">
-                        <div className="space-y-1">
-                          <div className="font-medium">{formattedDate}</div>
-                          <div className="text-xs text-muted-foreground">
-                            {formattedTime}
+                    return (
+                      <TableRow
+                        key={request.id}
+                        className="border-b border-gray-200 hover:bg-gray-50"
+                      >
+                        <TableCell className="py-3">
+                          <div className="space-y-1">
+                            <div className="font-medium">{formattedDate}</div>
+                            <div className="text-xs text-muted-foreground">
+                              {formattedTime}
+                            </div>
                           </div>
-                        </div>
-                      </TableCell>
-                      <TableCell className="py-3 font-medium">
-                        {request.userCode}
-                      </TableCell>
-                      <TableCell className="py-3">
-                        {request.currentBankingNo}
-                      </TableCell>
-                      <TableCell className="max-w-[200px] truncate py-3">
-                        {request.reason || "N/A"}
-                      </TableCell>
-                      <TableCell className="py-3 text-right font-medium">
-                        {formatVNDCurrency(request.amount)}
-                      </TableCell>
-                      <TableCell className="py-3 text-right">
-                        <WithdrawRequestActions
-                          requestId={request.id}
-                          userCode={request.userCode}
-                          amount={request.amount}
-                        />
-                      </TableCell>
-                    </TableRow>
-                  )
-                })}
-              </TableBody>
-            </Table>
-          </div>
-
-          {/* Pagination */}
-          <div className="sticky bottom-0 mt-auto border-t border-gray-200 bg-white">
-            <div className="flex items-center justify-between px-4 py-2">
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-600">Rows per page</span>
-                <Select
-                  value={pageSize?.toString()}
-                  onValueChange={(value) => {
-                    setPageSize(Number(value))
-                    setPage(1)
-                  }}
-                >
-                  <SelectTrigger className="h-8 w-auto border-gray-200 text-sm">
-                    <SelectValue placeholder="10" />
-                  </SelectTrigger>
-                  <SelectContent className="text-sm">
-                    <SelectItem value="10">10</SelectItem>
-                    <SelectItem value="25">25</SelectItem>
-                    <SelectItem value="50">50</SelectItem>
-                    <SelectItem value="100">100</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-8 border-gray-200 px-4 text-sm font-medium text-gray-700"
-                  onClick={handlePreviousPage}
-                  disabled={page === 1}
-                >
-                  Previous
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-8 border-gray-200 px-4 text-sm font-medium text-gray-700"
-                  onClick={handleNextPage}
-                  disabled={page === totalPages}
-                >
-                  Next
-                </Button>
-              </div>
+                        </TableCell>
+                        <TableCell className="py-3 font-medium">
+                          {request.userCode}
+                        </TableCell>
+                        <TableCell className="py-3">
+                          {request.currentBankingNo}
+                        </TableCell>
+                        <TableCell className="max-w-[200px] truncate py-3">
+                          {request.reason || "N/A"}
+                        </TableCell>
+                        <TableCell className="py-3 text-right font-medium">
+                          {formatVNDCurrency(request.amount)}
+                        </TableCell>
+                        <TableCell className="py-3 text-right">
+                          <WithdrawRequestActions
+                            requestId={request.id}
+                            userCode={request.userCode}
+                            amount={request.amount}
+                          />
+                        </TableCell>
+                      </TableRow>
+                    )
+                  })}
+                </TableBody>
+              </Table>
             </div>
 
-            <div className="flex items-center justify-between border-t border-gray-100 bg-gray-50 px-4 py-2 text-xs text-gray-500">
-              <div>
-                Showing {((page || 1) - 1) * (pageSize || 10) + 1}-
-                {Math.min((page || 1) * (pageSize || 10), totalRequests)} of{" "}
-                {totalRequests} results
+            {/* Pagination */}
+            <div className="sticky bottom-0 mt-auto border-t border-gray-200 bg-white">
+              <div className="flex items-center justify-between px-4 py-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-gray-600">Rows per page</span>
+                  <Select
+                    value={pageSize?.toString()}
+                    onValueChange={(value) => {
+                      setPageSize(Number(value))
+                      setPage(1)
+                    }}
+                  >
+                    <SelectTrigger className="h-8 w-auto border-gray-200 text-sm">
+                      <SelectValue placeholder="10" />
+                    </SelectTrigger>
+                    <SelectContent className="text-sm">
+                      <SelectItem value="10">10</SelectItem>
+                      <SelectItem value="25">25</SelectItem>
+                      <SelectItem value="50">50</SelectItem>
+                      <SelectItem value="100">100</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-8 border-gray-200 px-4 text-sm font-medium text-gray-700"
+                    onClick={handlePreviousPage}
+                    disabled={page === 1}
+                  >
+                    Previous
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-8 border-gray-200 px-4 text-sm font-medium text-gray-700"
+                    onClick={handleNextPage}
+                    disabled={page === totalPages}
+                  >
+                    Next
+                  </Button>
+                </div>
               </div>
-              <div>
-                Page {page || 1} of {totalPages || 1}
+
+              <div className="flex items-center justify-between border-t border-gray-100 bg-gray-50 px-4 py-2 text-xs text-gray-500">
+                <div>
+                  Showing {((page || 1) - 1) * (pageSize || 10) + 1}-
+                  {Math.min((page || 1) * (pageSize || 10), totalRequests)} of{" "}
+                  {totalRequests} results
+                </div>
+                <div>
+                  Page {page || 1} of {totalPages || 1}
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   )

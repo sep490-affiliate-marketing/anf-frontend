@@ -17,7 +17,6 @@ import { toast } from "sonner"
 import {
   IAddCreditResponse,
   IBatchPaymentItem,
-  IExportBatchPaymentDataResponse,
   IGetBatchPaymentDataResponse,
   IGetWalletHistoryResponse,
   IGetWithdrawRequestListResponse,
@@ -204,11 +203,19 @@ export const useExportBatchPaymentData = () => {
     mutationKey: transactionQueryKeys.exportBatchPaymentData(),
     mutationFn: async (paymentItems: IBatchPaymentItem[]) => {
       try {
-        const { data } = await apiClient.post<IExportBatchPaymentDataResponse>(
+        // For file downloads, use axios directly with responseType: 'blob'
+        const response = await apiClient.post(
           "/api/affiliate-network/export-batch-payment-data",
-          paymentItems
+          paymentItems,
+          { responseType: "blob" }
         )
-        return data
+
+        // Return the blob data directly
+        return {
+          isSuccess: true,
+          message: "Export successful",
+          fileData: response.data,
+        }
       } catch (error) {
         const errRes = extractApiError(error)
         return {
@@ -219,8 +226,27 @@ export const useExportBatchPaymentData = () => {
       }
     },
     onSuccess: (resData) => {
-      if (resData?.isSuccess === true) {
+      if (resData.isSuccess === true && "fileData" in resData) {
         toast.success("Batch payment data exported successfully")
+
+        // Create a blob URL from the file data
+        const blob = new Blob([resData.fileData], {
+          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        })
+        const url = window.URL.createObjectURL(blob)
+
+        // Create a temporary link and trigger the download
+        const a = document.createElement("a")
+        a.href = url
+        a.download = `batch-payment-export-${new Date().toISOString().split("T")[0]}.xlsx`
+        document.body.appendChild(a)
+        a.click()
+
+        // Clean up
+        window.URL.revokeObjectURL(url)
+        document.body.removeChild(a)
+      } else {
+        toast.error(resData.message || "Failed to export batch payment data")
       }
     },
   })
