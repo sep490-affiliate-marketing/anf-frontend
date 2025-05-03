@@ -226,6 +226,7 @@ export default function AuthProvider({
           router.push("/admin")
         }
       }
+      window.location.reload()
     }
   }
 
