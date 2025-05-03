@@ -51,7 +51,7 @@ export function SecurityTab() {
         <Separator />
 
         {/* Login security section */}
-        <div className="bg-card text-card-foreground shadow-sm">
+        <div className="bg-card text-card-foreground">
           <h3 className="mb-4 font-medium">Login Security</h3>
           <div className="space-y-4">
             <div className="flex items-center justify-between">

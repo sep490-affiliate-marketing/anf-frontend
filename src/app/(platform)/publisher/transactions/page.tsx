@@ -11,7 +11,7 @@ import { Spinner } from "@/components/spinner"
 
 export default function TransactionsPage() {
   return (
-    <div className="space-y-8 px-4 py-8 sm:px-6 lg:px-8">
+    <div className="space-y-8 px-4 py-8">
       {/* Header Section */}
       <div className="border-b border-border pb-6">
         <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
