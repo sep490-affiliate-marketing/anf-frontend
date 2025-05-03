@@ -171,28 +171,55 @@ export default function CampaignDataTable() {
                   <TableBody>
                     {campaigns.map((campaign: ICampaign) => (
                       <TableRow
-                        onClick={() =>
-                          router.push(`/advertiser/campaigns/${campaign.id}`)
-                        }
                         key={campaign.id}
                         className="cursor-pointer border-b border-gray-200 hover:bg-gray-50"
                       >
-                        <TableCell className="py-3 text-sm font-medium text-muted-foreground">
+                        <TableCell 
+                          className="py-3 text-sm font-medium text-muted-foreground"
+                          onClick={() =>
+                            router.push(`/advertiser/campaigns/${campaign.id}`)
+                          }
+                          >
                           {campaign.id}
                         </TableCell>
-                        <TableCell className="py-3 text-sm text-muted-foreground">
+                        <TableCell 
+                          className="py-3 text-sm text-muted-foreground"
+                          onClick={() =>
+                            router.push(`/advertiser/campaigns/${campaign.id}`)
+                          }
+                          >
                           {campaign.name}
                         </TableCell>
-                        <TableCell className="py-3 text-muted-foreground">
+                        <TableCell 
+                          className="py-3 text-muted-foreground"
+                          onClick={() =>
+                            router.push(`/advertiser/campaigns/${campaign.id}`)
+                          }
+                        >
                           {format(new Date(campaign.startDate), "dd/MM/yyyy")}
                         </TableCell>
-                        <TableCell className="py-3 text-muted-foreground">
+                        <TableCell 
+                          className="py-3 text-muted-foreground"
+                          onClick={() =>
+                            router.push(`/advertiser/campaigns/${campaign.id}`)
+                          }
+                          >
                           {format(new Date(campaign.endDate), "dd/MM/yyyy")}
                         </TableCell>
-                        <TableCell className="py-3">
+                        <TableCell 
+                          className="py-3"
+                          onClick={() =>
+                            router.push(`/advertiser/campaigns/${campaign.id}`)
+                          }
+                          >
                           <CampaignStatusBadge status={campaign.status} />
                         </TableCell>
-                        <TableCell className="py-3 text-sm text-muted-foreground">
+                        <TableCell 
+                          className="py-3 text-sm text-muted-foreground"
+                          onClick={() =>
+                            router.push(`/advertiser/campaigns/${campaign.id}`)
+                          }
+                          >
                           <a
                             href={campaign.productUrl}
                             target="_blank"
@@ -202,10 +229,20 @@ export default function CampaignDataTable() {
                             {campaign.productUrl}
                           </a>
                         </TableCell>
-                        <TableCell className="py-3 text-sm text-muted-foreground">
+                        <TableCell 
+                          className="py-3 text-sm text-muted-foreground"
+                          onClick={() =>
+                            router.push(`/advertiser/campaigns/${campaign.id}`)
+                          }
+                          >
                           {formatVNDCurrency(campaign.balance)}
                         </TableCell>
-                        <TableCell className="py-3 text-sm text-muted-foreground">
+                        <TableCell 
+                          className="py-3 text-sm text-muted-foreground"
+                          onClick={() =>
+                            router.push(`/advertiser/campaigns/${campaign.id}`)
+                          }
+                          >
                           {campaign.offers.length}
                         </TableCell>
                         <TableCell className="py-3 text-right">
@@ -237,6 +274,23 @@ export default function CampaignDataTable() {
                                   </DropdownMenuShortcut>
                                 </DropdownMenuItem>
                               </DropdownMenuGroup>
+
+                              {(campaign.status === "Pending") ? 
+                              <DropdownMenuGroup>
+                                <DropdownMenuItem
+                                  onClick={() =>
+                                    router.push(
+                                      `/advertiser/campaigns/${campaign.id}/update`
+                                    )
+                                  }
+                                >
+                                  <span>Update</span>
+                                  <DropdownMenuShortcut>
+                                    ⌘U
+                                  </DropdownMenuShortcut>
+                                </DropdownMenuItem>
+                              </DropdownMenuGroup> 
+                              : null}
 
                               <DropdownMenuSeparator />
                               <DropdownMenuItem className="text-destructive focus:text-destructive">

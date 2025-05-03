@@ -94,6 +94,7 @@ function CampaignVerificationUI({ campaign }: { campaign: Campaign }) {
             </div>
             <p className="mt-1 truncate text-sm text-muted-foreground">
               {truncateText(campaign.description, 120)}
+              {/* dangerouslySetInnerHTML={{ __html: campaign.description }} */}
             </p>
           </div>
         </div>
