@@ -56,3 +56,15 @@ export type IGetBatchPaymentDataResponse =
   IPaginationResponse<IBatchPaymentItem>
 
 export type IExportBatchPaymentDataResponse = IBackendRes<string>
+
+export interface IUpdateWithdrawalStatusRequest {
+  transactionIds: number[]
+  status: string // should match backend enum, e.g. 'APPROVED' | 'REJECTED'
+  reason?: string // optional, for rejection reason
+}
+
+export interface IUpdateWithdrawalStatusResponse {
+  isSuccess: boolean
+  message: string
+  value?: any
+}

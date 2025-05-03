@@ -136,6 +136,12 @@ export const transactionQueryKeys = {
         "withdrawRequestList",
         { page, limit, startDate, endDate },
       ] as const,
+    updateWithdrawalStatus: () =>
+      [
+        ...transactionQueryKeys.origin,
+        "admin",
+        "updateWithdrawalStatus",
+      ] as const,
   },
 }
 

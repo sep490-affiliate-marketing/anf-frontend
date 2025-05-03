@@ -92,11 +92,18 @@ const getAccessibleRoutes = (
       matchPattern: "campaigns",
     },
     {
+      title: "Withdraw Requests",
+      url: "/withdraw-requests",
+      matchPattern: "withdraw-requests",
+      roles: [UserRoleEnum.ADMIN],
+    },
+    {
       title: "Transactions",
       url: "/transactions",
       matchPattern: "transactions",
       roles: [UserRoleEnum.ADVERTISER, UserRoleEnum.PUBLISHER],
     },
+
     {
       title: "Tickets",
       url: "/tickets",

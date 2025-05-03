@@ -1,12 +1,15 @@
 import { useRouter } from "next/navigation"
 
 import { transactionQueryKeys } from "@/constant/react-query"
+import { useAuth } from "@/providers/auth-provider"
 import {
+  IUpdateWithdrawalStatusForm,
   IWithdrawRequestForm,
+  UpdateWithdrawalStatusSchema,
   WithdrawRequestSchema,
 } from "@/validations/withdraw.validation"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useMutation, useQuery } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import qs from "qs"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
@@ -18,6 +21,7 @@ import {
   IGetBatchPaymentDataResponse,
   IGetWalletHistoryResponse,
   IGetWithdrawRequestListResponse,
+  IUpdateWithdrawalStatusResponse,
   IWithdrawRequestResponse,
 } from "@/types/transaction.type"
 
@@ -75,6 +79,8 @@ export const useGetWalletHistory = (
 }
 
 export const useWithdrawRequest = () => {
+  const { user } = useAuth()
+  const quertClient = useQueryClient()
   const withDrawResquestForm = useForm<IWithdrawRequestForm>({
     resolver: zodResolver(WithdrawRequestSchema),
     defaultValues: {
@@ -107,6 +113,13 @@ export const useWithdrawRequest = () => {
     onSuccess: (resData) => {
       if (resData?.isSuccess === true) {
         toast.success("Withdrawal request submitted successfully")
+        quertClient.invalidateQueries({
+          queryKey: transactionQueryKeys.walletHistory(
+            user?.userCode || "",
+            1,
+            10
+          ),
+        })
       }
     },
   })
@@ -214,6 +227,45 @@ export const useExportBatchPaymentData = () => {
 
   return {
     exportBatchPaymentData,
+    isPending,
+  }
+}
+
+export const useUpdateWithdrawalStatus = () => {
+  const queryClient = useQueryClient()
+
+  const { mutateAsync, isPending } = useMutation({
+    mutationKey: transactionQueryKeys.admin.updateWithdrawalStatus(),
+    mutationFn: async (formData: IUpdateWithdrawalStatusForm) => {
+      try {
+        UpdateWithdrawalStatusSchema.parse(formData)
+        const { data } = await apiClient.post<IUpdateWithdrawalStatusResponse>(
+          "/api/affiliate-network/users/withdrawal-status",
+          formData
+        )
+        return data
+      } catch (error) {
+        const errRes = extractApiError(error)
+        return {
+          isSuccess: false,
+          message: errRes?.message ?? "Failed to update withdrawal status",
+          details: errRes?.details ?? "An unexpected error occurred",
+        }
+      }
+    },
+    onSuccess: (resData) => {
+      if (resData?.isSuccess === true) {
+        toast.success("Withdrawal status updated successfully")
+        // Invalidate query with current URL params to refresh the list
+        queryClient.invalidateQueries()
+      } else {
+        toast.error(resData?.message || "Failed to update withdrawal status")
+      }
+    },
+  })
+
+  return {
+    updateWithdrawalStatus: mutateAsync,
     isPending,
   }
 }

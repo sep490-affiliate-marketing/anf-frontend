@@ -17,7 +17,6 @@ export const ReactQueryClientProvider = ({
           queries: {
             staleTime: Infinity,
             refetchInterval: Infinity,
-            retry: 3,
             refetchOnWindowFocus: false,
             retryOnMount: false,
           },

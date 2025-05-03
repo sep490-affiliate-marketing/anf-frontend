@@ -6,6 +6,8 @@ import { Check, X } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
+import { useUpdateWithdrawalStatus } from "@/hooks/transaction"
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,41 +25,34 @@ interface WithdrawRequestActionsProps {
   requestId: number
   userCode: string
   amount: number
-  onApprove: (id: number) => Promise<void>
-  onReject: (id: number, reason: string) => Promise<void>
 }
 
 export function WithdrawRequestActions({
   requestId,
   userCode,
   amount,
-  onApprove,
-  onReject,
 }: WithdrawRequestActionsProps) {
   const [isApproveDialogOpen, setIsApproveDialogOpen] = useState(false)
   const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false)
   const [rejectReason, setRejectReason] = useState("")
-  const [isProcessing, setIsProcessing] = useState(false)
+  const { updateWithdrawalStatus, isPending } = useUpdateWithdrawalStatus()
 
   const handleApprove = async () => {
-    setIsProcessing(true)
-    try {
-      await onApprove(requestId)
-    } finally {
-      setIsProcessing(false)
-      setIsApproveDialogOpen(false)
-    }
+    await updateWithdrawalStatus({
+      transactionIds: [requestId],
+      status: "APPROVED",
+    })
+    setIsApproveDialogOpen(false)
   }
 
   const handleReject = async () => {
-    setIsProcessing(true)
-    try {
-      await onReject(requestId, rejectReason)
-    } finally {
-      setIsProcessing(false)
-      setIsRejectDialogOpen(false)
-      setRejectReason("")
-    }
+    await updateWithdrawalStatus({
+      transactionIds: [requestId],
+      status: "REJECTED",
+      reason: rejectReason,
+    })
+    setIsRejectDialogOpen(false)
+    setRejectReason("")
   }
 
   return (
@@ -67,6 +62,7 @@ export function WithdrawRequestActions({
         variant="outline"
         className="text-green-600 hover:bg-green-50 hover:text-green-700"
         onClick={() => setIsApproveDialogOpen(true)}
+        disabled={isPending}
       >
         <Check className="mr-1 size-3.5" />
         Approve
@@ -77,6 +73,7 @@ export function WithdrawRequestActions({
         variant="outline"
         className="text-red-600 hover:bg-red-50 hover:text-red-700"
         onClick={() => setIsRejectDialogOpen(true)}
+        disabled={isPending}
       >
         <X className="mr-1 size-3.5" />
         Reject
@@ -98,18 +95,16 @@ export function WithdrawRequestActions({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isProcessing}>
-              Cancel
-            </AlertDialogCancel>
+            <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
             <AlertDialogAction
               className="bg-green-600 hover:bg-green-700"
               onClick={(e) => {
                 e.preventDefault()
                 handleApprove()
               }}
-              disabled={isProcessing}
+              disabled={isPending}
             >
-              {isProcessing ? "Processing..." : "Confirm Approval"}
+              {isPending ? "Processing..." : "Confirm Approval"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -139,9 +134,7 @@ export function WithdrawRequestActions({
             />
           </div>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isProcessing}>
-              Cancel
-            </AlertDialogCancel>
+            <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
             <AlertDialogAction
               className={cn(
                 "bg-red-600 hover:bg-red-700",
@@ -153,9 +146,9 @@ export function WithdrawRequestActions({
                   handleReject()
                 }
               }}
-              disabled={isProcessing || !rejectReason.trim()}
+              disabled={isPending || !rejectReason.trim()}
             >
-              {isProcessing ? "Processing..." : "Confirm Rejection"}
+              {isPending ? "Processing..." : "Confirm Rejection"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
