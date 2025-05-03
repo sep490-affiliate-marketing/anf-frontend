@@ -43,8 +43,6 @@ export const campaignQueryKeys = {
       [...campaignQueryKeys.origin, "advertiser", "details", id] as const,
     create: () =>
       [...campaignQueryKeys.origin, "advertiser", "create"] as const,
-    update: (id: string) =>
-      [...campaignQueryKeys.origin, "advertiser", "update", id] as const,
   },
 
   publisher: {

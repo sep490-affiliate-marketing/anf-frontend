@@ -136,15 +136,19 @@ export function UpdateCampaignFormSchema() {
           message: "Description must contain actual text content",
         })
         .optional(),
-      category: z
-        .string({ message: "Category is required" })
-        .min(1, { message: "Category is required" }),
-      categoryId: z
-        .number({ message: "Category is required" }),
-      startDate: z
+      start_date: z
         .string({ message: "Start date is required" })
-        .min(1, { message: "Start date is required" }),
-      endDate: z
+        .min(1, { message: "Start date is required" })
+        .refine(
+          (startDate) => {
+            const start = new Date(startDate)
+            start.setHours(0, 0, 0, 0)
+            return start >= tomorrow
+          },
+          { message: "Start date must be at least tomorrow or later" }
+        )
+        .optional(),
+      end_date: z
         .string({ message: "End date is required" })
         .min(1, { message: "End date is required" })
         .refine(
@@ -154,32 +158,23 @@ export function UpdateCampaignFormSchema() {
             return end > today
           },
           { message: "End date must be in the future" }
-        ),
-      productUrl: z
+        )
+        .optional(),
+      baseUrl: z
         .string()
         .url("Invalid URL format")
-        .refine((productUrl) => !productUrl.endsWith("/"), {
+        .refine((baseUrl) => !baseUrl.endsWith("/"), {
           message: "URL should not end with a trailing slash",
         })
         .optional(),
       tracking_params: z.array(TrackingParamSchema()).optional(),
       trackingParams: z.string().optional(),
-      images: z
-        .array(z.any())
-        .min(1, { message: "At least one campaign image is required" })
-        .refine(
-          (files) => {
-            if (files.length === 0) return false
-            return true
-          },
-          { message: "Campaign image is required" }
-        ),
     })
     .refine(
       (data) => {
-        if (data.startDate && data.endDate) {
-          const startDate = new Date(data.startDate)
-          const endDate = new Date(data.endDate)
+        if (data.start_date && data.end_date) {
+          const startDate = new Date(data.start_date)
+          const endDate = new Date(data.end_date)
           startDate.setHours(0, 0, 0, 0)
           endDate.setHours(0, 0, 0, 0)
           return endDate >= startDate
