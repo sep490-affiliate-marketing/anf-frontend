@@ -13,6 +13,9 @@ import { toast } from "sonner"
 
 import {
   IAddCreditResponse,
+  IBatchPaymentItem,
+  IExportBatchPaymentDataResponse,
+  IGetBatchPaymentDataResponse,
   IGetWalletHistoryResponse,
   IGetWithdrawRequestListResponse,
   IWithdrawRequestResponse,
@@ -148,4 +151,69 @@ export const useAdminWithdrawRequestList = (
       }
     },
   })
+}
+
+export const useBatchPaymentData = (
+  page: number,
+  pageSize: number,
+  fromDate: string,
+  toDate: string
+) => {
+  return useQuery({
+    queryKey: transactionQueryKeys.batchPaymentData(
+      page,
+      pageSize,
+      fromDate,
+      toDate
+    ),
+    queryFn: async () => {
+      try {
+        const queryString = qs.stringify({
+          pageNumber: page ?? 1,
+          pageSize: pageSize ?? 10,
+          fromDate: fromDate ?? "",
+          toDate: toDate ?? "",
+        })
+        const { data } = await apiClient.get<IGetBatchPaymentDataResponse>(
+          `/api/affiliate-network/batch-payment-data?${queryString}`
+        )
+        return data
+      } catch (error) {
+        const errRes = extractApiError(error)
+        throw new Error(errRes?.details ?? "Failed to fetch batch payment data")
+      }
+    },
+  })
+}
+
+export const useExportBatchPaymentData = () => {
+  const { mutateAsync: exportBatchPaymentData, isPending } = useMutation({
+    mutationKey: transactionQueryKeys.exportBatchPaymentData(),
+    mutationFn: async (paymentItems: IBatchPaymentItem[]) => {
+      try {
+        const { data } = await apiClient.post<IExportBatchPaymentDataResponse>(
+          "/api/affiliate-network/export-batch-payment-data",
+          paymentItems
+        )
+        return data
+      } catch (error) {
+        const errRes = extractApiError(error)
+        return {
+          isSuccess: false,
+          message: errRes?.message ?? "Failed to export batch payment data",
+          details: errRes?.details ?? "An unexpected error occurred",
+        }
+      }
+    },
+    onSuccess: (resData) => {
+      if (resData?.isSuccess === true) {
+        toast.success("Batch payment data exported successfully")
+      }
+    },
+  })
+
+  return {
+    exportBatchPaymentData,
+    isPending,
+  }
 }

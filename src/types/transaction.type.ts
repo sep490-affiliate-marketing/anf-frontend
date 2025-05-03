@@ -31,13 +31,28 @@ export interface IWithdrawRequestErrorResponse {
   details: string
 }
 
-export interface IGetWithdrawRequestListResponse
-  extends IPaginationResponse<{
-    id: number
-    userCode: string
-    walletId: number
-    amount: number
-    reason: string
-    createdAt: string
-    currentBankingNo: string
-  }> {}
+export type IGetWithdrawRequestListResponse = IPaginationResponse<{
+  id: number
+  userCode: string
+  walletId: number
+  amount: number
+  reason: string
+  createdAt: string
+  currentBankingNo: string
+}>
+
+export interface IBatchPaymentItem {
+  transactionId: string
+  fromAccount: string
+  amount: number
+  beneficiaryName: string
+  beneficiaryAccount: string
+  reason: string
+  beneficiaryBankCode: string
+  beneficiaryBankName: string
+}
+
+export type IGetBatchPaymentDataResponse =
+  IPaginationResponse<IBatchPaymentItem>
+
+export type IExportBatchPaymentDataResponse = IBackendRes<string>

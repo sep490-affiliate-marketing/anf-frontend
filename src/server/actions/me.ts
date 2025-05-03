@@ -16,6 +16,8 @@ export async function getCurrentUser(): Promise<IUserExtended | null> {
     const cookieStore = await cookies()
     const accessToken = cookieStore.get("access_token")?.value
 
+    console.log("accessToken", accessToken)
+
     if (!accessToken) {
       return null
     }
@@ -28,13 +30,6 @@ export async function getCurrentUser(): Promise<IUserExtended | null> {
           Authorization: `Bearer ${accessToken}`,
           "Content-Type": "application/json",
           Accept: "application/json",
-        },
-        // Using no-store in middleware context to ensure we always get fresh data
-        // This is important for auth checks
-        cache: "no-store",
-        next: {
-          // But allow revalidation after 30 seconds for performance
-          revalidate: 30,
         },
       }
     )

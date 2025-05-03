@@ -30,11 +30,11 @@ export default function WithdrawRequestsPage() {
           </div>
           <div className="flex items-center gap-3">
             <Button variant="outline" size="sm" className="gap-1">
-              <Filter className="h-4 w-4" />
+              <Filter className="size-4" />
               <span>Filters</span>
             </Button>
             <Button variant="outline" size="sm" className="gap-1">
-              <Download className="h-4 w-4" />
+              <Download className="size-4" />
               <span>Export</span>
             </Button>
           </div>

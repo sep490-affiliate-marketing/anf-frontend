@@ -68,7 +68,7 @@ export function WithdrawRequestActions({
         className="text-green-600 hover:bg-green-50 hover:text-green-700"
         onClick={() => setIsApproveDialogOpen(true)}
       >
-        <Check className="mr-1 h-3.5 w-3.5" />
+        <Check className="mr-1 size-3.5" />
         Approve
       </Button>
 
@@ -78,7 +78,7 @@ export function WithdrawRequestActions({
         className="text-red-600 hover:bg-red-50 hover:text-red-700"
         onClick={() => setIsRejectDialogOpen(true)}
       >
-        <X className="mr-1 h-3.5 w-3.5" />
+        <X className="mr-1 size-3.5" />
         Reject
       </Button>
 
@@ -93,8 +93,8 @@ export function WithdrawRequestActions({
             <AlertDialogDescription>
               You are about to approve the withdrawal request #{requestId} for
               user {userCode}. The amount of {amount.toLocaleString()} VND will
-              be transferred to the user's bank account. This action cannot be
-              undone.
+              be transferred to the user&apos;s bank account. This action cannot
+              be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

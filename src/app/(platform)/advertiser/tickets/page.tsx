@@ -25,7 +25,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 
 import TicketDataTable from "@/components/advertiser/tickets/data-table"
-import { TicketStatusEnum } from "@/components/badge/ticket-status-badge"
 import { Spinner } from "@/components/spinner"
 
 // Mock data for tickets

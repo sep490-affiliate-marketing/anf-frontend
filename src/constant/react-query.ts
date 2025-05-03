@@ -110,6 +110,19 @@ export const transactionQueryKeys = {
     ] as const,
   deposit: () => [...transactionQueryKeys.origin, "deposit"] as const,
   withdraw: () => [...transactionQueryKeys.origin, "withdraw"] as const,
+  batchPaymentData: (
+    page: number,
+    pageSize: number,
+    fromDate: string,
+    toDate: string
+  ) =>
+    [
+      ...transactionQueryKeys.origin,
+      "batchPaymentData",
+      { page, pageSize, fromDate, toDate },
+    ] as const,
+  exportBatchPaymentData: () =>
+    [...transactionQueryKeys.origin, "exportBatchPaymentData"] as const,
   admin: {
     withdrawRequestList: (
       page: number,
