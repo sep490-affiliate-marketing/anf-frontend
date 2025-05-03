@@ -2,8 +2,29 @@
 
 import { useState } from "react"
 
-import { Plus, X } from "lucide-react"
+import * as z from "zod"
+import { AFFILIATE_SOURCE } from "@/constant/campaign"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { Loader2, Plus, X } from "lucide-react"
+import { useForm } from "react-hook-form"
 
+import {
+  TrafficSource,
+  useAddTrafficSource,
+  useDeleteTrafficSource,
+  useGetPublisherTrafficSources,
+} from "@/hooks/traffic-source"
+
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -15,58 +36,192 @@ import {
 import {
   Dialog,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { Skeleton } from "@/components/ui/skeleton"
 
-interface TrafficSource {
-  id: string
-  platform: string
-  url: string
-}
+// Array of supported platforms for quick access
+const SUPPORTED_PLATFORMS = [
+  {
+    id: "tiktok",
+    name: "TikTok",
+    bgColor: "bg-black",
+  },
+  {
+    id: "instagram",
+    name: "Instagram",
+    bgColor: "bg-gradient-to-tr from-purple-600 via-pink-500 to-orange-400",
+  },
+  {
+    id: "youtube",
+    name: "YouTube",
+    bgColor: "bg-red-600",
+  },
+  {
+    id: "facebook",
+    name: "Facebook",
+    bgColor: "bg-blue-600",
+  },
+  {
+    id: "twitter",
+    name: "X/Twitter",
+    bgColor: "bg-black",
+  },
+  {
+    id: "other",
+    name: "Other",
+    bgColor: "bg-purple-600",
+  },
+]
+
+const formSchema = z.object({
+  provider: z.string().optional(),
+  sourceUrl: z.string().url("Must be a valid URL"),
+  type: z.string().optional(),
+})
 
 export function TrafficSourcesSection() {
-  const [sources, setSources] = useState<TrafficSource[]>([
-    {
-      id: "1",
-      platform: "youtube",
-      url: "https://www.youtube.com/@YourChannel",
-    },
-    { id: "2", platform: "website", url: "https://yourwebsite.com" },
-  ])
-
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
-  const [newSource, setNewSource] = useState({
-    platform: "",
-    url: "",
+  const [currentPlatform, setCurrentPlatform] = useState("")
+  const [isDeleting, setIsDeleting] = useState<string | null>(null)
+  const [sourceToDelete, setSourceToDelete] = useState<string | null>(null)
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [deletingSourceUrl, setDeletingSourceUrl] = useState("")
+
+  // Fetch traffic sources
+  const {
+    data: trafficSources = [],
+    isLoading,
+    refetch,
+    isError,
+  } = useGetPublisherTrafficSources()
+
+  // Add traffic source mutation
+  const { mutate: addTrafficSource, isPending: isAddingSource } =
+    useAddTrafficSource()
+
+  // Delete traffic source mutation
+  const { mutate: deleteTrafficSource } = useDeleteTrafficSource()
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      provider: "",
+      sourceUrl: "",
+      type: "",
+    },
   })
 
-  // Handle adding a new traffic source
-  const handleAddSource = () => {
-    if (newSource.platform && newSource.url) {
-      setSources([
-        ...sources,
+  // Open dialog for adding traffic source
+  const openAddDialog = (platform: string) => {
+    setCurrentPlatform(platform)
+    form.reset({
+      provider: platform === "other" ? "" : platform,
+      sourceUrl: "",
+      type: "",
+    })
+    setIsAddDialogOpen(true)
+  }
+
+  // Handle form submission
+  const onSubmit = (values: z.infer<typeof formSchema>) => {
+    // For non-"other" platforms, we already know the provider and type is not needed
+    if (currentPlatform !== "other") {
+      addTrafficSource(
+        [
+          {
+            provider: currentPlatform,
+            sourceUrl: values.sourceUrl,
+            type: currentPlatform,
+          },
+        ],
         {
-          id: Date.now().toString(),
-          platform: newSource.platform,
-          url: newSource.url,
-        },
-      ])
-      setNewSource({ platform: "", url: "" })
-      setIsAddDialogOpen(false)
+          onSuccess: () => {
+            setIsAddDialogOpen(false)
+            form.reset()
+          },
+        }
+      )
+    } else {
+      // For "other" platforms, we need the provider and type from the form
+      if (!values.provider) {
+        form.setError("provider", {
+          message: "Provider name is required for 'Other' sources",
+        })
+        return
+      }
+
+      if (!values.type) {
+        form.setError("type", {
+          message: "Source type is required for 'Other' sources",
+        })
+        return
+      }
+
+      addTrafficSource(
+        [
+          {
+            provider: values.provider,
+            sourceUrl: values.sourceUrl,
+            type: values.type,
+          },
+        ],
+        {
+          onSuccess: () => {
+            setIsAddDialogOpen(false)
+            form.reset()
+          },
+        }
+      )
     }
   }
 
+  // Open delete confirmation dialog
+  const confirmDelete = (source: TrafficSource) => {
+    setSourceToDelete(String(source.id))
+    setDeletingSourceUrl(source.sourceUrl)
+    setIsDeleteDialogOpen(true)
+  }
+
   // Delete a traffic source
-  const handleDeleteSource = (id: string) => {
-    setSources(sources.filter((source) => source.id !== id))
+  const handleDeleteSource = () => {
+    if (!sourceToDelete) return
+
+    setIsDeleting(sourceToDelete)
+    deleteTrafficSource(sourceToDelete, {
+      onSuccess: () => {
+        setIsDeleting(null)
+        setSourceToDelete(null)
+        setIsDeleteDialogOpen(false)
+      },
+      onError: () => {
+        setIsDeleting(null)
+        setSourceToDelete(null)
+        setIsDeleteDialogOpen(false)
+      },
+    })
   }
 
   // Get platform icon
   const getPlatformIcon = (platform: string) => {
-    switch (platform) {
+    switch (platform.toLowerCase()) {
       case "youtube":
         return (
           <svg
@@ -180,7 +335,7 @@ export function TrafficSourcesSection() {
 
   // Get platform background color
   const getPlatformBgColor = (platform: string) => {
-    switch (platform) {
+    switch (platform.toLowerCase()) {
       case "youtube":
         return "bg-red-600"
       case "instagram":
@@ -198,26 +353,21 @@ export function TrafficSourcesSection() {
     }
   }
 
-  // Get platform display name
-  const getPlatformDisplayName = (platform: string) => {
-    switch (platform) {
-      case "youtube":
-        return "YouTube"
-      case "instagram":
-        return "Instagram"
-      case "tiktok":
-        return "TikTok"
-      case "facebook":
-        return "Facebook"
-      case "twitter":
-        return "X/Twitter"
-      case "website":
-        return "Website"
-      case "other":
-        return "Other"
-      default:
-        return platform.charAt(0).toUpperCase() + platform.slice(1)
+  // Get platform type from source type
+  const getPlatformFromType = (type: string) => {
+    if (
+      [
+        "youtube",
+        "instagram",
+        "tiktok",
+        "facebook",
+        "twitter",
+        "website",
+      ].includes(type.toLowerCase())
+    ) {
+      return type.toLowerCase()
     }
+    return "other"
   }
 
   return (
@@ -233,167 +383,107 @@ export function TrafficSourcesSection() {
       <CardContent>
         <div className="space-y-6">
           <div>
-            <div className="grid grid-cols-2 gap-4">
-              <div
-                className="flex items-center justify-between rounded-md border p-3 transition-colors hover:bg-accent/50"
-                onClick={() => {
-                  setNewSource({ platform: "tiktok", url: "" })
-                  setIsAddDialogOpen(true)
-                }}
-              >
-                <div className="flex items-center">
-                  <div className="mr-2 flex size-8 items-center justify-center rounded-full bg-black">
-                    {getPlatformIcon("tiktok")}
-                  </div>
-                  <span>TikTok</span>
-                </div>
-                <button
-                  type="button"
-                  className="flex items-center text-primary"
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+              {SUPPORTED_PLATFORMS.map((platform) => (
+                <div
+                  key={platform.id}
+                  className="flex cursor-pointer items-center justify-between rounded-md border p-3 transition-colors hover:bg-accent/50"
+                  onClick={() => openAddDialog(platform.id)}
                 >
-                  <Plus size={16} />
-                  <span className="ml-1">Add</span>
-                </button>
-              </div>
-
-              <div
-                className="flex items-center justify-between rounded-md border p-3 transition-colors hover:bg-accent/50"
-                onClick={() => {
-                  setNewSource({ platform: "instagram", url: "" })
-                  setIsAddDialogOpen(true)
-                }}
-              >
-                <div className="flex items-center">
-                  <div className="mr-2 flex size-8 items-center justify-center rounded-full bg-gradient-to-tr from-purple-600 via-pink-500 to-orange-400">
-                    {getPlatformIcon("instagram")}
+                  <div className="flex items-center">
+                    <div
+                      className={`mr-2 flex size-8 items-center justify-center rounded-full ${platform.bgColor}`}
+                    >
+                      {getPlatformIcon(platform.id)}
+                    </div>
+                    <span>{platform.name}</span>
                   </div>
-                  <span>Instagram</span>
+                  <button
+                    type="button"
+                    className="flex items-center text-primary"
+                  >
+                    <Plus size={16} />
+                    <span className="ml-1">Add</span>
+                  </button>
                 </div>
-                <button
-                  type="button"
-                  className="flex items-center text-primary"
-                >
-                  <Plus size={16} />
-                  <span className="ml-1">Add</span>
-                </button>
-              </div>
-
-              <div
-                className="flex items-center justify-between rounded-md border p-3 transition-colors hover:bg-accent/50"
-                onClick={() => {
-                  setNewSource({ platform: "youtube", url: "" })
-                  setIsAddDialogOpen(true)
-                }}
-              >
-                <div className="flex items-center">
-                  <div className="mr-2 flex size-8 items-center justify-center rounded-full bg-red-600">
-                    {getPlatformIcon("youtube")}
-                  </div>
-                  <span>YouTube</span>
-                </div>
-                <button
-                  type="button"
-                  className="flex items-center text-primary"
-                >
-                  <Plus size={16} />
-                  <span className="ml-1">Add</span>
-                </button>
-              </div>
-
-              <div
-                className="flex items-center justify-between rounded-md border p-3 transition-colors hover:bg-accent/50"
-                onClick={() => {
-                  setNewSource({ platform: "facebook", url: "" })
-                  setIsAddDialogOpen(true)
-                }}
-              >
-                <div className="flex items-center">
-                  <div className="mr-2 flex size-8 items-center justify-center rounded-full bg-blue-600">
-                    {getPlatformIcon("facebook")}
-                  </div>
-                  <span>Facebook</span>
-                </div>
-                <button
-                  type="button"
-                  className="flex items-center text-primary"
-                >
-                  <Plus size={16} />
-                  <span className="ml-1">Add</span>
-                </button>
-              </div>
-
-              <div
-                className="flex items-center justify-between rounded-md border p-3 transition-colors hover:bg-accent/50"
-                onClick={() => {
-                  setNewSource({ platform: "twitter", url: "" })
-                  setIsAddDialogOpen(true)
-                }}
-              >
-                <div className="flex items-center">
-                  <div className="mr-2 flex size-8 items-center justify-center rounded-full bg-black">
-                    {getPlatformIcon("twitter")}
-                  </div>
-                  <span>X/Twitter</span>
-                </div>
-                <button
-                  type="button"
-                  className="flex items-center text-primary"
-                >
-                  <Plus size={16} />
-                  <span className="ml-1">Add</span>
-                </button>
-              </div>
-
-              <div
-                className="flex items-center justify-between rounded-md border p-3 transition-colors hover:bg-accent/50"
-                onClick={() => {
-                  setNewSource({ platform: "other", url: "" })
-                  setIsAddDialogOpen(true)
-                }}
-              >
-                <div className="flex items-center">
-                  <div className="mr-2 flex size-8 items-center justify-center rounded-full bg-purple-600">
-                    {getPlatformIcon("other")}
-                  </div>
-                  <span>Other</span>
-                </div>
-                <button
-                  type="button"
-                  className="flex items-center text-primary"
-                >
-                  <Plus size={16} />
-                  <span className="ml-1">Add</span>
-                </button>
-              </div>
+              ))}
             </div>
 
-            {sources.length > 0 && (
+            {isLoading ? (
               <div className="mt-8 rounded-lg border p-4">
-                <p className="mb-2 font-medium">Connected accounts</p>
+                <p className="mb-4 font-medium">Connected accounts</p>
                 <div className="space-y-2">
-                  {sources.map((source) => (
+                  {[1, 2, 3].map((i) => (
                     <div
-                      key={source.id}
+                      key={i}
                       className="flex items-center justify-between border-b pb-2"
                     >
                       <div className="flex items-center">
-                        <div
-                          className={`mr-2 flex size-6 items-center justify-center rounded-full ${getPlatformBgColor(source.platform)}`}
-                        >
-                          {getPlatformIcon(source.platform)}
-                        </div>
-                        <span className="text-sm">{source.url}</span>
+                        <Skeleton className="mr-2 size-6 rounded-full" />
+                        <Skeleton className="h-4 w-[200px]" />
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => handleDeleteSource(source.id)}
-                        className="text-gray-400 hover:text-gray-600"
-                      >
-                        <X size={16} />
-                      </button>
+                      <Skeleton className="size-4" />
                     </div>
                   ))}
                 </div>
+              </div>
+            ) : isError ? (
+              <div className="mt-8 rounded-lg border p-4 text-center">
+                <p className="text-red-500">
+                  Error loading your traffic sources. Please try again.
+                </p>
+                <Button
+                  variant="outline"
+                  className="mt-2"
+                  onClick={() => refetch()}
+                  size="sm"
+                >
+                  Retry
+                </Button>
+              </div>
+            ) : trafficSources.length > 0 ? (
+              <div className="mt-8 rounded-lg border p-4">
+                <p className="mb-2 font-medium">Connected accounts</p>
+                <div className="space-y-2">
+                  {trafficSources.map((source) => {
+                    const platform = getPlatformFromType(source.type || "")
+                    return (
+                      <div
+                        key={source.id}
+                        className="flex items-center justify-between border-b pb-2"
+                      >
+                        <div className="flex items-center">
+                          <div
+                            className={`mr-2 flex size-6 items-center justify-center rounded-full ${getPlatformBgColor(platform)}`}
+                          >
+                            {getPlatformIcon(platform)}
+                          </div>
+                          <span className="text-sm">{source.sourceUrl}</span>
+                        </div>
+                        <button
+                          type="button"
+                          disabled={isDeleting === String(source.id)}
+                          onClick={() => confirmDelete(source)}
+                          className="text-gray-400 hover:text-gray-600 disabled:opacity-50"
+                          aria-label="Delete traffic source"
+                        >
+                          {isDeleting === String(source.id) ? (
+                            <Loader2 size={16} className="animate-spin" />
+                          ) : (
+                            <X size={16} />
+                          )}
+                        </button>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            ) : (
+              <div className="mt-8 rounded-lg border border-dashed p-4 text-center">
+                <p className="text-muted-foreground">
+                  No traffic sources connected yet. Add at least one to improve
+                  your approval chances.
+                </p>
               </div>
             )}
           </div>
@@ -405,27 +495,149 @@ export function TrafficSourcesSection() {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>
-              URL for {getPlatformDisplayName(newSource.platform)}
+              {currentPlatform === "other"
+                ? "Add Other Traffic Source"
+                : `Add ${SUPPORTED_PLATFORMS.find((p) => p.id === currentPlatform)?.name || ""} URL`}
             </DialogTitle>
           </DialogHeader>
-          <div className="py-4">
-            <p className="mb-4 text-sm">Please enter your URL</p>
-            <Input
-              placeholder="Please enter your URL"
-              value={newSource.url}
-              onChange={(e) =>
-                setNewSource({ ...newSource, url: e.target.value })
-              }
-            />
-          </div>
-          <DialogFooter className="flex justify-between">
-            <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleAddSource}>Confirm</Button>
-          </DialogFooter>
+
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="space-y-4 py-4"
+            >
+              {currentPlatform === "other" && (
+                <FormField
+                  control={form.control}
+                  name="provider"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Provider Name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter provider name" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+
+              <FormField
+                control={form.control}
+                name="sourceUrl"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>URL</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder={
+                          currentPlatform === "other"
+                            ? "https://example.com"
+                            : `https://${currentPlatform}.com/your-profile`
+                        }
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {currentPlatform === "other" && (
+                <FormField
+                  control={form.control}
+                  name="type"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Traffic Source Type</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select traffic source type" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {AFFILIATE_SOURCE.map((source) => (
+                            <SelectItem key={source.id} value={source.name}>
+                              {source.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+
+              <div className="flex justify-end gap-3 pt-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsAddDialogOpen(false)}
+                  disabled={isAddingSource}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={isAddingSource}>
+                  {isAddingSource ? (
+                    <>
+                      <Loader2 size={16} className="mr-2 animate-spin" />
+                      Adding...
+                    </>
+                  ) : (
+                    "Add Source"
+                  )}
+                </Button>
+              </div>
+            </form>
+          </Form>
         </DialogContent>
       </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete the traffic source{" "}
+              <span className="font-medium">{deletingSourceUrl}</span> from your
+              account. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              onClick={() => {
+                setSourceToDelete(null)
+                setDeletingSourceUrl("")
+              }}
+            >
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              disabled={!!isDeleting}
+              onClick={handleDeleteSource}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isDeleting ? (
+                <>
+                  <Loader2 size={16} className="mr-2 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                "Delete"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   )
 }
