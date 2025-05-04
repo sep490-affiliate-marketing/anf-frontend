@@ -122,7 +122,7 @@ function CampaignCard({ campaign }: CampaignCardProps) {
               : null) || "/placeholder-image.jpg"
           }
           alt={campaign.name}
-          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+          className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
         />
       </div>
       <CardHeader className="flex-none space-y-2 p-4">

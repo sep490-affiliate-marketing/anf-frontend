@@ -101,17 +101,50 @@ export const bankQueryKeys = {
   add: () => [...bankQueryKeys.origin, "add"] as const,
 }
 
-export const walletQueryKeys = {
-  origin: ["wallets"] as const,
+export const transactionQueryKeys = {
+  origin: ["transactions"] as const,
   walletHistory: (userCode: string, page: number, limit: number) =>
     [
-      ...walletQueryKeys.origin,
+      ...transactionQueryKeys.origin,
       "walletHistory",
       userCode,
       { page, limit },
     ] as const,
-  deposit: () => [...walletQueryKeys.origin, "deposit"] as const,
-  withdraw: () => [...walletQueryKeys.origin, "withdraw"] as const,
+  deposit: () => [...transactionQueryKeys.origin, "deposit"] as const,
+  withdraw: () => [...transactionQueryKeys.origin, "withdraw"] as const,
+  batchPaymentData: (
+    page: number,
+    pageSize: number,
+    fromDate: string,
+    toDate: string
+  ) =>
+    [
+      ...transactionQueryKeys.origin,
+      "batchPaymentData",
+      { page, pageSize, fromDate, toDate },
+    ] as const,
+  exportBatchPaymentData: () =>
+    [...transactionQueryKeys.origin, "exportBatchPaymentData"] as const,
+  admin: {
+    withdrawRequestList: (
+      page: number,
+      limit: number,
+      startDate: string,
+      endDate: string
+    ) =>
+      [
+        ...transactionQueryKeys.origin,
+        "admin",
+        "withdrawRequestList",
+        { page, limit, startDate, endDate },
+      ] as const,
+    updateWithdrawalStatus: () =>
+      [
+        ...transactionQueryKeys.origin,
+        "admin",
+        "updateWithdrawalStatus",
+      ] as const,
+  },
 }
 
 export const statisticQueryKeys = {

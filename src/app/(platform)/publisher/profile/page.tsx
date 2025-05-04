@@ -1,6 +1,6 @@
 "use client"
 
-import { CreditCard, Landmark, Shield, User } from "lucide-react"
+import { Shield, User } from "lucide-react"
 
 import {
   Card,
@@ -13,10 +13,9 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 import { ProfileHeader } from "@/components/profile/ProfileHeader"
 import { ProfileSidebar } from "@/components/profile/ProfileSidebar"
-import { BankingInfoTab } from "@/components/profile/tabs/BankingInfoTab"
 import { PersonalInfoTab } from "@/components/profile/tabs/PersonalInfoTab"
 import { SecurityTab } from "@/components/profile/tabs/SecurityTab"
-import { WalletHistoryTab } from "@/components/profile/tabs/WalletHistoryTab"
+import { TrafficSourcesSection } from "@/components/publisher/profile/TrafficSourcesSection"
 
 export default function Page() {
   return (
@@ -68,40 +67,8 @@ export default function Page() {
             </CardContent>
           </Card>
 
-          {/* Section 2: Wallet */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-xl font-semibold">Wallet</CardTitle>
-              <CardDescription className="text-muted-foreground">
-                Manage your banking information and view transaction history
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Tabs defaultValue="walletHistory" className="w-full">
-                <TabsList className="mb-6 h-auto w-full justify-start rounded-none border-b bg-transparent p-0">
-                  <TabsTrigger
-                    value="walletHistory"
-                    className="relative gap-2 rounded-none py-2 after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none data-[state=active]:after:bg-primary"
-                  >
-                    <CreditCard className="size-4" />
-                    <span>Wallet History</span>
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="bankingInfo"
-                    className="relative gap-2 rounded-none py-2 after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none data-[state=active]:after:bg-primary"
-                  >
-                    <Landmark className="size-4" />
-                    <span>Banking Info</span>
-                  </TabsTrigger>
-                </TabsList>
-
-                <div className="max-h-full overflow-visible">
-                  <WalletHistoryTab />
-                  <BankingInfoTab />
-                </div>
-              </Tabs>
-            </CardContent>
-          </Card>
+          {/* Section 2: Traffic Sources */}
+          <TrafficSourcesSection />
         </div>
       </div>
     </div>

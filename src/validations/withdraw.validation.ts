@@ -14,3 +14,15 @@ export const WithdrawRequestSchema = z.object({
 })
 
 export type IWithdrawRequestForm = z.infer<typeof WithdrawRequestSchema>
+
+export const UpdateWithdrawalStatusSchema = z.object({
+  transactionIds: z
+    .array(z.number())
+    .min(1, "At least one transaction ID is required"),
+  status: z.string().min(1, "Status is required"),
+  reason: z.string().optional(),
+})
+
+export type IUpdateWithdrawalStatusForm = z.infer<
+  typeof UpdateWithdrawalStatusSchema
+>

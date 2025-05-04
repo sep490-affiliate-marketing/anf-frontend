@@ -119,6 +119,37 @@ export const useUpdateTrafficSource = () => {
   })
 }
 
+export const useDeleteTrafficSource = () => {
+  const queryClient = useQueryClient()
+  const { user } = useAuth()
+  const publisherId = user?.id
+
+  return useMutation({
+    mutationFn: async (id: number | string) => {
+      const numericId = typeof id === "string" ? parseInt(id, 10) : id
+      const response = await apiClient.delete<TrafficSourceResponse>(
+        `/api/affiliate-network/affiliate-sources`,
+        { data: [numericId] }
+      )
+      return response.data
+    },
+    onSuccess: (data) => {
+      if (data.isSuccess) {
+        toast.success("Traffic source deleted successfully")
+        queryClient.invalidateQueries({
+          queryKey: ["trafficSources", publisherId],
+        })
+      } else {
+        toast.error(data.message || "Failed to delete traffic source")
+      }
+    },
+    onError: (error) => {
+      toast.error("Failed to delete traffic source")
+      console.error(error)
+    },
+  })
+}
+
 export const useDeleteTrafficSources = () => {
   const queryClient = useQueryClient()
   const { user } = useAuth()

@@ -1,3 +1,8 @@
+import { Suspense } from "react"
+
+import WithdrawRequestsTable from "@/components/admin/withdraw-requests/data-table"
+import { Spinner } from "@/components/spinner"
+
 export default function WithdrawRequestsPage() {
   return (
     <div className="space-y-8 px-4 py-6 sm:px-6 lg:px-8">
@@ -16,10 +21,10 @@ export default function WithdrawRequestsPage() {
       </div>
 
       {/* Withdraw Requests Table */}
-      <section className="space-y-4">
-        {/* <Suspense fallback={<Spinner />}>
-          <AdminWithdrawRequestsTable />
-        </Suspense> */}
+      <section>
+        <Suspense fallback={<Spinner />}>
+          <WithdrawRequestsTable />
+        </Suspense>
       </section>
     </div>
   )

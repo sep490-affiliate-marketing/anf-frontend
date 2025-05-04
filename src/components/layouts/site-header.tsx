@@ -91,17 +91,10 @@ const getAccessibleRoutes = (
       url: "/campaigns",
       matchPattern: "campaigns",
     },
-    // Admin-only routes
     {
-      title: "Carriers",
-      url: "/carriers",
-      matchPattern: "carriers",
-      roles: [UserRoleEnum.ADMIN],
-    },
-    {
-      title: "Countries",
-      url: "/countries",
-      matchPattern: "countries",
+      title: "Withdraw Requests",
+      url: "/withdraw-requests",
+      matchPattern: "withdraw-requests",
       roles: [UserRoleEnum.ADMIN],
     },
     {
@@ -110,6 +103,7 @@ const getAccessibleRoutes = (
       matchPattern: "transactions",
       roles: [UserRoleEnum.ADVERTISER, UserRoleEnum.PUBLISHER],
     },
+
     {
       title: "Tickets",
       url: "/tickets",
