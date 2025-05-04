@@ -6,6 +6,8 @@ import { useAuth } from "@/providers/auth-provider"
 import {
   CreateCampaignFormSchema,
   ICreateCampaignForm,
+  IUpdateCampaignForm,
+  UpdateCampaignFormSchema,
 } from "@/validations/campaign.validation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
@@ -404,4 +406,109 @@ export const useGetAdminCampaigns = (
       }
     },
   })
+}
+
+export const useUpdateCampaignForm = (id: number) => {
+  const queryClient = useQueryClient()
+  const router = useRouter()
+  const { user } = useAuth()
+
+  const form = useForm<IUpdateCampaignForm>({
+    mode: "onChange",
+    resolver: zodResolver(UpdateCampaignFormSchema()),
+    defaultValues: {
+      name: "",
+      description: "",
+      productUrl: "",
+      trackingParams: "",
+      images: [],
+    },
+  })
+
+  const { mutateAsync: updateCampaignMutation, isPending } = useMutation({
+    mutationKey: campaignQueryKeys.advertiser.update(id.toString()),
+    mutationFn: async (
+      formData: FormData
+    ): Promise<
+      ICreateCampaignSuccessResponse | ICreateCampaignErrorResponse
+    > => {
+      try {
+        const { data } = await apiClient.put<ICreateCampaignSuccessResponse>(
+          `/api/affiliate-network/campaigns/${id}`,
+          formData
+        )
+        return data
+      } catch (error) {
+        console.error(error)
+        const errRes =
+          error instanceof AxiosError
+            ? (error.response?.data as ICreateCampaignErrorResponse)
+            : null
+
+        return {
+          isSuccess: false,
+          statusCode: errRes?.statusCode ?? 500,
+          message: errRes?.message ?? errorMessage.unknown,
+          details: errRes?.details ?? errorMessage.unknown,
+        }
+      }
+    },
+    onSuccess: async (resData) => {
+      if (resData.isSuccess === true) {
+        toast.success("Campaign update successfully")
+        queryClient.invalidateQueries({
+          queryKey: campaignQueryKeys.advertiser.list(
+            user?.userCode ?? "",
+            1,
+            10
+          ),
+        })
+        form.reset()
+        
+        router.push(`/advertiser/campaigns/${id}`)
+      } else {
+        toast.error(resData.message, {
+          description: resData.details,
+        })
+      }
+    },
+  })
+
+  const onUpdateCampaign = async (data: IUpdateCampaignForm) => {
+    try {
+      // Initialize FormData instance
+      const formData = new FormData()
+      // Handle image files first - they should be appended with name "imgFiles"
+      if (Array.isArray(data.images)) {
+        data.images.forEach((image) => {
+          if (image instanceof File) {
+            formData.append("imgFiles", image)
+          }
+        })
+      }
+
+      // Format dates to YYYY-MM-DD for proper MySQL compatibility
+      const formatDateToYYYYMMDD = (dateStr: string): string => {
+        const date = new Date(dateStr)
+        return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`
+      }
+
+      formData.append("name", data.name || "")
+      formData.append("description", data.description || "")
+      formData.append("productUrl", data.productUrl || "")
+      formData.append("trackingParams", data.trackingParams || "")
+      formData.append("categoryId", String(data.categoryId || "1"))
+      formData.append("startDate", formatDateToYYYYMMDD(data.startDate) || formatDateToYYYYMMDD(Date()))
+      formData.append("endDate", formatDateToYYYYMMDD(data.endDate) || formatDateToYYYYMMDD(Date()))
+      // Execute mutation to create the campaign
+      await updateCampaignMutation(formData)
+    } catch {}
+  }
+
+  return {
+    form,
+    isPending,
+    onUpdateCampaign,
+    errorMessage,
+  }
 }
