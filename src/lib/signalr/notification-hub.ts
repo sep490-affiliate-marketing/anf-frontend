@@ -1,4 +1,4 @@
-import { campaignQueryKeys } from "@/constant/react-query"
+import { authQueryKeys, campaignQueryKeys } from "@/constant/react-query"
 import {
   HubConnection,
   HubConnectionBuilder,
@@ -19,10 +19,12 @@ class NotificationHub {
   private connection: HubConnection | null = null
   private readonly hubUrl: string
   private queryClient: QueryClient
+  private userRole: string
 
-  constructor(queryClient: QueryClient) {
+  constructor(queryClient: QueryClient, userRole: string) {
     this.hubUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}/notiHub`
     this.queryClient = queryClient
+    this.userRole = userRole
   }
 
   public async startConnection(): Promise<void> {
@@ -119,8 +121,17 @@ class NotificationHub {
       "UserProfileUpdated",
       (message: UserProfileNotification) => {
         toast.info("Profile Updated", {
-          description: "Your profile information has been updated",
-          duration: 5000,
+          description: "Your wallet has been updated",
+          duration: 2000,
+          action: {
+            label: "View Wallet",
+            onClick: () => {
+              window.location.href = `/${this.userRole}/transactions`
+            },
+          },
+        })
+        this.queryClient.invalidateQueries({
+          queryKey: authQueryKeys.me(),
         })
       }
     )
@@ -164,9 +175,12 @@ class NotificationHub {
 
 let notificationHubInstance: NotificationHub | null = null
 
-export function initNotificationHub(queryClient: QueryClient) {
+export function initNotificationHub(
+  queryClient: QueryClient,
+  userRole: string
+) {
   if (!notificationHubInstance) {
-    notificationHubInstance = new NotificationHub(queryClient)
+    notificationHubInstance = new NotificationHub(queryClient, userRole)
   }
   return notificationHubInstance
 }

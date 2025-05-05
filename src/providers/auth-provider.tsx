@@ -73,9 +73,9 @@ export default function AuthProvider({
   // Initialize SignalR connection when user is authenticated
   useEffect(() => {
     if (userData) {
-      initNotificationHub(queryClient).startConnection()
+      initNotificationHub(queryClient, userData.role).startConnection()
       return () => {
-        initNotificationHub(queryClient).stopConnection()
+        initNotificationHub(queryClient, userData.role).stopConnection()
       }
     }
   }, [userData, queryClient])
