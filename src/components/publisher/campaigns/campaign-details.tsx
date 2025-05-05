@@ -45,6 +45,8 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
+import { Preview } from "@/components/editor/preview"
+
 interface ExtendedCampaign extends ICampaign {
   joined?: boolean
   publisherCount?: number
@@ -467,43 +469,6 @@ export function CampaignDetails({ campaignId }: { campaignId: number }) {
                         {formatVNDCurrency(offer.bid)}
                       </p>
                     </div>
-                    {/* <div>
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="text-gray-500">Budget</span>
-                        <span>
-                          {formatVNDCurrency(
-                            campaign.offers.reduce(
-                              (sum, offer) => sum + offer.budget,
-                              0
-                            )
-                          )}
-                        </span>
-                      </div>
-                      <Progress
-                        value={
-                          100 -
-                          (campaign.balance /
-                            campaign.offers.reduce(
-                              (sum, offer) => sum + offer.budget,
-                              0
-                            )) *
-                            100
-                        }
-                        className="mb-1 mt-1.5 h-1"
-                      />
-                      <p className="text-right text-xs text-gray-500">
-                        {(
-                          100 -
-                          (campaign.balance /
-                            campaign.offers.reduce(
-                              (sum, offer) => sum + offer.budget,
-                              0
-                            )) *
-                            100
-                        ).toFixed(0)}
-                        % used
-                      </p>
-                    </div> */}
                   </div>
 
                   {offer.stepInfo && (
@@ -511,23 +476,9 @@ export function CampaignDetails({ campaignId }: { campaignId: number }) {
                       <p className="text-xs text-gray-500">
                         Implementation Steps
                       </p>
-                      <p className="text-sm">{offer.stepInfo}</p>
+                      <Preview value={offer.stepInfo} />
                     </div>
                   )}
-
-                  {/* {offer.pubOfferStatus === 1 && (
-                    <div className="mt-6">
-                      <Separator className="mb-4" />
-                      <h4 className="mb-2 text-xs font-medium text-gray-900">
-                        Tracking URL
-                      </h4>
-                      <CopyToClipboardTextarea
-                        rows={2}
-                        value={trackingUrl}
-                        className="text-xs"
-                      />
-                    </div>
-                  )} */}
 
                   {offer.pubOfferStatus === 2 && (
                     <div className="mt-6">
