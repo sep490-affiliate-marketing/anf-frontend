@@ -367,6 +367,9 @@ export const useUpdateCampaignStatus = () => {
         queryClient.invalidateQueries({
           queryKey: campaignQueryKeys.admin.list(1, 10),
         })
+        queryClient.invalidateQueries({
+          queryKey: campaignQueryKeys.admin.details(id.toString()),
+        })
       } else {
         toast.error(data.message || "Failed to update campaign status")
       }
