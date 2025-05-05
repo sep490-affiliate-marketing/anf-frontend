@@ -6,6 +6,8 @@ import dynamic from "next/dynamic"
 
 import "react-quill-new/dist/quill.snow.css"
 
+import { Preview } from "@/components/editor/preview"
+
 import "./editor.css"
 import uploadToCloudinary from "./upload"
 
@@ -117,16 +119,11 @@ export const Editor = ({ onChange, value, preview = false }: EditorProps) => {
   }, [onChange, internalValue])
 
   if (preview) {
-    return (
-      <div
-        className="ql-editor preview rounded bg-white p-4"
-        dangerouslySetInnerHTML={{ __html: value }}
-      />
-    )
+    return <Preview value={value} />
   }
 
   return (
-    <div className="relative bg-white">
+    <div className="relative overflow-auto bg-white">
       {isUploading && (
         <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/10">
           <div className="rounded bg-white p-4 shadow-lg">

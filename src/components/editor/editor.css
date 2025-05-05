@@ -46,3 +46,26 @@
   padding: 1rem;
   overflow-x: auto;
 }
+
+/* Hide scrollbars unless needed for both editor and preview */
+.ql-container {
+  overflow: auto !important;
+  scrollbar-width: thin;
+  scrollbar-color: #e5e7eb #fff; /* Tailwind gray-200 on white */
+}
+
+.ql-container::-webkit-scrollbar {
+  width: 8px;
+  background: #fff;
+}
+.ql-container::-webkit-scrollbar-thumb {
+  background: #e5e7eb;
+  border-radius: 4px;
+}
+.ql-container:not(:hover):not(:focus)::-webkit-scrollbar-thumb {
+  background: transparent;
+}
+
+.ql-editor {
+  overflow: visible !important;
+}
