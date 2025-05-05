@@ -33,6 +33,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import { Textarea } from "@/components/ui/textarea"
 
 import { Editor } from "@/components/editor"
 
@@ -258,6 +259,86 @@ const OfferList = ({
               )}
             />
 
+            <div className="space-y-2 md:col-span-1">
+              <Label className="text-lg font-semibold">Offer Date Range</Label>
+              <DatePickerWithRange
+                className="w-full"
+                onChange={(dates: {
+                  startDate: string
+                  endDate: string | null
+                }) => {
+                  if (dates.startDate) {
+                    // Update date range state
+                    setDateRange({
+                      from: new Date(dates.startDate),
+                      to: dates.endDate ? new Date(dates.endDate) : undefined,
+                    })
+
+                    // Update form values and force validation
+                    form.setValue(
+                      `offers.${index}.startDate`,
+                      dates.startDate,
+                      {
+                        shouldValidate: true,
+                        shouldDirty: true,
+                        shouldTouch: true,
+                      }
+                    )
+
+                    if (dates.endDate) {
+                      form.setValue(`offers.${index}.endDate`, dates.endDate, {
+                        shouldValidate: true,
+                        shouldDirty: true,
+                        shouldTouch: true,
+                      })
+                    }
+
+                    // Trigger validation for these fields
+                    form.trigger(`offers.${index}.startDate`)
+                    form.trigger(`offers.${index}.endDate`)
+                  }
+                }}
+                disabledBefore={
+                  disabledBefore || addDays(new Date(), 1).toISOString()
+                }
+                disabledAfter={disabledAfter}
+                defaultDateRange={
+                  dateRange.from || dateRange.to
+                    ? {
+                        from: dateRange.from,
+                        to: dateRange.to,
+                      }
+                    : undefined
+                }
+              />
+              <div className="mt-2 text-sm font-medium text-destructive">
+                {form.formState.errors.offers?.[index]?.startDate?.message ||
+                  form.formState.errors.offers?.[index]?.endDate?.message ||
+                  ""}
+              </div>
+            </div>
+
+            <FormField
+              control={form.control}
+              name={`offers.${index}.description`}
+              render={({ field }) => (
+                <FormItem className="col-span-2">
+                  <div className="mb-2 flex items-center justify-between">
+                    <Label className="text-lg font-semibold">Description</Label>
+                  </div>
+                  <FormControl>
+                    <Textarea
+                      {...field}
+                      placeholder="Write a description for offer"
+                      className="resize-none"
+                      rows={4}
+                    />
+                  </FormControl>
+                  <FormMessage className="mt-2 block" />
+                </FormItem>
+              )}
+            />
+
             <FormField
               control={form.control}
               name={`offers.${index}.bid`}
@@ -438,64 +519,27 @@ const OfferList = ({
               )}
             />
 
-            <div className="space-y-2 md:col-span-1">
-              <Label className="text-lg font-semibold">Offer Date Range</Label>
-              <DatePickerWithRange
-                className="w-full"
-                onChange={(dates: {
-                  startDate: string
-                  endDate: string | null
-                }) => {
-                  if (dates.startDate) {
-                    // Update date range state
-                    setDateRange({
-                      from: new Date(dates.startDate),
-                      to: dates.endDate ? new Date(dates.endDate) : undefined,
-                    })
-
-                    // Update form values and force validation
-                    form.setValue(
-                      `offers.${index}.startDate`,
-                      dates.startDate,
-                      {
-                        shouldValidate: true,
-                        shouldDirty: true,
-                        shouldTouch: true,
-                      }
-                    )
-
-                    if (dates.endDate) {
-                      form.setValue(`offers.${index}.endDate`, dates.endDate, {
-                        shouldValidate: true,
-                        shouldDirty: true,
-                        shouldTouch: true,
-                      })
-                    }
-
-                    // Trigger validation for these fields
-                    form.trigger(`offers.${index}.startDate`)
-                    form.trigger(`offers.${index}.endDate`)
-                  }
-                }}
-                disabledBefore={
-                  disabledBefore || addDays(new Date(), 1).toISOString()
-                }
-                disabledAfter={disabledAfter}
-                defaultDateRange={
-                  dateRange.from || dateRange.to
-                    ? {
-                        from: dateRange.from,
-                        to: dateRange.to,
-                      }
-                    : undefined
-                }
+            {form.watch(`offers.${index}.pricingModel`) === "CPS" && (
+              <FormField
+                control={form.control}
+                name={`offers.${index}.orderReturnTime`}
+                render={({ field }) => (
+                  <FormItem>
+                    <Label className="text-lg font-semibold">
+                      Order Return Time
+                    </Label>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        type="text"
+                        placeholder="Enter return time"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-              <div className="mt-2 text-sm font-medium text-destructive">
-                {form.formState.errors.offers?.[index]?.startDate?.message ||
-                  form.formState.errors.offers?.[index]?.endDate?.message ||
-                  ""}
-              </div>
-            </div>
+            )}
 
             <FormField
               control={form.control}
@@ -533,71 +577,14 @@ const OfferList = ({
                       preview={showStepInfoPreview[index] || false}
                     />
                   </FormControl>
-                  <FormMessage className="mt-2 block" />
+                  {form.formState.errors.offers?.[index]?.stepInfo?.message && (
+                    <FormMessage className="mt-2 block">
+                      {form.formState.errors.offers?.[index]?.stepInfo?.message}
+                    </FormMessage>
+                  )}
                 </FormItem>
               )}
             />
-
-            <FormField
-              control={form.control}
-              name={`offers.${index}.description`}
-              render={({ field }) => (
-                <FormItem className="col-span-2">
-                  <div className="mb-2 flex items-center justify-between">
-                    <Label className="text-lg font-semibold">Description</Label>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        setShowDescriptionPreview((prev) => ({
-                          ...prev,
-                          [index]: !prev[index],
-                        }))
-                      }}
-                    >
-                      {showDescriptionPreview[index]
-                        ? "Edit Content"
-                        : "Show Preview"}
-                    </Button>
-                  </div>
-                  <FormControl>
-                    <Editor
-                      value={field.value}
-                      onChange={(value) => {
-                        field.onChange(value)
-                        // Trigger validation after value changes
-                        form.trigger(`offers.${index}.description`)
-                      }}
-                      preview={showDescriptionPreview[index] || false}
-                    />
-                  </FormControl>
-                  <FormMessage className="mt-2 block" />
-                </FormItem>
-              )}
-            />
-
-            {form.watch(`offers.${index}.pricingModel`) === "CPS" && (
-              <FormField
-                control={form.control}
-                name={`offers.${index}.orderReturnTime`}
-                render={({ field }) => (
-                  <FormItem>
-                    <Label className="text-lg font-semibold">
-                      Order Return Time
-                    </Label>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        type="text"
-                        placeholder="Enter return time"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
           </div>
 
           {index > 0 && (

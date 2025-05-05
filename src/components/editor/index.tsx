@@ -7,6 +7,7 @@ import dynamic from "next/dynamic"
 import "react-quill-new/dist/quill.snow.css"
 
 import { Preview } from "@/components/editor/preview"
+import { Spinner } from "@/components/spinner"
 
 import "./editor.css"
 import uploadToCloudinary from "./upload"
@@ -125,9 +126,12 @@ export const Editor = ({ onChange, value, preview = false }: EditorProps) => {
   return (
     <div className="relative overflow-auto bg-white">
       {isUploading && (
-        <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/10">
-          <div className="rounded bg-white p-4 shadow-lg">
-            <p className="text-blue-600">Uploading image to Cloudinary...</p>
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/20 backdrop-blur-sm">
+          <div className="flex flex-col items-center gap-3 rounded-2xl bg-white p-6 shadow-lg">
+            <Spinner />
+            <p className="text-base font-medium text-primary">
+              Uploading image...
+            </p>
           </div>
         </div>
       )}

@@ -31,8 +31,8 @@ export function OfferFormSchema() {
       description: z
         .string({ required_error: "Description is required" })
         .min(1, "Description is required")
-        .refine(hasValidHtmlContent, {
-          message: "Description must contain actual text content",
+        .max(1000, {
+          message: "Description must be less than 1000 characters",
         }),
       bid: z
         .string({ required_error: "Bid amount is required" })
