@@ -126,7 +126,7 @@ class NotificationHub {
           action: {
             label: "View Wallet",
             onClick: () => {
-              window.location.href = `/${this.userRole}/transactions`
+              window.location.href = `/${this.userRole === "Advertiser" ? "advertiser" : "publisher"}/transactions`
             },
           },
         })
