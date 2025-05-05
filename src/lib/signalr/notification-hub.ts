@@ -1,4 +1,8 @@
-import { authQueryKeys, campaignQueryKeys } from "@/constant/react-query"
+import {
+  authQueryKeys,
+  campaignQueryKeys,
+  transactionQueryKeys,
+} from "@/constant/react-query"
 import {
   HubConnection,
   HubConnectionBuilder,
@@ -132,6 +136,13 @@ class NotificationHub {
         })
         this.queryClient.invalidateQueries({
           queryKey: authQueryKeys.me(),
+        })
+        this.queryClient.invalidateQueries({
+          queryKey: transactionQueryKeys.walletHistory(
+            message?.userCode ?? "",
+            1,
+            10
+          ),
         })
       }
     )
