@@ -175,6 +175,12 @@ class NotificationHub {
 
 let notificationHubInstance: NotificationHub | null = null
 
+/**
+ * Initializes and returns a singleton instance of the NotificationHub for managing real-time notifications.
+ *
+ * @param userRole - The current user's role, used for role-specific notification handling.
+ * @returns The singleton NotificationHub instance.
+ */
 export function initNotificationHub(
   queryClient: QueryClient,
   userRole: string

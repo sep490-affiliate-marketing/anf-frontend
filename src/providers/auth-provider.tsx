@@ -47,6 +47,16 @@ type AuthContextType = {
 
 export const AuthContext = React.createContext<AuthContextType | null>(null)
 
+/**
+ * Provides authentication context and state management for user sessions.
+ *
+ * Wraps child components with authentication logic, including user data fetching, login, signup, logout, and role-based redirection. Manages authentication forms, handles API interactions, and maintains a SignalR notification hub connection based on user authentication state.
+ *
+ * @param children - React components that will have access to authentication context.
+ * @param initUserData - Optional initial user data for hydration.
+ *
+ * @remark The notification hub connection is initialized and cleaned up according to the authenticated user's role.
+ */
 export default function AuthProvider({
   children,
   initUserData,
