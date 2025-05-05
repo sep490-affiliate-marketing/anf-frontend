@@ -14,6 +14,7 @@ import { toast } from "sonner"
 
 import {
   CampaignStatusNotification,
+  NotifyRequestToJoinOfferNotification,
   OfferStatusNotification,
   PublisherOfferStatusNotification,
   UserProfileNotification,
@@ -72,6 +73,15 @@ class NotificationHub {
         toast.info("Publisher Offer Update", {
           description,
           duration: 5000,
+          action: {
+            label: "View Details",
+            onClick: () => {
+              window.location.href = `/publisher/campaigns/${message.campaignId}`
+            },
+          },
+        })
+        this.queryClient.invalidateQueries({
+          queryKey: campaignQueryKeys.publisher.details(message.campaignId),
         })
       }
     )
@@ -126,7 +136,7 @@ class NotificationHub {
       (message: UserProfileNotification) => {
         toast.info("Profile Updated", {
           description: "Your wallet has been updated",
-          duration: 2000,
+          duration: 5000,
           action: {
             label: "View Wallet",
             onClick: () => {
@@ -143,6 +153,22 @@ class NotificationHub {
             1,
             10
           ),
+        })
+      }
+    )
+
+    this.connection.on(
+      "NotifyRequestToJoinOffer",
+      (message: NotifyRequestToJoinOfferNotification) => {
+        toast.info("Offer Request", {
+          description: "A new offer request has been made",
+          duration: 5000,
+          action: {
+            label: "View Details",
+            onClick: () => {
+              window.location.href = `/advertiser/campaigns/${message.campaignId}/offers/${message.offerId}#publishers`
+            },
+          },
         })
       }
     )

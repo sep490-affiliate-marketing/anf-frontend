@@ -14,8 +14,14 @@ export interface OfferStatusNotification extends BaseNotification {
 
 export interface PublisherOfferStatusNotification extends BaseNotification {
   offerId: number // This represents pubOfferId from backend
+  campaignId: number
 }
 
 export interface UserProfileNotification {
   userCode: string
+}
+
+export interface NotifyRequestToJoinOfferNotification {
+  offerId: number
+  campaignId: number
 }

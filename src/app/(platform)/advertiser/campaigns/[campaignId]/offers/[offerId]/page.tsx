@@ -123,7 +123,6 @@ function StatCard({
 export default function OfferDetailPage({
   params: paramsPromise,
 }: OfferDetailParams) {
-  const [activeTab, setActiveTab] = useState("overview")
   const [rejectDialogOpen, setRejectDialogOpen] = useState(false)
   const [selectedPublisher, setSelectedPublisher] = useState<any>(null)
   const [rejectReason, setRejectReason] = useState("")
@@ -131,6 +130,50 @@ export default function OfferDetailPage({
   // Unwrap params using React.use() as recommended by Next.js
   const params = React.use(paramsPromise)
   const { campaignId, offerId } = params
+
+  // Get initial tab from URL hash or default to 'overview'
+  const [activeTab, setActiveTab] = useState(() => {
+    if (typeof window !== "undefined") {
+      const hash = window.location.hash.replace("#", "")
+      return [
+        "overview",
+        "statistics",
+        "publishers",
+        "details",
+        "tracking",
+      ].includes(hash)
+        ? hash
+        : "overview"
+    }
+    return "overview"
+  })
+
+  // Handle URL hash changes
+  React.useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.replace("#", "")
+      if (
+        [
+          "overview",
+          "statistics",
+          "publishers",
+          "details",
+          "tracking",
+        ].includes(hash)
+      ) {
+        setActiveTab(hash)
+      }
+    }
+
+    window.addEventListener("hashchange", handleHashChange)
+    return () => window.removeEventListener("hashchange", handleHashChange)
+  }, [])
+
+  // Update URL hash when tab changes
+  const handleTabChange = (value: string) => {
+    setActiveTab(value)
+    window.location.hash = value
+  }
 
   const {
     data: offerResData,
@@ -284,7 +327,7 @@ export default function OfferDetailPage({
         {/* Tabs */}
         <Tabs
           value={activeTab}
-          onValueChange={setActiveTab}
+          onValueChange={handleTabChange}
           className="space-y-6"
         >
           <div className="border-b">
