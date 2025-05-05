@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import Link from "next/link"
 
 import { env } from "@/env"
@@ -335,10 +336,12 @@ export function CampaignDetails({ campaignId }: { campaignId: number }) {
             <div className="md:col-span-2">
               <div className="aspect-video overflow-hidden rounded-lg">
                 {campaign.campImages?.[0] ? (
-                  <img
+                  <Image
                     src={campaign.campImages[0]}
                     alt={campaign.name}
                     className="size-full object-cover"
+                    width={1000}
+                    height={1000}
                   />
                 ) : (
                   <div className="flex h-full items-center justify-center bg-gray-50">
