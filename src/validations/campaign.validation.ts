@@ -48,8 +48,8 @@ export function CreateCampaignFormSchema() {
       description: z
         .string({ message: "Description is required" })
         .min(1, { message: "Description is required" })
-        .refine(hasValidHtmlContent, {
-          message: "Description must contain actual text content",
+        .max(1000, {
+          message: "Description must be less than 1000 characters",
         }),
       category: z
         .string({ message: "Category is required" })
@@ -136,11 +136,10 @@ export function UpdateCampaignFormSchema() {
           message: "Description must contain actual text content",
         })
         .optional(),
-        category: z
+      category: z
         .string({ message: "Category is required" })
         .min(1, { message: "Category is required" }),
-      categoryId: z
-        .number({ message: "Category is required" }),
+      categoryId: z.number({ message: "Category is required" }),
       startDate: z
         .string({ message: "Start date is required" })
         .min(1, { message: "Start date is required" }),

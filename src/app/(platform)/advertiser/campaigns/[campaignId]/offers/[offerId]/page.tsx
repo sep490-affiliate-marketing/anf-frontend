@@ -4,6 +4,7 @@ import React, { useState } from "react"
 
 import Link from "next/link"
 
+import { env } from "@/env"
 import {
   ArrowLeft,
   BarChart3,
@@ -70,6 +71,7 @@ import {
 
 import { OfferStatusBadge } from "@/components/badge/offer-status-badge"
 import { EmptyTable } from "@/components/data-table/empty-table"
+import { Preview } from "@/components/editor/preview"
 import { Spinner } from "@/components/spinner"
 
 interface OfferDetailParams {
@@ -79,28 +81,16 @@ interface OfferDetailParams {
   }>
 }
 
-// Placeholder stats data that might not be in the API response
-const placeholderStats = {
-  spent: 0,
-  clicks: 0,
-  conversions: 0,
-  conversionRate: 0,
-  trackingUrl:
-    "https://backend.affiliate-network.com/tracking?aff_id={affiliate_id}&source={source}",
-}
-
 function StatCard({
   title,
   value,
   icon,
   description,
-  trend,
 }: {
   title: string
   value: string | number
   icon: React.ReactNode
   description?: string
-  trend?: "up" | "down" | "neutral"
 }) {
   return (
     <Card>
@@ -355,13 +345,6 @@ export default function OfferDetailPage({
               </TabsTrigger>
 
               <TabsTrigger
-                value="details"
-                className="relative gap-2 rounded-none py-2 after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none data-[state=active]:after:bg-primary"
-              >
-                <Info className="size-4" />
-                Details
-              </TabsTrigger>
-              <TabsTrigger
                 value="tracking"
                 className="relative gap-2 rounded-none py-2 after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none data-[state=active]:after:bg-primary"
               >
@@ -421,18 +404,6 @@ export default function OfferDetailPage({
                     </p>
                   </div>
 
-                  {/* Steps Information */}
-                  {offerResData.stepInfo && (
-                    <div className="space-y-2">
-                      <h3 className="font-medium text-gray-900">
-                        Conversion Steps
-                      </h3>
-                      <div className="rounded-lg bg-gray-50 p-3 text-sm text-gray-600">
-                        {offerResData.stepInfo}
-                      </div>
-                    </div>
-                  )}
-
                   {/* Additional Details */}
                   <div className="grid gap-4 pt-4 sm:grid-cols-2">
                     <div>
@@ -488,6 +459,16 @@ export default function OfferDetailPage({
                       </div>
                     )}
                   </div>
+
+                  {/* Steps Information */}
+                  {offerResData.stepInfo && (
+                    <div>
+                      <h3 className="font-medium text-gray-900">
+                        Conversion Steps
+                      </h3>
+                      <Preview value={offerResData.stepInfo} />
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </div>
@@ -508,15 +489,15 @@ export default function OfferDetailPage({
                   <h3 className="font-medium text-gray-900">Tracking URL</h3>
                   <div className="flex items-center justify-between rounded-lg bg-gray-50 p-3 font-mono text-sm text-gray-600">
                     <code className="break-all">
-                      {placeholderStats.trackingUrl}
+                      {`${env.NEXT_PUBLIC_BACKEND_URL}/api/affiliate-network/tracking?offerId=${offerId}&publisherCode={publisherCode}`}
                     </code>
                     <Button variant="ghost" size="sm" className="size-8 p-0">
                       <Copy className="size-4" />
                     </Button>
                   </div>
                   <p className="text-xs text-gray-500">
-                    Replace {"{affiliate_id}"} with your affiliate ID and{" "}
-                    {"{source}"} with your traffic source.
+                    Replace {"{publisherCode}"} with the publisher&apos;s code
+                    when sharing with approved publishers.
                   </p>
                 </div>
               </CardContent>
@@ -536,58 +517,6 @@ export default function OfferDetailPage({
                 <p className="py-10 text-center text-gray-500">
                   Statistics data not available yet
                 </p>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Details Tab */}
-          <TabsContent value="details" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Offer Details</CardTitle>
-                <CardDescription>
-                  Complete details and configuration
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <div className="space-y-1">
-                      <h4 className="text-sm font-medium text-gray-500">
-                        Campaign ID
-                      </h4>
-                      <p className="font-medium">{offerResData.campaignId}</p>
-                    </div>
-                    <div className="space-y-1">
-                      <h4 className="text-sm font-medium text-gray-500">
-                        Pricing Model
-                      </h4>
-                      <p className="font-medium">
-                        {offerResData.pricingModel || "N/A"}
-                      </p>
-                    </div>
-                    {offerResData.pubOfferStatus !== undefined && (
-                      <div className="space-y-1">
-                        <h4 className="text-sm font-medium text-gray-500">
-                          Publisher Offer Status
-                        </h4>
-                        <p className="font-medium">
-                          {offerResData.pubOfferStatus}
-                        </p>
-                      </div>
-                    )}
-                    {offerResData.rejectedReason && (
-                      <div className="space-y-1">
-                        <h4 className="text-sm font-medium text-gray-500">
-                          Rejection Reason
-                        </h4>
-                        <p className="font-medium">
-                          {offerResData.rejectedReason}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                </div>
               </CardContent>
             </Card>
           </TabsContent>

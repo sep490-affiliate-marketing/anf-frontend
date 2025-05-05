@@ -30,6 +30,7 @@ import {
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -50,8 +51,9 @@ import {
   StepperTitle,
   StepperTrigger,
 } from "@/components/ui/stepper"
+import { Textarea } from "@/components/ui/textarea"
 
-import { Editor } from "@/components/editor"
+import { Preview } from "@/components/editor/preview"
 
 import { DatePickerWithRange } from "./date-range-picker"
 import ImageUpload from "./image-upload"
@@ -125,7 +127,6 @@ const CampaignForm = () => {
 
   const [currentStep, setCurrentStep] = useState(1)
   const [previewImage, setPreviewImage] = useState<string | null>(null)
-  const [showDescriptionPreview, setShowDescriptionPreview] = useState(false)
 
   const { fields } = useFieldArray({
     control: form.control,
@@ -552,30 +553,18 @@ const CampaignForm = () => {
                       <FormLabel className="text-base font-medium">
                         Campaign description
                       </FormLabel>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() =>
-                          setShowDescriptionPreview(!showDescriptionPreview)
-                        }
-                      >
-                        {showDescriptionPreview
-                          ? "Edit Content"
-                          : "Show Preview"}
-                      </Button>
                     </div>
                     <FormControl>
-                      <Editor
-                        value={field.value}
-                        onChange={(value) => {
-                          field.onChange(value)
-                          // Trigger validation after value changes
-                          trigger("description")
-                        }}
-                        preview={showDescriptionPreview}
+                      <Textarea
+                        placeholder="Write a description for your campaign"
+                        className="resize-none"
+                        {...field}
+                        rows={4}
                       />
                     </FormControl>
+                    <FormDescription>
+                      Description must be less than 1000 characters
+                    </FormDescription>
                     <FormMessage className="mt-2 block" />
                   </FormItem>
                 )}
@@ -584,7 +573,7 @@ const CampaignForm = () => {
               <FormField
                 control={control}
                 name="images"
-                render={({ field }) => (
+                render={() => (
                   <FormItem>
                     <FormLabel className="text-base font-medium">
                       Campaign Image <span className="text-destructive">*</span>
@@ -745,12 +734,7 @@ const CampaignForm = () => {
                     </dt>
                     <dd className="whitespace-pre-wrap text-sm font-medium">
                       {watch("description") ? (
-                        <div
-                          className="ql-editor preview"
-                          dangerouslySetInnerHTML={{
-                            __html: watch("description"),
-                          }}
-                        />
+                        <p>{watch("description")}</p>
                       ) : (
                         "No description provided"
                       )}
@@ -898,13 +882,8 @@ const CampaignForm = () => {
                                 <dt className="text-xs font-medium text-muted-foreground">
                                   Description
                                 </dt>
-                                <dd className="mt-1 whitespace-pre-wrap rounded-md bg-muted p-3 text-sm">
-                                  <div
-                                    className="ql-editor preview"
-                                    dangerouslySetInnerHTML={{
-                                      __html: offer.description,
-                                    }}
-                                  />
+                                <dd className="mt-1 whitespace-pre-wrap rounded-md text-sm">
+                                  <p>{offer.description}</p>
                                 </dd>
                               </div>
                             )}
@@ -913,13 +892,8 @@ const CampaignForm = () => {
                                 <dt className="text-xs font-medium text-muted-foreground">
                                   Step Information
                                 </dt>
-                                <dd className="mt-1 whitespace-pre-wrap rounded-md bg-muted p-3 text-sm">
-                                  <div
-                                    className="ql-editor preview"
-                                    dangerouslySetInnerHTML={{
-                                      __html: offer.stepInfo,
-                                    }}
-                                  />
+                                <dd className="rounded-md text-sm">
+                                  <Preview value={offer.stepInfo} />
                                 </dd>
                               </div>
                             )}
