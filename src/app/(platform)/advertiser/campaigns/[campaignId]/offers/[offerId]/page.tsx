@@ -16,6 +16,7 @@ import {
   Copy,
   DollarSign,
   FileCode,
+  History,
   Info,
   Loader2,
   Megaphone,
@@ -75,6 +76,7 @@ import {
 import { OfferStatusBadge } from "@/components/badge/offer-status-badge"
 import { EmptyTable } from "@/components/data-table/empty-table"
 import { Preview } from "@/components/editor/preview"
+import PostbackDataTable from "@/components/publisher/offers/postback-data-table"
 import { Spinner } from "@/components/spinner"
 
 interface OfferDetailParams {
@@ -135,6 +137,7 @@ export default function OfferDetailPage({
         "publishers",
         "details",
         "tracking",
+        "postbacks",
       ].includes(hash)
         ? hash
         : "overview"
@@ -153,6 +156,7 @@ export default function OfferDetailPage({
           "publishers",
           "details",
           "tracking",
+          "postbacks",
         ].includes(hash)
       ) {
         setActiveTab(hash)
@@ -355,13 +359,19 @@ export default function OfferDetailPage({
                 <Users className="size-4" />
                 Publishers
               </TabsTrigger>
-
               <TabsTrigger
                 value="tracking"
                 className="relative gap-2 rounded-none py-2 after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none data-[state=active]:after:bg-primary"
               >
                 <FileCode className="size-4" />
                 Tracking
+              </TabsTrigger>
+              <TabsTrigger
+                value="postbacks"
+                className="relative gap-2 rounded-none py-2 after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none data-[state=active]:after:bg-primary"
+              >
+                <History className="size-4" />
+                Postbacks
               </TabsTrigger>
             </TabsList>
           </div>
@@ -755,6 +765,24 @@ export default function OfferDetailPage({
                     </Table>
                   </div>
                 )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Postbacks Tab */}
+          <TabsContent value="postbacks" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <History className="size-5 text-purple-600" />
+                  Postback History
+                </CardTitle>
+                <CardDescription>
+                  View all postback events for this offer
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <PostbackDataTable offerId={Number(offerId)} />
               </CardContent>
             </Card>
           </TabsContent>
