@@ -2,6 +2,7 @@ import { errorMessage } from "@/constant/error-message"
 import { statisticQueryKeys } from "@/constant/react-query"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { AxiosError } from "axios"
+import qs from "qs"
 import { toast } from "sonner"
 
 import {
@@ -14,6 +15,7 @@ import {
 } from "@/types/statistics.type"
 
 import apiClient from "@/lib/api/client"
+import { extractApiError } from "@/lib/api/error-handler"
 
 // Hook to get advertiser offer statistics by offer ID
 export const useGetAdvertiserOfferStatistics = (offerId: string) => {
@@ -321,5 +323,68 @@ export const useGeneratePublisherOfferStatisticsByCode = () => {
         toast.error(data.message || "Failed to generate statistics")
       }
     },
+  })
+}
+
+// Hook to get publisher revenue statistics (all campaigns)
+export const useGetPublisherRevenueStatistics = (from: string, to: string) => {
+  return useQuery({
+    queryKey: statisticQueryKeys.publisher.revenue(from, to),
+    queryFn: async () => {
+      try {
+        const queryString = qs.stringify({
+          fromDate: from ?? "",
+          toDate: to ?? "",
+        })
+        const { data } = await apiClient.get<IPaginationResponse<any>>(
+          `/api/affiliate-network/publisher/stats/revenue?${queryString}`
+        )
+        return {
+          isSuccess: true,
+          message: data.message,
+          data: data.value,
+        }
+      } catch (error) {
+        const errRes = extractApiError(error)
+        throw new Error(
+          errRes?.details ?? "Failed to fetch publisher revenue statistics"
+        )
+      }
+    },
+    enabled: !!from && !!to,
+  })
+}
+
+// Hook to get publisher campaign's revenue statistics by campaign id
+export const useGetPublisherCampaignRevenueStatisticsById = (
+  id: number,
+  from: string,
+  to: string
+) => {
+  return useQuery({
+    queryKey: statisticQueryKeys.publisher.campaignRevenueById(id, from, to),
+    queryFn: async () => {
+      try {
+        const queryString = qs.stringify({
+          fromDate: from ?? "",
+          toDate: to ?? "",
+        })
+        const { data } = await apiClient.get<IPaginationResponse<any>>(
+          `/api/affiliate-network/publisher-stats/campaign/${id}/revenue?${queryString}`
+        )
+        return {
+          isSuccess: true,
+          message: data.message,
+          data: data.value,
+        }
+      } catch (error) {
+        const errRes = extractApiError(error)
+        throw new Error(
+          errRes?.details ??
+            "Failed to fetch publisher campaign revenue statistics"
+        )
+      }
+    },
+    enabled: !!id && !!from && !!to,
   })
 }

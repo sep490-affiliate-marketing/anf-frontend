@@ -193,5 +193,21 @@ export const statisticQueryKeys = {
         publisherCode,
         "offer",
       ] as const,
+    revenue: (from: string, to: string) =>
+      [
+        ...statisticQueryKeys.origin,
+        "publisher",
+        "revenue",
+        { from, to },
+      ] as const,
+    campaignRevenueById: (id: number, from: string, to: string) =>
+      [
+        ...statisticQueryKeys.origin,
+        "publisher",
+        "campaign",
+        id,
+        "revenue",
+        { from, to },
+      ] as const,
   },
 }
