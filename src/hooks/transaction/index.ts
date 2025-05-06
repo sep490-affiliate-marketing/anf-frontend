@@ -46,7 +46,6 @@ export const useAddCredit = () => {
     onSuccess: (resData) => {
       if (resData?.isSuccess) {
         const { value } = resData
-        toast.success("Credit added successfully")
         if (value) {
           router.push(value)
         }
