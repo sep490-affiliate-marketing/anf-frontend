@@ -112,6 +112,8 @@ export const transactionQueryKeys = {
     ] as const,
   deposit: () => [...transactionQueryKeys.origin, "deposit"] as const,
   withdraw: () => [...transactionQueryKeys.origin, "withdraw"] as const,
+  detail: (transactionId: string) =>
+    [...transactionQueryKeys.origin, "detail", transactionId] as const,
   batchPaymentData: (
     page: number,
     pageSize: number,

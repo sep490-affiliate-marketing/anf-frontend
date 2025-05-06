@@ -18,6 +18,7 @@ import {
   IAddCreditResponse,
   IBatchPaymentItem,
   IGetBatchPaymentDataResponse,
+  IGetTransactionDetailResponse,
   IGetWalletHistoryResponse,
   IGetWithdrawRequestListResponse,
   IUpdateWithdrawalStatusResponse,
@@ -294,4 +295,22 @@ export const useUpdateWithdrawalStatus = () => {
     updateWithdrawalStatus: mutateAsync,
     isPending,
   }
+}
+
+export const useGetTransactionDetail = (transactionId: string) => {
+  return useQuery({
+    queryKey: transactionQueryKeys.detail(transactionId),
+    queryFn: async () => {
+      try {
+        const { data } = await apiClient.get<IGetTransactionDetailResponse>(
+          `/api/affiliate-network/transactions/${transactionId}`
+        )
+        return data
+      } catch (error) {
+        const errRes = extractApiError(error)
+        throw new Error(errRes?.details ?? "Failed to get transaction detail")
+      }
+    },
+    enabled: !!transactionId,
+  })
 }

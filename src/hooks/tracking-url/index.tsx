@@ -46,8 +46,8 @@ export const useUpdateTrackingUrlBuilder = ({
       if (!productUrl) return ""
 
       const url =
-      encodeUrlSafely(productUrl) +
-      (productUrl.includes("?") ? "&" : "?") +
+        encodeUrlSafely(productUrl) +
+        (productUrl.includes("?") ? "&" : "?") +
         tracking_params
           ?.map((p) => `${p.param_name}={${p.param_value}}`)
           .join("&")

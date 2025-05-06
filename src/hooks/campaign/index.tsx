@@ -464,7 +464,7 @@ export const useUpdateCampaignForm = (id: number) => {
           ),
         })
         form.reset()
-        
+
         router.push(`/advertiser/campaigns/${id}`)
       } else {
         toast.error(resData.message, {
@@ -498,8 +498,14 @@ export const useUpdateCampaignForm = (id: number) => {
       formData.append("productUrl", data.productUrl || "")
       formData.append("trackingParams", data.trackingParams || "")
       formData.append("categoryId", String(data.categoryId || "1"))
-      formData.append("startDate", formatDateToYYYYMMDD(data.startDate) || formatDateToYYYYMMDD(Date()))
-      formData.append("endDate", formatDateToYYYYMMDD(data.endDate) || formatDateToYYYYMMDD(Date()))
+      formData.append(
+        "startDate",
+        formatDateToYYYYMMDD(data.startDate) || formatDateToYYYYMMDD(Date())
+      )
+      formData.append(
+        "endDate",
+        formatDateToYYYYMMDD(data.endDate) || formatDateToYYYYMMDD(Date())
+      )
       // Execute mutation to create the campaign
       await updateCampaignMutation(formData)
     } catch {}

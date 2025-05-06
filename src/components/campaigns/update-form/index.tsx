@@ -7,8 +7,8 @@ import Image from "next/image"
 import { CAMPAIGN_CATEGORIES } from "@/constant/campaign"
 import { useAuth } from "@/providers/auth-provider"
 import { IUpdateCampaignForm } from "@/validations/campaign.validation"
-import { addDays, format, set } from "date-fns"
-import { ca, vi } from "date-fns/locale"
+import { addDays, format } from "date-fns"
+import { vi } from "date-fns/locale"
 import { AlertCircle, Check, ChevronsUpDown } from "lucide-react"
 import { DateRange } from "react-day-picker"
 import { toast } from "sonner"
@@ -51,10 +51,11 @@ import {
 } from "@/components/ui/stepper"
 
 import { Editor } from "@/components/editor"
+import { Spinner } from "@/components/spinner"
+
 import { DatePickerWithRange } from "./date-range-picker"
 import ImageUpload from "./image-upload"
 import TrackingUrlBuilder from "./tracking-url-builder"
-import { Spinner } from "@/components/spinner"
 
 const steps = [
   {
@@ -75,11 +76,13 @@ const steps = [
 ]
 
 type Props = {
-    campaignId: string
+  campaignId: string
 }
 
 const EditCampaignForm = ({ campaignId }: Props) => {
-  const { form, isPending, onUpdateCampaign } = useUpdateCampaignForm(Number(campaignId))
+  const { form, isPending, onUpdateCampaign } = useUpdateCampaignForm(
+    Number(campaignId)
+  )
 
   const { user } = useAuth()
 
@@ -124,38 +127,40 @@ const EditCampaignForm = ({ campaignId }: Props) => {
   const [dateRange, setDateRange] = useState<{
     from: string
     to: string
-  }>({from: addDays(new Date(), 2).toISOString(),
-      to: addDays(new Date(), 21).toISOString(),})
+  }>({
+    from: addDays(new Date(), 2).toISOString(),
+    to: addDays(new Date(), 21).toISOString(),
+  })
   useEffect(() => {
-      setValue('name', campaignResponse?.data?.name || '');
-      setValue('description', campaignResponse?.data?.description || '');
-      setValue('category', '');
-      setValue('categoryId', campaignResponse?.data?.categoryId || 1);
-      setValue('startDate', campaignResponse?.data?.startDate || '');
-      setValue('endDate', campaignResponse?.data?.endDate || '');
-      setValue('productUrl', campaignResponse?.data?.productUrl || '');
-      setValue('images', campaignResponse?.data?.campImages || []);
-      setValue('trackingParams', campaignResponse?.data?.trackingParams || '');
-      setValue(
-        'tracking_params',
-        typeof campaignResponse?.data?.trackingParams === 'string'
-          ? JSON.parse(campaignResponse.data.trackingParams)
-          : campaignResponse?.data?.trackingParams || []
-      );
-      console.log("campaignResponse.data:", campaignResponse?.data);
-      setDateRange({
-        from: campaignResponse?.data?.startDate || new Date().toISOString(),
-        to: campaignResponse?.data?.endDate || new Date().toISOString(),
-      })
-      setShowDescriptionPreview(true)
-  }, [campaignResponse, setValue]);
+    setValue("name", campaignResponse?.data?.name || "")
+    setValue("description", campaignResponse?.data?.description || "")
+    setValue("category", "")
+    setValue("categoryId", campaignResponse?.data?.categoryId || 1)
+    setValue("startDate", campaignResponse?.data?.startDate || "")
+    setValue("endDate", campaignResponse?.data?.endDate || "")
+    setValue("productUrl", campaignResponse?.data?.productUrl || "")
+    setValue("images", campaignResponse?.data?.campImages || [])
+    setValue("trackingParams", campaignResponse?.data?.trackingParams || "")
+    setValue(
+      "tracking_params",
+      typeof campaignResponse?.data?.trackingParams === "string"
+        ? JSON.parse(campaignResponse.data.trackingParams)
+        : campaignResponse?.data?.trackingParams || []
+    )
+    console.log("campaignResponse.data:", campaignResponse?.data)
+    setDateRange({
+      from: campaignResponse?.data?.startDate || new Date().toISOString(),
+      to: campaignResponse?.data?.endDate || new Date().toISOString(),
+    })
+    setShowDescriptionPreview(true)
+  }, [campaignResponse, setValue])
 
-    useEffect(() => {
-      if (dateRange) {
-        setValue("startDate", dateRange.from)
-        setValue("endDate", dateRange.to)
-      }
-    }, [dateRange, setValue])
+  useEffect(() => {
+    if (dateRange) {
+      setValue("startDate", dateRange.from)
+      setValue("endDate", dateRange.to)
+    }
+  }, [dateRange, setValue])
 
   // Clear preview when component unmounts
   useEffect(() => {
@@ -237,8 +242,12 @@ const EditCampaignForm = ({ campaignId }: Props) => {
 
   const getDateRange = (): DateRange | undefined => {
     return {
-      from: campaignResponse?.data?.startDate ? new Date(campaignResponse?.data?.startDate) : undefined,
-      to: campaignResponse?.data?.endDate ? new Date(campaignResponse?.data?.endDate) : undefined,
+      from: campaignResponse?.data?.startDate
+        ? new Date(campaignResponse?.data?.startDate)
+        : undefined,
+      to: campaignResponse?.data?.endDate
+        ? new Date(campaignResponse?.data?.endDate)
+        : undefined,
     }
   }
   // Handle date picker changes
@@ -613,7 +622,6 @@ const EditCampaignForm = ({ campaignId }: Props) => {
           </div>
         )
       case 3:
-
         return (
           <div className="space-y-8">
             <div className="space-y-6">
@@ -733,7 +741,7 @@ const EditCampaignForm = ({ campaignId }: Props) => {
                 variant="outline"
                 onClick={(e) => {
                   e.preventDefault()
-                  setCurrentStep(2  )
+                  setCurrentStep(2)
                 }}
                 className="h-11"
               >

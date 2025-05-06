@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react"
 
 import Image from "next/image"
 
-import { ICreateCampaignForm, IUpdateCampaignForm } from "@/validations/campaign.validation"
+import { IUpdateCampaignForm } from "@/validations/campaign.validation"
 import { UseFormReturn } from "react-hook-form"
 import { toast } from "sonner"
 

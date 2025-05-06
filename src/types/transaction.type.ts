@@ -68,3 +68,26 @@ export interface IUpdateWithdrawalStatusResponse {
   message: string
   value?: any
 }
+
+export interface IGetTransactionDetailResponse {
+  isSuccess: true
+  message: string
+  value: {
+    id: number
+    userCode: string
+    walletId: number
+    amount: number
+    campaignId: number | null
+    subscriptionId: number | null
+    reason: string
+    createdAt: string
+    approvedAt: string | null
+    currentBankingNo: string | null
+    isWithdrawal: boolean
+    billingType: string | null
+    validFrom: string | null
+    validTo: string | null
+    remainedSlot: number | null
+    status: number
+  }
+}
