@@ -13,6 +13,7 @@ import Cookies from "js-cookie"
 import { toast } from "sonner"
 
 import {
+  CampaignCreatedNotification,
   CampaignStatusNotification,
   NotifyRequestToJoinOfferNotification,
   OfferStatusNotification,
@@ -173,6 +174,21 @@ class NotificationHub {
       }
     )
 
+    this.connection.on(
+      "CampaignCreated",
+      (message: CampaignCreatedNotification) => {
+        toast.info("Campaign Created", {
+          description: "A new campaign has been created",
+          duration: 5000,
+          action: {
+            label: "View Details",
+            onClick: () => {
+              window.location.href = `/admin/campaigns/${message.campaignId}`
+            },
+          },
+        })
+      }
+    )
     // Handle connection closed
     this.connection.onclose((error) => {
       console.log("SignalR Connection Closed:", error)

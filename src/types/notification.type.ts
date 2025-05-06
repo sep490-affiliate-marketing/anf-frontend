@@ -25,3 +25,7 @@ export interface NotifyRequestToJoinOfferNotification {
   offerId: number
   campaignId: number
 }
+
+export interface CampaignCreatedNotification {
+  campaignId: number
+}
