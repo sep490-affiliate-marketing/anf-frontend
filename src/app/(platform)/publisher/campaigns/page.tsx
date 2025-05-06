@@ -141,14 +141,23 @@ function CampaignCard({ campaign }: CampaignCardProps) {
           ))}
         </div>
         <div className="grid grid-cols-2 gap-4">
-          <div>
-            <p className="text-xs text-muted-foreground">Highest Payout</p>
-            <p className="font-medium">
-              {formatVNDCurrency(
-                Math.max(...campaign.offers.map((o) => o.bid))
-              )}
-            </p>
-          </div>
+          {campaign.offers[0].pricingModel != "CPS" ? (
+            <div>
+              <p className="text-xs text-muted-foreground">Highest Payout</p>
+              <p className="font-medium">
+                {formatVNDCurrency(
+                  Math.max(...campaign.offers.map((o) => o.bid))
+                )}
+              </p>
+            </div>
+          ) : (
+            <div>
+              <p className="text-xs text-muted-foreground">Commission</p>
+              <p className="font-medium">
+                {campaign.offers[0].commissionRate}%
+              </p>
+            </div>
+          )}
           <div>
             <p className="text-xs text-muted-foreground">Campaign Ends</p>
             <p className="font-medium">
@@ -204,26 +213,23 @@ function CampaignListItem({ campaign }: CampaignListItemProps) {
         </p>
         <div className="mt-4 flex items-center justify-between">
           <div className="flex gap-6">
-            <div>
-              <p className="text-xs text-muted-foreground">Highest Payout</p>
-              <p className="font-medium">
-                {formatVNDCurrency(
-                  Math.max(...campaign.offers.map((o) => o.bid))
-                )}
-              </p>
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Duration</p>
-              <p className="font-medium">
-                {format(new Date(campaign.startDate), "dd/mm/yyyy", {
-                  locale: vi,
-                })}{" "}
-                -{" "}
-                {format(new Date(campaign.endDate), "dd/mm/yyyy", {
-                  locale: vi,
-                })}
-              </p>
-            </div>
+            {campaign.offers[0].pricingModel != "CPS" ? (
+              <div>
+                <p className="text-xs text-muted-foreground">Highest Payout</p>
+                <p className="font-medium">
+                  {formatVNDCurrency(
+                    Math.max(...campaign.offers.map((o) => o.bid))
+                  )}
+                </p>
+              </div>
+            ) : (
+              <div>
+                <p className="text-xs text-muted-foreground">Commission</p>
+                <p className="font-medium">
+                  {campaign.offers[0].commissionRate}%
+                </p>
+              </div>
+            )}
           </div>
           <div className="flex items-center gap-2">
             <Link href={`/publisher/campaigns/${campaign.id}`}>
