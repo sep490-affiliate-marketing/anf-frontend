@@ -211,3 +211,18 @@ export const statisticQueryKeys = {
       ] as const,
   },
 }
+
+export const adminStatisticsQueryKeys = {
+  origin: ["adminStatistics"] as const,
+  users: (from: string, to: string) =>
+    [...adminStatisticsQueryKeys.origin, "users", { from, to }] as const,
+  campaigns: (from: string, to: string) =>
+    [...adminStatisticsQueryKeys.origin, "campaigns", { from, to }] as const,
+  complaintTickets: (from: string, to: string) =>
+    [
+      ...adminStatisticsQueryKeys.origin,
+      "complaintTickets",
+      { from, to },
+    ] as const,
+} as const
+
