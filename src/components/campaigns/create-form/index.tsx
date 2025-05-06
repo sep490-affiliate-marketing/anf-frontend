@@ -27,6 +27,7 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command"
+import { DateRangePicker } from "@/components/ui/date-range-picker"
 import {
   Form,
   FormControl,
@@ -55,7 +56,6 @@ import { Textarea } from "@/components/ui/textarea"
 
 import { Preview } from "@/components/editor/preview"
 
-import { DatePickerWithRange } from "./date-range-picker"
 import ImageUpload from "./image-upload"
 import OfferList from "./offer-list"
 import TrackingUrlBuilder from "./tracking-url-builder"
@@ -249,16 +249,6 @@ const CampaignForm = () => {
     }
   }, [previewImage])
 
-  // Convert string dates to DateRange for DatePicker
-  const getDateRangeForPicker = (): DateRange | undefined => {
-    if (!dateRange.from && !dateRange.to) return undefined
-
-    return {
-      from: dateRange.from ? new Date(dateRange.from) : undefined,
-      to: dateRange.to ? new Date(dateRange.to) : undefined,
-    }
-  }
-
   // Handle date picker changes
   const handleDateChange = (dates: {
     startDate: string
@@ -410,6 +400,36 @@ const CampaignForm = () => {
     }
   }
 
+  const handleCampaignDateRangeChange = (values: { range: DateRange }) => {
+    if (values.range.from && values.range.to) {
+      // Update date range state
+      handleDateChange({
+        startDate: values.range.from.toISOString(),
+        endDate: values.range.to.toISOString(),
+      })
+
+      // Update form values with validation
+      if (values.range.from) {
+        setValue("startDate", values.range.from.toISOString(), {
+          shouldValidate: true,
+          shouldDirty: true,
+          shouldTouch: true,
+        })
+      }
+
+      if (values.range.to) {
+        setValue("endDate", values.range.to.toISOString(), {
+          shouldValidate: true,
+          shouldDirty: true,
+          shouldTouch: true,
+        })
+      }
+
+      // Explicitly trigger validation
+      trigger(["startDate", "endDate"])
+    }
+  }
+
   // Render the content based on the current step
   const renderStepContent = () => {
     switch (currentStep) {
@@ -441,34 +461,21 @@ const CampaignForm = () => {
                     Campaign date range
                   </FormLabel>
                   <div className="mt-2">
-                    <DatePickerWithRange
-                      defaultDateRange={getDateRangeForPicker()}
-                      disabledBefore={addDays(new Date(), 2).toISOString()}
-                      onChange={(dates) => {
-                        // Update date range state
-                        handleDateChange(dates)
-
-                        // Update form values with validation
-                        if (dates.startDate) {
-                          setValue("startDate", dates.startDate, {
-                            shouldValidate: true,
-                            shouldDirty: true,
-                            shouldTouch: true,
-                          })
-                        }
-
-                        if (dates.endDate) {
-                          setValue("endDate", dates.endDate, {
-                            shouldValidate: true,
-                            shouldDirty: true,
-                            shouldTouch: true,
-                          })
-                        }
-
-                        // Explicitly trigger validation
-                        trigger(["startDate", "endDate"])
-                      }}
-                      className="w-full"
+                    <DateRangePicker
+                      align="start"
+                      onUpdate={handleCampaignDateRangeChange}
+                      showQuickPresets={false}
+                      initialDateFrom={
+                        watch("startDate")
+                          ? new Date(watch("startDate"))
+                          : addDays(new Date(), 2)
+                      }
+                      initialDateTo={
+                        watch("endDate")
+                          ? new Date(watch("endDate"))
+                          : addDays(new Date(), 20)
+                      }
+                      disabledBefore={addDays(new Date(), 2)}
                     />
                     <div className="mt-2 text-sm font-medium text-destructive">
                       {errors.startDate?.message ||
@@ -971,7 +978,7 @@ const CampaignForm = () => {
           }
           return handleSubmit(onSubmit)(e)
         }}
-        className="space-y-10"
+        className="space-y-10 py-8"
       >
         <div className="border-b border-border pb-6">
           <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">

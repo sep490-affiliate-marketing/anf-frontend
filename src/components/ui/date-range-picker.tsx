@@ -36,6 +36,12 @@ export interface DateRangePickerProps {
   locale?: string
   /** Option for showing compare feature */
   showCompare?: boolean
+  /** Option for showing quick presets */
+  showQuickPresets?: boolean
+  /** Disable dates before this date */
+  disabledBefore?: Date
+  /** Disable dates after this date */
+  disabledAfter?: Date
 }
 
 const formatDate = (date: Date, locale: string = "en-us"): string => {
@@ -94,6 +100,9 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
   onUpdate,
   align = "end",
   locale = "en-US",
+  showQuickPresets = true,
+  disabledBefore,
+  disabledAfter,
 }): JSX.Element => {
   const [isOpen, setIsOpen] = useState(false)
 
@@ -335,7 +344,11 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
       }}
     >
       <PopoverTrigger asChild>
-        <Button size="default" variant="outline">
+        <Button
+          size="default"
+          variant="outline"
+          className="w-full justify-start"
+        >
           <div className="text-right">
             <div className="py-1">
               <div>{`${formatDate(range.from, locale)}${
@@ -343,18 +356,18 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
               }`}</div>
             </div>
           </div>
-          <div className="-mr-2 pl-1 opacity-60">
+          {/* <div className="-mr-2 pl-1 opacity-60">
             {isOpen ? (
               <ChevronUpIcon size={15} />
             ) : (
               <ChevronDownIcon size={15} />
             )}
-          </div>
+          </div> */}
         </Button>
       </PopoverTrigger>
       <PopoverContent align={align} className="w-auto">
         <div className="flex py-2">
-          {!isSmallScreen && (
+          {!isSmallScreen && showQuickPresets && (
             <div className="flex flex-col items-start gap-1 pr-2">
               <div className="flex w-full flex-col items-start gap-1 pr-2">
                 {PRESETS.map((preset) => (
@@ -442,7 +455,7 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
                   )}
                 </div>
               </div>
-              {isSmallScreen && (
+              {isSmallScreen && showQuickPresets && (
                 <Select
                   defaultValue={selectedPreset}
                   onValueChange={(value) => {
@@ -478,6 +491,11 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
                       )
                     )
                   }
+                  disabled={(date) => {
+                    if (disabledBefore && date < disabledBefore) return true
+                    if (disabledAfter && date > disabledAfter) return true
+                    return false
+                  }}
                 />
               </div>
             </div>

@@ -20,6 +20,7 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command"
+import { DateRangePicker } from "@/components/ui/date-range-picker"
 import {
   FormControl,
   FormField,
@@ -36,8 +37,6 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 
 import { Editor } from "@/components/editor"
-
-import { DatePickerWithRange } from "../date-range-picker"
 
 interface OfferListProps {
   form: UseFormReturn<ICreateCampaignForm>
@@ -63,9 +62,6 @@ const OfferList = ({
   >({})
 
   const [showStepInfoPreview, setShowStepInfoPreview] = useState<
-    Record<number, boolean>
-  >({})
-  const [showDescriptionPreview, setShowDescriptionPreview] = useState<
     Record<number, boolean>
   >({})
 
@@ -261,23 +257,22 @@ const OfferList = ({
 
             <div className="space-y-2 md:col-span-1">
               <Label className="text-lg font-semibold">Offer Date Range</Label>
-              <DatePickerWithRange
-                className="w-full"
-                onChange={(dates: {
-                  startDate: string
-                  endDate: string | null
-                }) => {
-                  if (dates.startDate) {
+              <DateRangePicker
+                align="start"
+                onUpdate={(values: { range: DateRange }) => {
+                  if (values.range.from) {
                     // Update date range state
                     setDateRange({
-                      from: new Date(dates.startDate),
-                      to: dates.endDate ? new Date(dates.endDate) : undefined,
+                      from: new Date(values.range.from),
+                      to: values.range.to
+                        ? new Date(values.range.to)
+                        : undefined,
                     })
 
                     // Update form values and force validation
                     form.setValue(
                       `offers.${index}.startDate`,
-                      dates.startDate,
+                      values.range.from.toISOString(),
                       {
                         shouldValidate: true,
                         shouldDirty: true,
@@ -285,12 +280,16 @@ const OfferList = ({
                       }
                     )
 
-                    if (dates.endDate) {
-                      form.setValue(`offers.${index}.endDate`, dates.endDate, {
-                        shouldValidate: true,
-                        shouldDirty: true,
-                        shouldTouch: true,
-                      })
+                    if (values.range.to) {
+                      form.setValue(
+                        `offers.${index}.endDate`,
+                        values.range.to.toISOString(),
+                        {
+                          shouldValidate: true,
+                          shouldDirty: true,
+                          shouldTouch: true,
+                        }
+                      )
                     }
 
                     // Trigger validation for these fields
@@ -298,18 +297,10 @@ const OfferList = ({
                     form.trigger(`offers.${index}.endDate`)
                   }
                 }}
-                disabledBefore={
-                  disabledBefore || addDays(new Date(), 1).toISOString()
-                }
-                disabledAfter={disabledAfter}
-                defaultDateRange={
-                  dateRange.from || dateRange.to
-                    ? {
-                        from: dateRange.from,
-                        to: dateRange.to,
-                      }
-                    : undefined
-                }
+                initialDateFrom={dateRange.from}
+                initialDateTo={dateRange.to}
+                disabledBefore={dateRange.from}
+                disabledAfter={dateRange.to}
               />
               <div className="mt-2 text-sm font-medium text-destructive">
                 {form.formState.errors.offers?.[index]?.startDate?.message ||
