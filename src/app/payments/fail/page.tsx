@@ -1,7 +1,6 @@
 "use client"
 
 import Link from "next/link"
-import { useSearchParams } from "next/navigation"
 
 import { UserRoleEnum } from "@/enums/user-role"
 import { useAuth } from "@/providers/auth-provider"
@@ -9,10 +8,8 @@ import { useAuth } from "@/providers/auth-provider"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 
 export default function PaymentFailPage() {
-  const searchParams = useSearchParams()
-  const errorMessage =
-    searchParams.get("message") || "Your payment could not be processed"
-  const errorCode = searchParams.get("code") || "failed_payment"
+  const errorMessage = "Your payment could not be processed"
+  const errorCode = "failed_payment"
   const { user } = useAuth()
   // Get role-based transactions route
   const getTransactionsRoute = () => {
