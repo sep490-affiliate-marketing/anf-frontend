@@ -71,7 +71,7 @@ const categories = [
   "Technology",
   "Finance",
 ]
-const pricingModels = ["All", "CPA", "CPC", "CPL", "CPS"]
+const pricingModels = ["All", "CPA", "CPC", "CPS"]
 const sortOptions = [
   { label: "Recent first", value: "recent" },
   { label: "Highest payout", value: "payout" },
@@ -82,7 +82,6 @@ function OfferBadge({ model }: { model: string }) {
   const colors: Record<string, string> = {
     CPA: "bg-blue-50 text-blue-700 border-blue-200",
     CPC: "bg-purple-50 text-purple-700 border-purple-200",
-    CPL: "bg-pink-50 text-pink-700 border-pink-200",
     CPS: "bg-emerald-50 text-emerald-700 border-emerald-200",
   }
 

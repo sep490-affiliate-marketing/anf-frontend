@@ -3,7 +3,9 @@
 import React, { useState } from "react"
 
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 
+import { OfferStatusEnum } from "@/enums/offfer-status"
 import { env } from "@/env"
 import {
   ArrowLeft,
@@ -74,7 +76,6 @@ import { OfferStatusBadge } from "@/components/badge/offer-status-badge"
 import { EmptyTable } from "@/components/data-table/empty-table"
 import { Preview } from "@/components/editor/preview"
 import { Spinner } from "@/components/spinner"
-import { useRouter } from "next/navigation"
 
 interface OfferDetailParams {
   params: Promise<{
@@ -307,14 +308,16 @@ export default function OfferDetailPage({
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button 
-            variant="outline" 
-            className="gap-2 text-yellow-600"
-            onClick={() => handleUpdateClick()}
+          {offerResData.status === OfferStatusEnum.PENDING && (
+            <Button
+              variant="outline"
+              className="gap-2 text-yellow-600"
+              onClick={() => handleUpdateClick()}
             >
-            <Pencil className="size-4" />
-            Update
-          </Button>
+              <Pencil className="size-4" />
+              Update
+            </Button>
+          )}
           <Button className="gap-2">
             <Megaphone className="size-4" />
             Promote

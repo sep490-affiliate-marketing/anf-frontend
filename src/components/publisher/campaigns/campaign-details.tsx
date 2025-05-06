@@ -126,11 +126,6 @@ function OfferBadge({ model }: { model: string }) {
           color: "bg-purple-50 text-purple-700 border-purple-200",
           tooltip: "Cost Per Click",
         }
-      case "CPL":
-        return {
-          color: "bg-amber-50 text-amber-700 border-amber-200",
-          tooltip: "Cost Per Lead",
-        }
       case "CPS":
         return {
           color: "bg-emerald-50 text-emerald-700 border-emerald-200",

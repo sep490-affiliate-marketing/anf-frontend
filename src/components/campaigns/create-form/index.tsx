@@ -194,6 +194,7 @@ const CampaignForm = () => {
         images: data.images, // Keep the images array
         offers: transformedOffers,
         productUrl: data.baseUrl,
+        categoryId: Number(data.category),
       }
 
       console.log("Campaign data before submission:", campaignData)
@@ -506,7 +507,8 @@ const CampaignForm = () => {
                             >
                               {field.value
                                 ? CAMPAIGN_CATEGORIES.find(
-                                    (category) => category.value === field.value
+                                    (category) =>
+                                      category.id.toString() === field.value
                                   )?.label
                                 : "Select category..."}
                               <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
@@ -521,18 +523,22 @@ const CampaignForm = () => {
                               <CommandGroup>
                                 {CAMPAIGN_CATEGORIES.map((category) => (
                                   <CommandItem
-                                    key={category.value}
-                                    value={category.value}
+                                    key={category.id}
+                                    value={category.id.toString()}
                                     onSelect={() => {
-                                      setValue("category", category.value, {
-                                        shouldValidate: true,
-                                      })
+                                      setValue(
+                                        "category",
+                                        category.id.toString(),
+                                        {
+                                          shouldValidate: true,
+                                        }
+                                      )
                                     }}
                                   >
                                     <Check
                                       className={cn(
                                         "mr-2 size-4",
-                                        category.value === field.value
+                                        category.id.toString() === field.value
                                           ? "opacity-100"
                                           : "opacity-0"
                                       )}

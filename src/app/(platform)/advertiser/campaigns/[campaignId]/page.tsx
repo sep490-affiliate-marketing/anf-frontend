@@ -112,6 +112,15 @@ export default function CampaignDetailsPage({ params: paramsPromise }: Props) {
     },
   } as Campaign
 
+  const calculateCampaignProgress = (startDate: string, endDate: string) => {
+    const start = new Date(startDate).getTime()
+    const end = new Date(endDate).getTime()
+    const now = Date.now()
+
+    // Ensure we don't return negative or over 100% values
+    return Math.min(100, Math.max(0, ((now - start) / (end - start)) * 100))
+  }
+
   const daysLeft = Math.ceil(
     (new Date(campaign.endDate).getTime() - new Date().getTime()) /
       (1000 * 60 * 60 * 24)
@@ -161,19 +170,28 @@ export default function CampaignDetailsPage({ params: paramsPromise }: Props) {
                       <p className="text-sm font-medium text-gray-500">
                         Time Left
                       </p>
-                      <div className="mt-2 flex items-baseline gap-2">
-                        <p className="text-3xl font-semibold text-purple-600">
-                          {daysLeft}
-                        </p>
-                        <p className="text-sm font-medium text-gray-500">
-                          days
-                        </p>
-                      </div>
+                      {daysLeft > 0 ? (
+                        <div className="mt-2 flex items-baseline gap-2">
+                          <p className="text-3xl font-semibold text-purple-600">
+                            {daysLeft}
+                          </p>
+                          <p className="text-sm font-medium text-gray-500">
+                            days
+                          </p>
+                        </div>
+                      ) : (
+                        <p className="text-2xl text-purple-600">Ended</p>
+                      )}
                     </div>
                   </div>
                   <div className="mt-4">
                     <div className="h-2.5 w-full overflow-hidden rounded-full bg-gray-100">
-                      <div className="h-full rounded-full bg-purple-600 transition-all" />
+                      <Progress
+                        value={calculateCampaignProgress(
+                          campaign.startDate,
+                          campaign.endDate
+                        )}
+                      />
                     </div>
                     <div className="mt-2 flex items-center justify-between text-xs">
                       <div className="flex flex-col items-start">
@@ -208,7 +226,7 @@ export default function CampaignDetailsPage({ params: paramsPromise }: Props) {
                 <h3 className="font-medium">Basic Information</h3>
               </div>
               <div className="space-y-4">
-                <TooltipProvider>
+                {/* <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <div className="group space-y-1 rounded-lg p-2 transition-colors hover:bg-gray-50">
@@ -224,7 +242,7 @@ export default function CampaignDetailsPage({ params: paramsPromise }: Props) {
                       <p>Unique identifier for the advertiser</p>
                     </TooltipContent>
                   </Tooltip>
-                </TooltipProvider>
+                </TooltipProvider> */}
                 <div className="space-y-1 rounded-lg p-2 transition-colors hover:bg-gray-50">
                   <p className="text-sm font-medium text-gray-500">
                     Product URL

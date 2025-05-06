@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 
 import { CampaignStatusEnum } from "@/enums/campaign-status"
 import { ChevronLeft, Pencil } from "lucide-react"
@@ -15,7 +16,6 @@ import {
 } from "@/components/ui/tooltip"
 
 import { CampaignStatusBadge } from "@/components/badge/campaign-status-badge"
-import { useRouter } from 'next/navigation';
 
 // Utility function to truncate text
 const truncateText = (text: string, maxLength: number) => {
@@ -98,20 +98,22 @@ function CampaignVerificationUI({ campaign }: { campaign: Campaign }) {
               {truncateText(campaign.description, 120)}
               {/* dangerouslySetInnerHTML={{ __html: campaign.description }} */}
             </p>
-          </div>  
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Button 
-            variant="outline" 
-            className="gap-2 text-yellow-600"
-            onClick={() => {
-              router.push(`/advertiser/campaigns/${campaign.id}/update`)
-            }}
+        {campaign.status === CampaignStatusEnum.PENDING && (
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              className="gap-2 text-yellow-600"
+              onClick={() => {
+                router.push(`/advertiser/campaigns/${campaign.id}/update`)
+              }}
             >
-            <Pencil className="size-4" />
-            Update
-          </Button>
-        </div>
+              <Pencil className="size-4" />
+              Update
+            </Button>
+          </div>
+        )}
       </div>
     </>
   )

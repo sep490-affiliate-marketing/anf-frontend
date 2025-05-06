@@ -1,18 +1,16 @@
 "use client"
 
 export const CAMPAIGN_CATEGORIES = [
-  { value: "fashion", label: "Fashion & Apparel" },
-  { value: "electronics", label: "Electronics & Tech" },
-  { value: "beauty", label: "Beauty & Personal Care" },
-  { value: "health", label: "Health & Wellness" },
-  { value: "home", label: "Home & Furniture" },
-  { value: "travel", label: "Travel & Hospitality" },
-  { value: "food", label: "Food & Beverage" },
-  { value: "education", label: "Education & Learning" },
-  { value: "finance", label: "Finance & Insurance" },
-  { value: "sports", label: "Sports & Fitness" },
-  { value: "gaming", label: "Gaming & Entertainment" },
-  { value: "other", label: "Other" },
+  { id: 1, value: "ecommerce", label: "E-commerce" },
+  { id: 2, value: "finance", label: "Finance & Investment" },
+  { id: 3, value: "health", label: "Health & Wellness" },
+  { id: 4, value: "technology", label: "Technology & Software" },
+  { id: 5, value: "travel", label: "Travel & Hospitality" },
+  { id: 6, value: "education", label: "Education & Online Courses" },
+  { id: 7, value: "gaming", label: "Gaming & Entertainment" },
+  { id: 8, value: "fashion", label: "Fashion & Apparel" },
+  { id: 9, value: "automotive", label: "Automotive" },
+  { id: 10, value: "home", label: "Home & Living" },
 ]
 
 export const PRICE_MODAL = [
