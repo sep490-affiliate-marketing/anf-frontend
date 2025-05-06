@@ -67,3 +67,45 @@ export interface IGenerateStatisticsErrorResponse {
   message: string
   details: string
 }
+
+// Admin Statistics Types
+export interface IAdminUserStatistics {
+  totalUser: number
+  totalActivedUser: number
+  totalDeactivedUser: number
+}
+
+export interface IAdminCampaignStatistics {
+  totalCampaign: number
+  totalApprovedCampaign: number
+  totalRejectedCampaign: number
+}
+
+export interface IAdminTicketStatistics {
+  totalTicket: number
+  totalResolvedTicket: number
+  totalPendingTicket: number
+}
+
+export type IGetAdminUserStatisticsResponse = IBackendRes<IAdminUserStatistics>
+export type IGetAdminCampaignStatisticsResponse =
+  IBackendRes<IAdminCampaignStatistics>
+export type IGetAdminTicketStatisticsResponse =
+  IBackendRes<IAdminTicketStatistics>
+
+export interface IGetPublisherRevenueStatistics {
+  date: string
+  campaigns: {
+    campaignId: number
+    totalRevenue: number
+    totalClick: number
+    totalVerifiedClick: number
+    totalFraudClick: number
+    totalTablet: number
+    totalMobile: number
+    totalComputer: number
+  }[]
+}
+
+export type IGetPublisherRevenueStatisticsResponse =
+  IBackendRes<IGetPublisherRevenueStatistics>
