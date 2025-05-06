@@ -1,10 +1,10 @@
 "use client"
 
-import { useEffect, useState } from "react"
-
 import Link from "next/link"
 import { useParams } from "next/navigation"
 
+import { UserRoleEnum } from "@/enums/user-role"
+import { useAuth } from "@/providers/auth-provider"
 import { format } from "date-fns"
 
 import { formatVNDCurrency } from "@/lib/utils"
@@ -14,6 +14,11 @@ import { useGetTransactionDetail } from "@/hooks/transaction"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 
 import { Spinner } from "@/components/spinner"
+
+// Define error type
+interface ApiError extends Error {
+  code?: string
+}
 
 // Helper functions
 const formatDate = (dateString: string) => {
@@ -46,7 +51,7 @@ const getStatusInfo = (status: number) => {
       }
     default:
       return {
-        label: "Unknown",
+        label: "-",
         color: "text-gray-600",
       }
   }
@@ -54,9 +59,26 @@ const getStatusInfo = (status: number) => {
 
 export default function SuccessPage() {
   const { transactionId } = useParams()
+  const { user } = useAuth()
   const { data, isFetching, error } = useGetTransactionDetail(
     transactionId as string
   )
+
+  // Get role-based transactions route
+  const getTransactionsRoute = () => {
+    if (!user) return "/transactions"
+
+    switch (user.role) {
+      case UserRoleEnum.ADVERTISER:
+        return "/advertiser/transactions"
+      case UserRoleEnum.PUBLISHER:
+        return "/publisher/transactions"
+      case UserRoleEnum.ADMIN:
+        return "/admin/transactions"
+      default:
+        return "/transactions"
+    }
+  }
 
   // Extract transaction data from the response
   const transaction = data?.value
@@ -71,37 +93,110 @@ export default function SuccessPage() {
   }
 
   if (error || !transaction) {
+    const apiError = error as ApiError
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-purple-50 to-white p-4">
-        <div className="mb-6 rounded-full bg-red-100 p-4">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-10 w-10 text-red-600"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <circle cx="12" cy="12" r="10" />
-            <line x1="12" y1="8" x2="12" y2="12" />
-            <line x1="12" y1="16" x2="12.01" y2="16" />
-          </svg>
+      <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-red-50 to-white p-4">
+        <div className="w-full max-w-2xl">
+          <div className="mb-8 text-center">
+            <div className="mx-auto mb-8 flex size-16 items-center justify-center rounded-full bg-red-100">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="size-8 text-red-600"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <circle cx="12" cy="12" r="10" />
+                <line x1="15" y1="9" x2="9" y2="15" />
+                <line x1="9" y1="9" x2="15" y2="15" />
+              </svg>
+            </div>
+            <h1 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+              Transaction Not Found
+            </h1>
+            <p className="mx-auto mt-3 max-w-md text-base text-gray-600 sm:mt-5">
+              We couldn&apos;t find the transaction you&apos;re looking for.
+            </p>
+          </div>
+
+          <Card className="shadow-lg">
+            <CardContent className="pt-6">
+              <div className="space-y-6">
+                <div className="border-l-4 border-red-500 bg-red-50 p-4">
+                  <div className="flex">
+                    <div className="shrink-0">
+                      <svg
+                        className="size-5 text-red-400"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                        aria-hidden="true"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </div>
+                    <div className="ml-3">
+                      <h3 className="text-sm font-medium text-red-800">
+                        Error Details
+                      </h3>
+                      <div className="mt-2 text-sm text-red-700">
+                        <p>
+                          {apiError?.message ||
+                            "Transaction could not be found"}
+                        </p>
+                        <p className="mt-1 text-xs text-red-600">
+                          Error code:{" "}
+                          {apiError?.code || "TRANSACTION_NOT_FOUND"}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="rounded-md bg-gray-50 p-4">
+                  <h3 className="text-sm font-medium text-gray-900">
+                    What you can do:
+                  </h3>
+                  <div className="mt-2 text-sm text-gray-700">
+                    <ul className="list-disc space-y-1 pl-5">
+                      <li>Check if the transaction ID is correct</li>
+                      <li>Try refreshing the page</li>
+                      <li>View your transaction history</li>
+                      <li>Contact support if the issue persists</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+
+            <CardFooter className="flex flex-col space-y-3 border-t p-6 sm:flex-row sm:justify-center sm:space-x-4 sm:space-y-0">
+              <Link
+                href={getTransactionsRoute()}
+                className="inline-flex w-full items-center justify-center rounded-md bg-red-600 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 sm:w-auto"
+              >
+                View Transaction History
+              </Link>
+              <Link
+                href={user ? `/${user.role.toLowerCase()}` : "/"}
+                className="inline-flex w-full items-center justify-center rounded-md bg-white px-6 py-3 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 sm:w-auto"
+              >
+                Return to Home
+              </Link>
+            </CardFooter>
+          </Card>
+
+          <div className="mt-8 text-center">
+            <p className="mt-8 text-xs text-gray-400">
+              © {new Date().getFullYear()} Affiliate Network
+            </p>
+          </div>
         </div>
-        <h1 className="mb-2 text-2xl font-bold text-gray-900">
-          Transaction Not Found
-        </h1>
-        <p className="mb-6 text-center text-gray-600">
-          {error?.message ||
-            "We couldn't find the transaction you're looking for."}
-        </p>
-        <Link
-          href="/"
-          className="inline-flex items-center justify-center rounded-full bg-purple-600 px-8 py-3 text-sm font-medium text-white shadow-sm transition-colors hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
-        >
-          Return to Home
-        </Link>
       </div>
     )
   }
@@ -111,13 +206,13 @@ export default function SuccessPage() {
   return (
     <div className="bg-gradient-to-b from-purple-50 to-white">
       <div
-        className={`mx-auto max-w-2xl transform px-4 transition-all duration-500 ease-out sm:px-6 sm:py-16 lg:px-8`}
+        className={`mx-auto max-w-2xl px-4 transition-all duration-500 ease-out sm:px-6 sm:py-16 lg:px-8`}
       >
         <div className="text-center">
-          <div className="mx-auto mb-8 flex h-16 w-16 items-center justify-center rounded-full bg-purple-100">
+          <div className="mx-auto mb-8 flex size-16 items-center justify-center rounded-full bg-purple-100">
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className="h-8 w-8 text-purple-600"
+              className="size-8 text-purple-600"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -164,19 +259,14 @@ export default function SuccessPage() {
                   {formatTime(transaction.createdAt)}
                 </p>
               </div>
-              <div>
-                <p className="text-sm font-medium text-gray-500">Wallet ID</p>
-                <p className="mt-1 text-sm text-gray-900">
-                  {transaction.walletId}
-                </p>
-              </div>
+
               <div>
                 <p className="text-sm font-medium text-gray-500">Status</p>
                 <p
                   className={`mt-1 flex items-center text-sm font-medium ${statusInfo.color}`}
                 >
                   <svg
-                    className="mr-1.5 h-4 w-4 flex-shrink-0"
+                    className="mr-1.5 size-4 shrink-0"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                     xmlns="http://www.w3.org/2000/svg"
@@ -216,14 +306,14 @@ export default function SuccessPage() {
 
         <div className="mt-12 flex flex-col items-center justify-center space-y-4">
           <Link
-            href="/wallet"
+            href={getTransactionsRoute()}
             className="inline-flex items-center justify-center rounded-full bg-purple-600 px-8 py-3 text-sm font-medium text-white shadow-sm transition-colors duration-200 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
           >
             View Transaction History
           </Link>
 
           <Link
-            href="/"
+            href={user ? `/${user.role.toLowerCase()}` : "/"}
             className="text-sm font-medium text-purple-600 hover:text-purple-500"
           >
             Return to Home
@@ -237,4 +327,3 @@ export default function SuccessPage() {
     </div>
   )
 }
-

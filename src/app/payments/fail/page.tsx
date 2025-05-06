@@ -3,22 +3,41 @@
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 
+import { UserRoleEnum } from "@/enums/user-role"
+import { useAuth } from "@/providers/auth-provider"
+
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 
 export default function PaymentFailPage() {
   const searchParams = useSearchParams()
   const errorMessage =
     searchParams.get("message") || "Your payment could not be processed"
-  const errorCode = searchParams.get("code") || "unknown_error"
+  const errorCode = searchParams.get("code") || "failed_payment"
+  const { user } = useAuth()
+  // Get role-based transactions route
+  const getTransactionsRoute = () => {
+    if (!user) return "/transactions"
+
+    switch (user.role) {
+      case UserRoleEnum.ADVERTISER:
+        return "/advertiser/transactions"
+      case UserRoleEnum.PUBLISHER:
+        return "/publisher/transactions"
+      case UserRoleEnum.ADMIN:
+        return "/admin/transactions"
+      default:
+        return "/transactions"
+    }
+  }
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-red-50 to-white p-4">
       <div className="w-full max-w-2xl">
         <div className="mb-8 text-center">
-          <div className="mx-auto mb-8 flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
+          <div className="mx-auto mb-8 flex size-16 items-center justify-center rounded-full bg-red-100">
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className="h-8 w-8 text-red-600"
+              className="size-8 text-red-600"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -45,9 +64,9 @@ export default function PaymentFailPage() {
             <div className="space-y-6">
               <div className="border-l-4 border-red-500 bg-red-50 p-4">
                 <div className="flex">
-                  <div className="flex-shrink-0">
+                  <div className="shrink-0">
                     <svg
-                      className="h-5 w-5 text-red-400"
+                      className="size-5 text-red-400"
                       viewBox="0 0 20 20"
                       fill="currentColor"
                       aria-hidden="true"
@@ -91,13 +110,13 @@ export default function PaymentFailPage() {
 
           <CardFooter className="flex flex-col space-y-3 border-t p-6 sm:flex-row sm:justify-center sm:space-x-4 sm:space-y-0">
             <Link
-              href="/payments"
+              href={getTransactionsRoute()}
               className="inline-flex w-full items-center justify-center rounded-md bg-red-600 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 sm:w-auto"
             >
-              Try Again
+              View Transaction History
             </Link>
             <Link
-              href="/"
+              href={user ? `/${user.role.toLowerCase()}` : "/"}
               className="inline-flex w-full items-center justify-center rounded-md bg-white px-6 py-3 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 sm:w-auto"
             >
               Return to Home
@@ -109,7 +128,7 @@ export default function PaymentFailPage() {
           <p className="text-sm text-gray-500">
             Need help?{" "}
             <Link
-              href="/contact"
+              href="mailto:support.affiliate-network@gmail.com"
               className="font-medium text-red-600 hover:text-red-500"
             >
               Contact our support team
