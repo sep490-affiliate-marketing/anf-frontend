@@ -92,6 +92,10 @@ export const offerQueryKeys = {
         "list",
         { page, limit },
       ] as const,
+      update: (id: string) =>
+        [...offerQueryKeys.origin, "advertiser", "update", id] as const,
+      details: (offerId: string) =>
+        [...offerQueryKeys.origin, "advertiser", "details", offerId] as const,
   },
 }
 
