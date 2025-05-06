@@ -3,7 +3,7 @@
 import Link from "next/link"
 
 import { CampaignStatusEnum } from "@/enums/campaign-status"
-import { ChevronLeft } from "lucide-react"
+import { ChevronLeft, Pencil } from "lucide-react"
 import "yet-another-react-lightbox/styles.css"
 
 import { Button } from "@/components/ui/button"
@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/tooltip"
 
 import { CampaignStatusBadge } from "@/components/badge/campaign-status-badge"
+import { useRouter } from 'next/navigation';
 
 // Utility function to truncate text
 const truncateText = (text: string, maxLength: number) => {
@@ -57,6 +58,7 @@ interface Campaign {
   thumbnail: string | null
 }
 function CampaignVerificationUI({ campaign }: { campaign: Campaign }) {
+  const router = useRouter()
   return (
     <>
       {/* Campaign Action Bar - Persistent at top of page */}
@@ -96,7 +98,19 @@ function CampaignVerificationUI({ campaign }: { campaign: Campaign }) {
               {truncateText(campaign.description, 120)}
               {/* dangerouslySetInnerHTML={{ __html: campaign.description }} */}
             </p>
-          </div>
+          </div>  
+        </div>
+        <div className="flex items-center gap-2">
+          <Button 
+            variant="outline" 
+            className="gap-2 text-yellow-600"
+            onClick={() => {
+              router.push(`/advertiser/campaigns/${campaign.id}/update`)
+            }}
+            >
+            <Pencil className="size-4" />
+            Update
+          </Button>
         </div>
       </div>
     </>

@@ -59,15 +59,19 @@ export const useAddCredit = () => {
 
 export const useGetWalletHistory = (
   userCode: string,
-  page: number,
-  limit: number
+  pageNumber: number,
+  pageSize: number
 ) => {
   return useQuery({
-    queryKey: transactionQueryKeys.walletHistory(userCode, page, limit),
+    queryKey: transactionQueryKeys.walletHistory(
+      userCode,
+      pageNumber,
+      pageSize
+    ),
     queryFn: async () => {
       try {
         const { data } = await apiClient.get<IGetWalletHistoryResponse>(
-          `/api/affiliate-network/users/${userCode}/transactions?page=${page}&limit=${limit}`
+          `/api/affiliate-network/users/${userCode}/transactions?pageNumber=${pageNumber}&pageSize=${pageSize}`
         )
         return data
       } catch (error) {
@@ -131,14 +135,14 @@ export const useWithdrawRequest = () => {
 }
 
 export const useAdminWithdrawRequestList = (
-  page: number,
+  pageNumber: number,
   pageSize: number,
   startDate: string,
   endDate: string
 ) => {
   return useQuery({
     queryKey: transactionQueryKeys.admin.withdrawRequestList(
-      page,
+      pageNumber,
       pageSize,
       startDate,
       endDate
@@ -146,7 +150,7 @@ export const useAdminWithdrawRequestList = (
     queryFn: async () => {
       try {
         const queryString = qs.stringify({
-          pageNumber: page ?? 1,
+          pageNumber: pageNumber ?? 1,
           pageSize: pageSize ?? 10,
           fromDate: startDate ?? "",
           toDate: endDate ?? "",
@@ -166,14 +170,14 @@ export const useAdminWithdrawRequestList = (
 }
 
 export const useBatchPaymentData = (
-  page: number,
+  pageNumber: number,
   pageSize: number,
   fromDate: string,
   toDate: string
 ) => {
   return useQuery({
     queryKey: transactionQueryKeys.batchPaymentData(
-      page,
+      pageNumber,
       pageSize,
       fromDate,
       toDate
@@ -181,7 +185,7 @@ export const useBatchPaymentData = (
     queryFn: async () => {
       try {
         const queryString = qs.stringify({
-          pageNumber: page ?? 1,
+          pageNumber: pageNumber ?? 1,
           pageSize: pageSize ?? 10,
           fromDate: fromDate ?? "",
           toDate: toDate ?? "",

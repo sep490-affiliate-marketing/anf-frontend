@@ -17,6 +17,7 @@ import {
   Info,
   Loader2,
   Megaphone,
+  Pencil,
   PieChart,
   Settings,
   User,
@@ -73,6 +74,7 @@ import { OfferStatusBadge } from "@/components/badge/offer-status-badge"
 import { EmptyTable } from "@/components/data-table/empty-table"
 import { Preview } from "@/components/editor/preview"
 import { Spinner } from "@/components/spinner"
+import { useRouter } from "next/navigation"
 
 interface OfferDetailParams {
   params: Promise<{
@@ -116,6 +118,7 @@ export default function OfferDetailPage({
   const [rejectDialogOpen, setRejectDialogOpen] = useState(false)
   const [selectedPublisher, setSelectedPublisher] = useState<any>(null)
   const [rejectReason, setRejectReason] = useState("")
+  const router = useRouter()
 
   // Unwrap params using React.use() as recommended by Next.js
   const params = React.use(paramsPromise)
@@ -248,7 +251,9 @@ export default function OfferDetailPage({
       }
     )
   }
-
+  const handleUpdateClick = () => {
+    router.push(`/advertiser/campaigns/${campaignId}/offers/${offerId}/update`)
+  }
   const handleRejectConfirm = () => {
     if (!selectedPublisher || !rejectReason.trim()) return
 
@@ -302,9 +307,13 @@ export default function OfferDetailPage({
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" className="gap-2">
-            <Settings className="size-4" />
-            Settings
+          <Button 
+            variant="outline" 
+            className="gap-2 text-yellow-600"
+            onClick={() => handleUpdateClick()}
+            >
+            <Pencil className="size-4" />
+            Update
           </Button>
           <Button className="gap-2">
             <Megaphone className="size-4" />

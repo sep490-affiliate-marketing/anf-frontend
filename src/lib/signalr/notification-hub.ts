@@ -26,6 +26,8 @@ class NotificationHub {
   private readonly hubUrl: string
   private queryClient: QueryClient
   private userRole: string
+  private lastProfileUpdateToast: number = 0
+  private readonly TOAST_DEBOUNCE_TIME = 5000 // 5 seconds
 
   constructor(queryClient: QueryClient, userRole: string) {
     this.hubUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}/notiHub`
@@ -135,16 +137,21 @@ class NotificationHub {
     this.connection.on(
       "UserProfileUpdated",
       (message: UserProfileNotification) => {
-        toast.info("Profile Updated", {
-          description: "Your wallet has been updated",
-          duration: 5000,
-          action: {
-            label: "View Wallet",
-            onClick: () => {
-              window.location.href = `/${this.userRole === "Advertiser" ? "advertiser" : "publisher"}/transactions`
+        const now = Date.now()
+        if (now - this.lastProfileUpdateToast >= this.TOAST_DEBOUNCE_TIME) {
+          toast.info("Profile Updated", {
+            description: "Your wallet has been updated",
+            duration: 5000,
+            action: {
+              label: "View Wallet",
+              onClick: () => {
+                window.location.href = `/${this.userRole === "Advertiser" ? "advertiser" : "publisher"}/transactions`
+              },
             },
-          },
-        })
+          })
+          this.lastProfileUpdateToast = now
+        }
+
         this.queryClient.invalidateQueries({
           queryKey: authQueryKeys.me(),
         })

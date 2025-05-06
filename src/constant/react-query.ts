@@ -14,30 +14,35 @@ export const campaignQueryKeys = {
   global: {
     details: (campaignId: string) =>
       [...campaignQueryKeys.origin, "global", "details", campaignId] as const,
-    listActive: (page: number, limit: number) =>
+    listActive: (page: number, pageSize: number) =>
       [
         ...campaignQueryKeys.origin,
         "global",
         "active",
-        { page, limit },
+        { page, pageSize },
       ] as const,
   },
 
   admin: {
-    list: (page: number, limit: number) =>
-      [...campaignQueryKeys.origin, "admin", "list", { page, limit }] as const,
+    list: (page: number, pageSize: number) =>
+      [
+        ...campaignQueryKeys.origin,
+        "admin",
+        "list",
+        { page, pageSize },
+      ] as const,
     details: (id: string) =>
       [...campaignQueryKeys.origin, "admin", "details", id] as const,
   },
 
   advertiser: {
-    list: (advertiserCode: string, page: number, limit: number) =>
+    list: (advertiserCode: string, page: number, pageSize: number) =>
       [
         ...campaignQueryKeys.origin,
         "advertiser",
         advertiserCode,
         "list",
-        { page, limit },
+        { page, pageSize },
       ] as const,
     details: (id: string) =>
       [...campaignQueryKeys.origin, "advertiser", "details", id] as const,
@@ -48,13 +53,17 @@ export const campaignQueryKeys = {
   },
 
   publisher: {
-    listOwnedByPublisher: (publisherId: number, page: number, limit: number) =>
+    listOwnedByPublisher: (
+      publisherId: number,
+      page: number,
+      pageSize: number
+    ) =>
       [
         ...campaignQueryKeys.origin,
         "publisher",
         publisherId,
         "list",
-        { page, limit },
+        { page, pageSize },
       ] as const,
     details: (campaignId: number) =>
       [
@@ -70,8 +79,8 @@ export const offerQueryKeys = {
   origin: ["offers"] as const,
 
   global: {
-    list: (page: number, limit: number) =>
-      [...offerQueryKeys.origin, "global", "list", { page, limit }] as const,
+    list: (page: number, pageSize: number) =>
+      [...offerQueryKeys.origin, "global", "list", { page, pageSize }] as const,
     details: (offerId: number) =>
       [...offerQueryKeys.origin, "global", "details", offerId] as const,
     publisherInOffer: (offerId: number) =>
@@ -84,14 +93,18 @@ export const offerQueryKeys = {
   },
 
   advertiser: {
-    list: (advertiserId: number, page: number, limit: number) =>
+    list: (advertiserId: number, page: number, pageSize: number) =>
       [
         ...offerQueryKeys.origin,
         "advertiser",
         advertiserId,
         "list",
-        { page, limit },
+        { page, pageSize },
       ] as const,
+    update: (id: string) =>
+      [...offerQueryKeys.origin, "advertiser", "update", id] as const,
+    details: (offerId: string) =>
+      [...offerQueryKeys.origin, "advertiser", "details", offerId] as const,
   },
 }
 
@@ -103,12 +116,12 @@ export const bankQueryKeys = {
 
 export const transactionQueryKeys = {
   origin: ["transactions"] as const,
-  walletHistory: (userCode: string, page: number, limit: number) =>
+  walletHistory: (userCode: string, page: number, pageSize: number) =>
     [
       ...transactionQueryKeys.origin,
       "walletHistory",
       userCode,
-      { page, limit },
+      { page, pageSize },
     ] as const,
   deposit: () => [...transactionQueryKeys.origin, "deposit"] as const,
   withdraw: () => [...transactionQueryKeys.origin, "withdraw"] as const,
@@ -130,7 +143,7 @@ export const transactionQueryKeys = {
   admin: {
     withdrawRequestList: (
       page: number,
-      limit: number,
+      pageSize: number,
       startDate: string,
       endDate: string
     ) =>
@@ -138,7 +151,7 @@ export const transactionQueryKeys = {
         ...transactionQueryKeys.origin,
         "admin",
         "withdrawRequestList",
-        { page, limit, startDate, endDate },
+        { page, pageSize, startDate, endDate },
       ] as const,
     updateWithdrawalStatus: () =>
       [
