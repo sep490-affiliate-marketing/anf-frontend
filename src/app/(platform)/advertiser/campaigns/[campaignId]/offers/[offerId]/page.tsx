@@ -640,17 +640,41 @@ export default function OfferDetailPage({
                             </TableCell>
                             <TableCell>
                               <div className="flex flex-wrap gap-1">
-                                {publisher.trafficSources.map(
-                                  (source: string) => (
+                                {publisher.trafficSources.map((source: any) => {
+                                  const getBadgeStyle = (provider: string) => {
+                                    switch (provider.toLowerCase()) {
+                                      case "tiktok":
+                                        return "bg-black text-white hover:bg-black/90"
+                                      case "instagram":
+                                        return "bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 text-white hover:opacity-90"
+                                      case "youtube":
+                                        return "bg-red-600 text-white hover:bg-red-700"
+                                      case "facebook":
+                                        return "bg-blue-600 text-white hover:bg-blue-700"
+                                      case "twitter":
+                                      case "x":
+                                        return "bg-black text-white hover:bg-black/90"
+                                      default:
+                                        return "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                                    }
+                                  }
+
+                                  return (
                                     <Badge
-                                      key={source}
+                                      key={`${source.id}-${source.provider}`}
                                       variant="secondary"
-                                      className="text-xs"
+                                      className={`text-xs ${getBadgeStyle(source.provider)}`}
                                     >
-                                      {source}
+                                      <Link
+                                        href={source.sourceUrl}
+                                        target="_blank"
+                                        className="flex items-center gap-1"
+                                      >
+                                        {source.provider}
+                                      </Link>
                                     </Badge>
                                   )
-                                )}
+                                })}
                               </div>
                             </TableCell>
                             <TableCell>
