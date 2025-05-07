@@ -337,14 +337,17 @@ export default function CampaignDetailsPage({ params: paramsPromise }: Props) {
                     />
                   </div> */}
                   <Progress
-                    value={
-                      (campaign.balance /
-                        campaign.offers.reduce(
-                          (sum, offer) => sum + offer.budget,
-                          0
-                        )) *
-                      100
-                    }
+                    value={Number(
+                      (
+                        100 -
+                        (campaign.balance /
+                          campaign.offers.reduce(
+                            (sum, offer) => sum + offer.budget,
+                            0
+                          )) *
+                          100
+                      ).toFixed(2)
+                    )}
                     className="h-2.5 w-full overflow-hidden rounded-full bg-gray-100"
                   />
                 </div>
