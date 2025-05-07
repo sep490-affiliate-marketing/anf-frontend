@@ -1,13 +1,6 @@
 import { eachDayOfInterval, format } from "date-fns"
 import { Info } from "lucide-react"
-import {
-  CartesianGrid,
-  Line,
-  LineChart,
-  ResponsiveContainer,
-  XAxis,
-  YAxis,
-} from "recharts"
+import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {

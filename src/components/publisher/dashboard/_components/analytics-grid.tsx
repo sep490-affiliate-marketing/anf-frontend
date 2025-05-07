@@ -1,4 +1,3 @@
-import { ArrowUpRight, Check, Info, Shield } from "lucide-react"
 import { Cell, Pie, PieChart, ResponsiveContainer } from "recharts"
 
 import { formatVNDCurrency } from "@/lib/utils"

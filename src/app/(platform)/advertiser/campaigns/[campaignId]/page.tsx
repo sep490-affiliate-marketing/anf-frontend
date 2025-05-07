@@ -16,12 +16,6 @@ import { useGetCampaignById } from "@/hooks/campaign"
 
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
 
 import { CampaignHeader } from "@/components/advertiser/campaigns/detail/campaign-header"
 import { CampaignGallery } from "@/components/advertiser/campaigns/detail/campaign-image-gallery"
