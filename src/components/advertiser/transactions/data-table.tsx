@@ -11,6 +11,7 @@ import {
   RefreshCw,
   Search,
 } from "lucide-react"
+import { parseAsInteger, useQueryState } from "nuqs"
 
 import { cn, formatVNDCurrency } from "@/lib/utils"
 
@@ -39,8 +40,11 @@ import { Spinner } from "@/components/spinner"
 
 export default function TransactionDataTable() {
   const { user } = useAuth()
-  const [page, setPage] = useState(1)
-  const [limit, setLimit] = useState(10)
+  const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1))
+  const [limit, setLimit] = useQueryState(
+    "limit",
+    parseAsInteger.withDefault(10)
+  )
   const [searchTerm, setSearchTerm] = useState("")
   const [isRefreshing, setIsRefreshing] = useState(false)
 
