@@ -65,7 +65,7 @@ export function AnalyticsGrid({
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-8 w-8">
+                  <Button variant="ghost" size="icon" className="size-8">
                     <span className="sr-only">View click details</span>
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -114,7 +114,7 @@ export function AnalyticsGrid({
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-8 w-8">
+                  <Button variant="ghost" size="icon" className="size-8">
                     <span className="sr-only">View revenue details</span>
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -163,7 +163,7 @@ export function AnalyticsGrid({
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-8 w-8">
+                  <Button variant="ghost" size="icon" className="size-8">
                     <span className="sr-only">
                       View verified clicks details
                     </span>
@@ -284,4 +284,3 @@ export function AnalyticsGrid({
     </div>
   )
 }
-
