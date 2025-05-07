@@ -253,7 +253,7 @@ export const useGetActiveCampaigns = (
 ) => {
   const {
     pageNumber = 1,
-    pageSize = 10,
+    pageSize = 9,
     category,
     search,
     pricingModel,

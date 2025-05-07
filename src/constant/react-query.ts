@@ -15,7 +15,7 @@ export const campaignQueryKeys = {
     details: (campaignId: string) =>
       [...campaignQueryKeys.origin, "global", "details", campaignId] as const,
     listActive: (
-      page: number,
+      pageNumber: number,
       pageSize: number,
       filters?: {
         category?: string
@@ -28,7 +28,7 @@ export const campaignQueryKeys = {
         ...campaignQueryKeys.origin,
         "global",
         "active",
-        { page, pageSize, ...filters },
+        { pageNumber, pageSize, ...filters },
       ] as const,
   },
 
