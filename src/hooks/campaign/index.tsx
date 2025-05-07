@@ -29,6 +29,7 @@ import {
 } from "@/types/campaign.type"
 
 import apiClient from "@/lib/api/client"
+import { extractApiError } from "@/lib/api/error-handler"
 
 export const useGetCampaignById = (campaignId: string) => {
   return useQuery({
@@ -520,4 +521,38 @@ export const useUpdateCampaignForm = (id: number) => {
     onUpdateCampaign,
     errorMessage,
   }
+}
+
+export const useGetCampaignsByDate = (
+  pageNumber: number = 1,
+  pageSize: number = 10,
+  from: string,
+  to: string
+) => {
+  return useQuery({
+    queryKey: campaignQueryKeys.global.listByDate(
+      pageNumber,
+      pageSize,
+      from,
+      to
+    ),
+    queryFn: async () => {
+      try {
+        const queryString = qs.stringify({
+          pageNumber,
+          pageSize,
+          from,
+          to,
+        })
+        const { data } = await apiClient.get<IGetAllCampaignsResponse>(
+          `/api/affiliate-network/campaigns/date?${queryString}`
+        )
+        return data
+      } catch (error) {
+        const errRes = extractApiError(error)
+        throw new Error(errRes.details ?? "Failed to fetch campaigns")
+      }
+    },
+    enabled: !!from && !!to,
+  })
 }

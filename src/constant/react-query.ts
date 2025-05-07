@@ -21,6 +21,13 @@ export const campaignQueryKeys = {
         "active",
         { page, pageSize },
       ] as const,
+    listByDate: (page: number, pageSize: number, from: string, to: string) =>
+      [
+        ...campaignQueryKeys.origin,
+        "global",
+        "byDate",
+        { page, pageSize, from, to },
+      ] as const,
   },
 
   admin: {
@@ -225,4 +232,3 @@ export const adminStatisticsQueryKeys = {
       { from, to },
     ] as const,
 } as const
-
