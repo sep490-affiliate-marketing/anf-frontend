@@ -457,14 +457,25 @@ export function CampaignDetails({ campaignId }: { campaignId: number }) {
                     {offer.description}
                   </h3>
 
-                  <div className="grid gap-6 md:grid-cols-2">
-                    <div>
-                      <p className="text-xs text-gray-500">Payout</p>
-                      <p className="text-lg font-medium">
-                        {formatVNDCurrency(offer.bid)}
-                      </p>
+                  {offer.pricingModel === "CPS" ? (
+                    <div className="grid gap-6 md:grid-cols-2">
+                      <div>
+                        <p className="text-xs text-gray-500">Commission</p>
+                        <p className="text-lg font-medium">
+                          {offer.commissionRate}%
+                        </p>
+                      </div>
                     </div>
-                  </div>
+                  ) : (
+                    <div className="grid gap-6 md:grid-cols-2">
+                      <div>
+                        <p className="text-xs text-gray-500">Payout</p>
+                        <p className="text-lg font-medium">
+                          {formatVNDCurrency(offer.bid)}
+                        </p>
+                      </div>
+                    </div>
+                  )}
 
                   {offer.stepInfo && (
                     <div className="mt-4">
