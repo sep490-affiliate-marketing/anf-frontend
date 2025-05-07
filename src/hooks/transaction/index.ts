@@ -317,3 +317,47 @@ export const useGetTransactionDetail = (transactionId: string) => {
     enabled: !!transactionId,
   })
 }
+
+export interface IFraudClick {
+  id: number
+  clickId: string
+  reason: string
+  detectedTime: string
+  offerId: number
+}
+
+export interface IGetFraudClicksResponse {
+  isSuccess: boolean
+  message: string
+  value: {
+    pageNumber: number
+    pageSize: number
+    totalPages: number
+    totalRecords: number
+    data: IFraudClick[]
+    hasNextPage: boolean
+    hasPreviousPage: boolean
+  }
+}
+
+export const useGetFraudClicks = (
+  page: number,
+  limit: number,
+  from: string,
+  to: string
+) => {
+  return useQuery({
+    queryKey: ["fraud-clicks", page, limit, from, to],
+    queryFn: async () => {
+      try {
+        const { data } = await apiClient.get<IGetFraudClicksResponse>(
+          `/api/affiliate-network/frauds?pageNumber=${page}&pageSize=${limit}&from=${from}&to=${to}`
+        )
+        return data
+      } catch (error) {
+        const errRes = extractApiError(error)
+        throw new Error(errRes?.details ?? "Failed to get fraud clicks")
+      }
+    },
+  })
+}
