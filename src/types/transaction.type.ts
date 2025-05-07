@@ -12,6 +12,7 @@ export interface IWalletTransaction {
   campaignId: number | null
   subscriptionId: number | null
   isWithdrawal: boolean
+  reason: string
   status: TransactionStatusEnum
   createdAt: string
 }
