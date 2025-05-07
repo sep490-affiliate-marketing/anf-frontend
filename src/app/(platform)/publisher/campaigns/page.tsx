@@ -6,6 +6,7 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 
+import { CAMPAIGN_CATEGORIES } from "@/constant/campaign"
 import { format } from "date-fns"
 import { vi } from "date-fns/locale"
 import {
@@ -62,15 +63,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
-// Filter categories for campaigns
-const categories = [
-  "All",
-  "E-commerce",
-  "Entertainment",
-  "Travel",
-  "Technology",
-  "Finance",
-]
 const pricingModels = ["All", "CPA", "CPC", "CPS"]
 const sortOptions = [
   { label: "Recent first", value: "recent" },
@@ -281,9 +273,10 @@ function CampaignFilters({
               <SelectValue placeholder="Category" />
             </SelectTrigger>
             <SelectContent>
-              {categories.map((category) => (
-                <SelectItem key={category} value={category}>
-                  {category}
+              <SelectItem value="All">All Categories</SelectItem>
+              {CAMPAIGN_CATEGORIES.map((category) => (
+                <SelectItem key={category.id} value={category.id.toString()}>
+                  {category.label}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -324,18 +317,18 @@ function CampaignFilters({
                   <div>
                     <h3 className="mb-2 text-sm font-medium">Categories</h3>
                     <div className="flex flex-wrap gap-2">
-                      {categories.map((category) => (
+                      {CAMPAIGN_CATEGORIES.map((category) => (
                         <Badge
-                          key={category}
+                          key={category.id}
                           variant={
-                            selectedCategory === category
+                            selectedCategory === category.value
                               ? "default"
                               : "outline"
                           }
                           className="cursor-pointer transition-colors"
-                          onClick={() => onCategoryChange(category)}
+                          onClick={() => onCategoryChange(category.value)}
                         >
-                          {category}
+                          {category.label}
                         </Badge>
                       ))}
                     </div>
@@ -590,6 +583,8 @@ function CampaignsContent() {
   const [selectedPricingModel, setSelectedPricingModel] = useState("All")
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
   const [sortBy, setSortBy] = useState("recent")
+  const [page, setPage] = useState(1)
+  const [allCampaigns, setAllCampaigns] = useState<ICampaign[]>([])
 
   // Sync URL params with state
   useEffect(() => {
@@ -599,6 +594,7 @@ function CampaignsContent() {
     setSelectedPricingModel(params.get("model") || "All")
     setViewMode((params.get("view") as "grid" | "list") || "grid")
     setSortBy(params.get("sort") || "recent")
+    setPage(Number(params.get("page")) || 1)
   }, [searchParams])
 
   // Update URL with state
@@ -611,6 +607,7 @@ function CampaignsContent() {
       params.set("model", selectedPricingModel)
     if (viewMode !== "grid") params.set("view", viewMode)
     if (sortBy !== "recent") params.set("sort", sortBy)
+    if (page > 1) params.set("page", page.toString())
 
     router.push(`?${params.toString()}`, { scroll: false })
   }
@@ -618,19 +615,58 @@ function CampaignsContent() {
   // Update URL when filters change
   useEffect(() => {
     updateUrlParams()
-  }, [searchQuery, selectedCategory, selectedPricingModel, viewMode, sortBy])
+  }, [
+    searchQuery,
+    selectedCategory,
+    selectedPricingModel,
+    viewMode,
+    sortBy,
+    page,
+  ])
 
-  const { data: campaignsData, isLoading, error } = useGetActiveCampaigns()
-  const campaigns: ICampaign[] = campaignsData?.value?.data || []
+  // Reset campaigns when filters change
+  useEffect(() => {
+    setAllCampaigns([])
+    setPage(1)
+  }, [searchQuery, selectedCategory, selectedPricingModel, sortBy])
+
+  const {
+    data: campaignsData,
+    isLoading,
+    error,
+  } = useGetActiveCampaigns({
+    pageNumber: page,
+    pageSize: 10,
+    category: selectedCategory !== "All" ? selectedCategory : undefined,
+    search: searchQuery || undefined,
+    pricingModel:
+      selectedPricingModel !== "All" ? selectedPricingModel : undefined,
+    sortBy,
+  })
+
+  // Update allCampaigns when new data arrives
+  useEffect(() => {
+    if (campaignsData?.value?.data) {
+      if (page === 1) {
+        setAllCampaigns(campaignsData.value.data)
+      } else {
+        setAllCampaigns((prev) => [...prev, ...campaignsData.value.data])
+      }
+    }
+  }, [campaignsData?.value?.data, page])
+
+  const hasNextPage = campaignsData?.value?.hasNextPage || false
+  const hasPreviousPage = campaignsData?.value?.hasPreviousPage || false
 
   // Filter campaigns based on search query and filters
-  const filteredCampaigns = campaigns.filter((campaign: ICampaign) => {
+  const filteredCampaigns = allCampaigns.filter((campaign: ICampaign) => {
     const matchesSearch =
       campaign.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       campaign.description.toLowerCase().includes(searchQuery.toLowerCase())
 
     const matchesCategory =
-      selectedCategory === "All" || campaign.categoryName === selectedCategory
+      selectedCategory === "All" ||
+      campaign.categoryId?.toString() === selectedCategory
 
     const matchesPricingModel =
       selectedPricingModel === "All" ||
@@ -656,6 +692,12 @@ function CampaignsContent() {
     }
     return 0
   })
+
+  const loadMore = () => {
+    if (hasNextPage) {
+      setPage((prev) => prev + 1)
+    }
+  }
 
   return (
     <div className="space-y-6 p-6">
@@ -687,7 +729,7 @@ function CampaignsContent() {
       />
 
       {/* Campaigns Grid/List */}
-      {isLoading ? (
+      {isLoading && page === 1 ? (
         <CampaignSkeletons viewMode={viewMode} />
       ) : error ? (
         <div className="flex h-[40vh] flex-col items-center justify-center rounded-lg border border-destructive/20 bg-destructive/5 p-6">
@@ -709,28 +751,47 @@ function CampaignsContent() {
         </div>
       ) : filteredCampaigns.length === 0 ? (
         <EmptyState />
-      ) : viewMode === "grid" ? (
-        <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3">
-          {sortedCampaigns.map((campaign) => (
-            <CampaignCard key={campaign.id} campaign={campaign} />
-          ))}
-        </div>
       ) : (
-        <div className="space-y-4">
-          {sortedCampaigns.map((campaign) => (
-            <CampaignListItem key={campaign.id} campaign={campaign} />
-          ))}
-        </div>
-      )}
+        <>
+          {viewMode === "grid" ? (
+            <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3">
+              {sortedCampaigns.map((campaign) => (
+                <CampaignCard key={campaign.id} campaign={campaign} />
+              ))}
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {sortedCampaigns.map((campaign) => (
+                <CampaignListItem key={campaign.id} campaign={campaign} />
+              ))}
+            </div>
+          )}
 
-      {/* Pagination placeholder for future implementation */}
-      {filteredCampaigns.length > 0 && (
-        <div className="flex items-center justify-center pt-6">
-          <Button variant="outline" size="sm" className="gap-1">
-            <span>Load more campaigns</span>
-            <ChevronDown className="size-3.5" />
-          </Button>
-        </div>
+          {/* Load More Button */}
+          {hasNextPage && (
+            <div className="flex items-center justify-center pt-6">
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1"
+                onClick={loadMore}
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <span>Loading...</span>
+                    <ChevronDown className="size-3.5 animate-bounce" />
+                  </>
+                ) : (
+                  <>
+                    <span>Load more campaigns</span>
+                    <ChevronDown className="size-3.5" />
+                  </>
+                )}
+              </Button>
+            </div>
+          )}
+        </>
       )}
     </div>
   )

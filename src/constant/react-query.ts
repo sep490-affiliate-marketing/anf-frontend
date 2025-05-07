@@ -14,12 +14,21 @@ export const campaignQueryKeys = {
   global: {
     details: (campaignId: string) =>
       [...campaignQueryKeys.origin, "global", "details", campaignId] as const,
-    listActive: (page: number, pageSize: number) =>
+    listActive: (
+      page: number,
+      pageSize: number,
+      filters?: {
+        category?: string
+        search?: string
+        pricingModel?: string
+        sortBy?: string
+      }
+    ) =>
       [
         ...campaignQueryKeys.origin,
         "global",
         "active",
-        { page, pageSize },
+        { page, pageSize, ...filters },
       ] as const,
   },
 
@@ -225,4 +234,3 @@ export const adminStatisticsQueryKeys = {
       { from, to },
     ] as const,
 } as const
-
