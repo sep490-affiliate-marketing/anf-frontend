@@ -221,7 +221,7 @@ export function FraudClicksDialog({
                             <TableCell className="py-3 font-medium">
                               {fraud.clickId}
                             </TableCell>
-                            <TableCell className="py-3">
+                            <TableCell className="whitespace-nowrap py-3">
                               <div className="text-sm text-red-600">
                                 {fraud.reason}
                               </div>
