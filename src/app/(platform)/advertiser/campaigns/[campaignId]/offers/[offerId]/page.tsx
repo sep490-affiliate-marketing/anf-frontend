@@ -9,7 +9,6 @@ import { OfferStatusEnum } from "@/enums/offfer-status"
 import { env } from "@/env"
 import {
   ArrowLeft,
-  BarChart3,
   Calendar,
   Check,
   Clock,
@@ -22,7 +21,6 @@ import {
   Megaphone,
   Pencil,
   PieChart,
-  Settings,
   User,
   Users,
   X,

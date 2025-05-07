@@ -215,7 +215,7 @@ export function AddBankAccountDialog() {
                           (bank: IBank) => bank.code === bankingInfo.bankName
                         )?.short_name
                       : "Select a bank"}
-                    <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    <Search className="ml-2 size-4 shrink-0 opacity-50" />
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
@@ -326,4 +326,3 @@ export function AddBankAccountDialog() {
     </Dialog>
   )
 }
-
