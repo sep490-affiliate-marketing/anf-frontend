@@ -1,19 +1,28 @@
 import { errorMessage } from "@/constant/error-message"
-import { statisticQueryKeys } from "@/constant/react-query"
+import {
+  adminStatisticsQueryKeys,
+  statisticQueryKeys,
+} from "@/constant/react-query"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { AxiosError } from "axios"
+import qs from "qs"
 import { toast } from "sonner"
 
 import {
   IGenerateStatisticsErrorResponse,
   IGenerateStatisticsResponse,
+  IGetAdminCampaignStatisticsResponse,
+  IGetAdminTicketStatisticsResponse,
+  IGetAdminUserStatisticsResponse,
   IGetAdvertiserOfferStatisticsErrorResponse,
   IGetAdvertiserOfferStatisticsResponse,
   IGetPublisherOfferStatisticsErrorResponse,
   IGetPublisherOfferStatisticsResponse,
+  IGetPublisherRevenueStatisticsResponse,
 } from "@/types/statistics.type"
 
 import apiClient from "@/lib/api/client"
+import { extractApiError } from "@/lib/api/error-handler"
 
 // Hook to get advertiser offer statistics by offer ID
 export const useGetAdvertiserOfferStatistics = (offerId: string) => {
@@ -321,5 +330,160 @@ export const useGeneratePublisherOfferStatisticsByCode = () => {
         toast.error(data.message || "Failed to generate statistics")
       }
     },
+  })
+}
+
+// Hook to get publisher revenue statistics (all campaigns)
+export const useGetPublisherRevenueStatistics = (from: string, to: string) => {
+  return useQuery({
+    queryKey: statisticQueryKeys.publisher.revenue(from, to),
+    queryFn: async () => {
+      try {
+        const queryString = qs.stringify({
+          from: from ?? "",
+          to: to ?? "",
+        })
+        const { data } =
+          await apiClient.get<IGetPublisherRevenueStatisticsResponse>(
+            `/api/affiliate-network/publisher/stats/revenue?${queryString}`
+          )
+        return {
+          isSuccess: true,
+          message: data.message,
+          data: data.value,
+        }
+      } catch (error) {
+        const errRes = extractApiError(error)
+        throw new Error(
+          errRes?.details ?? "Failed to fetch publisher revenue statistics"
+        )
+      }
+    },
+    enabled: !!from && !!to,
+  })
+}
+
+// Hook to get publisher campaign's revenue statistics by campaign id
+export const useGetPublisherCampaignRevenueStatisticsById = (
+  id: number,
+  from: string,
+  to: string
+) => {
+  return useQuery({
+    queryKey: statisticQueryKeys.publisher.campaignRevenueById(id, from, to),
+    queryFn: async () => {
+      try {
+        const queryString = qs.stringify({
+          from: from ?? "",
+          to: to ?? "",
+        })
+        const { data } = await apiClient.get<IPaginationResponse<any>>(
+          `/api/affiliate-network/publisher-stats/campaign/${id}/revenue?${queryString}`
+        )
+        return {
+          isSuccess: true,
+          message: data.message,
+          data: data.value,
+        }
+      } catch (error) {
+        const errRes = extractApiError(error)
+        throw new Error(
+          errRes?.details ??
+            "Failed to fetch publisher campaign revenue statistics"
+        )
+      }
+    },
+    enabled: !!id && !!from && !!to,
+  })
+}
+
+// Hook to get admin user statistics
+export const useGetAdminUserStatistics = (from: string, to: string) => {
+  return useQuery({
+    queryKey: adminStatisticsQueryKeys.users(from, to),
+    queryFn: async () => {
+      try {
+        const queryString = qs.stringify({
+          from: from ?? "",
+          to: to ?? "",
+        })
+        const { data } = await apiClient.get<IGetAdminUserStatisticsResponse>(
+          `/api/affiliate-network/stats/users?${queryString}`
+        )
+        return {
+          isSuccess: true,
+          message: data.message,
+          data: data.value,
+        }
+      } catch (error) {
+        const errRes = extractApiError(error)
+        throw new Error(
+          errRes?.details ?? "Failed to fetch admin user statistics"
+        )
+      }
+    },
+    enabled: !!from && !!to,
+  })
+}
+
+// Hook to get admin campaign statistics
+export const useGetAdminCampaignStatistics = (from: string, to: string) => {
+  return useQuery({
+    queryKey: adminStatisticsQueryKeys.campaigns(from, to),
+    queryFn: async () => {
+      try {
+        const queryString = qs.stringify({
+          from: from ?? "",
+          to: to ?? "",
+        })
+        const { data } =
+          await apiClient.get<IGetAdminCampaignStatisticsResponse>(
+            `/api/affiliate-network/stats/campaigns?${queryString}`
+          )
+        return {
+          isSuccess: true,
+          message: data.message,
+          data: data.value,
+        }
+      } catch (error) {
+        const errRes = extractApiError(error)
+        throw new Error(
+          errRes?.details ?? "Failed to fetch admin campaign statistics"
+        )
+      }
+    },
+    enabled: !!from && !!to,
+  })
+}
+
+// Hook to get admin complaint ticket statistics
+export const useGetAdminComplaintTicketStatistics = (
+  from: string,
+  to: string
+) => {
+  return useQuery({
+    queryKey: adminStatisticsQueryKeys.complaintTickets(from, to),
+    queryFn: async () => {
+      try {
+        const queryString = qs.stringify({
+          fromDate: from ?? "",
+          toDate: to ?? "",
+        })
+        const { data } = await apiClient.get<IGetAdminTicketStatisticsResponse>(
+          `/api/affiliate-network/stats/complaint-tickets?${queryString}`
+        )
+        return {
+          isSuccess: true,
+          message: data.message,
+          data: data.value,
+        }
+      } catch (error) {
+        const errRes = extractApiError(error)
+        throw new Error(
+          errRes?.details ?? "Failed to fetch admin complaint ticket statistics"
+        )
+      }
+    },
+    enabled: !!from && !!to,
   })
 }

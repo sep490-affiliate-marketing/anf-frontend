@@ -193,5 +193,36 @@ export const statisticQueryKeys = {
         publisherCode,
         "offer",
       ] as const,
+    revenue: (from: string, to: string) =>
+      [
+        ...statisticQueryKeys.origin,
+        "publisher",
+        "revenue",
+        { from, to },
+      ] as const,
+    campaignRevenueById: (id: number, from: string, to: string) =>
+      [
+        ...statisticQueryKeys.origin,
+        "publisher",
+        "campaign",
+        id,
+        "revenue",
+        { from, to },
+      ] as const,
   },
 }
+
+export const adminStatisticsQueryKeys = {
+  origin: ["adminStatistics"] as const,
+  users: (from: string, to: string) =>
+    [...adminStatisticsQueryKeys.origin, "users", { from, to }] as const,
+  campaigns: (from: string, to: string) =>
+    [...adminStatisticsQueryKeys.origin, "campaigns", { from, to }] as const,
+  complaintTickets: (from: string, to: string) =>
+    [
+      ...adminStatisticsQueryKeys.origin,
+      "complaintTickets",
+      { from, to },
+    ] as const,
+} as const
+
