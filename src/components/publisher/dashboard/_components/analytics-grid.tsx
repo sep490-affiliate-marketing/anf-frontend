@@ -2,6 +2,7 @@ import { Cell, Pie, PieChart, ResponsiveContainer } from "recharts"
 
 import { formatVNDCurrency } from "@/lib/utils"
 
+import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
@@ -11,12 +12,17 @@ import {
 } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 
+import { FraudClicksDialog } from "./fraud-clicks-dialog"
+
 interface AnalyticsGridProps {
   isLoading: boolean
   totalClicks: number
   totalRevenue: number
   totalVerifiedClicks: number
   totalFraudClicks: number
+  startDate: Date
+  endDate: Date
+  children?: React.ReactNode
 }
 
 const validationData = [
@@ -30,6 +36,9 @@ export function AnalyticsGrid({
   totalRevenue,
   totalVerifiedClicks,
   totalFraudClicks,
+  startDate,
+  endDate,
+  children,
 }: AnalyticsGridProps) {
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -152,14 +161,21 @@ export function AnalyticsGrid({
           </CardTitle>
         </CardHeader>
         <CardContent className="p-6 pt-0">
-          <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
-            Fraud prevention
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                Fraud prevention
+              </div>
+              <FraudClicksDialog from={startDate} to={endDate}>
+                <p className="cursor-pointer text-sm text-gray-500">
+                  {totalFraudClicks === 0 && totalVerifiedClicks === 0
+                    ? "No clicks detected"
+                    : `${totalFraudClicks} fraudulent clicks detected`}
+                </p>
+              </FraudClicksDialog>
+            </div>
+            {children}
           </div>
-          <p className="text-sm text-gray-500">
-            {totalFraudClicks === 0 && totalVerifiedClicks === 0
-              ? "No clicks detected"
-              : `${totalFraudClicks} fraudulent clicks detected`}
-          </p>
         </CardContent>
       </Card>
     </div>

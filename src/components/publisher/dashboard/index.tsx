@@ -476,6 +476,8 @@ export function PublisherDashboard() {
           totalRevenue={totals.totalRevenue}
           totalVerifiedClicks={totals.totalVerifiedClicks}
           totalFraudClicks={totals.totalFraudClicks}
+          startDate={startDate}
+          endDate={endDate}
         />
 
         {/* Main Content Grid */}
