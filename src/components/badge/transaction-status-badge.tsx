@@ -19,6 +19,7 @@ type StatusConfig = {
     | "pending"
     | "approved"
     | "rejected"
+    | "success"
     | "default"
   icon: LucideIcon
   label: string
@@ -30,6 +31,7 @@ const STATUS_VARIANTS = {
   pending: "bg-amber-50 text-amber-700 border-amber-200",
   approved: "bg-green-50 text-green-700 border-green-200",
   rejected: "bg-red-50 text-red-700 border-red-200",
+  success: "bg-green-50 text-green-700 border-green-200",
   default: "bg-gray-50 text-gray-700 border-gray-200",
 } as const
 
@@ -72,6 +74,13 @@ export function TransactionStatusBadge({
           icon: AlertCircle,
           label: "Rejected",
         }
+      case TransactionStatusEnum.SUCCESS:
+        return {
+          variant: "success",
+          icon: CheckCircle,
+          label: "Success",
+        }
+
       default:
         return {
           variant: "default",

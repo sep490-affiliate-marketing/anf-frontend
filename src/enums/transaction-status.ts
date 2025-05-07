@@ -4,4 +4,5 @@ export enum TransactionStatusEnum {
   PENDING = "Pending",
   APPROVED = "Approved",
   REJECTED = "Rejected",
+  SUCCESS = "Success",
 }

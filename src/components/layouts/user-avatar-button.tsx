@@ -78,9 +78,9 @@ export default function UserAvatarButton() {
               <span className="line-clamp-1 truncate font-medium">
                 {user.firstName} {user.lastName}
               </span>
-              {user && "balance" in user && (
+              {user && "currentBalance" in user && (
                 <span className="text-xs text-muted-foreground">
-                  {formatVNDCurrency((user as any).balance || 0)}
+                  {formatVNDCurrency((user as any).currentBalance || 0)}
                 </span>
               )}
             </div>
@@ -144,6 +144,16 @@ export default function UserAvatarButton() {
                   <div className="mt-1 text-lg font-semibold">
                     {formatVNDCurrency((user as any).balance || 0)}
                   </div>
+                  {user && "currentBalance" in user && (
+                    <div className="mt-2 rounded-md border border-border/50 bg-background/50 p-2 text-xs text-muted-foreground">
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium">
+                          {formatVNDCurrency((user as any).currentBalance || 0)}
+                        </span>
+                        <span>Available</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </>

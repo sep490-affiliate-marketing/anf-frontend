@@ -14,6 +14,7 @@ export interface IMeRes {
 
 export interface IUserExtended extends IUser {
   balance: number
+  currentBalance: number
   bankResponses: IBankResponse[]
   advertiserProfile: IAdvertiserProfile | null
   publisherProfile: IPublisherProfile | null
