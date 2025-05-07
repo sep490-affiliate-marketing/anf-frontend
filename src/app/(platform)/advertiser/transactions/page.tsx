@@ -1,12 +1,7 @@
 import { Suspense } from "react"
 
-import { CreditCard, History } from "lucide-react"
-
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-
 import TransactionDataTable from "@/components/advertiser/transactions/data-table"
 import { WithdrawDialog } from "@/components/advertiser/transactions/withdraw-dialog"
-import WithdrawRequestsTable from "@/components/advertiser/transactions/withdraw-requests-table"
 import { Spinner } from "@/components/spinner"
 
 export default function TransactionsPage() {
