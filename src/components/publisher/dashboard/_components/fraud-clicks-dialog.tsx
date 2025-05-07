@@ -92,7 +92,7 @@ export function FraudClicksDialog({
   return (
     <Dialog>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="max-w-full">
+      <DialogContent className="max-w-6xl">
         <DialogHeader>
           <DialogTitle>Fraudulent Clicks</DialogTitle>
           <DialogDescription>
