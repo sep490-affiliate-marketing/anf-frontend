@@ -3,7 +3,6 @@ import FeedbackSection from "@/components/landing/feedback-section"
 import Footer from "@/components/landing/footer"
 import Header from "@/components/landing/header"
 import HeroSection from "@/components/landing/hero-section"
-import PricingSection from "@/components/landing/pricing-section"
 import StatsSection from "@/components/landing/stats-section"
 
 export default function Home() {
@@ -14,7 +13,6 @@ export default function Home() {
         <HeroSection />
         <StatsSection />
         <FeaturesSection />
-        <PricingSection />
         <FeedbackSection />
       </main>
       <Footer />

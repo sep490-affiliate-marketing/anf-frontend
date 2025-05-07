@@ -22,6 +22,7 @@ import {
 import { DateRangePicker } from "@/components/ui/date-range-picker"
 import {
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormMessage,
@@ -449,6 +450,9 @@ const OfferList = ({
                     </div>
                   </FormControl>
                   <FormMessage />
+                  <FormDescription>
+                    Minimum bid amount is 300 VND
+                  </FormDescription>
                 </FormItem>
               )}
             />

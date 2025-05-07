@@ -261,7 +261,7 @@ export default function HeroSection() {
                       </h2>
                       <div className="flex items-center gap-2 text-sm text-gray-500">
                         <span className="inline-flex size-2 animate-pulse rounded-full bg-green-500" />
-                        Live Updates
+                        View your campaign performance
                       </div>
                     </div>
                   </div>

@@ -1,9 +1,9 @@
 "use client"
 
-import Image from "next/image"
-
 import { motion } from "framer-motion"
 import { Star } from "lucide-react"
+
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
 
 const testimonials = [
   {
@@ -65,7 +65,10 @@ const testimonials = [
 
 export default function FeedbackSection() {
   return (
-    <section className="relative overflow-hidden bg-white pb-24 sm:pb-32">
+    <section
+      id="feedback"
+      className="relative overflow-hidden bg-white pb-24 sm:pb-32"
+    >
       {/* Subtle grid background */}
       <div
         className="absolute inset-0"
@@ -164,13 +167,12 @@ export default function FeedbackSection() {
                 </div>
                 <figcaption className="mt-6 flex items-center gap-x-4 border-t border-gray-900/10 pt-6">
                   <div className="relative">
-                    <Image
-                      src="/users/arc.svg"
-                      alt={testimonials[0].author.name}
-                      width={40}
-                      height={40}
-                      className="size-10 rounded-full bg-gray-50 object-cover ring-2 ring-white"
-                    />
+                    <Avatar>
+                      <AvatarImage src="/users/arc.svg" />
+                      <AvatarFallback>
+                        {testimonials[0].author.name.charAt(0)}
+                      </AvatarFallback>
+                    </Avatar>
                   </div>
                   <div>
                     <div className="font-semibold text-gray-900">
@@ -214,13 +216,12 @@ export default function FeedbackSection() {
                 </div>
                 <figcaption className="mt-6 flex items-center gap-x-4 border-t border-gray-900/10 pt-6">
                   <div className="relative">
-                    <Image
-                      src="/users/arc.svg"
-                      alt={testimonials[1].author.name}
-                      width={40}
-                      height={40}
-                      className="size-10 rounded-full bg-gray-50 object-cover ring-2 ring-white"
-                    />
+                    <Avatar>
+                      <AvatarImage src="/users/arc.svg" />
+                      <AvatarFallback>
+                        {testimonials[1].author.name.charAt(0)}
+                      </AvatarFallback>
+                    </Avatar>
                   </div>
                   <div>
                     <div className="font-semibold text-gray-900">
@@ -264,19 +265,18 @@ export default function FeedbackSection() {
                 </div>
                 <figcaption className="mt-6 flex items-center gap-x-4 border-t border-gray-900/10 pt-6">
                   <div className="relative">
-                    <Image
-                      src="/users/arc.svg"
-                      alt={testimonials[2].author.name}
-                      width={40}
-                      height={40}
-                      className="size-10 rounded-full bg-gray-50 object-cover ring-2 ring-white"
-                    />
+                    <Avatar>
+                      <AvatarImage src="/users/arc.svg" />
+                      <AvatarFallback>
+                        {testimonials[2].author.name.charAt(0)}
+                      </AvatarFallback>
+                    </Avatar>
                   </div>
                   <div>
                     <div className="font-semibold text-gray-900">
                       {testimonials[2].author.name}
                     </div>
-                    <div className="text-gray-600">{`${testimonials[2].author.role}, ${testimonials[2].author.company}`}</div>
+                    <div className="truncate text-gray-600">{`${testimonials[2].author.role}, ${testimonials[2].author.company}`}</div>
                   </div>
                 </figcaption>
               </div>
@@ -321,13 +321,12 @@ export default function FeedbackSection() {
                 </div>
                 <figcaption className="mt-6 flex items-center gap-x-4 border-t border-gray-900/10 pt-6">
                   <div className="relative">
-                    <Image
-                      src="/users/arc.svg"
-                      alt="Alex Thompson"
-                      width={40}
-                      height={40}
-                      className="size-10 rounded-full bg-gray-50 object-cover ring-2 ring-white"
-                    />
+                    <Avatar>
+                      <AvatarImage src="/users/arc.svg" />
+                      <AvatarFallback>
+                        {testimonials[3].author.name.charAt(0)}
+                      </AvatarFallback>
+                    </Avatar>
                   </div>
                   <div>
                     <div className="font-semibold text-gray-900">
@@ -377,13 +376,12 @@ export default function FeedbackSection() {
                 </div>
                 <figcaption className="mt-6 flex items-center gap-x-4 border-t border-gray-900/10 pt-6">
                   <div className="relative">
-                    <Image
-                      src="/users/arc.svg"
-                      alt="Maria Garcia"
-                      width={40}
-                      height={40}
-                      className="size-10 rounded-full bg-gray-50 object-cover ring-2 ring-white"
-                    />
+                    <Avatar>
+                      <AvatarImage src="/users/arc.svg" />
+                      <AvatarFallback>
+                        {testimonials[4].author.name.charAt(0)}
+                      </AvatarFallback>
+                    </Avatar>
                   </div>
                   <div>
                     <div className="font-semibold text-gray-900">

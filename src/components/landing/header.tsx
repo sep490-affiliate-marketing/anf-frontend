@@ -12,8 +12,7 @@ import { buttonVariants } from "@/components/ui/button"
 const NAV_ITEMS = [
   { label: "Solutions", href: "#solutions" },
   { label: "Features", href: "#features" },
-  { label: "Pricing", href: "#pricing" },
-  { label: "Resources", href: "#resources" },
+  { label: "Feedback", href: "#feedback" },
 ]
 
 export default function Header() {
