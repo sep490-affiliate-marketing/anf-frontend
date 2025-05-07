@@ -536,7 +536,7 @@ export function CampaignDetails({ campaignId }: { campaignId: number }) {
           </h2>
           <div className="rounded-lg border bg-white p-6">
             <div className="mb-6">
-              <p className="text-xs text-gray-500">Total Campaign Budget</p>
+              <p className="text-xs text-gray-500">Total Campaign Balance</p>
               <p className="text-2xl font-semibold">
                 {formatVNDCurrency(campaign.balance)}
               </p>

@@ -2,20 +2,20 @@
 
 import { useMemo, useState } from "react"
 
+import { useAuth } from "@/providers/auth-provider"
 import { endOfMonth, format, startOfMonth } from "date-fns"
 import { Check, ChevronsUpDown } from "lucide-react"
 import { parseAsIsoDate, parseAsString, useQueryState } from "nuqs"
 import { DateRange } from "react-day-picker"
 
 import { ICampaign } from "@/types/campaign.type"
-import { IGetPublisherRevenueStatistics } from "@/types/statistics.type"
 
 import { cn } from "@/lib/utils"
 
-import { useGetCampaignsByDate } from "@/hooks/campaign"
+import { useGetCampaignsByAdvertiser } from "@/hooks/campaign"
 import {
-  useGetPublisherCampaignRevenueStatisticsById,
-  useGetPublisherRevenueStatistics,
+  useGetAllCampaignStatistics,
+  useGetCampaignStatsByCampaignId,
 } from "@/hooks/statistics"
 
 import { Button } from "@/components/ui/button"
@@ -36,39 +36,31 @@ import {
 
 import {
   AnalyticsGrid,
+  BudgetSpentChart,
   DailyClicksChart,
   DeviceDistributionChart,
-  RevenueChart,
 } from "./_components"
 
 interface Totals {
   totalClicks: number
-  totalVerifiedClicks: number
+  totalValidClicks: number
   totalFraudClicks: number
-  totalRevenue: number
+  totalOffers: number
+  totalJoinedPublishers: number
+  totalRejectedPublishers: number
+  budgetSpent: number
 }
 
 interface DailyTotals {
   totalClicks: number
-  verifiedClicks: number
-  fraudedClicks: number
+  validClicks: number
+  fraudClicks: number
 }
 
 interface DeviceTotals {
   mobile: number
   tablet: number
   computer: number
-}
-
-interface Campaign {
-  campaignId: number
-  totalRevenue: number
-  totalClick: number
-  totalVerifiedClick: number
-  totalFraudClick: number
-  totalTablet: number
-  totalMobile: number
-  totalComputer: number
 }
 
 interface CampaignOption {
@@ -79,7 +71,7 @@ interface CampaignOption {
   endDate?: string
 }
 
-export function PublisherDashboard() {
+export function AdvertiserDashboard() {
   const [startDate, setStartDate] = useQueryState(
     "startDate",
     parseAsIsoDate.withDefault(startOfMonth(new Date()))
@@ -93,29 +85,23 @@ export function PublisherDashboard() {
     parseAsString.withDefault("all")
   )
   const [open, setOpen] = useState(false)
+  const { user } = useAuth()
 
-  const { data: revenueData, isFetching: isRevenueFetching } =
-    useGetPublisherRevenueStatistics(
+  const { data: allCampaignStats, isFetching: isAllCampaignStatsFetching } =
+    useGetAllCampaignStatistics(
       format(startDate, "yyyy-MM-dd"),
       format(endDate, "yyyy-MM-dd")
     )
 
-  const {
-    data: revenueDataByCampaign,
-    isFetching: isRevenueByCampaignFetching,
-  } = useGetPublisherCampaignRevenueStatisticsById(
-    selectedCampaign !== "all" ? parseInt(selectedCampaign) : 0,
-    format(startDate, "yyyy-MM-dd"),
-    format(endDate, "yyyy-MM-dd")
-  )
+  const { data: campaignStats, isFetching: isCampaignStatsFetching } =
+    useGetCampaignStatsByCampaignId(
+      selectedCampaign !== "all" ? parseInt(selectedCampaign) : 0,
+      format(startDate, "yyyy-MM-dd"),
+      format(endDate, "yyyy-MM-dd")
+    )
 
   const { data: campaignsDataResponse, isFetching: isCampaignsFetching } =
-    useGetCampaignsByDate(
-      1,
-      10,
-      format(startDate, "yyyy-MM-dd"),
-      format(endDate, "yyyy-MM-dd")
-    )
+    useGetCampaignsByAdvertiser(user?.userCode ?? "", 1, 50)
 
   // Define campaign options with a default "all" option
   const campaignOptions = useMemo(() => {
@@ -124,11 +110,11 @@ export function PublisherDashboard() {
       value: "all",
     }
 
-    if (!campaignsDataResponse?.value) return [defaultOption]
+    if (!campaignsDataResponse?.value?.data) return [defaultOption]
 
     return [
       defaultOption,
-      ...campaignsDataResponse.value.map((campaign: ICampaign) => ({
+      ...campaignsDataResponse.value.data.map((campaign: ICampaign) => ({
         label: campaign.name,
         value: campaign.id.toString(),
         categoryName: campaign.categoryName || "No Category",
@@ -141,18 +127,18 @@ export function PublisherDashboard() {
   // Unified data source based on selected campaign
   const activeData = useMemo(() => {
     if (selectedCampaign === "all") {
-      return revenueData
+      return allCampaignStats
     } else if (selectedCampaign && selectedCampaign !== "all") {
-      return revenueDataByCampaign
+      return campaignStats
     }
     return null
-  }, [selectedCampaign, revenueData, revenueDataByCampaign])
+  }, [selectedCampaign, allCampaignStats, campaignStats])
 
   const isDataLoading = useMemo(() => {
     return selectedCampaign === "all"
-      ? isRevenueFetching
-      : isRevenueByCampaignFetching
-  }, [selectedCampaign, isRevenueFetching, isRevenueByCampaignFetching])
+      ? isAllCampaignStatsFetching
+      : isCampaignStatsFetching
+  }, [selectedCampaign, isAllCampaignStatsFetching, isCampaignStatsFetching])
 
   const handleDateRangeChange = (values: { range: DateRange }) => {
     if (values.range.from && values.range.to) {
@@ -163,140 +149,210 @@ export function PublisherDashboard() {
 
   // Calculate totals from real data
   const totals = useMemo<Totals>(() => {
-    if (!activeData?.data)
+    if (!activeData?.value)
       return {
         totalClicks: 0,
-        totalVerifiedClicks: 0,
+        totalValidClicks: 0,
         totalFraudClicks: 0,
-        totalRevenue: 0,
+        totalOffers: 0,
+        totalJoinedPublishers: 0,
+        totalRejectedPublishers: 0,
+        budgetSpent: 0,
       }
 
-    return Object.values(activeData.data).reduce(
-      (acc: Totals, day: IGetPublisherRevenueStatistics) => {
-        day.campaigns.forEach((campaign: Campaign) => {
+    const initialTotals = {
+      totalClicks: 0,
+      totalValidClicks: 0,
+      totalFraudClicks: 0,
+      totalOffers: 0,
+      totalJoinedPublishers: 0,
+      totalRejectedPublishers: 0,
+      budgetSpent: 0,
+    }
+
+    try {
+      // The data can come in different formats, so we need to handle it safely
+      const valueArray = Array.isArray(activeData.value)
+        ? activeData.value
+        : [activeData.value]
+
+      return valueArray.reduce((acc, day) => {
+        // Handle different response structures
+        const campaigns =
+          day.campaignStatsResponses || day.campaignClickStats || []
+
+        campaigns.forEach((campaign: any) => {
           if (
             selectedCampaign === "all" ||
-            campaign.campaignId.toString() === selectedCampaign
+            campaign.campaignId?.toString() === selectedCampaign
           ) {
-            acc.totalClicks += campaign.totalClick
-            acc.totalVerifiedClicks += campaign.totalVerifiedClick
-            acc.totalFraudClicks += campaign.totalFraudClick
-            acc.totalRevenue += campaign.totalRevenue
+            acc.totalClicks += campaign.totalClick || 0
+            acc.totalValidClicks += campaign.totalValidClick || 0
+            acc.totalFraudClicks += campaign.totalFraudClick || 0
+            acc.totalOffers += campaign.totalOffer || 0
+            acc.totalJoinedPublishers += campaign.totalJoinedPublisher || 0
+            acc.totalRejectedPublishers += campaign.totalRejectedPublisher || 0
+            acc.budgetSpent += campaign.budgetSpent || 0
           }
         })
         return acc
-      },
-      {
-        totalClicks: 0,
-        totalVerifiedClicks: 0,
-        totalFraudClicks: 0,
-        totalRevenue: 0,
-      }
-    )
+      }, initialTotals)
+    } catch (error) {
+      console.error("Error processing campaign data:", error)
+      return initialTotals
+    }
   }, [activeData, selectedCampaign])
 
   // Process data for daily clicks chart
   const dailyClicksData = useMemo(() => {
-    if (!activeData?.data) return []
+    if (!activeData?.value) return []
 
-    return Object.values(activeData.data)
-      .map((day) => {
-        const dayTotals = day.campaigns.reduce(
-          (acc: DailyTotals, campaign: Campaign) => {
-            if (
-              selectedCampaign === "all" ||
-              campaign.campaignId.toString() === selectedCampaign
-            ) {
-              acc.totalClicks += campaign.totalClick
-              acc.verifiedClicks += campaign.totalVerifiedClick
-              acc.fraudedClicks += campaign.totalFraudClick
+    try {
+      // The data can come in different formats, so we need to handle it safely
+      const valueArray = Array.isArray(activeData.value)
+        ? activeData.value
+        : [activeData.value]
+
+      return valueArray
+        .map((day) => {
+          // Handle different response structures
+          const campaigns =
+            day.campaignStatsResponses || day.campaignClickStats || []
+
+          const dayTotals = campaigns.reduce(
+            (acc: DailyTotals, campaign: any) => {
+              if (
+                selectedCampaign === "all" ||
+                campaign.campaignId?.toString() === selectedCampaign
+              ) {
+                acc.totalClicks += campaign.totalClick || 0
+                acc.validClicks += campaign.totalValidClick || 0
+                acc.fraudClicks += campaign.totalFraudClick || 0
+              }
+              return acc
+            },
+            {
+              totalClicks: 0,
+              validClicks: 0,
+              fraudClicks: 0,
             }
-            return acc
-          },
-          {
-            totalClicks: 0,
-            verifiedClicks: 0,
-            fraudedClicks: 0,
-          }
-        )
+          )
 
-        return {
-          date: format(new Date(day.date), "MMM d"),
-          ...dayTotals,
-        }
-      })
-      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+          return {
+            date: format(new Date(day.date), "MMM d"),
+            ...dayTotals,
+          }
+        })
+        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+    } catch (error) {
+      console.error("Error processing daily clicks data:", error)
+      return []
+    }
   }, [activeData, selectedCampaign])
 
-  // Process data for revenue chart
-  const revenueChartData = useMemo(() => {
-    if (!activeData?.data) return []
+  // Process data for budget spent chart
+  const budgetSpentData = useMemo(() => {
+    if (!activeData?.value) return []
 
-    return Object.values(activeData.data)
-      .map((day) => ({
-        date: format(new Date(day.date), "MMM d"),
-        revenue: day.campaigns.reduce((total: number, campaign: Campaign) => {
-          if (
-            selectedCampaign === "all" ||
-            campaign.campaignId.toString() === selectedCampaign
-          ) {
-            return total + campaign.totalRevenue
+    try {
+      // The data can come in different formats, so we need to handle it safely
+      const valueArray = Array.isArray(activeData.value)
+        ? activeData.value
+        : [activeData.value]
+
+      return valueArray
+        .map((day) => {
+          // Handle different response structures
+          const campaigns =
+            day.campaignStatsResponses || day.campaignClickStats || []
+
+          return {
+            date: format(new Date(day.date), "MMM d"),
+            budgetSpent: campaigns.reduce((total: number, campaign: any) => {
+              if (
+                selectedCampaign === "all" ||
+                campaign.campaignId?.toString() === selectedCampaign
+              ) {
+                return total + (campaign.budgetSpent || 0)
+              }
+              return total
+            }, 0),
           }
-          return total
-        }, 0),
-      }))
-      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+        })
+        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+    } catch (error) {
+      console.error("Error processing budget data:", error)
+      return []
+    }
   }, [activeData, selectedCampaign])
 
   // Calculate device distribution from real data
   const deviceDistributionData = useMemo(() => {
-    if (!activeData?.data) return []
+    if (!activeData?.value) return []
 
-    const deviceTotals = Object.values(activeData.data).reduce(
-      (acc: DeviceTotals, day: IGetPublisherRevenueStatistics) => {
-        day.campaigns.forEach((campaign: Campaign) => {
-          if (
-            selectedCampaign === "all" ||
-            campaign.campaignId.toString() === selectedCampaign
-          ) {
-            acc.mobile += campaign.totalMobile
-            acc.tablet += campaign.totalTablet
-            acc.computer += campaign.totalComputer
-          }
-        })
-        return acc
-      },
-      { mobile: 0, tablet: 0, computer: 0 }
-    )
+    try {
+      // The data can come in different formats, so we need to handle it safely
+      const valueArray = Array.isArray(activeData.value)
+        ? activeData.value
+        : [activeData.value]
 
-    const total =
-      deviceTotals.mobile + deviceTotals.tablet + deviceTotals.computer
+      const deviceTotals = valueArray.reduce(
+        (acc: DeviceTotals, day) => {
+          // Handle different response structures
+          const campaigns =
+            day.campaignStatsResponses || day.campaignClickStats || []
 
-    return [
-      {
-        name: "Mobile",
-        value: deviceTotals.mobile,
-        percentage:
-          total > 0 ? ((deviceTotals.mobile / total) * 100).toFixed(1) : "0.0",
-        fill: "#3b82f6", // Blue-500
-      },
-      {
-        name: "Desktop",
-        value: deviceTotals.computer,
-        percentage:
-          total > 0
-            ? ((deviceTotals.computer / total) * 100).toFixed(1)
-            : "0.0",
-        fill: "#10b981", // Emerald-500
-      },
-      {
-        name: "Tablet",
-        value: deviceTotals.tablet,
-        percentage:
-          total > 0 ? ((deviceTotals.tablet / total) * 100).toFixed(1) : "0.0",
-        fill: "#6366f1", // Indigo-500
-      },
-    ]
+          campaigns.forEach((campaign: any) => {
+            if (
+              selectedCampaign === "all" ||
+              campaign.campaignId?.toString() === selectedCampaign
+            ) {
+              acc.mobile += campaign.totalMobile || 0
+              acc.tablet += campaign.totalTablet || 0
+              acc.computer += campaign.totalComputer || 0
+            }
+          })
+          return acc
+        },
+        { mobile: 0, tablet: 0, computer: 0 }
+      )
+
+      const total =
+        deviceTotals.mobile + deviceTotals.tablet + deviceTotals.computer
+
+      return [
+        {
+          name: "Mobile",
+          value: deviceTotals.mobile,
+          percentage:
+            total > 0
+              ? ((deviceTotals.mobile / total) * 100).toFixed(1)
+              : "0.0",
+          fill: "#3b82f6", // Blue-500
+        },
+        {
+          name: "Desktop",
+          value: deviceTotals.computer,
+          percentage:
+            total > 0
+              ? ((deviceTotals.computer / total) * 100).toFixed(1)
+              : "0.0",
+          fill: "#10b981", // Emerald-500
+        },
+        {
+          name: "Tablet",
+          value: deviceTotals.tablet,
+          percentage:
+            total > 0
+              ? ((deviceTotals.tablet / total) * 100).toFixed(1)
+              : "0.0",
+          fill: "#6366f1", // Indigo-500
+        },
+      ]
+    } catch (error) {
+      console.error("Error processing device data:", error)
+      return []
+    }
   }, [activeData, selectedCampaign])
 
   const totalDeviceClicks = useMemo(() => {
@@ -331,7 +387,7 @@ export function PublisherDashboard() {
                   variant="outline"
                   role="combobox"
                   aria-expanded={open}
-                  className="w-[280px] justify-between"
+                  className="w-auto justify-between"
                   disabled={isCampaignsFetching}
                 >
                   {isCampaignsFetching ? (
@@ -362,15 +418,6 @@ export function PublisherDashboard() {
                           )?.label
                         }
                       </span>
-                      {/* {selectedCampaign !== "all" && (
-                        <span className="max-w-[270px] truncate text-xs text-muted-foreground">
-                          {
-                            campaignOptions.find(
-                              (option) => option.value === selectedCampaign
-                            )?.categoryName
-                          }
-                        </span>
-                      )} */}
                     </div>
                   ) : (
                     "Select Campaign"
@@ -466,9 +513,12 @@ export function PublisherDashboard() {
         <AnalyticsGrid
           isLoading={isDataLoading}
           totalClicks={totals.totalClicks}
-          totalRevenue={totals.totalRevenue}
-          totalVerifiedClicks={totals.totalVerifiedClicks}
+          totalValidClicks={totals.totalValidClicks}
           totalFraudClicks={totals.totalFraudClicks}
+          totalJoinedPublishers={totals.totalJoinedPublishers}
+          totalRejectedPublishers={totals.totalRejectedPublishers}
+          totalOffers={totals.totalOffers}
+          budgetSpent={totals.budgetSpent}
           startDate={startDate}
           endDate={endDate}
         />
@@ -483,10 +533,10 @@ export function PublisherDashboard() {
             endDate={endDate}
           />
 
-          {/* Revenue Chart */}
-          <RevenueChart
+          {/* Budget Spent Chart */}
+          <BudgetSpentChart
             isLoading={isDataLoading}
-            data={revenueChartData}
+            data={budgetSpentData}
             startDate={startDate}
             endDate={endDate}
           />

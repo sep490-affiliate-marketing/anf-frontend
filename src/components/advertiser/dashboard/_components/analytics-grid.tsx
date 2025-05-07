@@ -18,14 +18,15 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
-import { FraudClicksDialog } from "./fraud-clicks-dialog"
-
 interface AnalyticsGridProps {
   isLoading: boolean
   totalClicks: number
-  totalRevenue: number
-  totalVerifiedClicks: number
+  totalValidClicks: number
   totalFraudClicks: number
+  totalOffers: number
+  totalJoinedPublishers: number
+  totalRejectedPublishers: number
+  budgetSpent: number
   startDate: Date
   endDate: Date
   children?: React.ReactNode
@@ -39,17 +40,20 @@ const validationData = [
 export function AnalyticsGrid({
   isLoading,
   totalClicks,
-  totalRevenue,
-  totalVerifiedClicks,
+  totalValidClicks,
   totalFraudClicks,
+  totalOffers,
+  totalJoinedPublishers,
+  totalRejectedPublishers,
+  budgetSpent,
   startDate,
   endDate,
   children,
 }: AnalyticsGridProps) {
   const validPercentage =
-    totalVerifiedClicks + totalFraudClicks > 0
+    totalValidClicks + totalFraudClicks > 0
       ? (
-          (totalVerifiedClicks / (totalVerifiedClicks + totalFraudClicks)) *
+          (totalValidClicks / (totalValidClicks + totalFraudClicks)) *
           100
         ).toFixed(1)
       : 0
@@ -109,13 +113,13 @@ export function AnalyticsGrid({
         <CardHeader className="relative space-y-0 p-6 pb-4">
           <div className="flex items-center justify-between">
             <CardDescription className="text-sm font-medium text-gray-500">
-              Revenue
+              Budget Spent
             </CardDescription>
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button variant="ghost" size="icon" className="size-8">
-                    <span className="sr-only">View revenue details</span>
+                    <span className="sr-only">View budget details</span>
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       viewBox="0 0 24 24"
@@ -133,7 +137,7 @@ export function AnalyticsGrid({
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>Total revenue generated from all campaigns</p>
+                  <p>Total budget spent across all campaigns</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -142,15 +146,15 @@ export function AnalyticsGrid({
             {isLoading ? (
               <Skeleton className="h-6 w-24" />
             ) : (
-              formatVNDCurrency(totalRevenue)
+              formatVNDCurrency(budgetSpent)
             )}
           </CardTitle>
         </CardHeader>
         <CardContent className="p-6 pt-0">
           <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
-            Revenue growth
+            Budget utilization
           </div>
-          <p className="text-sm text-gray-500">Total revenue for period</p>
+          <p className="text-sm text-gray-500">Total spent for period</p>
         </CardContent>
       </Card>
 
@@ -158,15 +162,13 @@ export function AnalyticsGrid({
         <CardHeader className="relative space-y-0 p-6 pb-4">
           <div className="flex items-center justify-between">
             <CardDescription className="text-sm font-medium text-gray-500">
-              Verified Clicks
+              Valid Clicks
             </CardDescription>
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button variant="ghost" size="icon" className="size-8">
-                    <span className="sr-only">
-                      View verified clicks details
-                    </span>
+                    <span className="sr-only">View valid clicks details</span>
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       viewBox="0 0 24 24"
@@ -193,13 +195,13 @@ export function AnalyticsGrid({
             {isLoading ? (
               <Skeleton className="h-6 w-24" />
             ) : (
-              totalVerifiedClicks.toLocaleString()
+              totalValidClicks.toLocaleString()
             )}
           </CardTitle>
         </CardHeader>
         <CardContent className="p-6 pt-0">
           <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
-            High verification rate
+            High validation rate
           </div>
           <p className="text-sm text-gray-500">Above industry average</p>
         </CardContent>
@@ -217,7 +219,7 @@ export function AnalyticsGrid({
                   <Pie
                     data={[
                       {
-                        value: totalVerifiedClicks,
+                        value: totalValidClicks,
                         color: "#10b981",
                       },
                       { value: totalFraudClicks, color: "#ef4444" },
@@ -240,7 +242,7 @@ export function AnalyticsGrid({
           <CardTitle className="text-2xl font-semibold tracking-tight text-gray-900">
             {isLoading ? (
               <Skeleton className="h-6 w-24" />
-            ) : totalVerifiedClicks === 0 && totalFraudClicks === 0 ? (
+            ) : totalValidClicks === 0 && totalFraudClicks === 0 ? (
               "No Data"
             ) : (
               <div className="flex items-center gap-2">
@@ -253,32 +255,174 @@ export function AnalyticsGrid({
           </CardTitle>
         </CardHeader>
         <CardContent className="p-6 pt-0">
-          <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                Fraud prevention
+          {isLoading ? (
+            <Skeleton className="h-4 w-full" />
+          ) : (
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1.5">
+                <div className="size-3 rounded-full bg-emerald-500" />
+                <span className="text-xs text-gray-500">
+                  {totalValidClicks.toLocaleString()} valid
+                </span>
               </div>
-              {totalFraudClicks > 0 ? (
-                <FraudClicksDialog from={startDate} to={endDate}>
-                  <div className="group cursor-pointer">
-                    <p className="text-sm font-medium text-red-600 group-hover:text-red-700">
-                      {totalFraudClicks.toLocaleString()} fraudulent clicks
-                    </p>
-                    <p className="text-xs text-muted-foreground group-hover:text-gray-600">
-                      Click to view details
-                    </p>
-                  </div>
-                </FraudClicksDialog>
-              ) : (
-                <p className="text-sm text-gray-500">
-                  {totalVerifiedClicks === 0
-                    ? "No clicks detected"
-                    : "No fraud detected"}
-                </p>
-              )}
+              <div className="flex items-center gap-1.5">
+                <div className="size-3 rounded-full bg-red-500" />
+                <span className="text-xs text-gray-500">
+                  {totalFraudClicks.toLocaleString()} fraud
+                </span>
+              </div>
             </div>
-            {children}
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Second row */}
+      <Card className="bg-white">
+        <CardHeader className="relative space-y-0 p-6 pb-4">
+          <div className="flex items-center justify-between">
+            <CardDescription className="text-sm font-medium text-gray-500">
+              Total Publishers
+            </CardDescription>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" size="icon" className="size-8">
+                    <span className="sr-only">View publishers details</span>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="size-4 text-muted-foreground"
+                    >
+                      <circle cx="12" cy="12" r="10" />
+                      <path d="M12 16v-4" />
+                      <path d="M12 8h.01" />
+                    </svg>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Total number of publishers joined</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
+          <CardTitle className="text-2xl font-semibold tracking-tight text-gray-900">
+            {isLoading ? (
+              <Skeleton className="h-6 w-24" />
+            ) : (
+              totalJoinedPublishers.toLocaleString()
+            )}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-6 pt-0">
+          <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
+            Publisher participation
+          </div>
+          <p className="text-sm text-gray-500">Active publishers</p>
+        </CardContent>
+      </Card>
+
+      <Card className="bg-white">
+        <CardHeader className="relative space-y-0 p-6 pb-4">
+          <div className="flex items-center justify-between">
+            <CardDescription className="text-sm font-medium text-gray-500">
+              Rejected Publishers
+            </CardDescription>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" size="icon" className="size-8">
+                    <span className="sr-only">
+                      View rejected publishers details
+                    </span>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="size-4 text-muted-foreground"
+                    >
+                      <circle cx="12" cy="12" r="10" />
+                      <path d="M12 16v-4" />
+                      <path d="M12 8h.01" />
+                    </svg>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Number of publishers rejected</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+          <CardTitle className="text-2xl font-semibold tracking-tight text-gray-900">
+            {isLoading ? (
+              <Skeleton className="h-6 w-24" />
+            ) : (
+              totalRejectedPublishers.toLocaleString()
+            )}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-6 pt-0">
+          <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
+            Quality control
+          </div>
+          <p className="text-sm text-gray-500">Rejected publishers</p>
+        </CardContent>
+      </Card>
+
+      <Card className="bg-white">
+        <CardHeader className="relative space-y-0 p-6 pb-4">
+          <div className="flex items-center justify-between">
+            <CardDescription className="text-sm font-medium text-gray-500">
+              Total Offers
+            </CardDescription>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" size="icon" className="size-8">
+                    <span className="sr-only">View offers details</span>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="size-4 text-muted-foreground"
+                    >
+                      <circle cx="12" cy="12" r="10" />
+                      <path d="M12 16v-4" />
+                      <path d="M12 8h.01" />
+                    </svg>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Total number of offers</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+          <CardTitle className="text-2xl font-semibold tracking-tight text-gray-900">
+            {isLoading ? (
+              <Skeleton className="h-6 w-24" />
+            ) : (
+              totalOffers.toLocaleString()
+            )}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-6 pt-0">
+          <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
+            Campaign offers
+          </div>
+          <p className="text-sm text-gray-500">Active offers</p>
         </CardContent>
       </Card>
     </div>
