@@ -13,7 +13,7 @@ export default function PlatformLayout({
       <SiteHeader />
       <div className="flex flex-1">
         <div className="flex flex-1 flex-col gap-4">
-          <main className="mx-auto w-full max-w-[90rem] px-4 sm:px-6 lg:px-8">
+          <main className="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8">
             {children}
             <Footer />
           </main>

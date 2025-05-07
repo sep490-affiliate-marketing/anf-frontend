@@ -240,4 +240,5 @@ export const adminStatisticsQueryKeys = {
       "complaintTickets",
       { from, to },
     ] as const,
+  allTotal: () => [...adminStatisticsQueryKeys.origin, "allTotal"] as const,
 } as const
