@@ -1,9 +1,6 @@
 "use client"
 
-import { Suspense } from "react"
-import { useState } from "react"
-
-import { useSearchParams } from "next/navigation"
+import { Suspense, useState } from "react"
 
 import { BarChart3, LineChart, PieChart, TrendingUp } from "lucide-react"
 import {
@@ -200,7 +197,6 @@ const columns = [
 ]
 
 function CampaignReportContent() {
-  const searchParams = useSearchParams()
   const [activeTab, setActiveTab] = useState("overview")
 
   // Calculate totals for overview cards
