@@ -1,6 +1,7 @@
 import {
   authQueryKeys,
   campaignQueryKeys,
+  offerQueryKeys,
   transactionQueryKeys,
 } from "@/constant/react-query"
 import {
@@ -177,6 +178,9 @@ class NotificationHub {
               window.location.href = `/advertiser/campaigns/${message.campaignId}/offers/${message.offerId}#publishers`
             },
           },
+        })
+        this.queryClient.invalidateQueries({
+          queryKey: offerQueryKeys.global.publisherInOffer(message.offerId),
         })
       }
     )
