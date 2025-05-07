@@ -78,9 +78,10 @@ export default function UserAvatarButton() {
               <span className="line-clamp-1 truncate font-medium">
                 {user.firstName} {user.lastName}
               </span>
-              {user && "currentBalance" in user && (
+
+              {user && "balance" in user && (
                 <span className="text-xs text-muted-foreground">
-                  {formatVNDCurrency((user as any).currentBalance || 0)}
+                  {formatVNDCurrency((user as any).balance || 0)}
                 </span>
               )}
             </div>
