@@ -450,9 +450,7 @@ const OfferList = ({
                     </div>
                   </FormControl>
                   <FormMessage />
-                  <FormDescription>
-                    Minimum bid amount is 300 VND
-                  </FormDescription>
+                  <FormDescription>Minimum bid amount is 300 ₫</FormDescription>
                 </FormItem>
               )}
             />
