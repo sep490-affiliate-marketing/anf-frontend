@@ -142,7 +142,7 @@ export function DeviceDistributionChart({
                       dy="1.6em"
                       className="text-xs text-muted-foreground"
                     >
-                      Total client device
+                      Total device clicks
                     </tspan>
                   </text>
                 </PieChart>
