@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react"
 
-import { format } from "date-fns"
+import { endOfMonth, format, startOfMonth } from "date-fns"
 import { Check, ChevronsUpDown } from "lucide-react"
 import { parseAsIsoDate, parseAsString, useQueryState } from "nuqs"
 import { DateRange } from "react-day-picker"
@@ -71,11 +71,11 @@ interface Campaign {
 export function PublisherDashboard() {
   const [startDate, setStartDate] = useQueryState(
     "startDate",
-    parseAsIsoDate.withDefault(new Date())
+    parseAsIsoDate.withDefault(startOfMonth(new Date()))
   )
   const [endDate, setEndDate] = useQueryState(
     "endDate",
-    parseAsIsoDate.withDefault(new Date())
+    parseAsIsoDate.withDefault(endOfMonth(new Date()))
   )
   const [selectedCampaign, setSelectedCampaign] = useQueryState(
     "selectedCampaign",

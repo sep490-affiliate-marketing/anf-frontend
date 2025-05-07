@@ -101,7 +101,7 @@ export function RevenueChart({
             <LineChart
               accessibilityLayer
               data={completeData}
-              margin={{ top: 20 }}
+              margin={{ top: 20, right: 20, left: 20 }}
             >
               <CartesianGrid
                 strokeDasharray="3 3"
