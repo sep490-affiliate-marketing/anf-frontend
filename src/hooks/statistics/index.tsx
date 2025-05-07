@@ -11,6 +11,7 @@ import { toast } from "sonner"
 import {
   IGenerateStatisticsErrorResponse,
   IGenerateStatisticsResponse,
+  IGetAdminAllTotalStatisticsResponse,
   IGetAdminCampaignStatisticsResponse,
   IGetAdminTicketStatisticsResponse,
   IGetAdminUserStatisticsResponse,
@@ -485,5 +486,30 @@ export const useGetAdminComplaintTicketStatistics = (
       }
     },
     enabled: !!from && !!to,
+  })
+}
+
+// Hook to get admin all total statistics
+export const useGetAdminAllTotalStatistics = () => {
+  return useQuery({
+    queryKey: adminStatisticsQueryKeys.allTotal(),
+    queryFn: async () => {
+      try {
+        const { data } =
+          await apiClient.get<IGetAdminAllTotalStatisticsResponse>(
+            `/api/affiliate-network/stats/admin`
+          )
+        return {
+          isSuccess: true,
+          message: data.message,
+          data: data.value,
+        }
+      } catch (error) {
+        const errRes = extractApiError(error)
+        throw new Error(
+          errRes?.details ?? "Failed to fetch admin all total statistics"
+        )
+      }
+    },
   })
 }

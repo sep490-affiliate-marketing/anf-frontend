@@ -30,6 +30,13 @@ export const campaignQueryKeys = {
         "active",
         { pageNumber, pageSize, ...filters },
       ] as const,
+    listByDate: (page: number, pageSize: number, from: string, to: string) =>
+      [
+        ...campaignQueryKeys.origin,
+        "global",
+        "byDate",
+        { page, pageSize, from, to },
+      ] as const,
   },
 
   admin: {
@@ -233,4 +240,5 @@ export const adminStatisticsQueryKeys = {
       "complaintTickets",
       { from, to },
     ] as const,
+  allTotal: () => [...adminStatisticsQueryKeys.origin, "allTotal"] as const,
 } as const
