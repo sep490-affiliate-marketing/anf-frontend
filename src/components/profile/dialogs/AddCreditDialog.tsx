@@ -1,6 +1,6 @@
 import { useState } from "react"
 
-import { DollarSign, InfoIcon, Loader2 } from "lucide-react"
+import { InfoIcon, Loader2 } from "lucide-react"
 
 import { formatVNDCurrency } from "@/lib/utils"
 
@@ -39,14 +39,6 @@ export function AddCreditDialog({ children }: { children: React.ReactNode }) {
     addCredit({ amount })
   }
 
-  // Format number with commas for thousands
-  const formatNumber = (value: string) => {
-    if (!value) return "0.00"
-    const num = parseFloat(value)
-    if (isNaN(num)) return "0.00"
-    return num.toLocaleString("vi-VN")
-  }
-
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
@@ -79,12 +71,12 @@ export function AddCreditDialog({ children }: { children: React.ReactNode }) {
                     type="number"
                     placeholder="0.00"
                     className="h-11 pl-9"
-                    min="10"
+                    min="200000"
                     step="1"
                   />
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Minimum amount: 10 ₫
+                  Minimum amount: 200,000 ₫
                 </p>
                 {error && <p className="text-xs text-destructive">{error}</p>}
               </div>
