@@ -221,7 +221,7 @@ export default function TransactionDataTable() {
                             </div>
                             <div>
                               <div className="font-medium">
-                                {isWithdrawal ? "Withdrawal" : "Deposit"}
+                                {transaction.reason}
                               </div>
                               <div className="text-xs text-muted-foreground">
                                 Transaction #{transaction.id}

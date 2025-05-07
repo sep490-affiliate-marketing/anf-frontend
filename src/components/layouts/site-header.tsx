@@ -104,11 +104,11 @@ const getAccessibleRoutes = (
       roles: [UserRoleEnum.ADVERTISER, UserRoleEnum.PUBLISHER],
     },
 
-    {
-      title: "Tickets",
-      url: "/tickets",
-      matchPattern: "tickets",
-    },
+    // {
+    //   title: "Tickets",
+    //   url: "/tickets",
+    //   matchPattern: "tickets",
+    // },
 
     {
       title: "Profile",
