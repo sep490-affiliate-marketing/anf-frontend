@@ -13,7 +13,10 @@ import { IGetPublisherRevenueStatistics } from "@/types/statistics.type"
 import { cn } from "@/lib/utils"
 
 import { useGetCampaignsByDate } from "@/hooks/campaign"
-import { useGetPublisherRevenueStatistics } from "@/hooks/statistics"
+import {
+  useGetPublisherCampaignRevenueStatisticsById,
+  useGetPublisherRevenueStatistics,
+} from "@/hooks/statistics"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -68,6 +71,14 @@ interface Campaign {
   totalComputer: number
 }
 
+interface CampaignOption {
+  label: string
+  value: string
+  categoryName?: string
+  startDate?: string
+  endDate?: string
+}
+
 export function PublisherDashboard() {
   const [startDate, setStartDate] = useQueryState(
     "startDate",
@@ -83,12 +94,17 @@ export function PublisherDashboard() {
   )
   const [open, setOpen] = useState(false)
 
+  const { data: revenueData, isFetching: isRevenueFetching } =
+    useGetPublisherRevenueStatistics(
+      format(startDate, "yyyy-MM-dd"),
+      format(endDate, "yyyy-MM-dd")
+    )
+
   const {
-    data: revenueData,
-    isFetching: isRevenueFetching,
-    // isError: isRevenueError,
-    // error: revenueError,
-  } = useGetPublisherRevenueStatistics(
+    data: revenueDataByCampaign,
+    isFetching: isRevenueByCampaignFetching,
+  } = useGetPublisherCampaignRevenueStatisticsById(
+    selectedCampaign !== "all" ? parseInt(selectedCampaign) : 0,
     format(startDate, "yyyy-MM-dd"),
     format(endDate, "yyyy-MM-dd")
   )
@@ -101,6 +117,43 @@ export function PublisherDashboard() {
       format(endDate, "yyyy-MM-dd")
     )
 
+  // Define campaign options with a default "all" option
+  const campaignOptions = useMemo(() => {
+    const defaultOption = {
+      label: "All Campaigns",
+      value: "all",
+    }
+
+    if (!campaignsDataResponse?.value) return [defaultOption]
+
+    return [
+      defaultOption,
+      ...campaignsDataResponse.value.map((campaign: ICampaign) => ({
+        label: campaign.name,
+        value: campaign.id.toString(),
+        categoryName: campaign.categoryName || "No Category",
+        startDate: campaign.startDate,
+        endDate: campaign.endDate,
+      })),
+    ]
+  }, [campaignsDataResponse])
+
+  // Unified data source based on selected campaign
+  const activeData = useMemo(() => {
+    if (selectedCampaign === "all") {
+      return revenueData
+    } else if (selectedCampaign && selectedCampaign !== "all") {
+      return revenueDataByCampaign
+    }
+    return null
+  }, [selectedCampaign, revenueData, revenueDataByCampaign])
+
+  const isDataLoading = useMemo(() => {
+    return selectedCampaign === "all"
+      ? isRevenueFetching
+      : isRevenueByCampaignFetching
+  }, [selectedCampaign, isRevenueFetching, isRevenueByCampaignFetching])
+
   const handleDateRangeChange = (values: { range: DateRange }) => {
     if (values.range.from && values.range.to) {
       setStartDate(values.range.from)
@@ -110,7 +163,7 @@ export function PublisherDashboard() {
 
   // Calculate totals from real data
   const totals = useMemo<Totals>(() => {
-    if (!revenueData?.data)
+    if (!activeData?.data)
       return {
         totalClicks: 0,
         totalVerifiedClicks: 0,
@@ -118,7 +171,7 @@ export function PublisherDashboard() {
         totalRevenue: 0,
       }
 
-    return Object.values(revenueData.data).reduce(
+    return Object.values(activeData.data).reduce(
       (acc: Totals, day: IGetPublisherRevenueStatistics) => {
         day.campaigns.forEach((campaign: Campaign) => {
           if (
@@ -140,73 +193,13 @@ export function PublisherDashboard() {
         totalRevenue: 0,
       }
     )
-  }, [revenueData, selectedCampaign])
-
-  // Get unique campaign IDs for the filter
-  const campaignOptions = useMemo(() => {
-    // Default option is always "All Campaigns"
-    const defaultOption = [
-      {
-        value: "all",
-        label: "All Campaigns",
-        description: "",
-        startDate: "",
-        endDate: "",
-        categoryName: "",
-      },
-    ]
-
-    // Use campaignsDataResponse if available
-    if (
-      campaignsDataResponse?.isSuccess &&
-      campaignsDataResponse.value?.data?.length > 0
-    ) {
-      return [
-        ...defaultOption,
-        ...campaignsDataResponse.value.data.map((campaign: ICampaign) => ({
-          value: campaign.id.toString(),
-          label: campaign.name || `Campaign #${campaign.id}`,
-          description: campaign.description || "",
-          startDate: campaign.startDate,
-          endDate: campaign.endDate,
-          categoryName: campaign.categoryName || "Uncategorized",
-        })),
-      ]
-    }
-
-    // Fallback to revenueData if campaignsDataResponse is not available
-    if (revenueData?.data) {
-      const uniqueCampaigns = new Set<number>()
-      Object.values(revenueData.data).forEach(
-        (day: IGetPublisherRevenueStatistics) => {
-          day.campaigns.forEach((campaign: Campaign) => {
-            uniqueCampaigns.add(campaign.campaignId)
-          })
-        }
-      )
-
-      return [
-        ...defaultOption,
-        ...Array.from(uniqueCampaigns).map((id) => ({
-          value: id.toString(),
-          label: `Campaign #${id}`,
-          description: "",
-          startDate: "",
-          endDate: "",
-          categoryName: "",
-        })),
-      ]
-    }
-
-    // If no data is available, just return the default option
-    return defaultOption
-  }, [campaignsDataResponse, revenueData])
+  }, [activeData, selectedCampaign])
 
   // Process data for daily clicks chart
   const dailyClicksData = useMemo(() => {
-    if (!revenueData?.data) return []
+    if (!activeData?.data) return []
 
-    return Object.values(revenueData.data)
+    return Object.values(activeData.data)
       .map((day) => {
         const dayTotals = day.campaigns.reduce(
           (acc: DailyTotals, campaign: Campaign) => {
@@ -233,13 +226,13 @@ export function PublisherDashboard() {
         }
       })
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-  }, [revenueData, selectedCampaign])
+  }, [activeData, selectedCampaign])
 
   // Process data for revenue chart
   const revenueChartData = useMemo(() => {
-    if (!revenueData?.data) return []
+    if (!activeData?.data) return []
 
-    return Object.values(revenueData.data)
+    return Object.values(activeData.data)
       .map((day) => ({
         date: format(new Date(day.date), "MMM d"),
         revenue: day.campaigns.reduce((total: number, campaign: Campaign) => {
@@ -253,13 +246,13 @@ export function PublisherDashboard() {
         }, 0),
       }))
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-  }, [revenueData, selectedCampaign])
+  }, [activeData, selectedCampaign])
 
   // Calculate device distribution from real data
   const deviceDistributionData = useMemo(() => {
-    if (!revenueData?.data) return []
+    if (!activeData?.data) return []
 
-    const deviceTotals = Object.values(revenueData.data).reduce(
+    const deviceTotals = Object.values(activeData.data).reduce(
       (acc: DeviceTotals, day: IGetPublisherRevenueStatistics) => {
         day.campaigns.forEach((campaign: Campaign) => {
           if (
@@ -304,7 +297,7 @@ export function PublisherDashboard() {
         fill: "#6366f1", // Indigo-500
       },
     ]
-  }, [revenueData, selectedCampaign])
+  }, [activeData, selectedCampaign])
 
   const totalDeviceClicks = useMemo(() => {
     return deviceDistributionData.reduce((sum, device) => sum + device.value, 0)
@@ -394,7 +387,7 @@ export function PublisherDashboard() {
                   <CommandList>
                     <CommandEmpty>No campaign found.</CommandEmpty>
                     <CommandGroup>
-                      {campaignOptions.map((option) => (
+                      {campaignOptions.map((option: CampaignOption) => (
                         <CommandItem
                           key={option.value}
                           value={option.value}
@@ -471,7 +464,7 @@ export function PublisherDashboard() {
 
         {/* Stats Overview */}
         <AnalyticsGrid
-          isLoading={isRevenueFetching}
+          isLoading={isDataLoading}
           totalClicks={totals.totalClicks}
           totalRevenue={totals.totalRevenue}
           totalVerifiedClicks={totals.totalVerifiedClicks}
@@ -482,7 +475,7 @@ export function PublisherDashboard() {
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-6">
           {/* Daily Clicks Chart */}
           <DailyClicksChart
-            isLoading={isRevenueFetching}
+            isLoading={isDataLoading}
             data={dailyClicksData}
             startDate={startDate}
             endDate={endDate}
@@ -490,7 +483,7 @@ export function PublisherDashboard() {
 
           {/* Revenue Chart */}
           <RevenueChart
-            isLoading={isRevenueFetching}
+            isLoading={isDataLoading}
             data={revenueChartData}
             startDate={startDate}
             endDate={endDate}
@@ -498,7 +491,7 @@ export function PublisherDashboard() {
 
           {/* Device Distribution */}
           <DeviceDistributionChart
-            isLoading={isRevenueFetching}
+            isLoading={isDataLoading}
             data={deviceDistributionData}
             totalClicks={totalDeviceClicks}
           />
@@ -507,3 +500,4 @@ export function PublisherDashboard() {
     </div>
   )
 }
+

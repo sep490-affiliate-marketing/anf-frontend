@@ -60,6 +60,7 @@ export interface IGetCampaignByCampIdResponse {
 }
 
 export type IGetAllCampaignsResponse = IPaginationResponse<ICampaign>
+export type IGetCampaignsByDateResponse = IBackendRes<ICampaign[]>
 
 export interface IActivateCampaignResponse {
   success: true

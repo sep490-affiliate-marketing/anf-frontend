@@ -378,7 +378,9 @@ export const useGetPublisherCampaignRevenueStatisticsById = (
           from: from ?? "",
           to: to ?? "",
         })
-        const { data } = await apiClient.get<IPaginationResponse<any>>(
+        const { data } = await apiClient.get<
+          IPaginationResponse<IGetPublisherRevenueStatisticsResponse>
+        >(
           `/api/affiliate-network/publisher-stats/campaign/${id}/revenue?${queryString}`
         )
         return {

@@ -23,6 +23,7 @@ import {
   IGetCampaignByCampIdResponse,
   IGetCampaignDetailForPublisherResponse,
   IGetCampaignsByAdvertiserResponse,
+  IGetCampaignsByDateResponse,
   IGetPublisherCampaignsErrorResponse,
   IGetPublisherCampaignsResponse,
   IUpdateCampaignErrorResponse,
@@ -574,7 +575,7 @@ export const useGetCampaignsByDate = (
           from,
           to,
         })
-        const { data } = await apiClient.get<IGetAllCampaignsResponse>(
+        const { data } = await apiClient.get<IGetCampaignsByDateResponse>(
           `/api/affiliate-network/campaigns/date?${queryString}`
         )
         return data
