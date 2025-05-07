@@ -266,7 +266,7 @@ export default function SuccessPage() {
                   className={`mt-1 flex items-center text-sm font-medium ${statusInfo.color}`}
                 >
                   <svg
-                    className="mr-1.5 size-4 shrink-0"
+                    className="mr-1.5 size-4 shrink-0 text-green-600"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                     xmlns="http://www.w3.org/2000/svg"
@@ -277,7 +277,7 @@ export default function SuccessPage() {
                       clipRule="evenodd"
                     ></path>
                   </svg>
-                  {statusInfo.label}
+                  Success
                 </p>
               </div>
             </div>
