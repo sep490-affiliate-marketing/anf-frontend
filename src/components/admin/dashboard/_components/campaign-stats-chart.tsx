@@ -94,7 +94,7 @@ export function CampaignStatsChart({
         {isLoading ? (
           <Skeleton className="h-[300px] w-full" />
         ) : completeData.length === 0 ? (
-          <div className="flex h-[300px] w-full flex-col items-center justify-center rounded-lg border-2 border-dashed text-center">
+          <div className="flex h-[300px] w-full flex-col items-center justify-center rounded-lg text-center">
             <h3 className="text-lg font-semibold">
               No Campaign Data Available
             </h3>

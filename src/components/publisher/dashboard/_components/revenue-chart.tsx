@@ -82,7 +82,7 @@ export function RevenueChart({
         {isLoading ? (
           <Skeleton className="h-[320px] w-full" />
         ) : !completeData || completeData.length === 0 ? (
-          <div className="flex h-[320px] w-full flex-col items-center justify-center rounded-lg border-2 border-dashed text-center">
+          <div className="flex h-[320px] w-full flex-col items-center justify-center rounded-lg text-center">
             <h3 className="text-lg font-semibold">No Revenue Data Available</h3>
             <p className="mt-2 text-sm text-muted-foreground">
               No revenue recorded for the selected period

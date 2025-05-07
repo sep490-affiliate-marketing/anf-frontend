@@ -92,7 +92,7 @@ export function DailyClicksChart({
         {isLoading ? (
           <Skeleton className="h-[300px] w-full" />
         ) : completeData.length === 0 ? (
-          <div className="flex h-[300px] w-full flex-col items-center justify-center rounded-lg border-2 border-dashed text-center">
+          <div className="flex h-[300px] w-full flex-col items-center justify-center rounded-lg text-center">
             <h3 className="text-lg font-semibold">No Click Data Available</h3>
             <p className="mt-2 text-sm text-muted-foreground">
               No clicks recorded for the selected period
