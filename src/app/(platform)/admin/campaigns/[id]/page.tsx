@@ -163,7 +163,7 @@ export default function CampaignDetailsPage({ params: paramsPromise }: Props) {
                       </p>
                       <div className="mt-2 flex items-baseline gap-2">
                         <p className="text-3xl font-semibold text-purple-600">
-                          {daysLeft}
+                          {daysLeft > 0 ? daysLeft : 0}
                         </p>
                         <p className="text-sm font-medium text-gray-500">
                           days
