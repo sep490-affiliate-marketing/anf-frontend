@@ -5,7 +5,7 @@ import { useEffect, useState } from "react"
 import Image from "next/image"
 
 import axios, { AxiosError } from "axios"
-import { Loader2, Plus } from "lucide-react"
+import { Loader2, Plus, Search } from "lucide-react"
 import { toast } from "sonner"
 
 import { IBank } from "@/types/bank.type"
@@ -14,6 +14,14 @@ import { BankingInfo } from "@/types/profile"
 import { useAddBankAccount, useGetBankList } from "@/hooks/bank"
 
 import { Button } from "@/components/ui/button"
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command"
 import {
   Dialog,
   DialogContent,
@@ -26,22 +34,23 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 
 export function AddBankAccountDialog() {
   const [bankingInfo, setBankingInfo] = useState<Partial<BankingInfo>>({
     accountNumber: "",
     bankName: "",
   })
+  const [searchQuery, setSearchQuery] = useState("")
+  console.log(searchQuery)
   const [isLookupEnabled, setIsLookupEnabled] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
   const [isLookingUpAccount, setIsLookingUpAccount] = useState(false)
   const [lookupError, setLookupError] = useState<string | null>(null)
+  const [openBankSelect, setOpenBankSelect] = useState(false)
 
   const [accountHolderName, setAccountHolderName] = useState("")
   const [addBankAccountError, setAddBankAccountError] = useState<Error | null>(
@@ -52,7 +61,7 @@ export function AddBankAccountDialog() {
     useAddBankAccount()
 
   const { data: bankList, isLoading: isLoadingBankList } = useGetBankList()
-
+  console.log(bankList)
   // Reset form when dialog is opened/closed
   useEffect(() => {
     if (!isOpen) {
@@ -192,35 +201,58 @@ export function AddBankAccountDialog() {
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
               <Label htmlFor="bankName">Select Bank</Label>
-              <Select
-                value={bankingInfo.bankName}
-                onValueChange={handleBankChange}
-                disabled={isLoadingBankList}
-              >
-                <SelectTrigger className="h-11 w-full">
-                  <SelectValue placeholder="Select a bank" />
-                </SelectTrigger>
-                <SelectContent>
-                  {bankList?.data?.map((bank: IBank) => (
-                    <SelectItem
-                      key={bank.id}
-                      value={bank.code}
-                      className="flex items-center gap-2"
-                    >
-                      <div className="flex items-center gap-2">
-                        <Image
-                          src={bank.icon_url}
-                          alt={bank.short_name}
-                          width={16}
-                          height={16}
-                          className="size-4 object-contain"
-                        />
-                        <span>{bank.name}</span>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Popover open={openBankSelect} onOpenChange={setOpenBankSelect}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={openBankSelect}
+                    className="h-11 w-full justify-between"
+                    disabled={isLoadingBankList}
+                  >
+                    {bankingInfo.bankName
+                      ? bankList?.data?.find(
+                          (bank: IBank) => bank.code === bankingInfo.bankName
+                        )?.short_name
+                      : "Select a bank"}
+                    <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                  <Command>
+                    <CommandInput
+                      placeholder="Search banks..."
+                      value={searchQuery}
+                      onValueChange={setSearchQuery}
+                    />
+                    <CommandList>
+                      <CommandEmpty>No banks found.</CommandEmpty>
+                      <CommandGroup>
+                        {bankList?.data.map((bank: IBank) => (
+                          <CommandItem
+                            key={bank.id}
+                            value={bank.short_name}
+                            onSelect={(value) => {
+                              handleBankChange(bank.code)
+                              setOpenBankSelect(false)
+                            }}
+                            className="flex items-center gap-2"
+                          >
+                            <Image
+                              src={bank.icon_url}
+                              alt={bank.short_name}
+                              width={16}
+                              height={16}
+                              className="size-4 object-contain"
+                            />
+                            <span>{bank.short_name}</span>
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
             </div>
 
             <div className="grid gap-2">
@@ -294,3 +326,4 @@ export function AddBankAccountDialog() {
     </Dialog>
   )
 }
+

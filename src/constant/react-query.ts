@@ -14,12 +14,21 @@ export const campaignQueryKeys = {
   global: {
     details: (campaignId: string) =>
       [...campaignQueryKeys.origin, "global", "details", campaignId] as const,
-    listActive: (page: number, pageSize: number) =>
+    listActive: (
+      pageNumber: number,
+      pageSize: number,
+      filters?: {
+        category?: string
+        search?: string
+        pricingModel?: string
+        sortBy?: string
+      }
+    ) =>
       [
         ...campaignQueryKeys.origin,
         "global",
         "active",
-        { page, pageSize },
+        { pageNumber, pageSize, ...filters },
       ] as const,
     listByDate: (page: number, pageSize: number, from: string, to: string) =>
       [

@@ -243,15 +243,45 @@ export const useGetCampaignsByAdvertiser = (
 }
 
 export const useGetActiveCampaigns = (
-  page: number = 1,
-  pageSize: number = 10
+  params: {
+    pageNumber?: number
+    pageSize?: number
+    category?: string
+    search?: string
+    pricingModel?: string
+    sortBy?: string
+  } = {}
 ) => {
+  const {
+    pageNumber = 1,
+    pageSize = 9,
+    category,
+    search,
+    pricingModel,
+    sortBy,
+  } = params
+
   return useQuery({
-    queryKey: campaignQueryKeys.global.listActive(page, pageSize),
+    queryKey: campaignQueryKeys.global.listActive(pageNumber, pageSize, {
+      category,
+      search,
+      pricingModel,
+      sortBy,
+    }),
     queryFn: async () => {
       try {
+        const queryParams = new URLSearchParams({
+          pageNumber: pageNumber.toString(),
+          pageSize: pageSize.toString(),
+        })
+
+        if (category) queryParams.append("category", category)
+        if (search) queryParams.append("search", search)
+        if (pricingModel) queryParams.append("pricingModel", pricingModel)
+        if (sortBy) queryParams.append("sortBy", sortBy)
+
         const { data } = await apiClient.get<IGetAllCampaignsResponse>(
-          `/api/affiliate-network/campaigns?pageNumber=${page}&pageSize=${pageSize}`
+          `/api/affiliate-network/campaigns?${queryParams.toString()}`
         )
         return data
       } catch {
@@ -259,7 +289,7 @@ export const useGetActiveCampaigns = (
           isSuccess: false,
           message: "Something went wrong while fetching campaigns",
           value: {
-            pageNumber: page,
+            pageNumber: pageNumber,
             pageSize: pageSize,
             totalPages: 0,
             totalRecords: 0,
@@ -382,15 +412,15 @@ export const useUpdateCampaignStatus = () => {
 }
 
 export const useGetAdminCampaigns = (
-  page: number = 1,
+  pageNumber: number = 1,
   pageSize: number = 10
 ) => {
   return useQuery({
-    queryKey: campaignQueryKeys.admin.list(page, pageSize),
+    queryKey: campaignQueryKeys.admin.list(pageNumber, pageSize),
     queryFn: async () => {
       try {
         const { data } = await apiClient.get<IGetAllCampaignsResponse>(
-          "/api/affiliate-network/campaigns/offers"
+          `/api/affiliate-network/campaigns/offers?pageNumber=${pageNumber}&pageSize=${pageSize}`
         )
         return data
       } catch {
@@ -398,8 +428,8 @@ export const useGetAdminCampaigns = (
           isSuccess: false,
           message: "Something went wrong while fetching campaigns",
           value: {
-            pageNumber: 1,
-            pageSize: 10,
+            pageNumber: pageNumber,
+            pageSize: pageSize,
             totalPages: 0,
             totalRecords: 0,
             data: [],

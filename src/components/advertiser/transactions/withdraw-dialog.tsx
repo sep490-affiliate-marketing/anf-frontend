@@ -114,7 +114,7 @@ export function WithdrawDialog() {
   }, [isOpen, withDrawResquestForm])
 
   // Use balance property from user object
-  const availableBalance = user?.balance ?? 0
+  const availableBalance = user?.currentBalance ?? 0
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>

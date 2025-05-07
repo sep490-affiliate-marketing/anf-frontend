@@ -492,16 +492,26 @@ export function CampaignDetails({ campaignId }: { campaignId: number }) {
                       </p>
                     </div>
                   )}
-
-                  <div className="mt-6">
-                    <Button
-                      className="w-full"
-                      variant={buttonConfig.variant}
-                      disabled={buttonConfig.disabled}
-                      onClick={() => handleJoinOffer(offer.id)}
-                    >
-                      {buttonConfig.text}
-                    </Button>
+                  <div className="flex w-full items-center gap-2">
+                    <div className="mt-6 w-full">
+                      <Button
+                        className="w-full"
+                        variant={buttonConfig.variant}
+                        disabled={buttonConfig.disabled}
+                        onClick={() => handleJoinOffer(offer.id)}
+                      >
+                        {buttonConfig.text}
+                      </Button>
+                    </div>
+                    {offer.pubOfferStatus === 2 && (
+                      <div className="mt-6 w-full">
+                        <Link
+                          href={`/publisher/campaigns/${campaignId}/offers/${offer.id}`}
+                        >
+                          <Button className="w-full">Conversion Report</Button>
+                        </Link>
+                      </div>
+                    )}
                   </div>
                 </div>
               )
@@ -532,7 +542,9 @@ export function CampaignDetails({ campaignId }: { campaignId: number }) {
                         0
                       )) *
                       100
-                  ).toFixed(2)}
+                  )
+                    .toFixed(2)
+                    .replace(".", ",")}
                   % used
                 </span>
               </div>

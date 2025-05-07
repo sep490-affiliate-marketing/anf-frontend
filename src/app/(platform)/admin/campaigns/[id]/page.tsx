@@ -15,6 +15,7 @@ import { formatVNDCurrency } from "@/lib/utils"
 import { useGetCampaignById } from "@/hooks/campaign"
 
 import { Badge } from "@/components/ui/badge"
+import { Progress } from "@/components/ui/progress"
 import {
   Tooltip,
   TooltipContent,
@@ -301,7 +302,7 @@ export default function CampaignDetailsPage({ params: paramsPromise }: Props) {
                       )}
                     </span>
                   </div>
-                  <div className="h-2.5 w-full overflow-hidden rounded-full bg-gray-100">
+                  {/* <div className="h-2.5 w-full overflow-hidden rounded-full bg-gray-100">
                     <div
                       className="h-full rounded-full bg-purple-600 transition-all"
                       style={{
@@ -316,7 +317,21 @@ export default function CampaignDetailsPage({ params: paramsPromise }: Props) {
                         )}%`,
                       }}
                     />
-                  </div>
+                  </div> */}
+                  <Progress
+                    value={Number(
+                      (
+                        100 -
+                        (campaign.balance /
+                          campaign.offers.reduce(
+                            (sum, offer) => sum + offer.budget,
+                            0
+                          )) *
+                          100
+                      ).toFixed(2)
+                    )}
+                    className="h-2.5 w-full overflow-hidden rounded-full bg-gray-100"
+                  />
                 </div>
               </div>
             </div>

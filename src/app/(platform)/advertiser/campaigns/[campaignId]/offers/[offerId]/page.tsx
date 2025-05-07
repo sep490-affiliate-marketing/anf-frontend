@@ -16,6 +16,7 @@ import {
   Copy,
   DollarSign,
   FileCode,
+  History,
   Info,
   Loader2,
   Megaphone,
@@ -75,6 +76,7 @@ import {
 import { OfferStatusBadge } from "@/components/badge/offer-status-badge"
 import { EmptyTable } from "@/components/data-table/empty-table"
 import { Preview } from "@/components/editor/preview"
+import PostbackDataTable from "@/components/publisher/offers/postback-data-table"
 import { Spinner } from "@/components/spinner"
 
 interface OfferDetailParams {
@@ -135,6 +137,7 @@ export default function OfferDetailPage({
         "publishers",
         "details",
         "tracking",
+        "postbacks",
       ].includes(hash)
         ? hash
         : "overview"
@@ -153,6 +156,7 @@ export default function OfferDetailPage({
           "publishers",
           "details",
           "tracking",
+          "postbacks",
         ].includes(hash)
       ) {
         setActiveTab(hash)
@@ -341,13 +345,13 @@ export default function OfferDetailPage({
                 <PieChart className="size-4" />
                 Overview
               </TabsTrigger>
-              <TabsTrigger
+              {/* <TabsTrigger
                 value="statistics"
                 className="relative gap-2 rounded-none py-2 after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none data-[state=active]:after:bg-primary"
               >
                 <BarChart3 className="size-4" />
                 Statistics
-              </TabsTrigger>
+              </TabsTrigger> */}
               <TabsTrigger
                 value="publishers"
                 className="relative gap-2 rounded-none py-2 after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none data-[state=active]:after:bg-primary"
@@ -355,13 +359,19 @@ export default function OfferDetailPage({
                 <Users className="size-4" />
                 Publishers
               </TabsTrigger>
-
-              <TabsTrigger
+              {/* <TabsTrigger
                 value="tracking"
                 className="relative gap-2 rounded-none py-2 after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none data-[state=active]:after:bg-primary"
               >
                 <FileCode className="size-4" />
                 Tracking
+              </TabsTrigger> */}
+              <TabsTrigger
+                value="postbacks"
+                className="relative gap-2 rounded-none py-2 after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none data-[state=active]:after:bg-primary"
+              >
+                <History className="size-4" />
+                Postbacks
               </TabsTrigger>
             </TabsList>
           </div>
@@ -377,13 +387,23 @@ export default function OfferDetailPage({
                 icon={<></>}
                 description="Total budget allocated"
               />
-              <StatCard
-                title="Bid Amount"
-                value={formatVNDCurrency(offerResData.bid)}
-                //icon={<DollarSign className="size-4 text-gray-400" />}
-                icon={<></>}
-                description={`Per ${offerResData.pricingModel} payout`}
-              />
+              {offerResData.pricingModel === "CPS" ? (
+                <StatCard
+                  title="Commission"
+                  value={`${offerResData.commissionRate}%`}
+                  //icon={<DollarSign className="size-4 text-gray-400" />}
+                  icon={<></>}
+                  description={`Per ${offerResData.pricingModel} payout`}
+                />
+              ) : (
+                <StatCard
+                  title="Bid Amount"
+                  value={formatVNDCurrency(offerResData.bid)}
+                  //icon={<DollarSign className="size-4 text-gray-400" />}
+                  icon={<></>}
+                  description={`Per ${offerResData.pricingModel} payout`}
+                />
+              )}
               <StatCard
                 title="Campaign ID"
                 value={offerResData.campaignId}
@@ -640,17 +660,41 @@ export default function OfferDetailPage({
                             </TableCell>
                             <TableCell>
                               <div className="flex flex-wrap gap-1">
-                                {publisher.trafficSources.map(
-                                  (source: string) => (
+                                {publisher.trafficSources.map((source: any) => {
+                                  const getBadgeStyle = (provider: string) => {
+                                    switch (provider.toLowerCase()) {
+                                      case "tiktok":
+                                        return "bg-black text-white hover:bg-black/90"
+                                      case "instagram":
+                                        return "bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 text-white hover:opacity-90"
+                                      case "youtube":
+                                        return "bg-red-600 text-white hover:bg-red-700"
+                                      case "facebook":
+                                        return "bg-blue-600 text-white hover:bg-blue-700"
+                                      case "twitter":
+                                      case "x":
+                                        return "bg-black text-white hover:bg-black/90"
+                                      default:
+                                        return "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                                    }
+                                  }
+
+                                  return (
                                     <Badge
-                                      key={source}
+                                      key={`${source.id}-${source.provider}`}
                                       variant="secondary"
-                                      className="text-xs"
+                                      className={`text-xs ${getBadgeStyle(source.provider)}`}
                                     >
-                                      {source}
+                                      <Link
+                                        href={source.sourceUrl}
+                                        target="_blank"
+                                        className="flex items-center gap-1"
+                                      >
+                                        {source.provider}
+                                      </Link>
                                     </Badge>
                                   )
-                                )}
+                                })}
                               </div>
                             </TableCell>
                             <TableCell>
@@ -731,6 +775,24 @@ export default function OfferDetailPage({
                     </Table>
                   </div>
                 )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Postbacks Tab */}
+          <TabsContent value="postbacks" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <History className="size-5 text-purple-600" />
+                  Postback History
+                </CardTitle>
+                <CardDescription>
+                  View all postback events for this offer
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <PostbackDataTable offerId={Number(offerId)} />
               </CardContent>
             </Card>
           </TabsContent>

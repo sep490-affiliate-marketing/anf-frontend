@@ -231,10 +231,22 @@ export function ProfileSidebar() {
                   useGrouping: true,
                 }) || "0"}
               </span>
-              {/* <span className="ml-1 text-xs text-muted-foreground">VND</span> */}
             </>
           )}
         </div>
+        {user && "currentBalance" in user && (
+          <div className="mt-2 rounded-md border border-border/50 bg-background/50 p-2 text-xs text-muted-foreground">
+            <div className="flex items-center justify-between">
+              <span className="font-medium">
+                {user.currentBalance?.toLocaleString("en-US", {
+                  maximumFractionDigits: 0,
+                  useGrouping: true,
+                }) || "0"}
+              </span>
+              <span>Available</span>
+            </div>
+          </div>
+        )}
         <div className="mt-4">
           <AddCreditDialog>
             <Button

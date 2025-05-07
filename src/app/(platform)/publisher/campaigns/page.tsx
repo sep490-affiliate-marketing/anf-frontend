@@ -1,15 +1,18 @@
 "use client"
 
 import { Suspense } from "react"
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 
+import { CAMPAIGN_CATEGORIES } from "@/constant/campaign"
+import { useAuth } from "@/providers/auth-provider"
 import { format } from "date-fns"
 import { vi } from "date-fns/locale"
 import {
   ArrowRight,
+  Check,
   ChevronDown,
   GridIcon,
   Layers,
@@ -24,7 +27,10 @@ import { ICampaign } from "@/types/campaign.type"
 
 import { cn, formatVNDCurrency } from "@/lib/utils"
 
-import { useGetActiveCampaigns } from "@/hooks/campaign"
+import {
+  useGetActiveCampaigns,
+  useGetPublisherCampaigns,
+} from "@/hooks/campaign"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -62,15 +68,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
-// Filter categories for campaigns
-const categories = [
-  "All",
-  "E-commerce",
-  "Entertainment",
-  "Travel",
-  "Technology",
-  "Finance",
-]
 const pricingModels = ["All", "CPA", "CPC", "CPS"]
 const sortOptions = [
   { label: "Recent first", value: "recent" },
@@ -98,12 +95,18 @@ function OfferBadge({ model }: { model: string }) {
   )
 }
 
+// Define extended campaign type with join status
+interface ICampaignWithJoinStatus extends ICampaign {
+  isJoined?: boolean
+}
+
+// Update component props
 interface CampaignCardProps {
-  campaign: ICampaign
+  campaign: ICampaignWithJoinStatus
 }
 
 interface CampaignListItemProps {
-  campaign: ICampaign
+  campaign: ICampaignWithJoinStatus
 }
 
 // Component for campaign grid card
@@ -123,6 +126,9 @@ function CampaignCard({ campaign }: CampaignCardProps) {
           alt={campaign.name}
           className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
         />
+        {campaign.isJoined && (
+          <Badge className="absolute right-2 top-2 bg-green-500">Joined</Badge>
+        )}
       </div>
       <CardHeader className="flex-none space-y-2 p-4">
         <div className="flex items-start justify-between gap-2">
@@ -141,14 +147,23 @@ function CampaignCard({ campaign }: CampaignCardProps) {
           ))}
         </div>
         <div className="grid grid-cols-2 gap-4">
-          <div>
-            <p className="text-xs text-muted-foreground">Highest Payout</p>
-            <p className="font-medium">
-              {formatVNDCurrency(
-                Math.max(...campaign.offers.map((o) => o.bid))
-              )}
-            </p>
-          </div>
+          {campaign.offers[0].pricingModel != "CPS" ? (
+            <div>
+              <p className="text-xs text-muted-foreground">Highest Payout</p>
+              <p className="font-medium">
+                {formatVNDCurrency(
+                  Math.max(...campaign.offers.map((o) => o.bid))
+                )}
+              </p>
+            </div>
+          ) : (
+            <div>
+              <p className="text-xs text-muted-foreground">Commission</p>
+              <p className="font-medium">
+                {campaign.offers[0].commissionRate}%
+              </p>
+            </div>
+          )}
           <div>
             <p className="text-xs text-muted-foreground">Campaign Ends</p>
             <p className="font-medium">
@@ -184,6 +199,9 @@ function CampaignListItem({ campaign }: CampaignListItemProps) {
           alt={campaign.name}
           className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
         />
+        {campaign.isJoined && (
+          <Badge className="absolute right-2 top-2 bg-green-500">Joined</Badge>
+        )}
       </div>
       <div className="flex flex-1 flex-col p-4">
         <div className="flex items-center justify-between">
@@ -204,26 +222,23 @@ function CampaignListItem({ campaign }: CampaignListItemProps) {
         </p>
         <div className="mt-4 flex items-center justify-between">
           <div className="flex gap-6">
-            <div>
-              <p className="text-xs text-muted-foreground">Highest Payout</p>
-              <p className="font-medium">
-                {formatVNDCurrency(
-                  Math.max(...campaign.offers.map((o) => o.bid))
-                )}
-              </p>
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Duration</p>
-              <p className="font-medium">
-                {format(new Date(campaign.startDate), "dd/mm/yyyy", {
-                  locale: vi,
-                })}{" "}
-                -{" "}
-                {format(new Date(campaign.endDate), "dd/mm/yyyy", {
-                  locale: vi,
-                })}
-              </p>
-            </div>
+            {campaign.offers[0].pricingModel != "CPS" ? (
+              <div>
+                <p className="text-xs text-muted-foreground">Highest Payout</p>
+                <p className="font-medium">
+                  {formatVNDCurrency(
+                    Math.max(...campaign.offers.map((o) => o.bid))
+                  )}
+                </p>
+              </div>
+            ) : (
+              <div>
+                <p className="text-xs text-muted-foreground">Commission</p>
+                <p className="font-medium">
+                  {campaign.offers[0].commissionRate}%
+                </p>
+              </div>
+            )}
           </div>
           <div className="flex items-center gap-2">
             <Link href={`/publisher/campaigns/${campaign.id}`}>
@@ -246,6 +261,8 @@ function CampaignFilters({
   onCategoryChange,
   selectedPricingModel,
   onPricingModelChange,
+  showJoinedOnly,
+  onShowJoinedOnlyChange,
 }: {
   searchQuery: string
   onSearchChange: (value: string) => void
@@ -253,6 +270,8 @@ function CampaignFilters({
   onCategoryChange: (value: string) => void
   selectedPricingModel: string
   onPricingModelChange: (value: string) => void
+  showJoinedOnly: boolean
+  onShowJoinedOnlyChange: (value: boolean) => void
 }) {
   return (
     <div className="">
@@ -275,9 +294,10 @@ function CampaignFilters({
               <SelectValue placeholder="Category" />
             </SelectTrigger>
             <SelectContent>
-              {categories.map((category) => (
-                <SelectItem key={category} value={category}>
-                  {category}
+              <SelectItem value="All">All Categories</SelectItem>
+              {CAMPAIGN_CATEGORIES.map((category) => (
+                <SelectItem key={category.id} value={category.id.toString()}>
+                  {category.label}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -299,6 +319,16 @@ function CampaignFilters({
             </SelectContent>
           </Select>
 
+          <Button
+            variant={showJoinedOnly ? "default" : "outline"}
+            size="sm"
+            className="gap-1"
+            onClick={() => onShowJoinedOnlyChange(!showJoinedOnly)}
+          >
+            <Check className="size-4" />
+            Joined Only
+          </Button>
+
           <Sheet>
             <SheetTrigger asChild>
               <Button variant="outline" size="icon" className="shrink-0">
@@ -318,18 +348,20 @@ function CampaignFilters({
                   <div>
                     <h3 className="mb-2 text-sm font-medium">Categories</h3>
                     <div className="flex flex-wrap gap-2">
-                      {categories.map((category) => (
+                      {CAMPAIGN_CATEGORIES.map((category) => (
                         <Badge
-                          key={category}
+                          key={category.id}
                           variant={
-                            selectedCategory === category
+                            selectedCategory === category.id.toString()
                               ? "default"
                               : "outline"
                           }
                           className="cursor-pointer transition-colors"
-                          onClick={() => onCategoryChange(category)}
+                          onClick={() =>
+                            onCategoryChange(category.id.toString())
+                          }
                         >
-                          {category}
+                          {category.label}
                         </Badge>
                       ))}
                     </div>
@@ -343,7 +375,8 @@ function CampaignFilters({
 
       {(searchQuery ||
         selectedCategory !== "All" ||
-        selectedPricingModel !== "All") && (
+        selectedPricingModel !== "All" ||
+        showJoinedOnly) && (
         <div className="mt-3 flex flex-wrap items-center gap-2 border-t pt-3">
           <span className="text-sm text-muted-foreground">Active filters:</span>
           {searchQuery && (
@@ -385,9 +418,23 @@ function CampaignFilters({
               </button>
             </Badge>
           )}
+          {showJoinedOnly && (
+            <Badge variant="secondary" className="gap-1 pl-2">
+              Joined Only
+              <button
+                title="Clear joined filter"
+                type="button"
+                className="ml-1 rounded-full p-0.5 hover:bg-primary-foreground"
+                onClick={() => onShowJoinedOnlyChange(false)}
+              >
+                <XCircle className="size-3" />
+              </button>
+            </Badge>
+          )}
           {(searchQuery ||
             selectedCategory !== "All" ||
-            selectedPricingModel !== "All") && (
+            selectedPricingModel !== "All" ||
+            showJoinedOnly) && (
             <Button
               variant="ghost"
               size="sm"
@@ -396,6 +443,7 @@ function CampaignFilters({
                 onSearchChange("")
                 onCategoryChange("All")
                 onPricingModelChange("All")
+                onShowJoinedOnlyChange(false)
               }}
             >
               Clear all
@@ -577,6 +625,7 @@ function CampaignSkeletons({ viewMode }: { viewMode: "grid" | "list" }) {
 function CampaignsContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
+  const { user } = useAuth()
 
   // State from URL or defaults
   const [searchQuery, setSearchQuery] = useState("")
@@ -584,56 +633,97 @@ function CampaignsContent() {
   const [selectedPricingModel, setSelectedPricingModel] = useState("All")
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
   const [sortBy, setSortBy] = useState("recent")
+  const [page, setPage] = useState(1)
+  const [allCampaigns, setAllCampaigns] = useState<ICampaignWithJoinStatus[]>(
+    []
+  )
+  const [showJoinedOnly, setShowJoinedOnly] = useState(false)
 
-  // Sync URL params with state
+  // Get publisher's joined campaigns
+  const { data: publisherCampaignsData } = useGetPublisherCampaigns(
+    user?.id || 0
+  )
+
+  // Memoize joined campaign IDs to prevent unnecessary recalculations
+  const joinedCampaignIds = useMemo(() => {
+    const publisherCampaigns = publisherCampaignsData?.isSuccess
+      ? publisherCampaignsData.value
+      : []
+    const ids = publisherCampaigns
+      .map((publisherCampaign: any) => publisherCampaign.campaignId)
+      .filter(Boolean)
+    return new Set(ids)
+  }, [publisherCampaignsData])
+
+  // Get active campaigns
+  const {
+    data: campaignsData,
+    isLoading,
+    error,
+  } = useGetActiveCampaigns({
+    pageNumber: page,
+    pageSize: 9,
+    category: selectedCategory !== "All" ? selectedCategory : undefined,
+    search: searchQuery || undefined,
+    pricingModel:
+      selectedPricingModel !== "All" ? selectedPricingModel : undefined,
+    sortBy,
+  })
+
+  // Reset campaigns when filters change
   useEffect(() => {
-    const params = new URLSearchParams(searchParams)
-    setSearchQuery(params.get("search") || "")
-    setSelectedCategory(params.get("category") || "All")
-    setSelectedPricingModel(params.get("model") || "All")
-    setViewMode((params.get("view") as "grid" | "list") || "grid")
-    setSortBy(params.get("sort") || "recent")
-  }, [searchParams])
+    setAllCampaigns([])
+    setPage(1)
+  }, [searchQuery, selectedCategory, selectedPricingModel, sortBy])
 
-  // Update URL with state
-  const updateUrlParams = () => {
-    const params = new URLSearchParams()
-
-    if (searchQuery) params.set("search", searchQuery)
-    if (selectedCategory !== "All") params.set("category", selectedCategory)
-    if (selectedPricingModel !== "All")
-      params.set("model", selectedPricingModel)
-    if (viewMode !== "grid") params.set("view", viewMode)
-    if (sortBy !== "recent") params.set("sort", sortBy)
-
-    router.push(`?${params.toString()}`, { scroll: false })
-  }
-
-  // Update URL when filters change
+  // Update allCampaigns when new data arrives
   useEffect(() => {
-    updateUrlParams()
-  }, [searchQuery, selectedCategory, selectedPricingModel, viewMode, sortBy])
-
-  const { data: campaignsData, isLoading, error } = useGetActiveCampaigns()
-  const campaigns: ICampaign[] = campaignsData?.value?.data || []
-
-  // Filter campaigns based on search query and filters
-  const filteredCampaigns = campaigns.filter((campaign: ICampaign) => {
-    const matchesSearch =
-      campaign.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      campaign.description.toLowerCase().includes(searchQuery.toLowerCase())
-
-    const matchesCategory =
-      selectedCategory === "All" || campaign.categoryName === selectedCategory
-
-    const matchesPricingModel =
-      selectedPricingModel === "All" ||
-      campaign.offers.some(
-        (offer) => offer.pricingModel === selectedPricingModel
+    if (campaignsData?.value?.data) {
+      const campaignsWithJoinStatus = campaignsData.value.data.map(
+        (campaign) => {
+          const isJoined = joinedCampaignIds.has(campaign.id)
+          return {
+            ...campaign,
+            isJoined,
+          }
+        }
       )
 
-    return matchesSearch && matchesCategory && matchesPricingModel
-  })
+      if (page === 1) {
+        setAllCampaigns(campaignsWithJoinStatus)
+      } else {
+        setAllCampaigns((prev) => [...prev, ...campaignsWithJoinStatus])
+      }
+    }
+  }, [campaignsData?.value?.data, page, joinedCampaignIds])
+
+  const hasNextPage = campaignsData?.value?.hasNextPage || false
+  const hasPreviousPage = campaignsData?.value?.hasPreviousPage || false
+
+  // Filter campaigns based on search query and filters
+  const filteredCampaigns = allCampaigns.filter(
+    (campaign: ICampaignWithJoinStatus) => {
+      const matchesSearch =
+        campaign.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        campaign.description.toLowerCase().includes(searchQuery.toLowerCase())
+
+      const matchesCategory =
+        selectedCategory === "All" ||
+        campaign.categoryId?.toString() === selectedCategory
+
+      const matchesPricingModel =
+        selectedPricingModel === "All" ||
+        campaign.offers.some(
+          (offer) => offer.pricingModel === selectedPricingModel
+        )
+
+      const matchesJoined = !showJoinedOnly || campaign.isJoined
+
+      return (
+        matchesSearch && matchesCategory && matchesPricingModel && matchesJoined
+      )
+    }
+  )
 
   // Sort campaigns
   const sortedCampaigns = [...filteredCampaigns].sort((a, b) => {
@@ -650,6 +740,12 @@ function CampaignsContent() {
     }
     return 0
   })
+
+  const loadMore = () => {
+    if (hasNextPage) {
+      setPage((prev) => prev + 1)
+    }
+  }
 
   return (
     <div className="space-y-6 p-6">
@@ -669,6 +765,8 @@ function CampaignsContent() {
         onCategoryChange={setSelectedCategory}
         selectedPricingModel={selectedPricingModel}
         onPricingModelChange={setSelectedPricingModel}
+        showJoinedOnly={showJoinedOnly}
+        onShowJoinedOnlyChange={setShowJoinedOnly}
       />
 
       {/* View Controls */}
@@ -681,7 +779,7 @@ function CampaignsContent() {
       />
 
       {/* Campaigns Grid/List */}
-      {isLoading ? (
+      {isLoading && page === 1 ? (
         <CampaignSkeletons viewMode={viewMode} />
       ) : error ? (
         <div className="flex h-[40vh] flex-col items-center justify-center rounded-lg border border-destructive/20 bg-destructive/5 p-6">
@@ -703,28 +801,47 @@ function CampaignsContent() {
         </div>
       ) : filteredCampaigns.length === 0 ? (
         <EmptyState />
-      ) : viewMode === "grid" ? (
-        <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3">
-          {sortedCampaigns.map((campaign) => (
-            <CampaignCard key={campaign.id} campaign={campaign} />
-          ))}
-        </div>
       ) : (
-        <div className="space-y-4">
-          {sortedCampaigns.map((campaign) => (
-            <CampaignListItem key={campaign.id} campaign={campaign} />
-          ))}
-        </div>
-      )}
+        <>
+          {viewMode === "grid" ? (
+            <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3">
+              {sortedCampaigns.map((campaign) => (
+                <CampaignCard key={campaign.id} campaign={campaign} />
+              ))}
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {sortedCampaigns.map((campaign) => (
+                <CampaignListItem key={campaign.id} campaign={campaign} />
+              ))}
+            </div>
+          )}
 
-      {/* Pagination placeholder for future implementation */}
-      {filteredCampaigns.length > 0 && (
-        <div className="flex items-center justify-center pt-6">
-          <Button variant="outline" size="sm" className="gap-1">
-            <span>Load more campaigns</span>
-            <ChevronDown className="size-3.5" />
-          </Button>
-        </div>
+          {/* Load More Button */}
+          {hasNextPage && (
+            <div className="flex items-center justify-center pt-6">
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1"
+                onClick={loadMore}
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <span>Loading...</span>
+                    <ChevronDown className="size-3.5 animate-bounce" />
+                  </>
+                ) : (
+                  <>
+                    <span>Load more campaigns</span>
+                    <ChevronDown className="size-3.5" />
+                  </>
+                )}
+              </Button>
+            </div>
+          )}
+        </>
       )}
     </div>
   )
@@ -738,3 +855,4 @@ export default function PublisherCampaignsPage() {
     </Suspense>
   )
 }
+
