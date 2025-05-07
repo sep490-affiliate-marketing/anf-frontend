@@ -67,7 +67,7 @@ export function AddCreditDialog({ children }: { children: React.ReactNode }) {
                 </Label>
                 <div className="relative">
                   <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                    <DollarSign className="size-4 text-gray-400" />
+                    ₫
                   </div>
                   <Input
                     value={addCreditAmount}
@@ -84,7 +84,7 @@ export function AddCreditDialog({ children }: { children: React.ReactNode }) {
                   />
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Minimum amount: 10 VND
+                  Minimum amount: 10 ₫
                 </p>
                 {error && <p className="text-xs text-destructive">{error}</p>}
               </div>
@@ -121,7 +121,7 @@ export function AddCreditDialog({ children }: { children: React.ReactNode }) {
                   <span className="text-sm text-muted-foreground">
                     Current Balance
                   </span>
-                  <span className="font-medium">0.00 VND</span>
+                  <span className="font-medium">0.00 ₫</span>
                 </div>
                 <div className="flex items-center justify-between border-b border-border/30 pb-3">
                   <span className="text-sm text-muted-foreground">

@@ -150,7 +150,7 @@ export function WithdrawDialog() {
               name="amount"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Amount (VND)</FormLabel>
+                  <FormLabel>Amount (₫)</FormLabel>
                   <FormControl>
                     <Input
                       type="number"
@@ -166,7 +166,7 @@ export function WithdrawDialog() {
                   <FormDescription>
                     {field.value
                       ? `You will receive ${formatVNDCurrency(field.value)}`
-                      : "Enter an amount to withdraw (Min: 50,000 VND, Max: 10,000,000 VND)"}
+                      : "Enter an amount to withdraw (Min: 50,000 ₫, Max: 10,000,000 ₫)"}
                   </FormDescription>
                   <FormMessage />
                 </FormItem>

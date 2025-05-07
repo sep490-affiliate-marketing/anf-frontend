@@ -2,9 +2,12 @@
 
 import { useEffect, useState } from "react"
 
+import { UserRoleEnum } from "@/enums/user-role"
 import { useAuth } from "@/providers/auth-provider"
 import { format } from "date-fns"
 import { ChevronRight, CreditCard, Landmark, Plus, Wallet } from "lucide-react"
+
+import { formatVNDCurrency } from "@/lib/utils"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -226,22 +229,16 @@ export function ProfileSidebar() {
           ) : (
             <>
               <span className="text-3xl font-bold tracking-tight text-gray-900">
-                {user?.balance?.toLocaleString("en-US", {
-                  maximumFractionDigits: 0,
-                  useGrouping: true,
-                }) || "0"}
+                {formatVNDCurrency(user?.balance || 0)}
               </span>
             </>
           )}
         </div>
-        {user && "currentBalance" in user && (
+        {user?.role === UserRoleEnum.ADVERTISER && "currentBalance" in user && (
           <div className="mt-2 rounded-md border border-border/50 bg-background/50 p-2 text-xs text-muted-foreground">
             <div className="flex items-center justify-between">
               <span className="font-medium">
-                {user.currentBalance?.toLocaleString("en-US", {
-                  maximumFractionDigits: 0,
-                  useGrouping: true,
-                }) || "0"}
+                {formatVNDCurrency(user.currentBalance || 0)}
               </span>
               <span>Available</span>
             </div>
