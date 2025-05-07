@@ -27,43 +27,9 @@ export default function TransactionsPage() {
         </div>
       </div>
 
-      {/* Transaction Tabs */}
-      <Tabs defaultValue="transactions" className="w-full">
-        <TabsList className="mb-6 h-auto w-full justify-start rounded-none border-b bg-transparent p-0">
-          <TabsTrigger
-            value="transactions"
-            className="relative gap-2 rounded-none py-2 after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none data-[state=active]:after:bg-primary"
-          >
-            <CreditCard className="size-4" />
-            <span>Transaction History</span>
-          </TabsTrigger>
-          <TabsTrigger
-            value="withdrawRequests"
-            className="relative gap-2 rounded-none py-2 after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none data-[state=active]:after:bg-primary"
-          >
-            <History className="size-4" />
-            <span>Withdraw Requests</span>
-          </TabsTrigger>
-        </TabsList>
-
-        <div className="max-h-full overflow-visible">
-          <TabsContent value="transactions" className="mt-0">
-            <section className="space-y-4">
-              <Suspense fallback={<Spinner />}>
-                <TransactionDataTable />
-              </Suspense>
-            </section>
-          </TabsContent>
-
-          <TabsContent value="withdrawRequests" className="mt-0">
-            <section className="space-y-4">
-              <Suspense fallback={<Spinner />}>
-                <WithdrawRequestsTable />
-              </Suspense>
-            </section>
-          </TabsContent>
-        </div>
-      </Tabs>
+      <Suspense fallback={<Spinner />}>
+        <TransactionDataTable />
+      </Suspense>
     </div>
   )
 }
