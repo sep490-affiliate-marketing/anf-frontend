@@ -542,7 +542,9 @@ export function CampaignDetails({ campaignId }: { campaignId: number }) {
                         0
                       )) *
                       100
-                  ).toFixed(2)}
+                  )
+                    .toFixed(2)
+                    .replace(".", ",")}
                   % used
                 </span>
               </div>

@@ -141,14 +141,14 @@ const OfferList = ({
   }, [fields.length, campaignStartDate, campaignEndDate, form])
 
   const formatNumber = (n: string) => {
-    return n.replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+    return n.replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ".")
   }
 
   const formatCurrency = (inputValue: string, blur?: boolean) => {
     if (inputValue === "") return ""
 
-    if (inputValue.indexOf(".") >= 0) {
-      const [leftSide, originalRightSide] = inputValue.split(".")
+    if (inputValue.indexOf(",") >= 0) {
+      const [leftSide, originalRightSide] = inputValue.split(",")
       const formattedLeftSide = formatNumber(leftSide)
       let rightSide = formatNumber(originalRightSide)
 
@@ -157,11 +157,11 @@ const OfferList = ({
       }
 
       rightSide = rightSide.substring(0, 3)
-      return `${formattedLeftSide}.${rightSide}`
+      return `${formattedLeftSide},${rightSide}`
     } else {
       const formattedNumber = formatNumber(inputValue)
       if (blur) {
-        return `${formattedNumber}.000`
+        return `${formattedNumber},000`
       }
       return formattedNumber
     }
@@ -353,18 +353,18 @@ const OfferList = ({
                         inputMode="decimal"
                         placeholder={
                           form.watch(`offers.${index}.pricingModel`) === "CPS"
-                            ? "0.00"
-                            : "0.00"
+                            ? "0"
+                            : "0,00"
                         }
                         value={value ? formatCurrency(value.toString()) : ""}
                         className="pl-8 pr-3 font-medium"
                         onChange={(e) => {
                           const input = e.target
                           const numericValue = input.value.replace(
-                            /[^\d.]/g,
+                            /[^\d,]/g,
                             ""
                           )
-                          const parts = numericValue.split(".")
+                          const parts = numericValue.split(",")
 
                           if (parts.length > 2) parts.splice(2)
 
@@ -399,15 +399,15 @@ const OfferList = ({
                             parts[1] = parts[1].slice(0, 2)
                           }
 
-                          const finalValue = parts.join(".")
+                          const finalValue = parts.join(",")
                           onChange(finalValue)
                         }}
                         onBlur={(e) => {
                           const input = e.target
                           const numericValue = input.value
-                            .replace(/,/g, "")
-                            .replace(/[^\d.]/g, "")
-                          const parts = numericValue.split(".")
+                            .replace(/\./g, "")
+                            .replace(/[^\d,]/g, "")
+                          const parts = numericValue.split(",")
 
                           if (parts.length > 2) parts.splice(2)
 
@@ -442,7 +442,7 @@ const OfferList = ({
                             parts[1] = parts[1].slice(0, 2)
                           }
 
-                          const finalValue = parts.join(".")
+                          const finalValue = parts.join(",")
                           onChange(finalValue)
                           onBlur()
                         }}
@@ -469,35 +469,35 @@ const OfferList = ({
                         {...field}
                         type="text"
                         inputMode="decimal"
-                        placeholder={formatVNDCurrency(0)}
+                        placeholder="0,00"
                         value={value ? formatCurrency(value.toString()) : ""}
                         onChange={(e) => {
                           const input = e.target
                           const numericValue = input.value.replace(
-                            /[^\d.]/g,
+                            /[^\d,]/g,
                             ""
-                          ) // Remove non-numeric characters except "."
-                          const parts = numericValue.split(".")
-                          if (parts.length > 3) parts.splice(3) // Remove extra dots
+                          ) // Remove non-numeric characters except ","
+                          const parts = numericValue.split(",")
+                          if (parts.length > 3) parts.splice(3) // Remove extra commas
                           if (parts[0].length > 10)
                             parts[0] = parts[0].slice(0, 10) // Max 10 digits before decimal
                           if (parts[1]) parts[1] = parts[1].slice(0, 3) // Max 3 digits after decimal
 
-                          const finalValue = parts.join(".")
+                          const finalValue = parts.join(",")
                           onChange(finalValue)
                         }}
                         onBlur={(e) => {
                           const input = e.target
                           const numericValue = input.value
-                            .replace(/,/g, "")
-                            .replace(/[^\d.]/g, "")
-                          const parts = numericValue.split(".")
-                          if (parts.length > 3) parts.splice(3) // Remove extra dots
+                            .replace(/\./g, "")
+                            .replace(/[^\d,]/g, "")
+                          const parts = numericValue.split(",")
+                          if (parts.length > 3) parts.splice(3) // Remove extra commas
                           if (parts[0].length > 10)
                             parts[0] = parts[0].slice(0, 10) // Max 10 digits before decimal
                           if (parts[1]) parts[1] = parts[1].slice(0, 3) // Max 3 digits after decimal
 
-                          const finalValue = parts.join(".")
+                          const finalValue = parts.join(",")
                           onChange(finalValue)
                           onBlur()
                         }}
@@ -517,13 +517,14 @@ const OfferList = ({
                 render={({ field }) => (
                   <FormItem>
                     <Label className="text-lg font-semibold">
-                      Order Return Time
+                      Order Return Time (Days)
                     </Label>
                     <FormControl>
                       <Input
                         {...field}
-                        type="text"
+                        type="number"
                         placeholder="Enter return time"
+                        className="w-full"
                       />
                     </FormControl>
                     <FormMessage />
@@ -615,3 +616,4 @@ const OfferList = ({
 }
 
 export default OfferList
+
