@@ -177,7 +177,7 @@ export function FraudClicksDialog({
                   <Table className="w-full">
                     <TableHeader className="sticky top-0 z-10 bg-white">
                       <TableRow className="border-b border-gray-200 hover:bg-white">
-                        <TableHead className="w-[200px] py-3 font-medium text-gray-700">
+                        <TableHead className="py-3 font-medium text-gray-700">
                           Date
                         </TableHead>
                         <TableHead className="py-3 font-medium text-gray-700">
