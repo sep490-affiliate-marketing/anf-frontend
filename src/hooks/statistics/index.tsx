@@ -1,6 +1,7 @@
 import { errorMessage } from "@/constant/error-message"
 import {
   adminStatisticsQueryKeys,
+  advertiserStatisticsQueryKeys,
   statisticQueryKeys,
 } from "@/constant/react-query"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
@@ -15,6 +16,8 @@ import {
   IGetAdminCampaignStatisticsResponse,
   IGetAdminTicketStatisticsResponse,
   IGetAdminUserStatisticsResponse,
+  IGetAdvertiserAllCampaignStatisticsResponse,
+  IGetAdvertiserCampaignStatisticsResponse,
   IGetAdvertiserOfferStatisticsErrorResponse,
   IGetAdvertiserOfferStatisticsResponse,
   IGetPublisherOfferStatisticsErrorResponse,
@@ -513,5 +516,63 @@ export const useGetAdminAllTotalStatistics = () => {
         )
       }
     },
+  })
+}
+
+export const useGetCampaignStatsByCampaignId = (
+  campaignId: number,
+  from: string,
+  to: string
+) => {
+  const queryString = qs.stringify({
+    from: from ?? "",
+    to: to ?? "",
+  })
+  return useQuery({
+    queryKey: advertiserStatisticsQueryKeys.statisticsByCampaignId(
+      campaignId,
+      from,
+      to
+    ),
+    queryFn: async () => {
+      try {
+        const { data } =
+          await apiClient.get<IGetAdvertiserCampaignStatisticsResponse>(
+            `/api/affiliate-network/campaigns/${campaignId}/stats?${queryString}`
+          )
+        return data
+      } catch (error) {
+        const errRes = extractApiError(error)
+        throw new Error(
+          errRes?.details ?? "Failed to fetch campaign click statistics"
+        )
+      }
+    },
+    enabled: !!campaignId && !!from && !!to,
+  })
+}
+
+export const useGetAllCampaignStatistics = (from: string, to: string) => {
+  const queryString = qs.stringify({
+    from: from ?? "",
+    to: to ?? "",
+  })
+  return useQuery({
+    queryKey: advertiserStatisticsQueryKeys.allCampaignStatistics(from, to),
+    queryFn: async () => {
+      try {
+        const { data } =
+          await apiClient.get<IGetAdvertiserAllCampaignStatisticsResponse>(
+            `/api/affiliate-network/campaigns/stats?${queryString}`
+          )
+        return data
+      } catch (error) {
+        const errRes = extractApiError(error)
+        throw new Error(
+          errRes?.details ?? "Failed to fetch campaign click statistics"
+        )
+      }
+    },
+    enabled: !!from && !!to,
   })
 }

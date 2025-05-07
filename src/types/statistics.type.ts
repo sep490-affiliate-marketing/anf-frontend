@@ -128,3 +128,37 @@ export interface IGetPublisherRevenueStatistics {
 
 export type IGetPublisherRevenueStatisticsResponse =
   IBackendRes<IGetPublisherRevenueStatistics>
+
+export type IGetAdvertiserCampaignStatisticsResponse = IBackendRes<{
+  date: string
+  campaignClickStats: {
+    campaignId: number
+    totalClick: number
+    totalValidClick: number
+    totalFraudClick: number
+    totalOffer: number
+    totalJoinedPublisher: number
+    totalRejectedPublisher: number
+    totalMobile: number
+    totalComputer: number
+    totalTablet: number
+    budgetSpent: number
+  }[]
+}>
+
+export type IGetAdvertiserAllCampaignStatisticsResponse = IBackendRes<{
+  date: string
+  campaignClickStats: {
+    campaignId: number
+    totalClick: number
+    totalValidClick: number
+    totalFraudClick: number
+    totalOffer: number
+    totalJoinedPublisher: number
+    totalRejectedPublisher: number
+    totalMobile: number
+    totalComputer: number
+    totalTablet: number
+    budgetSpent: number
+  }[]
+}>

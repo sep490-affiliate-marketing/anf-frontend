@@ -89,6 +89,9 @@ export const campaignQueryKeys = {
         campaignId,
       ] as const,
   },
+
+  clickStats: (id: number, from: string, to: string) =>
+    [...campaignQueryKeys.origin, "clickStats", { id, from, to }] as const,
 }
 
 export const offerQueryKeys = {
@@ -241,4 +244,20 @@ export const adminStatisticsQueryKeys = {
       { from, to },
     ] as const,
   allTotal: () => [...adminStatisticsQueryKeys.origin, "allTotal"] as const,
+} as const
+
+export const advertiserStatisticsQueryKeys = {
+  origin: ["advertiserStatistics"] as const,
+  statisticsByCampaignId: (campaignId: number, from: string, to: string) =>
+    [
+      ...advertiserStatisticsQueryKeys.origin,
+      "statistics",
+      { campaignId, from, to },
+    ] as const,
+  allCampaignStatistics: (from: string, to: string) =>
+    [
+      ...advertiserStatisticsQueryKeys.origin,
+      "allCampaignStatistics",
+      { from, to },
+    ] as const,
 } as const
