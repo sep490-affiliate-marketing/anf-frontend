@@ -345,13 +345,13 @@ export default function OfferDetailPage({
                 <PieChart className="size-4" />
                 Overview
               </TabsTrigger>
-              <TabsTrigger
+              {/* <TabsTrigger
                 value="statistics"
                 className="relative gap-2 rounded-none py-2 after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none data-[state=active]:after:bg-primary"
               >
                 <BarChart3 className="size-4" />
                 Statistics
-              </TabsTrigger>
+              </TabsTrigger> */}
               <TabsTrigger
                 value="publishers"
                 className="relative gap-2 rounded-none py-2 after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none data-[state=active]:after:bg-primary"
@@ -359,13 +359,13 @@ export default function OfferDetailPage({
                 <Users className="size-4" />
                 Publishers
               </TabsTrigger>
-              <TabsTrigger
+              {/* <TabsTrigger
                 value="tracking"
                 className="relative gap-2 rounded-none py-2 after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none data-[state=active]:after:bg-primary"
               >
                 <FileCode className="size-4" />
                 Tracking
-              </TabsTrigger>
+              </TabsTrigger> */}
               <TabsTrigger
                 value="postbacks"
                 className="relative gap-2 rounded-none py-2 after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none data-[state=active]:after:bg-primary"
@@ -387,13 +387,23 @@ export default function OfferDetailPage({
                 icon={<></>}
                 description="Total budget allocated"
               />
-              <StatCard
-                title="Bid Amount"
-                value={formatVNDCurrency(offerResData.bid)}
-                //icon={<DollarSign className="size-4 text-gray-400" />}
-                icon={<></>}
-                description={`Per ${offerResData.pricingModel} payout`}
-              />
+              {offerResData.pricingModel === "CPS" ? (
+                <StatCard
+                  title="Commission"
+                  value={`${offerResData.commissionRate}%`}
+                  //icon={<DollarSign className="size-4 text-gray-400" />}
+                  icon={<></>}
+                  description={`Per ${offerResData.pricingModel} payout`}
+                />
+              ) : (
+                <StatCard
+                  title="Bid Amount"
+                  value={formatVNDCurrency(offerResData.bid)}
+                  //icon={<DollarSign className="size-4 text-gray-400" />}
+                  icon={<></>}
+                  description={`Per ${offerResData.pricingModel} payout`}
+                />
+              )}
               <StatCard
                 title="Campaign ID"
                 value={offerResData.campaignId}

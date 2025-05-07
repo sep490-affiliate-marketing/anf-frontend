@@ -10,31 +10,31 @@ export interface IOffer {
   endDate: string
   bid: number
   budget: number
-  commissionRate: null
-  orderReturnTime: null
-  imageUrl: null
+  commissionRate: number
+  orderReturnTime: number
+  imageUrl: string
   status: OfferStatusEnum
-  rejectedReason: null
+  rejectedReason: string
   pubOfferStatus: number
   campaign: null
 }
 
 export interface IGetOfferResponse {
-  id: number,
-  campaignId: number,
-  pricingModel: string,
-  description: string,
-  stepInfo: string,
-  startDate: string,
-  endDate: string,
-  bid: number,
-  budget: number,
-  commissionRate: number,
-  orderReturnTime: number,
-  imageUrl: string,
-  status: string,
-  rejectedReason: string,
-  pubOfferStatus: number,
+  id: number
+  campaignId: number
+  pricingModel: string
+  description: string
+  stepInfo: string
+  startDate: string
+  endDate: string
+  bid: number
+  budget: number
+  commissionRate: number
+  orderReturnTime: number
+  imageUrl: string
+  status: string
+  rejectedReason: string
+  pubOfferStatus: number
   //"campaign": Campa
 }
 
