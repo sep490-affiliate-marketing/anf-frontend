@@ -284,7 +284,7 @@ export function FraudClicksDialog({
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between border-t border-gray-100 bg-gray-50 px-4 py-2 text-xs text-gray-500">
+                  {/* <div className="flex items-center justify-between border-t border-gray-100 bg-gray-50 px-4 py-2 text-xs text-gray-500">
                     <div>
                       Showing {(page - 1) * limit + 1}-
                       {Math.min(page * limit, totalFrauds)} of {totalFrauds}{" "}
@@ -293,7 +293,7 @@ export function FraudClicksDialog({
                     <div>
                       Page {page} of {totalPages || 1}
                     </div>
-                  </div>
+                  </div> */}
                 </div>
               </div>
             )}
