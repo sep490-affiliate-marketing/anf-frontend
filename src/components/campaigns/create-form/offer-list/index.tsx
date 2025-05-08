@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 
 import { PRICE_MODAL } from "@/constant/campaign"
+import { useAuth } from "@/providers/auth-provider"
 import { ICreateCampaignForm } from "@/validations/campaign.validation"
 import { Check, ChevronsUpDown, DollarSign, Trash2Icon } from "lucide-react"
 import { DateRange } from "react-day-picker"
@@ -57,6 +58,7 @@ const OfferList = ({
     name: "offers",
   })
 
+  const { user } = useAuth()
   const [isPriceModalOpen, setIsPriceModalOpen] = useState<
     Record<number, boolean>
   >({})
@@ -450,7 +452,11 @@ const OfferList = ({
                     </div>
                   </FormControl>
                   <FormMessage />
-                  <FormDescription>Minimum bid amount is 300 ₫</FormDescription>
+                  {form.watch(`offers.${index}.pricingModel`) === "CPC" && (
+                    <FormDescription>
+                      Minimum bid amount is 300 ₫
+                    </FormDescription>
+                  )}
                 </FormItem>
               )}
             />
@@ -507,6 +513,11 @@ const OfferList = ({
                     </div>
                   </FormControl>
                   <FormMessage />
+                  <FormDescription>
+                    {typeof user?.currentBalance === "number"
+                      ? `Available balance: ₫${formatCurrency(user.currentBalance.toString())}`
+                      : ""}
+                  </FormDescription>
                 </FormItem>
               )}
             />
@@ -617,3 +628,4 @@ const OfferList = ({
 }
 
 export default OfferList
+
