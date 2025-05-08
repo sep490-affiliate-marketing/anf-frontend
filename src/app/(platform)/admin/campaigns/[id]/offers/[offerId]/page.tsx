@@ -4,6 +4,7 @@ import React, { useState } from "react"
 
 import Link from "next/link"
 
+import { env } from "@/env"
 import { format } from "date-fns"
 import { vi } from "date-fns/locale"
 import {
@@ -52,8 +53,11 @@ const placeholderStats = {
   clicks: 0,
   conversions: 0,
   conversionRate: 0,
-  trackingUrl:
-    "https://backend.affiliate-network.com/tracking?aff_id={affiliate_id}&source={source}",
+  trackingUrl: (offerId: string) =>
+    env.NEXT_PUBLIC_BACKEND_URL +
+    "/api/affiliate-network/tracking?offerId=" +
+    offerId +
+    "&publisherCode={publisherCode}",
 }
 
 function StatCard({
@@ -342,15 +346,14 @@ export default function OfferDetailPage({
                   <h3 className="font-medium text-gray-900">Tracking URL</h3>
                   <div className="flex items-center justify-between rounded-lg bg-gray-50 p-3 font-mono text-sm text-gray-600">
                     <code className="break-all">
-                      {placeholderStats.trackingUrl}
+                      {placeholderStats.trackingUrl(offerId)}
                     </code>
                     <Button variant="ghost" size="sm" className="size-8 p-0">
                       <Copy className="size-4" />
                     </Button>
                   </div>
                   <p className="text-xs text-gray-500">
-                    Replace {"{affiliate_id}"} with your affiliate ID and{" "}
-                    {"{source}"} with your traffic source.
+                    Replace {"{publisherCode}"} with your publisher code.
                   </p>
                 </div>
               </CardContent>
@@ -442,7 +445,7 @@ export default function OfferDetailPage({
                       Implementation Instructions
                     </h3>
                     <ol className="ml-4 list-decimal space-y-2 text-sm text-gray-600">
-                      <li>Copy the tracking URL with your affiliate ID</li>
+                      <li>Copy the tracking URL with your publisher code</li>
                       <li>Place it in your promotional materials</li>
                       <li>Test the link to ensure proper tracking</li>
                       <li>Monitor your statistics to measure performance</li>
